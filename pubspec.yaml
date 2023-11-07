@@ -1,5 +1,5 @@
 name: internet_praktikum
-description: A new Flutter project.
+description: A coloaborative Travel App
 
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
@@ -37,6 +37,10 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
   firebase_core: ^2.21.0
+  provider: ^6.0.5
+  firebase_auth: ^4.12.1
+  cloud_firestore: ^4.12.2
+  firebase_database: ^10.3.3
 
 dev_dependencies:
   flutter_test:
