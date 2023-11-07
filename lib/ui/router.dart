@@ -1,4 +1,10 @@
-import '';
+//import 'package:flutter/cupertino.dart';
+
+import 'package:flutter/material.dart';
+
+import 'Pages/HomeView.dart';
+import 'Pages/LoginView.dart';
+import 'Pages/PostView.dart';
 class Router {
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
