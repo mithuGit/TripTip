@@ -1,0 +1,285 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
+import 'package:modern_login/components/my_button.dart';
+import 'package:modern_login/components/my_textfield.dart';
+import 'package:modern_login/components/square_tile.dart';
+import 'package:modern_login/services/auth_service.dart';
+import 'package:modern_login/Resetpassword/OTP_form.dart';
+import 'package:modern_login/components/my_textfield_icon.dart';
+
+class LoginPage extends StatefulWidget {
+  final Function()? onTap;
+
+  const LoginPage({super.key, required this.onTap});
+
+  @override
+  State<LoginPage> createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
+  // text editing controllers
+  final emailController = TextEditingController();
+  final passwordforgotController = TextEditingController();
+  final passwordController = TextEditingController();
+
+  // sign user in method
+  void signUserIn() async {
+    // show loading circle
+    showDialog(
+      context: context,
+      builder: (context) {
+        return const Center(
+          child: CircularProgressIndicator(),
+        );
+      },
+    );
+
+    // try sign in
+    try {
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: emailController.text,
+        password: passwordController.text,
+      );
+      // pop the loading circle
+      Navigator.pop(context);
+    } on FirebaseAuthException catch (e) {
+      // pop the loading circle
+      Navigator.pop(context);
+      // Wrong email
+      /*
+      if (e.code == 'user-not-found') {
+        //print('No user found for that email.');
+        showErrorMEssage('Wrong Email');
+      }
+      // Wrong password
+      else if (e.code == 'wrong-password') {
+        //print('Wrong password provided for this email.');
+        wrongPasswordMessage('Wrong Password');
+      }
+      */
+      showErrorMEssage(e.code);
+    }
+  }
+
+  //error messsage to user
+  void showErrorMEssage(String message) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: Colors.deepPurple,
+          title: Center(
+            child: Text(
+              message,
+              style: const TextStyle(color: Colors.white),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.grey[300],
+      body: SafeArea(
+        child: Center(
+          child: SingleChildScrollView(
+            child:
+                Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+              const SizedBox(height: 50),
+              const Icon(
+                Icons.lock,
+                size: 100,
+              ),
+              const SizedBox(height: 50),
+              Text(
+                'Welcome back you \'ve been missed!',
+                style: TextStyle(
+                  color: Colors.grey[700],
+                  fontSize: 16,
+                ),
+              ),
+              const SizedBox(height: 25),
+              MyTextField(
+                  controller: emailController,
+                  hintText: 'Email',
+                  obscureText: false),
+              const SizedBox(height: 10),
+              MyTextField(
+                  controller: passwordController,
+                  hintText: 'Password',
+                  obscureText: true),
+              const SizedBox(height: 10),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 25.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: resetpassword(context),
+                ),
+              ),
+              const SizedBox(height: 25),
+              MyButton(
+                text: 'Sign In',
+                onTap: signUserIn,
+              ),
+              const SizedBox(height: 50),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 25.0),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Divider(
+                        thickness: 0.5,
+                        color: Colors.grey[400],
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                      child: Text(
+                        'Or continue with',
+                        style: TextStyle(
+                          color: Colors.grey[700],
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      child: Divider(
+                        thickness: 0.5,
+                        color: Colors.grey[400],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 50),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SquareTile(
+                      onTap: () => AuthService().signInWithGoogle(),
+                      imagePath:
+                          '/Users/mithu/Projects/Apps/modern_login/lib/images/google-logo.png'),
+                  const SizedBox(width: 25),
+                  SquareTile(
+                      onTap: () {},
+                      imagePath:
+                          '/Users/mithu/Projects/Apps/modern_login/lib/images/meta-logo.png')
+                ],
+              ),
+              const SizedBox(
+                height: 50,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'Not a member?',
+                    style: TextStyle(color: Colors.grey[700]),
+                  ),
+                  const SizedBox(
+                    width: 4,
+                  ),
+                  GestureDetector(
+                    onTap: widget.onTap,
+                    child: const Text(
+                      'Register now',
+                      style: TextStyle(
+                          color: Colors.blue, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ],
+              )
+            ]),
+          ),
+        ),
+      ),
+    );
+  }
+
+ List<Widget> resetpassword(BuildContext context) {
+  return [
+    GestureDetector(
+      onTap: () {
+        showModalBottomSheet(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          context: context,
+          builder: (BuildContext context) {
+            return Container(
+              decoration: const BoxDecoration(
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(100),
+                  topRight: Radius.circular(100),
+                ),
+              ),
+              padding: EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  const Text(
+                    'Forgot Password?',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(height: 10),
+                  const Text(
+                    'Enter your email to reset your password:',
+                    style: TextStyle(
+                      fontSize: 16,
+                    ),
+                  ),
+                  SizedBox(height: 10),
+                  MyTextFieldicon(
+                    controller: passwordforgotController,
+                    hintText: 'Email',
+                    obscureText: false,
+                    icon:Icons.email_outlined,
+                  ),
+                  SizedBox(height: 20),
+                  MyButton(
+                    text: 'Next',
+                    onTap: () {
+                      String emailToCheck = passwordforgotController.text;
+                      if (isValidEmail(emailToCheck)) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => OTPForm()),
+                        );
+                      }else{
+                       isValidEmail(passwordforgotController.text) ?  Colors.white : Colors.red;
+                       
+                      //hier fehlt noch was 
+                      }
+                    },
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+      child: const Text(
+        'Forgot Password?',
+        style: TextStyle(
+          color: Colors.blue,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    ),
+  ];
+}
+
+  
+  bool isValidEmail(String email) {
+ String emailRegex =
+      r'^[\w-]+(\.[\w-]+)*@([a-z\d-]+(\.[a-z\d-]+)*?\.[a-z]{2,6}|(\d{1,3}\.){3}\d{1,3})$';
+  RegExp regex = RegExp(emailRegex);
+  return regex.hasMatch(email);
+
+  }
+}
