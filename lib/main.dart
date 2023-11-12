@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:internet_praktikum/ui/views/login_register_pages/auth_page.dart';
 import 'package:provider/provider.dart';
 import 'firebase_options.dart';
 
@@ -15,16 +16,11 @@ class Main extends StatelessWidget {
   const Main({super.key});
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
-      providers: [
-        ChangeNotifierProvider(builder: (_) => locator<CRUDModel>()),
-      ],
-      child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        initialRoute: '/',
-        title: 'Product App',
-        theme: ThemeData(),
-        onGenerateRoute: Router.generateRoute,
-      ),
+    return const MaterialApp(
+      debugShowCheckedModeBanner: false,
+      initialRoute: '/',
+      title: 'Product App',
+      home: AuthPage(),
     );
+  }
 }

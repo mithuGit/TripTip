@@ -161,12 +161,12 @@ class _LoginPageState extends State<LoginPage> {
                   SquareTile(
                       onTap: () => AuthService().signInWithGoogle(),
                       imagePath:
-                          '/Users/mithu/Projects/Apps/modern_login/lib/images/google-logo.png'),
+                          'assets/google_logo.jpg'),
                   const SizedBox(width: 25),
                   SquareTile(
                       onTap: () {},
                       imagePath:
-                          '/Users/mithu/Projects/Apps/modern_login/lib/images/meta-logo.png')
+                          'assets/meta_logo.png')
                 ],
               ),
               const SizedBox(
