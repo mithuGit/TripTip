@@ -1,11 +1,12 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:modern_login/components/my_button.dart';
-import 'package:modern_login/components/my_textfield.dart';
-import 'package:modern_login/components/square_tile.dart';
-import 'package:modern_login/services/auth_service.dart';
-import 'package:modern_login/Resetpassword/OTP_form.dart';
-import 'package:modern_login/components/my_textfield_icon.dart';
+
+import '../../../core/services/auth_service.dart';
+import '../../widgets/my_button.dart';
+import '../../widgets/my_textfield.dart';
+import '../../widgets/my_textfield_icon.dart';
+import '../../widgets/square_tile.dart';
+import '../Resetpassword/OTP_form.dart';
 
 class LoginPage extends StatefulWidget {
   final Function()? onTap;

@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+
+import '../../widgets/profile_menu.dart';
+import '../login_register_pages/login_or_register_page.dart';
+import 'edit_profile_page.dart';
 //import 'package:modern_login/components/my_button.dart';
-import 'package:modern_login/components/profile_menu.dart';
-import 'package:modern_login/login_register_pages/login_or_register_page.dart';
-import 'package:modern_login/profile_pages/edit_profile_page.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({Key? key}) : super(key: key);

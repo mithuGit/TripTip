@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:modern_login/components/my_button.dart';
-import 'package:modern_login/components/my_textfield.dart';
-import 'package:modern_login/profile_pages/profile_page.dart';
-//import 'package:modern_login/components/my_textfield_editpers.dart';
-//import 'package:modern_login/components/my_textfield_editphone.dart';
-import 'package:modern_login/components/my_textfield_icon.dart';
+import 'package:internet_praktikum/ui/views/profile_pages/profile_page.dart';
+
+import '../../widgets/my_textfield_icon.dart';
+
 
 class EditProfilePage extends StatelessWidget {
   const EditProfilePage({super.key});
