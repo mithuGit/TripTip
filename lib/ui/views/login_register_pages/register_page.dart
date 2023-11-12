@@ -24,8 +24,6 @@ class _RegisterPageState extends State<RegisterPage> {
 
   final confirmPasswordController = TextEditingController();
 
-  
-
   // sign user up method
   void signUserUp() async {
     // show loading circle
@@ -38,14 +36,14 @@ class _RegisterPageState extends State<RegisterPage> {
       },
     );
 
-    // try sign up (try creating the user) 
+    // try sign up (try creating the user)
     try {
       // check if passwords match
       if (passwordController.text == confirmPasswordController.text) {
-          await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        await FirebaseAuth.instance.createUserWithEmailAndPassword(
           email: emailController.text,
           password: passwordController.text,
-          );
+        );
       } else {
         // show error message
         showErrorMEssage('Passwords do not match!');
@@ -132,7 +130,6 @@ class _RegisterPageState extends State<RegisterPage> {
                   hintText: 'Confirm Password',
                   obscureText: true),
 
-
               const SizedBox(height: 25),
               //MyButton(
               //  text: 'Sign Up',
@@ -140,20 +137,10 @@ class _RegisterPageState extends State<RegisterPage> {
               //),
 
               MyButton(
-              onTap: (){
-                if(passwordController.text == confirmPasswordController.text){
-                // das war davor   signUserUp();
-                Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => OTPForm()),
-                );
-                }
-                else{
-                showErrorMEssage('Password does not match');
-                }
-              },
-              text: 'Sign Up'),
-              
+                  onTap: () {
+                    signUserUp();
+                  },
+                  text: 'Sign Up'),
 
               const SizedBox(height: 50),
               Padding(
@@ -185,16 +172,14 @@ class _RegisterPageState extends State<RegisterPage> {
                 ),
               ),
               const SizedBox(height: 50),
-               Row(
+              Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   SquareTile(
-                    onTap: () => AuthService().signInWithGoogle(),
-                    imagePath:'assets/google_logo.jpg'),
+                      onTap: () => AuthService().signInWithGoogle(),
+                      imagePath: 'assets/google_logo.jpg'),
                   const SizedBox(width: 25),
-                  SquareTile(
-                    onTap: () {},
-                    imagePath:'assets/meta_logo.png')
+                  SquareTile(onTap: () {}, imagePath: 'assets/meta_logo.png')
                 ],
               ),
               const SizedBox(

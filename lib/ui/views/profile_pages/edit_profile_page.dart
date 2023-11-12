@@ -39,7 +39,7 @@ class EditProfilePage extends StatelessWidget {
                       borderRadius: BorderRadius.circular(100),
                       child: const Image(
                           image: AssetImage(
-                              '/Users/mithu/Projects/Apps/modern_login/lib/images/google-logo.png'))),
+                              'assets/google_logo.jpg'))),
                 ),
                 Positioned(
                   bottom: 0,
