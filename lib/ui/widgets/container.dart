@@ -34,7 +34,7 @@ class CustomContainer extends StatelessWidget {
                 decoration: InputDecoration(
                   hintText: title,
                   hintStyle: TextStyle(
-                    color: color == null ? Colors.white : color,
+                    color: color ?? Colors.white,
                     fontSize: fontSize,
                   ),
                   border: InputBorder.none,

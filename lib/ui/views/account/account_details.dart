@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../../widgets/container.dart';
+import '../../widgets/inputfield.dart';
 
 class Account extends StatefulWidget {
   const Account({super.key});
@@ -10,6 +11,8 @@ class Account extends StatefulWidget {
 }
 
 class _AccountState extends State<Account> {
+  //Controller for text
+  final prenameController = TextEditingController();
   @override
   Widget build(BuildContext context) {
     // Get Screen Size
@@ -36,6 +39,20 @@ class _AccountState extends State<Account> {
                 child: CustomContainer(
                   title: "Account Details:",
                   fontSize: 35,
+                ),
+              ),
+              Center(
+                child: InputField(
+                  controller: prenameController,
+                  hintText: 'Prename',
+                  obscureText: false,
+                ),
+              ),
+              Center(
+                child: InputField(
+                  controller: prenameController,
+                  hintText: 'Prename',
+                  obscureText: false,
                 ),
               ),
             ],
