@@ -19,7 +19,7 @@ class Main extends StatelessWidget {
     return const MaterialApp(
       debugShowCheckedModeBanner: false,
       initialRoute: '/',
-      title: 'Product App',
+      title: 'Product App ',
       home: AuthPage(),
     );
   }
