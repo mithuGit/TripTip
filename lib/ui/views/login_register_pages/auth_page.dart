@@ -20,9 +20,6 @@ class AuthPage extends StatelessWidget {
             if (snapshot.hasData) {
               return   ProfilePage();; // davor war hier HomePage()   //const ProfilePage(); FETTER BUG FIX man muss oft Sign In
             }
-            if (snapshot.hasError){
-              return const Text("here is Buggy");
-            }
             else {
               return const LoginOrRegisterPage();
             }
