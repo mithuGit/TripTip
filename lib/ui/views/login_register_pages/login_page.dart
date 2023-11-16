@@ -94,8 +94,17 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[300],
-      body: SafeArea(
+      backgroundColor: const Color.fromARGB(255, 168, 217, 251),
+      body: Container(
+        decoration: const BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage('assets/background_city.png'), // Passe den Pfad zu deinem Hintergrundbild an
+            alignment: Alignment.center,
+            fit: BoxFit.fill,
+          ),
+      ),
+
+      child: SafeArea(
         child: Center(
           child: SingleChildScrollView(
             child:
@@ -203,6 +212,7 @@ class _LoginPageState extends State<LoginPage> {
           ),
         ),
       ),
+    ),
     );
   }
 
