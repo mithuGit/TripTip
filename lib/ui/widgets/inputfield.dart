@@ -1,6 +1,6 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
+
+import '../styles/Styles.dart';
 
 class InputField extends StatelessWidget {
   final String hintText;
@@ -20,8 +20,8 @@ class InputField extends StatelessWidget {
     double screenWidth = screenSize.width;
 
     return Container(
-      width: screenWidth * 0.814,
-      height: screenHeight * 0.45,
+     // width: screenWidth * 0.814,
+      //height: screenHeight * 0.45,
       child: TextField(
         controller: controller,
         obscureText: obscureText,
@@ -37,6 +37,7 @@ class InputField extends StatelessWidget {
           fillColor: Colors.white,
           filled: true,
           hintText: hintText,
+          hintStyle: Styles.textfieldHintStyle
         ),
       ),
     );

@@ -31,8 +31,8 @@ class _AccountState extends State<Account> {
                 alignment: Alignment.bottomCenter,
                 child: SvgPicture.asset(
                   'assets/background_city.svg',
-                  height: double.infinity,
-                  width: double.infinity,
+                  height: screenHeight,
+                  width: screenWidth,
                 ),
               ),
               Center(
