@@ -23,6 +23,8 @@ class _LoginPageState extends State<LoginPage> {
   final passwordforgotController = TextEditingController();
   final passwordController = TextEditingController();
 
+  var counter = 0;
+
   // sign user in method
   void signUserIn() async {
     // show loading circle
@@ -58,12 +60,21 @@ class _LoginPageState extends State<LoginPage> {
         wrongPasswordMessage('Wrong Password');
       }
       */
-      showErrorMEssage(e.code);
+      showErrorMessage(e.code);
     }
   }
 
   //error messsage to user
-  void showErrorMEssage(String message) {
+  void showErrorMessage(String message) {
+    counter++;
+    // Wenn Counter gleich 3 ist, wird eigentlich hier Capcha aufgerufen
+    if (counter == 3) {
+      counter = 0;
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => OTPForm()),
+      );
+    }
     showDialog(
       context: context,
       builder: (context) {
@@ -114,7 +125,7 @@ class _LoginPageState extends State<LoginPage> {
                   obscureText: true),
               const SizedBox(height: 10),
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: 25.0),
+                padding: const EdgeInsets.symmetric(horizontal: 25.0),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: resetpassword(context),
@@ -160,13 +171,9 @@ class _LoginPageState extends State<LoginPage> {
                 children: [
                   SquareTile(
                       onTap: () => AuthService().signInWithGoogle(),
-                      imagePath:
-                          'assets/google_logo.jpg'),
+                      imagePath: 'assets/google_logo.jpg'),
                   const SizedBox(width: 25),
-                  SquareTile(
-                      onTap: () {},
-                      imagePath:
-                          'assets/meta_logo.png')
+                  SquareTile(onTap: () {}, imagePath: 'assets/meta_logo.png')
                 ],
               ),
               const SizedBox(
@@ -199,88 +206,88 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
- List<Widget> resetpassword(BuildContext context) {
-  return [
-    GestureDetector(
-      onTap: () {
-        showModalBottomSheet(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          context: context,
-          builder: (BuildContext context) {
-            return Container(
-              decoration: const BoxDecoration(
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(100),
-                  topRight: Radius.circular(100),
+  List<Widget> resetpassword(BuildContext context) {
+    return [
+      GestureDetector(
+        onTap: () {
+          showModalBottomSheet(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
+            context: context,
+            builder: (BuildContext context) {
+              return Container(
+                decoration: const BoxDecoration(
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(100),
+                    topRight: Radius.circular(100),
+                  ),
                 ),
-              ),
-              padding: EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  const Text(
-                    'Forgot Password?',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
+                padding: EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    const Text(
+                      'Forgot Password?',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                  ),
-                  SizedBox(height: 10),
-                  const Text(
-                    'Enter your email to reset your password:',
-                    style: TextStyle(
-                      fontSize: 16,
+                    SizedBox(height: 10),
+                    const Text(
+                      'Enter your email to reset your password:',
+                      style: TextStyle(
+                        fontSize: 16,
+                      ),
                     ),
-                  ),
-                  SizedBox(height: 10),
-                  MyTextFieldicon(
-                    controller: passwordforgotController,
-                    hintText: 'Email',
-                    obscureText: false,
-                    icon:Icons.email_outlined,
-                  ),
-                  SizedBox(height: 20),
-                  MyButton(
-                    text: 'Next',
-                    onTap: () {
-                      String emailToCheck = passwordforgotController.text;
-                      if (isValidEmail(emailToCheck)) {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => OTPForm()),
-                        );
-                      }else{
-                       isValidEmail(passwordforgotController.text) ?  Colors.white : Colors.red;
-                       
-                      //hier fehlt noch was 
-                      }
-                    },
-                  ),
-                ],
-              ),
-            );
-          },
-        );
-      },
-      child: const Text(
-        'Forgot Password?',
-        style: TextStyle(
-          color: Colors.blue,
-          fontWeight: FontWeight.bold,
+                    SizedBox(height: 10),
+                    MyTextFieldicon(
+                      controller: passwordforgotController,
+                      hintText: 'Email',
+                      obscureText: false,
+                      icon: Icons.email_outlined,
+                    ),
+                    SizedBox(height: 20),
+                    MyButton(
+                      text: 'Next',
+                      onTap: () {
+                        String emailToCheck = passwordforgotController.text;
+                        if (isValidEmail(emailToCheck)) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => OTPForm()),
+                          );
+                        } else {
+                          isValidEmail(passwordforgotController.text)
+                              ? Colors.white
+                              : Colors.red;
+
+                          //hier fehlt noch was
+                        }
+                      },
+                    ),
+                  ],
+                ),
+              );
+            },
+          );
+        },
+        child: const Text(
+          'Forgot Password?',
+          style: TextStyle(
+            color: Colors.blue,
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ),
-    ),
-  ];
-}
+    ];
+  }
 
-  
   bool isValidEmail(String email) {
- String emailRegex =
-      r'^[\w-]+(\.[\w-]+)*@([a-z\d-]+(\.[a-z\d-]+)*?\.[a-z]{2,6}|(\d{1,3}\.){3}\d{1,3})$';
-  RegExp regex = RegExp(emailRegex);
-  return regex.hasMatch(email);
-
+    String emailRegex =
+        r'^[\w-]+(\.[\w-]+)*@([a-z\d-]+(\.[a-z\d-]+)*?\.[a-z]{2,6}|(\d{1,3}\.){3}\d{1,3})$';
+    RegExp regex = RegExp(emailRegex);
+    return regex.hasMatch(email);
   }
 }

@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import '../../widgets/profile_menu.dart';
@@ -6,7 +7,15 @@ import 'edit_profile_page.dart';
 //import 'package:modern_login/components/my_button.dart';
 
 class ProfilePage extends StatelessWidget {
-  const ProfilePage({Key? key}) : super(key: key);
+  ProfilePage({Key? key}) : super(key: key);
+
+  final auth = FirebaseAuth.instance;
+
+  signOut(BuildContext context) async {
+    await auth.signOut();
+    Navigator.pushReplacement(
+        context, MaterialPageRoute(builder: (context) => const LoginOrRegisterPage()));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -135,13 +144,8 @@ class ProfilePage extends StatelessWidget {
                       icon: Icons.logout,
                       textColor: false,
                       onPress: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const LoginOrRegisterPage(),
-                              ),
-                            );
-                          },
+                        signOut(context);
+                      },
                       endIcon: false),
                 ],
               )
