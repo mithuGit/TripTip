@@ -114,7 +114,7 @@ class _LoginPageState extends State<LoginPage> {
                   obscureText: true),
               const SizedBox(height: 10),
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: 25.0),
+                padding: const EdgeInsets.symmetric(horizontal: 25.0),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: resetpassword(context),
@@ -216,7 +216,7 @@ class _LoginPageState extends State<LoginPage> {
                   topRight: Radius.circular(100),
                 ),
               ),
-              padding: EdgeInsets.all(16.0),
+              padding: const EdgeInsets.all(16.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
@@ -227,21 +227,21 @@ class _LoginPageState extends State<LoginPage> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  SizedBox(height: 10),
+                  const SizedBox(height: 10),
                   const Text(
                     'Enter your email to reset your password:',
                     style: TextStyle(
                       fontSize: 16,
                     ),
                   ),
-                  SizedBox(height: 10),
+                  const SizedBox(height: 10),
                   MyTextFieldicon(
                     controller: passwordforgotController,
                     hintText: 'Email',
                     obscureText: false,
                     icon:Icons.email_outlined,
                   ),
-                  SizedBox(height: 20),
+                  const SizedBox(height: 20),
                   MyButton(
                     text: 'Next',
                     onTap: () {
@@ -249,7 +249,7 @@ class _LoginPageState extends State<LoginPage> {
                       if (isValidEmail(emailToCheck)) {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => OTPForm()),
+                          MaterialPageRoute(builder: (context) => const OTPForm()),
                         );
                       }else{
                        isValidEmail(passwordforgotController.text) ?  Colors.white : Colors.red;

@@ -1,4 +1,3 @@
-import 'dart:ui';
 
 import 'package:flutter/material.dart';
 
@@ -19,7 +18,7 @@ class InputField extends StatelessWidget {
     double screenHeight = screenSize.height;
     double screenWidth = screenSize.width;
 
-    return Container(
+    return SizedBox(
       width: screenWidth * 0.814,
       height: screenHeight * 0.45,
       child: TextField(
@@ -27,7 +26,7 @@ class InputField extends StatelessWidget {
         obscureText: obscureText,
         decoration: InputDecoration(
           enabledBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.white),
+            borderSide: const BorderSide(color: Colors.white),
             borderRadius: BorderRadius.circular(11.0),
           ),
           focusedBorder: OutlineInputBorder(

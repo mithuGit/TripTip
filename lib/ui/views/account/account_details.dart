@@ -35,7 +35,7 @@ class _AccountState extends State<Account> {
                   width: double.infinity,
                 ),
               ),
-              Center(
+              const Center(
                 child: CustomContainer(
                   title: "Account Details:",
                   fontSize: 35,

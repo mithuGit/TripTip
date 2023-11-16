@@ -1,4 +1,3 @@
-import 'dart:ui';
 
 import 'package:flutter/material.dart';
 
@@ -7,7 +6,7 @@ class CustomContainer extends StatelessWidget {
   final double fontSize;
   final Color? color;
 
-  CustomContainer({required this.title, required this.fontSize, this.color});
+  const CustomContainer({super.key, required this.title, required this.fontSize, this.color});
 
   @override
   Widget build(BuildContext context) {

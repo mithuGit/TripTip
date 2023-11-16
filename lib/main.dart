@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:internet_praktikum/ui/views/login_register_pages/auth_page.dart';
 import 'package:internet_praktikum/ui/views/account/account_details.dart';
-import 'package:provider/provider.dart';
 import 'firebase_options.dart';
 
 void main() async {
