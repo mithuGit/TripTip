@@ -1,12 +1,11 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-
+import 'package:internet_praktikum/ui/widgets/my_button.dart';
 import '../../../core/services/auth_service.dart';
-import '../../widgets/my_button.dart';
 import '../../widgets/my_textfield.dart';
 import '../../widgets/my_textfield_icon.dart';
-import '../../widgets/square_tile.dart';
 import '../Resetpassword/OTP_form.dart';
+import 'package:dotted_line/dotted_line.dart';
 
 class LoginPage extends StatefulWidget {
   final Function()? onTap;
@@ -22,6 +21,8 @@ class _LoginPageState extends State<LoginPage> {
   final emailController = TextEditingController();
   final passwordforgotController = TextEditingController();
   final passwordController = TextEditingController();
+
+  var counter = 0;
 
   // sign user in method
   void signUserIn() async {
@@ -58,12 +59,21 @@ class _LoginPageState extends State<LoginPage> {
         wrongPasswordMessage('Wrong Password');
       }
       */
-      showErrorMEssage(e.code);
+      showErrorMessage(e.code);
     }
   }
 
   //error messsage to user
-  void showErrorMEssage(String message) {
+  void showErrorMessage(String message) {
+    counter++;
+    // Wenn Counter gleich 3 ist, wird eigentlich hier Capcha aufgerufen
+    if (counter == 3) {
+      counter = 0;
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => OTPForm()),
+      );
+    }
     showDialog(
       context: context,
       builder: (context) {
@@ -83,8 +93,17 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[300],
-      body: SafeArea(
+      backgroundColor: const Color.fromARGB(255, 168, 217, 251),
+      body: Container(
+        decoration: const BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage('assets/background_city.png'), // Passe den Pfad zu deinem Hintergrundbild an
+            alignment: Alignment.center,
+            fit: BoxFit.fill,
+          ),
+      ),
+
+      child: SafeArea(
         child: Center(
           child: SingleChildScrollView(
             child:
@@ -95,10 +114,10 @@ class _LoginPageState extends State<LoginPage> {
                 size: 100,
               ),
               const SizedBox(height: 50),
-              Text(
+              const Text(
                 'Welcome back you \'ve been missed!',
                 style: TextStyle(
-                  color: Colors.grey[700],
+                  color: Colors.white,
                   fontSize: 16,
                 ),
               ),
@@ -114,7 +133,7 @@ class _LoginPageState extends State<LoginPage> {
                   obscureText: true),
               const SizedBox(height: 10),
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: 25.0),
+                padding: const EdgeInsets.symmetric(horizontal: 25.0),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: resetpassword(context),
@@ -125,59 +144,73 @@ class _LoginPageState extends State<LoginPage> {
                 text: 'Sign In',
                 onTap: signUserIn,
               ),
-              const SizedBox(height: 50),
-              Padding(
+              const SizedBox(height: 30),
+             const Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 25.0),
                 child: Row(
                   children: [
                     Expanded(
                       child: Divider(
                         thickness: 0.5,
-                        color: Colors.grey[400],
+                        color: Colors.white,
                       ),
                     ),
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                      padding: EdgeInsets.symmetric(horizontal: 10.0),
                       child: Text(
                         'Or continue with',
                         style: TextStyle(
-                          color: Colors.grey[700],
+                          color: Colors.white,
                         ),
                       ),
                     ),
                     Expanded(
                       child: Divider(
                         thickness: 0.5,
-                        color: Colors.grey[400],
+                        color: Colors.white,
                       ),
                     ),
                   ],
                 ),
               ),
-              const SizedBox(height: 50),
+              const SizedBox(height: 30),
+
+              MyButton(
+                onTap: () => AuthService().signInWithGoogle(),
+                imagePath: 'assets/google_logo.png',
+                text: "Login with Google",
+                ),
+              const SizedBox(height: 25),
+              MyButton(
+                onTap: () {}, 
+                imagePath: 'assets/facebook_logo.png',
+                text: "Login with Facebook",
+              ),
+              
+              const SizedBox(height: 15,),
+
+              const DottedLine(
+                dashColor: Colors.white,
+                lineThickness: 1,
+                dashGapLength: 7,
+                dashRadius: 1,
+                dashLength: 5,
+                direction: Axis.horizontal,
+                lineLength: 365,),
+
+              const SizedBox(height: 15,),
+
+              MyButton(onTap: widget.onTap, text: "Create a new Account", small: true,),
+
+              
+
+              /*
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  SquareTile(
-                      onTap: () => AuthService().signInWithGoogle(),
-                      imagePath:
-                          'assets/google_logo.jpg'),
-                  const SizedBox(width: 25),
-                  SquareTile(
-                      onTap: () {},
-                      imagePath:
-                          'assets/meta_logo.png')
-                ],
-              ),
-              const SizedBox(
-                height: 50,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
+                  const Text(
                     'Not a member?',
-                    style: TextStyle(color: Colors.grey[700]),
+                    style: TextStyle(color: Colors.white),
                   ),
                   const SizedBox(
                     width: 4,
@@ -192,95 +225,98 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ],
               )
+              */
+
             ]),
           ),
         ),
       ),
+    ),
     );
   }
 
- List<Widget> resetpassword(BuildContext context) {
-  return [
-    GestureDetector(
-      onTap: () {
-        showModalBottomSheet(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          context: context,
-          builder: (BuildContext context) {
-            return Container(
-              decoration: const BoxDecoration(
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(100),
-                  topRight: Radius.circular(100),
+  List<Widget> resetpassword(BuildContext context) {
+    return [
+      GestureDetector(
+        onTap: () {
+          showModalBottomSheet(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
+            context: context,
+            builder: (BuildContext context) {
+              return Container(
+                decoration: const BoxDecoration(
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(100),
+                    topRight: Radius.circular(100),
+                  ),
                 ),
-              ),
-              padding: EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  const Text(
-                    'Forgot Password?',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
+                padding: EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    const Text(
+                      'Forgot Password?',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                  ),
-                  SizedBox(height: 10),
-                  const Text(
-                    'Enter your email to reset your password:',
-                    style: TextStyle(
-                      fontSize: 16,
+                    SizedBox(height: 10),
+                    const Text(
+                      'Enter your email to reset your password:',
+                      style: TextStyle(
+                        fontSize: 16,
+                      ),
                     ),
-                  ),
-                  SizedBox(height: 10),
-                  MyTextFieldicon(
-                    controller: passwordforgotController,
-                    hintText: 'Email',
-                    obscureText: false,
-                    icon:Icons.email_outlined,
-                  ),
-                  SizedBox(height: 20),
-                  MyButton(
-                    text: 'Next',
-                    onTap: () {
-                      String emailToCheck = passwordforgotController.text;
-                      if (isValidEmail(emailToCheck)) {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => OTPForm()),
-                        );
-                      }else{
-                       isValidEmail(passwordforgotController.text) ?  Colors.white : Colors.red;
-                       
-                      //hier fehlt noch was 
-                      }
-                    },
-                  ),
-                ],
-              ),
-            );
-          },
-        );
-      },
-      child: const Text(
-        'Forgot Password?',
-        style: TextStyle(
-          color: Colors.blue,
-          fontWeight: FontWeight.bold,
+                    SizedBox(height: 10),
+                    MyTextFieldicon(
+                      controller: passwordforgotController,
+                      hintText: 'Email',
+                      obscureText: false,
+                      icon: Icons.email_outlined,
+                    ),
+                    SizedBox(height: 20),
+                    MyButton(
+                      text: 'Next',
+                      onTap: () {
+                        String emailToCheck = passwordforgotController.text;
+                        if (isValidEmail(emailToCheck)) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => OTPForm()),
+                          );
+                        } else {
+                          isValidEmail(passwordforgotController.text)
+                              ? Colors.white
+                              : Colors.red;
+
+                          //hier fehlt noch was
+                        }
+                      },
+                    ),
+                  ],
+                ),
+              );
+            },
+          );
+        },
+        child: const Text(
+          'Forgot Password?',
+          style: TextStyle(
+            color: Colors.blue,
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ),
-    ),
-  ];
-}
+    ];
+  }
 
-  
   bool isValidEmail(String email) {
- String emailRegex =
-      r'^[\w-]+(\.[\w-]+)*@([a-z\d-]+(\.[a-z\d-]+)*?\.[a-z]{2,6}|(\d{1,3}\.){3}\d{1,3})$';
-  RegExp regex = RegExp(emailRegex);
-  return regex.hasMatch(email);
-
+    String emailRegex =
+        r'^[\w-]+(\.[\w-]+)*@([a-z\d-]+(\.[a-z\d-]+)*?\.[a-z]{2,6}|(\d{1,3}\.){3}\d{1,3})$';
+    RegExp regex = RegExp(emailRegex);
+    return regex.hasMatch(email);
   }
 }
