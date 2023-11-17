@@ -97,114 +97,117 @@ class _LoginPageState extends State<LoginPage> {
       body: Container(
         decoration: const BoxDecoration(
           image: DecorationImage(
-            image: AssetImage('assets/background_city.png'), // Passe den Pfad zu deinem Hintergrundbild an
+            image: AssetImage(
+                'assets/background_city.png'), // Passe den Pfad zu deinem Hintergrundbild an
             alignment: Alignment.center,
             fit: BoxFit.fill,
           ),
-      ),
-
-      child: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            child:
-                Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-              const SizedBox(height: 50),
-              const Icon(
-                Icons.lock,
-                size: 100,
-              ),
-              const SizedBox(height: 50),
-              const Text(
-                'Welcome back you \'ve been missed!',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 16,
-                ),
-              ),
-              const SizedBox(height: 25),
-              MyTextField(
-                  controller: emailController,
-                  hintText: 'Email',
-                  obscureText: false),
-              const SizedBox(height: 10),
-              MyTextField(
-                  controller: passwordController,
-                  hintText: 'Password',
-                  obscureText: true),
-              const SizedBox(height: 10),
-              Padding(
-                padding: const const EdgeInsets.symmetric(horizontal: 25.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: resetpassword(context),
-                ),
-              ),
-              const SizedBox(height: 25),
-              MyButton(
-                text: 'Sign In',
-                onTap: signUserIn,
-              ),
-              const SizedBox(height: 30),
-             const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 25.0),
-                child: Row(
+        ),
+        child: SafeArea(
+          child: Center(
+            child: SingleChildScrollView(
+              child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Expanded(
-                      child: Divider(
-                        thickness: 0.5,
+                    const SizedBox(height: 50),
+                    const Icon(
+                      Icons.lock,
+                      size: 100,
+                    ),
+                    const SizedBox(height: 50),
+                    const Text(
+                      'Welcome back you \'ve been missed!',
+                      style: TextStyle(
                         color: Colors.white,
+                        fontSize: 16,
                       ),
                     ),
+                    const SizedBox(height: 25),
+                    MyTextField(
+                        controller: emailController,
+                        hintText: 'Email',
+                        obscureText: false),
+                    const SizedBox(height: 10),
+                    MyTextField(
+                        controller: passwordController,
+                        hintText: 'Password',
+                        obscureText: true),
+                    const SizedBox(height: 10),
                     Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 10.0),
-                      child: Text(
-                        'Or continue with',
-                        style: TextStyle(
-                          color: Colors.white,
-                        ),
+                      padding: const EdgeInsets.symmetric(horizontal: 25.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: resetpassword(context),
                       ),
                     ),
-                    Expanded(
-                      child: Divider(
-                        thickness: 0.5,
-                        color: Colors.white,
+                    const SizedBox(height: 25),
+                    MyButton(
+                      text: 'Sign In',
+                      onTap: signUserIn,
+                    ),
+                    const SizedBox(height: 30),
+                    const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 25.0),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Divider(
+                              thickness: 0.5,
+                              color: Colors.white,
+                            ),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 10.0),
+                            child: Text(
+                              'Or continue with',
+                              style: TextStyle(
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            child: Divider(
+                              thickness: 0.5,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 30),
+                    const SizedBox(height: 30),
+                    MyButton(
+                      onTap: () => AuthService().signInWithGoogle(),
+                      imagePath: 'assets/google_logo.png',
+                      text: "Login with Google",
+                    ),
+                    const SizedBox(height: 25),
+                    MyButton(
+                      onTap: () {},
+                      imagePath: 'assets/facebook_logo.png',
+                      text: "Login with Facebook",
+                    ),
+                    const SizedBox(
+                      height: 15,
+                    ),
+                    const DottedLine(
+                      dashColor: Colors.white,
+                      lineThickness: 1,
+                      dashGapLength: 7,
+                      dashRadius: 1,
+                      dashLength: 5,
+                      direction: Axis.horizontal,
+                      lineLength: 365,
+                    ),
+                    const SizedBox(
+                      height: 15,
+                    ),
+                    MyButton(
+                      onTap: widget.onTap,
+                      text: "Create a new Account",
+                      small: true,
+                    ),
 
-              MyButton(
-                onTap: () => AuthService().signInWithGoogle(),
-                imagePath: 'assets/google_logo.png',
-                text: "Login with Google",
-                ),
-              const SizedBox(height: 25),
-              MyButton(
-                onTap: () {}, 
-                imagePath: 'assets/facebook_logo.png',
-                text: "Login with Facebook",
-              ),
-              
-              const SizedBox(height: 15,),
-
-              const DottedLine(
-                dashColor: Colors.white,
-                lineThickness: 1,
-                dashGapLength: 7,
-                dashRadius: 1,
-                dashLength: 5,
-                direction: Axis.horizontal,
-                lineLength: 365,),
-
-              const SizedBox(height: 15,),
-
-              MyButton(onTap: widget.onTap, text: "Create a new Account", small: true,),
-
-              
-
-              /*
+                    /*
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -226,12 +229,11 @@ class _LoginPageState extends State<LoginPage> {
                 ],
               )
               */
-
-            ]),
+                  ]),
+            ),
           ),
         ),
       ),
-    ),
     );
   }
 
@@ -285,7 +287,8 @@ class _LoginPageState extends State<LoginPage> {
                         if (isValidEmail(emailToCheck)) {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => const OTPForm()),
+                            MaterialPageRoute(
+                                builder: (context) => const OTPForm()),
                           );
                         } else {
                           isValidEmail(passwordforgotController.text)
