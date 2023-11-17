@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import '../../widgets/container.dart';
 import '../../widgets/inputfield.dart';
 
@@ -23,77 +22,34 @@ class _AccountState extends State<Account> {
     return Scaffold(
         backgroundColor: const Color(0xFFCBEFFF),
         body: SafeArea(
-          child: Stack(
-            children: [
-              const SizedBox(height: 300 //screenHeight * (34.81 / 100),
-                  ),
-              Align(
-                alignment: Alignment.bottomCenter,
-                child: SvgPicture.asset(
-                  'assets/background_city.svg',
-                  height: double.infinity,
-                  width: double.infinity,
-                ),
+          child: Container(
+            decoration: const BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage('assets/BackgroundCity.png'),
+                fit: BoxFit.cover,
               ),
-              const Center(
-                child: CustomContainer(
-                  title: "Account Details:",
-                  fontSize: 35,
-                ),
-              ),
-              Center(
-                child: InputField(
-                  controller: prenameController,
-                  hintText: 'Prename',
-                  obscureText: false,
-                ),
-              ),
-              Center(
-                child: InputField(
-                  controller: prenameController,
-                  hintText: 'Prename',
-                  obscureText: false,
-                ),
-              ),
-            ],
-          ),
-        ));
-
-    /*Scaffold(
-      body: Stack(
-        children: [
-          Container(
-            width: double.infinity,
-            height: double.infinity,
-            color: const Color(0xFFCBEFFF),
+            ),
             child: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
+              child: CustomContainer(
+                title: "Account Details:",
+                fontSize: 35,
                 children: [
-                  SizedBox(
-                    height: screenHeight * (34.81 / 100),
+                  InputField(
+                    controller: prenameController,
+                    hintText: 'Prename',
+                    obscureText: false,
+                    margin: const EdgeInsets.only(bottom: 25),
                   ),
-                  Expanded(
-                    child: SvgPicture.asset(
-                      'assets/background_city.svg',
-                      width: double.infinity,
-                    ),
+                  InputField(
+                    controller: prenameController,
+                    hintText: 'Lastname',
+                    obscureText: false,
+                    margin: const EdgeInsets.only(bottom: 25),
                   ),
                 ],
               ),
             ),
           ),
-          Positioned(
-            top: 220,
-            left: 13.5,
-            right: 13.5,
-            child: CustomContainer(
-              title: 'Account Details:',
-            ),
-          ),
-          
-        ],
-      ),
-    );*/
+        ));
   }
 }

@@ -18,7 +18,7 @@ class EditProfilePage extends StatelessWidget {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const ProfilePage()),
+                MaterialPageRoute(builder: (context) => ProfilePage()),
               ); // lieber hier mit Get.to arbeiten weil bei ProfilePage oben links ein back button entsteht
             },
             icon: const Icon(Icons.arrow_back)),
@@ -134,7 +134,7 @@ class EditProfilePage extends StatelessWidget {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => const ProfilePage()),
+                                builder: (context) => ProfilePage()),
                           );
                         },
                         style: ElevatedButton.styleFrom(
