@@ -1,13 +1,12 @@
-import 'dart:ui';
 import '../styles/Styles.dart';
-
 import 'package:flutter/material.dart';
 
 class CustomContainer extends StatelessWidget {
   final String title;
   final double fontSize;
+  final List<Widget> children;
 
-  CustomContainer({required this.title, required this.fontSize});
+  const CustomContainer({super.key, required this.title, required this.fontSize, required this.children});
 
   @override
   Widget build(BuildContext context) {
@@ -22,18 +21,21 @@ class CustomContainer extends StatelessWidget {
         borderRadius: BorderRadius.circular(34.5),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(22),
         child: Column(
-        children: [
-          FittedBox(
-              alignment: Alignment.topLeft,
-              child: Text(
-                  title,
-                  style: Styles.overlayTitle,
-                  textAlign: TextAlign.left,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Container(
+                margin: const EdgeInsets.only(bottom: 30),
+                height: 25,
+                child: Text(
+                    title,
+                    style: Styles.overlayTitle,
+                    textAlign: TextAlign.left,
                 ),
-          ),
-        ]
+              ),
+              ...children
+            ]
       ),
       )
     );
