@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import '../../../core/services/auth_service.dart';
 import '../../widgets/my_button.dart';
 import '../../widgets/my_textfield_eye.dart';
-import '../Resetpassword/OTP_form.dart';
 import '../../widgets/my_textfield_emailnotnull.dart';
 
 class RegisterPage extends StatefulWidget {

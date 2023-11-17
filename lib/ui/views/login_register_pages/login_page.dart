@@ -71,7 +71,7 @@ class _LoginPageState extends State<LoginPage> {
       counter = 0;
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => OTPForm()),
+        MaterialPageRoute(builder: (context) => const OTPForm()),
       );
     }
     showDialog(
@@ -146,7 +146,7 @@ class _LoginPageState extends State<LoginPage> {
               ),
               const SizedBox(height: 30),
              const Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 25.0),
+                padding: EdgeInsets.symmetric(horizontal: 25.0),
                 child: Row(
                   children: [
                     Expanded(
@@ -252,7 +252,7 @@ class _LoginPageState extends State<LoginPage> {
                     topRight: Radius.circular(100),
                   ),
                 ),
-                padding: EdgeInsets.all(16.0),
+                padding: const EdgeInsets.all(16.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
@@ -263,21 +263,21 @@ class _LoginPageState extends State<LoginPage> {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    SizedBox(height: 10),
+                    const SizedBox(height: 10),
                     const Text(
                       'Enter your email to reset your password:',
                       style: TextStyle(
                         fontSize: 16,
                       ),
                     ),
-                    SizedBox(height: 10),
+                    const SizedBox(height: 10),
                     MyTextFieldicon(
                       controller: passwordforgotController,
                       hintText: 'Email',
                       obscureText: false,
                       icon: Icons.email_outlined,
                     ),
-                    SizedBox(height: 20),
+                    const SizedBox(height: 20),
                     MyButton(
                       text: 'Next',
                       onTap: () {
@@ -285,7 +285,7 @@ class _LoginPageState extends State<LoginPage> {
                         if (isValidEmail(emailToCheck)) {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => OTPForm()),
+                            MaterialPageRoute(builder: (context) => const OTPForm()),
                           );
                         } else {
                           isValidEmail(passwordforgotController.text)

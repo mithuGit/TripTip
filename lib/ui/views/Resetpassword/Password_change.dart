@@ -8,22 +8,22 @@ class PasswordChange extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final TextEditingController _passwordController = TextEditingController();
-    final TextEditingController _confirmPasswordController =
+    final TextEditingController passwordController = TextEditingController();
+    final TextEditingController confirmPasswordController =
         TextEditingController();
 
     String errorText = ''; // Fehlermeldung für die Anzeige
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Change Password'),
+        title: const Text('Change Password'),
       ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             TextField(
-              controller: _passwordController,
+              controller: passwordController,
               obscureText: true,
               decoration: InputDecoration(
                 labelText: 'New Password',
@@ -34,21 +34,21 @@ class PasswordChange extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             TextField(
-              controller: _confirmPasswordController,
+              controller: confirmPasswordController,
               obscureText: true,
               decoration: InputDecoration(
                 labelText: 'Confirm Password',
                 errorText: errorText,
                 errorStyle:
-                    TextStyle(color: Colors.red), // Fehlerstil auf Rot setzen
+                    const TextStyle(color: Colors.red), // Fehlerstil auf Rot setzen
               ),
             ),
-            SizedBox(height: 24),
+            const SizedBox(height: 24),
             MyButton(
               text: 'Confirm',
               onTap: () {
-                String newPassword = _passwordController.text;
-                String confirmPassword = _confirmPasswordController.text;
+                String newPassword = passwordController.text;
+                String confirmPassword = confirmPasswordController.text;
 
                 if (newPassword == confirmPassword) {
                   // Passwörter stimmen überein, hier kannst du die Logik zum Speichern des Passworts hinzufügen
@@ -77,10 +77,10 @@ class PasswordChange extends StatelessWidget {
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
-                              SizedBox(height: 16),
+                              const SizedBox(height: 16),
                               const Text(
                                   'Your password has been successfully changed.'),
-                              SizedBox(height: 16),
+                              const SizedBox(height: 16),
                               MyButton(
                                 text: 'Close',
                                 onTap: () {
