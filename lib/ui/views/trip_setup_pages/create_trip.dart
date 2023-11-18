@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import '../../widgets/container.dart';
 import '../../widgets/inputfield.dart';
 
-class Account extends StatefulWidget {
-  const Account({super.key});
+class CreateTrip extends StatefulWidget {
+  const CreateTrip({super.key});
 
   @override
-  State<Account> createState() => _AccountState();
+  State<CreateTrip> createState() => _TripCreateState();
 }
 
-class _AccountState extends State<Account> {
+class _TripCreateState extends State<CreateTrip> {
   //Controller for text
   final prenameController = TextEditingController();
   @override
@@ -27,19 +27,14 @@ class _AccountState extends State<Account> {
             ),
              child: Center(
                 child: CustomContainer(
-                  title: "Account Details:",
+                  title: "Start your next Adventure:",
                   fontSize: 35,
                   children: [InputField(
                     controller: prenameController,
-                    hintText: 'Prename',
+                    hintText: 'Destination',
                     obscureText: false,
                     margin: const EdgeInsets.only(bottom: 25),
-                  ),InputField(
-                    controller: prenameController,
-                    hintText: 'Lastname',
-                    obscureText: false,
-                    margin: const EdgeInsets.only(bottom: 25),
-                  ),],
+                  )],
                 ),
               ),
           ),
