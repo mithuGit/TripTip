@@ -1,10 +1,12 @@
+import 'dart:math';
+
 import 'package:dotted_line/dotted_line.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:internet_praktikum/ui/widgets/container.dart';
 import '../../../core/services/auth_service.dart';
 import '../../widgets/my_button.dart';
-import '../../widgets/my_textfield_eye.dart';
+import '../../widgets/inputfield_password_or_icon.dart';
 import '../../widgets/my_textfield_emailnotnull.dart';
 
 class RegisterPage extends StatefulWidget {
@@ -110,7 +112,6 @@ class _RegisterPageState extends State<RegisterPage> {
                       ),
                       CustomContainer(
                         title: "Register",
-                        fontSize: 35,
                         children: [
                           MyTextFieldemailnotnull(
                               controller: emailController,
@@ -118,17 +119,23 @@ class _RegisterPageState extends State<RegisterPage> {
                               obscureText: false),
                           const SizedBox(height: 10),
                             
-                          MyTextFieldeye(
+                          InputFieldPasswortOrIcon(
                               controller: passwordController,
                               hintText: 'Password',
-                              obscureText: true),
+                              obscureText: true,
+                              eyeCheckerStatus: true,
+                              useSuffixIcon: true,
+                              ),
                           const SizedBox(height: 10),
                             
                           // confirm Password
-                          MyTextFieldeye(
+                          InputFieldPasswortOrIcon(
                               controller: confirmPasswordController,
                               hintText: 'Confirm Password',
-                              obscureText: true),
+                              obscureText: true,
+                              eyeCheckerStatus: true,
+                              useSuffixIcon: true,
+                              ),
                             
                           const SizedBox(height: 25),
                             
@@ -168,6 +175,8 @@ class _RegisterPageState extends State<RegisterPage> {
                               ],
                             ),
                           ),
+
+                          const SizedBox(height: 30),
                             
                           MyButton(
                             onTap: () => AuthService().signInWithGoogle(),
@@ -182,9 +191,7 @@ class _RegisterPageState extends State<RegisterPage> {
                             text: "Register with Facebook",
                           ),
                             
-                          const SizedBox(
-                            height: 10,
-                          ),
+                          const SizedBox(height: 15,),
                             
                           const DottedLine(
                             dashColor: Colors.white,
@@ -196,16 +203,13 @@ class _RegisterPageState extends State<RegisterPage> {
                             lineLength: 365,
                           ),
                             
-                          const SizedBox(
-                            height: 10,
-                          ),
+                          const SizedBox(height: 15, ),
                             
                           MyButton(
                             onTap: widget.onTap,
                             text: "Already have an account?",
                           )
                         
-                         
                         ],
                       ),
                     ]
