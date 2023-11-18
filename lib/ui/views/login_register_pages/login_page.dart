@@ -110,24 +110,14 @@ class _LoginPageState extends State<LoginPage> {
           child: SingleChildScrollView(
             child:
               Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+              const Icon(
+                    Icons.lock,
+                    size: 100,
+              ),
               CustomContainer(
                 title: "Login:",
                 fontSize: 35,
                 children: [
-                  //const SizedBox(height: 50),
-                  /*const Icon(
-                    Icons.lock,
-                    size: 100,
-                  ),*/
-                  //const SizedBox(height: 50),
-                  /*const Text(
-                    'Welcome back you \'ve been missed!',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                    ),
-                  ),*/
-                  //const SizedBox(height: 25),
                   InputField(
                       controller: emailController,
                       hintText: 'Email',
@@ -210,34 +200,9 @@ class _LoginPageState extends State<LoginPage> {
                     
                   MyButton(onTap: widget.onTap, text: "Create a new Account", /*small: true,*/),
                     
-                  
-                    
-                  /*
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text(
-                        'Not a member?',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                      const SizedBox(
-                        width: 4,
-                      ),
-                      GestureDetector(
-                        onTap: widget.onTap,
-                        child: const Text(
-                          'Register now',
-                          style: TextStyle(
-                              color: Colors.blue, fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                    ],
-                  )
-                  */
-                    
                 ],
               ),
-                          ]),
+              ]),
           ),
         ),
           ),

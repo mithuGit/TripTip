@@ -5,7 +5,6 @@ class MyButton extends StatelessWidget {
   final String text;
   final IconData? iconData;
   final String? imagePath;
-  final bool? small;
 
   const MyButton({
     Key? key,
@@ -13,7 +12,6 @@ class MyButton extends StatelessWidget {
     required this.text,
     this.iconData,
     this.imagePath,
-    this.small,
   }) : super(key: key);
 
   @override
@@ -22,7 +20,6 @@ class MyButton extends StatelessWidget {
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.all(15),
-        margin: EdgeInsets.symmetric(horizontal: small == true ? 75 : 35),
         decoration: BoxDecoration(
           color: Colors.transparent,
           borderRadius: BorderRadius.circular(11),
