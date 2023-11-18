@@ -45,7 +45,7 @@ class _AccountState extends State<Account> {
                   controller: prenameController,
                   hintText: 'Lastname',
                   obscureText: false,
-                  margin: const EdgeInsets.only(bottom: 25),
+                  margin: const EdgeInsets.only(bottom: 12.5),
                 ),
                 SizedBox(
                   width: 148,
@@ -61,19 +61,14 @@ class _AccountState extends State<Account> {
                     ),
                   ),
                 ),
-                InputField(
-                  controller: prenameController,
-                  hintText: 'Month/Day/Year',
-                  obscureText: false,
+                SizedBox(height: 12.5),
+                DatePicker(
                   margin: const EdgeInsets.only(bottom: 25),
                 ),
                 InputField(
                   controller: prenameController,
                   hintText: 'Email',
                   obscureText: false,
-                  margin: const EdgeInsets.only(bottom: 25),
-                ),
-                DatePicker(
                   margin: const EdgeInsets.only(bottom: 25),
                 ),
               ],
