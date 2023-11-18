@@ -13,4 +13,5 @@ class Styles{
       fontWeight:  FontWeight.w500,
       color: Color(0xFFA0A0A0)
   );
+  
 }
