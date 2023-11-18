@@ -7,7 +7,7 @@ import 'package:internet_praktikum/ui/widgets/my_button.dart';
 import 'package:internet_praktikum/ui/widgets/inputfield_password_or_icon.dart';
 import '../../../core/services/auth_service.dart';
 import '../../widgets/my_textfield.dart';
-import '../verification/OTP_form.dart';
+import '../verification/OTP_Form.dart';
 import 'package:dotted_line/dotted_line.dart';
 
 class LoginPage extends StatefulWidget {

@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_otp_text_field/flutter_otp_text_field.dart';
 import 'package:internet_praktikum/ui/widgets/container.dart';
@@ -5,9 +8,59 @@ import 'package:internet_praktikum/ui/widgets/container.dart';
 import '../../widgets/my_button.dart';
 import '../Resetpassword/Password_change.dart';
 
-class OTPForm extends StatelessWidget {
-  const OTPForm({Key? key}) : super(key: key);
+class OTPFormTest extends StatefulWidget {
+  const OTPFormTest({Key? key}) : super(key: key);
 
+  @override
+  State<OTPFormTest> createState() => _OTPFormTestState();
+}
+
+class _OTPFormTestState extends State<OTPFormTest> {
+  bool isEmailVerified = false;
+  bool canResendEmail = false;
+  Timer? timer;
+
+  @override
+  void initState() {
+    super.initState();
+    isEmailVerified = FirebaseAuth.instance.currentUser!.emailVerified;
+
+    if (!isEmailVerified) {
+      sendVerificationEmail();
+
+      Timer.periodic(const Duration(seconds: 3), (_) => checkEmailVerified());
+    }
+  }
+
+  @override
+  void dispose() {
+    timer?.cancel();
+    super.dispose();
+  }
+
+  Future checkEmailVerified() async {
+    await FirebaseAuth.instance.currentUser!.reload();
+
+    setState(() {
+      isEmailVerified = FirebaseAuth.instance.currentUser!.emailVerified;
+    });
+
+    if (isEmailVerified) timer?.cancel();
+  }
+
+  Future sendVerificationEmail() async {
+    try {
+      final user = FirebaseAuth.instance.currentUser!;
+      await user.sendEmailVerification();
+
+      setState(() => canResendEmail = false);
+      await Future.delayed(const Duration(seconds: 5));
+      setState(() => canResendEmail = true);
+    } catch (e) {
+      //Utils.showSnackBar(e.toString());
+    }
+  }
+  
   @override
   Widget build(BuildContext context) {
     const String message = "Enter the Verification code sent at ";
@@ -60,7 +113,7 @@ class OTPForm extends StatelessWidget {
                             borderWidth: 4,
                             textStyle: const TextStyle(
                               fontSize: 20,
-                              color: Colors.black,
+                              color: Colors.white,
                             ),
                             borderColor: Colors.white,
                             fillColor: Colors.white,
@@ -81,13 +134,15 @@ class OTPForm extends StatelessWidget {
                           ),
 
                           MyButton(
-                            onTap: () => {
+                            /*onTap: () => {
                               Navigator.push(
                                   context,
                                   MaterialPageRoute(
                                       builder: (context) =>
                                           const PasswordChange()))
                             },
+                            */
+                            onTap: canResendEmail ? sendVerificationEmail : null,
                             text: 'Resend Code',
                           ),
 
