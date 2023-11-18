@@ -28,7 +28,7 @@ class _AccountState extends State<Account> {
              child: Center(
                 child: CustomContainer(
                   title: "Account Details:",
-                  fontSize: 35,
+                  smallSize: true,
                   children: [InputField(
                     controller: prenameController,
                     hintText: 'Prename',

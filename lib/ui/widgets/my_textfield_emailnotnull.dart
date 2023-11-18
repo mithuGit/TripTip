@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:internet_praktikum/ui/styles/Styles.dart';
 
 class MyTextFieldemailnotnull extends StatelessWidget {
   final TextEditingController controller;
   final String hintText;
   final bool obscureText;
+  final EdgeInsets? margin;
 
   const MyTextFieldemailnotnull({
     Key? key,
     required this.controller,
     required this.hintText,
     required this.obscureText,
+    this.margin,
   }) : super(key: key);
 
   bool isValidEmail(String email) {
@@ -21,8 +24,8 @@ class MyTextFieldemailnotnull extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 25.0),
+    return Container(
+      margin: margin,
       child: TextFormField(
         controller: controller,
         obscureText: obscureText,
@@ -38,20 +41,19 @@ class MyTextFieldemailnotnull extends StatelessWidget {
           return null;
         },
         decoration: InputDecoration(
-          enabledBorder: const OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.white),
+          enabledBorder: OutlineInputBorder(
+            borderSide: const BorderSide(color: Colors.white),
+            borderRadius: BorderRadius.circular(11.0),
           ),
           focusedBorder: OutlineInputBorder(
-            borderSide: BorderSide(
-              color: Colors.grey.shade400,
-            ),
+            borderSide: BorderSide(color: Colors.grey.shade400),
+            borderRadius: BorderRadius.circular(11.0),
           ),
-          fillColor: Colors.grey.shade200,
+          fillColor: Colors.white,
           filled: true,
+          contentPadding: const EdgeInsets.only(top: 16, bottom: 16, left: 14, right: 14),
           hintText: hintText,
-          hintStyle: TextStyle(
-            color: Colors.grey[500],
-          ),
+          hintStyle: Styles.textfieldHintStyle
         ),
       ),
     );
