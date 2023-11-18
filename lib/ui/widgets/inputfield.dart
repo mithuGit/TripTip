@@ -23,6 +23,9 @@ class InputField extends StatelessWidget {
       child: TextField(
         controller: controller,
         obscureText: obscureText,
+        style: Styles.inputField,
+        cursorColor: Color.fromARGB(0, 113, 113, 113),
+        cursorWidth: 1.5, 
         decoration: InputDecoration(
           enabledBorder: OutlineInputBorder(
             borderSide: const BorderSide(color: Colors.white),
@@ -32,6 +35,7 @@ class InputField extends StatelessWidget {
             borderSide: BorderSide(color: Colors.grey.shade400),
             borderRadius: BorderRadius.circular(11.0),
           ),
+          
           fillColor: Colors.white,
           filled: true,
           contentPadding: const EdgeInsets.only(top: 16, bottom: 16, left: 14, right: 14),

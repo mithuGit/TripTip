@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:internet_praktikum/ui/styles/Styles.dart';
 
 class MyButton extends StatelessWidget {
   final Function()? onTap;
@@ -21,7 +22,7 @@ class MyButton extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.all(15),
+        padding: const EdgeInsets.only(top: 8, bottom: 8, left: 12, right: 12),
         decoration: BoxDecoration(
           color: colors ?? Colors.transparent,
           borderRadius: BorderRadius.circular(11),
@@ -37,7 +38,7 @@ class MyButton extends StatelessWidget {
             if (imagePath != null)
               Image.asset(
                 imagePath!, // nicht sicher ob hier ein ! kommt
-                height: 24,
+                height: 30,
               ),
             if (imagePath != null || iconData != null)
               const SizedBox(width: 20),
@@ -47,22 +48,14 @@ class MyButton extends StatelessWidget {
                       alignment: Alignment.topLeft,
                       child: Text(
                         text,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ),
+                        style: Styles.buttonFontStyle,
                       ),
                     )
                   : Align(
                       alignment: Alignment.center,
                       child: Text(
                         text,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ),
+                        style: Styles.buttonFontStyle
                       ),
                     ),
             )
