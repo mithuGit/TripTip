@@ -7,6 +7,7 @@ class MyButton extends StatelessWidget {
   final IconData? iconData;
   final String? imagePath;
   final Color? colors;
+  final EdgeInsets? margin;
 
   const MyButton({
     Key? key,
@@ -15,6 +16,7 @@ class MyButton extends StatelessWidget {
     this.iconData,
     this.imagePath,
     this.colors,
+    this.margin
   }) : super(key: key);
 
   @override
@@ -22,6 +24,7 @@ class MyButton extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
+        margin: margin,
         padding: const EdgeInsets.only(top: 8, bottom: 8, left: 12, right: 12),
         decoration: BoxDecoration(
           color: colors ?? Colors.transparent,
