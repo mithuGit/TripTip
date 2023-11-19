@@ -1,6 +1,7 @@
-import 'package:firebase_auth/firebase_auth.dart';
+
 import 'package:flutter/material.dart';
 import 'package:internet_praktikum/ui/widgets/my_button.dart';
+import 'package:internet_praktikum/ui/widgets/usernamebagageCreateTrip.dart';
 import '../../widgets/container.dart';
 import '../../widgets/inputfield.dart';
 
@@ -11,21 +12,24 @@ class CreateTrip extends StatefulWidget {
   State<CreateTrip> createState() => _TripCreateState();
 }
 
+class User {
+  String prename;
+  String lastname;
+  Image profileImage;
+  User(this.prename, this.lastname, this.profileImage);
+}
+
 class _TripCreateState extends State<CreateTrip> {
   //Controller for text
   final prenameController = TextEditingController();
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-  String name = "Päpke";
-  final Future<String> _calculation = Future<String>.delayed(
-    const Duration(seconds: 2),
-    () => 'Data Loaded',
-  );
+  
+
   void connectPhotosAlbum() async {
     setState(() {
-      name = "Hallo";
+    //  name = "Hallo";
     });
-    print(_auth.currentUser);
   }
+
   @override
   Widget build(BuildContext context) {
     // Get Screen Size
@@ -53,51 +57,15 @@ class _TripCreateState extends State<CreateTrip> {
                           obscureText: false,
                           margin: const EdgeInsets.only(bottom: 25),
                         ),
-                        MyButton(onTap: connectPhotosAlbum,
-                        imagePath: 'assets/googlephotos.png',
-                        text: 'Create Photos Album')
+                        MyButton(
+                            onTap: connectPhotosAlbum,
+                            imagePath: 'assets/googlephotos.png',
+                            text: 'Create Photos Album')
                       ],
                     )),
               ),
             ),
-            Positioned(
-                top: 18,
-                left: 14,
-                right: 14,
-                height: 52,
-                child: Row(
-                  children: [
-                    Image.asset('assets/Personavatar.png'),
-                    Container(
-                      margin: const EdgeInsets.only(left: 14),
-                        child: Text.rich(
-                      TextSpan(
-                        children: [
-                          TextSpan(
-                            text: 'Tim Carlo\n',
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 20,
-                              fontFamily: 'Ubuntu',
-                              fontWeight: FontWeight.w700,
-                              height: 0,
-                            ),
-                          ),
-                          TextSpan(
-                            text: name,
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 20,
-                              fontFamily: 'Ubuntu',
-                              fontWeight: FontWeight.w400,
-                              height: 0,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ))
-                  ],
-                )),
+            UsernameBagageCreateTrip()
           ]),
         ));
   }
