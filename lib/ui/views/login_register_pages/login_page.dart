@@ -9,7 +9,6 @@ import '../../../core/services/auth_service.dart';
 import '../../widgets/my_textfield.dart';
 import '../verification/OTP_Form.dart';
 import 'package:dotted_line/dotted_line.dart';
-
 class LoginPage extends StatefulWidget {
   final Function()? onTap;
 
