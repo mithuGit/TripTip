@@ -47,7 +47,7 @@ class _AccountState extends State<Account> {
                   obscureText: false,
                   margin: const EdgeInsets.only(bottom: 12.5),
                 ),
-                SizedBox(
+                const SizedBox(
                   width: 148,
                   height: 18,
                   child: Text(
@@ -61,9 +61,9 @@ class _AccountState extends State<Account> {
                     ),
                   ),
                 ),
-                SizedBox(height: 12.5),
-                DatePicker(
-                  margin: const EdgeInsets.only(bottom: 25),
+                const SizedBox(height: 12.5),
+                const DatePicker(
+                  margin: EdgeInsets.only(bottom: 25),
                 ),
                 InputField(
                   controller: prenameController,

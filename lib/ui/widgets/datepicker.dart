@@ -60,18 +60,17 @@ class _DatePickerState extends State<DatePicker> {
               });
         },
         style: ElevatedButton.styleFrom(
-          primary: Colors.white,
-          onPrimary: Colors.black,
+          foregroundColor: Colors.black, backgroundColor: Colors.white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(11),
           ),
           padding: const EdgeInsets.all(0),
         ),
-        child: Row(
+        child: const Row(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 14),
+              padding: EdgeInsets.symmetric(vertical: 16, horizontal: 14),
               child: Text(
                 'Select Date of Birth',
                 style: Styles.textfieldHintStyle,
