@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:internet_praktikum/ui/views/profile_pages/profile_page.dart';
-
-import '../../widgets/my_textfield_icon.dart';
+import 'package:internet_praktikum/ui/widgets/inputfield_password_or_icon.dart';
 
 
 class EditProfilePage extends StatelessWidget {
@@ -77,11 +76,14 @@ class EditProfilePage extends StatelessWidget {
                 
 
                 // lieber so wie Login Page
-                MyTextFieldicon(
+                InputFieldPasswortOrIcon(
                     controller: TextEditingController(),
                     hintText: 'Full Name',
                     obscureText: true,
-                    icon: Icons.person),
+                    icon: Icons.person,
+                    eyeCheckerStatus: false,
+                    useSuffixIcon: false,
+                    ),
 
                 // oder so (finde so besser)
                 //TextFormField(
@@ -91,11 +93,14 @@ class EditProfilePage extends StatelessWidget {
                 //  ),
                 //),
                 const SizedBox(height: 20),
-                MyTextFieldicon(
+                InputFieldPasswortOrIcon(
                     controller: TextEditingController(),
                     hintText: 'Email',
                     obscureText: true,
-                    icon:Icons.email),
+                    icon:Icons.email,
+                    eyeCheckerStatus: false,
+                    useSuffixIcon: false,
+                    ),
                 //TextFormField(
                 //  decoration: const InputDecoration(
                 //    label: Text('Phone Number'),
@@ -103,11 +108,14 @@ class EditProfilePage extends StatelessWidget {
                 //  ),
                 //),
                 const SizedBox(height: 20),
-                MyTextFieldicon(
+                InputFieldPasswortOrIcon(
                     controller: TextEditingController(),
                     hintText: 'Phone Number',
                     obscureText: true,
-                    icon:Icons.phone),
+                    icon:Icons.phone,
+                    eyeCheckerStatus: false,
+                    useSuffixIcon: false,
+                    ),
                 //TextFormField(
                 //  decoration: const InputDecoration(
                 //    label: Text('Password'),
@@ -116,11 +124,14 @@ class EditProfilePage extends StatelessWidget {
                 //),
 
                 const SizedBox(height: 20), // davor war 40
-                MyTextFieldicon(
+                InputFieldPasswortOrIcon(
                     controller: TextEditingController(),
                     hintText: 'Password',
                     obscureText: true,
-                    icon:Icons.password),
+                    icon:Icons.password,
+                    eyeCheckerStatus: false,
+                    useSuffixIcon: false,
+                    ),
 
                 // lieber so wie Login Page
                 //MyButton(text: 'Save Changes', onTap: () {},),

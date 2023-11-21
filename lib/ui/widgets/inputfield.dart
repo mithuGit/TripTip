@@ -4,7 +4,7 @@ import '../styles/Styles.dart';
 
 class InputField extends StatelessWidget {
   final String hintText;
-  final controller;
+  final dynamic controller;
   final bool obscureText;
   final EdgeInsets? margin;
 
@@ -17,10 +17,6 @@ class InputField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Size screenSize = MediaQuery.of(context).size;
-    double screenHeight = screenSize.height;
-    double screenWidth = screenSize.width;
-
     return Container(
       margin: margin,
       child: TextField(

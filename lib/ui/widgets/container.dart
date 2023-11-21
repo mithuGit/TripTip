@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 
 class CustomContainer extends StatelessWidget {
   final String title;
-  final double fontSize;
+  final bool? smallSize;
   final List<Widget> children;
 
   const CustomContainer(

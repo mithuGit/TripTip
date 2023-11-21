@@ -1,10 +1,13 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:internet_praktikum/ui/styles/Styles.dart';
+import 'package:internet_praktikum/ui/widgets/container.dart';
+import 'package:internet_praktikum/ui/widgets/inputfield.dart';
 import 'package:internet_praktikum/ui/widgets/my_button.dart';
+import 'package:internet_praktikum/ui/widgets/inputfield_password_or_icon.dart';
 import '../../../core/services/auth_service.dart';
 import '../../widgets/my_textfield.dart';
-import '../../widgets/my_textfield_icon.dart';
-import '../Resetpassword/OTP_form.dart';
+import '../verification/OTP_Form.dart';
 import 'package:dotted_line/dotted_line.dart';
 
 class LoginPage extends StatefulWidget {
@@ -78,11 +81,11 @@ class _LoginPageState extends State<LoginPage> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          backgroundColor: Colors.deepPurple,
+          backgroundColor: Colors.red,
           title: Center(
             child: Text(
               message,
-              style: const TextStyle(color: Colors.white),
+              style: Styles.textfieldHintStyle,
             ),
           ),
         );
@@ -93,14 +96,14 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 168, 217, 251),
-      body: Container(
-        decoration: const BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage(
-                'assets/background_city.png'), // Passe den Pfad zu deinem Hintergrundbild an
-            alignment: Alignment.center,
-            fit: BoxFit.fill,
+      //backgroundColor: const Color.fromARGB(255, 168, 217, 251),
+      body: SafeArea(
+        child: Container(
+          decoration: const BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage('assets/BackgroundCity.png'),
+              fit: BoxFit.cover,
+            ),
           ),
         ),
         child: SafeArea(
@@ -273,14 +276,17 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ),
                     const SizedBox(height: 10),
-                    MyTextFieldicon(
+                    InputFieldPasswortOrIcon(
                       controller: passwordforgotController,
                       hintText: 'Email',
                       obscureText: false,
                       icon: Icons.email_outlined,
+                      eyeCheckerStatus: false,
+                      useSuffixIcon: false,
                     ),
                     const SizedBox(height: 20),
                     MyButton(
+                      colors: Colors.black,
                       text: 'Next',
                       onTap: () {
                         String emailToCheck = passwordforgotController.text;
@@ -308,7 +314,7 @@ class _LoginPageState extends State<LoginPage> {
         child: const Text(
           'Forgot Password?',
           style: TextStyle(
-            color: Colors.blue,
+            color: Colors.white,
             fontWeight: FontWeight.bold,
           ),
         ),
