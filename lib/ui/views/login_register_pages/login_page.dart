@@ -6,7 +6,6 @@ import 'package:internet_praktikum/ui/widgets/inputfield.dart';
 import 'package:internet_praktikum/ui/widgets/my_button.dart';
 import 'package:internet_praktikum/ui/widgets/inputfield_password_or_icon.dart';
 import '../../../core/services/auth_service.dart';
-import '../../widgets/my_textfield.dart';
 import '../verification/OTP_Form.dart';
 import 'package:dotted_line/dotted_line.dart';
 
@@ -105,133 +104,103 @@ class _LoginPageState extends State<LoginPage> {
               fit: BoxFit.cover,
             ),
           ),
-        ),
-        child: SafeArea(
           child: Center(
             child: SingleChildScrollView(
               child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const SizedBox(height: 50),
                     const Icon(
                       Icons.lock,
                       size: 100,
                     ),
-                    const SizedBox(height: 50),
-                    const Text(
-                      'Welcome back you \'ve been missed!',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                      ),
-                    ),
-                    const SizedBox(height: 25),
-                    MyTextField(
-                        controller: emailController,
-                        hintText: 'Email',
-                        obscureText: false),
-                    const SizedBox(height: 10),
-                    MyTextField(
-                        controller: passwordController,
-                        hintText: 'Password',
-                        obscureText: true),
-                    const SizedBox(height: 10),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 25.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: resetpassword(context),
-                      ),
-                    ),
-                    const SizedBox(height: 25),
-                    MyButton(
-                      text: 'Sign In',
-                      onTap: signUserIn,
-                    ),
-                    const SizedBox(height: 30),
-                    const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 25.0),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Divider(
-                              thickness: 0.5,
-                              color: Colors.white,
-                            ),
-                          ),
-                          Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 10.0),
-                            child: Text(
-                              'Or continue with',
-                              style: TextStyle(
-                                color: Colors.white,
+                    CustomContainer(
+                      title: "Login:",
+                      children: [
+                        InputField(
+                          controller: emailController,
+                          hintText: 'Email',
+                          obscureText: false,
+                          margin: const EdgeInsets.only(bottom: 25),
+                        ),
+                        InputFieldPasswortOrIcon(
+                          controller: passwordController,
+                          hintText: 'Password',
+                          obscureText: true,
+                          eyeCheckerStatus: true,
+                          useSuffixIcon: true,
+                        ),
+                        const SizedBox(height: 10),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: resetpassword(context),
+                        ),
+                        const SizedBox(height: 25),
+                        MyButton(
+                          text: 'Sign In',
+                          onTap: signUserIn,
+                        ),
+                        const SizedBox(height: 30),
+                        const Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 25.0),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Divider(
+                                  thickness: 0.5,
+                                  color: Colors.white,
+                                ),
                               ),
-                            ),
+                              Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 10.0),
+                                child: Text(
+                                  'Or continue with',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                              Expanded(
+                                child: Divider(
+                                  thickness: 0.5,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ],
                           ),
-                          Expanded(
-                            child: Divider(
-                              thickness: 0.5,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ],
-                      ),
+                        ),
+                        const SizedBox(height: 30),
+                        MyButton(
+                          onTap: () => AuthService().signInWithGoogle(),
+                          imagePath: 'assets/google_logo.png',
+                          text: "Login with Google",
+                        ),
+                        const SizedBox(height: 25),
+                        MyButton(
+                          onTap: () {},
+                          imagePath: 'assets/facebook_logo.png',
+                          text: "Login with Facebook",
+                        ),
+                        const SizedBox(
+                          height: 15,
+                        ),
+                        const DottedLine(
+                          dashColor: Colors.white,
+                          lineThickness: 1,
+                          dashGapLength: 7,
+                          dashRadius: 1,
+                          dashLength: 5,
+                          direction: Axis.horizontal,
+                          lineLength: 365,
+                        ),
+                        const SizedBox(
+                          height: 15,
+                        ),
+                        MyButton(
+                          onTap: widget.onTap,
+                          text: "Create a new Account", /*small: true,*/
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 30),
-                    MyButton(
-                      onTap: () => AuthService().signInWithGoogle(),
-                      imagePath: 'assets/google_logo.png',
-                      text: "Login with Google",
-                    ),
-                    const SizedBox(height: 25),
-                    MyButton(
-                      onTap: () {},
-                      imagePath: 'assets/facebook_logo.png',
-                      text: "Login with Facebook",
-                    ),
-                    const SizedBox(
-                      height: 15,
-                    ),
-                    const DottedLine(
-                      dashColor: Colors.white,
-                      lineThickness: 1,
-                      dashGapLength: 7,
-                      dashRadius: 1,
-                      dashLength: 5,
-                      direction: Axis.horizontal,
-                      lineLength: 365,
-                    ),
-                    const SizedBox(
-                      height: 15,
-                    ),
-                    MyButton(
-                      onTap: widget.onTap,
-                      text: "Create a new Account",
-                      small: true,
-                    ),
-
-                    /*
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text(
-                    'Not a member?',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                  const SizedBox(
-                    width: 4,
-                  ),
-                  GestureDetector(
-                    onTap: widget.onTap,
-                    child: const Text(
-                      'Register now',
-                      style: TextStyle(
-                          color: Colors.blue, fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                ],
-              )
-              */
                   ]),
             ),
           ),

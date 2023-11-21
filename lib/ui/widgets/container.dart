@@ -7,10 +7,7 @@ class CustomContainer extends StatelessWidget {
   final List<Widget> children;
 
   const CustomContainer(
-      {super.key,
-      required this.title,
-      required this.fontSize,
-      required this.children});
+      {super.key, required this.title, this.smallSize, required this.children});
 
   @override
   Widget build(BuildContext context) {
@@ -19,9 +16,11 @@ class CustomContainer extends StatelessWidget {
     double screenWidth = screenSize.width;
     return Container(
         width: screenWidth * (0.925),
-        height: screenHeight * (0.74375),
+        height: smallSize != null && true
+            ? screenHeight * (0.50335)
+            : screenHeight * (0.74375),
         decoration: BoxDecoration(
-          color: Colors.black.withOpacity(0.90),
+          color: const Color.fromARGB(255, 43, 43, 43).withOpacity(0.90),
           borderRadius: BorderRadius.circular(34.5),
         ),
         child: Padding(

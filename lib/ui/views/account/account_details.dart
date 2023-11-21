@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:internet_praktikum/ui/widgets/my_button.dart';
 import '../../widgets/container.dart';
 import '../../widgets/inputfield.dart';
 import '../../widgets/datepicker.dart';
@@ -33,7 +34,6 @@ class _AccountState extends State<Account> {
           child: Center(
             child: CustomContainer(
               title: "Account Details:",
-              fontSize: 35,
               children: [
                 InputField(
                   controller: prenameController,
@@ -71,6 +71,7 @@ class _AccountState extends State<Account> {
                   obscureText: false,
                   margin: const EdgeInsets.only(bottom: 25),
                 ),
+                MyButton(onTap: () {}, text: 'Finish'),
               ],
             ),
           ),
