@@ -21,6 +21,8 @@ class _DatePickerState extends State<DatePicker> {
 
   @override
   Widget build(BuildContext context) {
+    bool isChosen = false;
+
     return Container(
       margin: widget.margin,
       height: 55,
@@ -32,7 +34,14 @@ class _DatePickerState extends State<DatePicker> {
                 return Container(
                   // Wie groß wird das Auswahlrad
                   height: MediaQuery.of(context).size.height * 0.3,
-                  color: Colors.white,
+
+                  decoration: const BoxDecoration(
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(20),
+                      topRight: Radius.circular(20),
+                    ),
+                    color: Colors.white,
+                  ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
@@ -60,7 +69,8 @@ class _DatePickerState extends State<DatePicker> {
               });
         },
         style: ElevatedButton.styleFrom(
-          foregroundColor: Colors.black, backgroundColor: Colors.white,
+          foregroundColor: Colors.black,
+          backgroundColor: Colors.white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(11),
           ),
