@@ -7,7 +7,7 @@ import 'package:internet_praktikum/ui/widgets/my_button.dart';
 import 'package:internet_praktikum/ui/widgets/inputfield_password_or_icon.dart';
 import '../../../core/services/auth_service.dart';
 import '../../widgets/my_textfield.dart';
-import '../verification/OTP_Form.dart';
+import '../verification/OTP_form.dart';
 import 'package:dotted_line/dotted_line.dart';
 
 import 'home_page.dart';
@@ -76,14 +76,14 @@ class _LoginPageState extends State<LoginPage> {
       counter = 0;
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => const OTPForm()),
+        MaterialPageRoute(builder: (context) => const OTPForm(passwordverifier: false,)),
       );
     }
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          backgroundColor: Colors.red,
+          backgroundColor: Colors.black,
           title: Center(
             child: Text(
               message,
@@ -98,8 +98,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      //backgroundColor: const Color.fromARGB(255, 168, 217, 251),
-      body: SafeArea(
+        body: SafeArea(
         child: Container(
           decoration: const BoxDecoration(
             image: DecorationImage(
@@ -135,7 +134,7 @@ class _LoginPageState extends State<LoginPage> {
                         const SizedBox(height: 10),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.end,
-                          children: resetpassword(context),
+                          children: sendEmailforRestPassword(context),
                         ),
                         const SizedBox(height: 25),
                         MyButton(
@@ -222,7 +221,7 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  List<Widget> resetpassword(BuildContext context) {
+  List<Widget> sendEmailforRestPassword(BuildContext context) {
     return [
       GestureDetector(
         onTap: () {
@@ -276,7 +275,7 @@ class _LoginPageState extends State<LoginPage> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => const OTPForm()),
+                                builder: (context) => const OTPForm(passwordverifier: true,)),
                           );
                         } else {
                           isValidEmail(passwordforgotController.text)
