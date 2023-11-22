@@ -3,6 +3,8 @@ import 'package:internet_praktikum/ui/widgets/my_button.dart';
 import '../../widgets/container.dart';
 import '../../widgets/inputfield.dart';
 import '../../widgets/datepicker.dart';
+import '../../widgets/my_textfield_emailnotnull.dart';
+import '../../widgets/datepicker.dart';
 
 class Account extends StatefulWidget {
   const Account({super.key});
@@ -14,6 +16,8 @@ class Account extends StatefulWidget {
 class _AccountState extends State<Account> {
   //Controller for text
   final prenameController = TextEditingController();
+  final lastnameController = TextEditingController();
+  final emailController = TextEditingController();
   @override
   Widget build(BuildContext context) {
     // Get Screen Size
@@ -42,7 +46,7 @@ class _AccountState extends State<Account> {
                   margin: const EdgeInsets.only(bottom: 25),
                 ),
                 InputField(
-                  controller: prenameController,
+                  controller: lastnameController,
                   hintText: 'Lastname',
                   obscureText: false,
                   margin: const EdgeInsets.only(bottom: 12.5),
@@ -62,12 +66,12 @@ class _AccountState extends State<Account> {
                   ),
                 ),
                 const SizedBox(height: 12.5),
-                const DatePicker(
+                const CupertinoDatePickerButton(
                   margin: EdgeInsets.only(bottom: 25),
                 ),
-                InputField(
-                  controller: prenameController,
-                  hintText: 'Email',
+                MyTextFieldemailnotnull(
+                  controller: emailController,
+                  hintText: "Email",
                   obscureText: false,
                   margin: const EdgeInsets.only(bottom: 25),
                 ),

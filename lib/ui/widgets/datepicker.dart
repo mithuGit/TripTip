@@ -2,72 +2,71 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import '../styles/Styles.dart';
 
-class DatePicker extends StatefulWidget {
+class CupertinoDatePickerButton extends StatefulWidget {
   final margin;
-  const DatePicker({super.key, this.margin});
+
+  const CupertinoDatePickerButton({super.key, this.margin});
 
   @override
-  State<DatePicker> createState() => _DatePickerState();
+  _CupertinoDatePickerButtonState createState() =>
+      _CupertinoDatePickerButtonState();
 }
 
-class _DatePickerState extends State<DatePicker> {
-  late DateTime dateTime;
+class _CupertinoDatePickerButtonState extends State<CupertinoDatePickerButton> {
+  DateTime? selectedDate;
 
-  @override
-  void initState() {
-    dateTime = DateTime.now();
-    super.initState();
+  Future<void> _selectDate(BuildContext context) async {
+    DateTime currentDate = selectedDate ?? DateTime.now();
+
+    await showModalBottomSheet(
+      context: context,
+      builder: (BuildContext builder) {
+        return Container(
+          height: MediaQuery.of(context).size.height * 0.3,
+          decoration: const BoxDecoration(
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(20),
+              topRight: Radius.circular(20),
+            ),
+            color: Colors.white,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(); // Close the bottom sheet
+                },
+                child: const Text('Done'),
+              ),
+              Expanded(
+                  child: CupertinoDatePicker(
+                      initialDateTime: DateTime.now(),
+                      mode: CupertinoDatePickerMode.date,
+                      maximumDate: DateTime.now(),
+                      onDateTimeChanged: (DateTime newDate) {
+                        currentDate = newDate;
+                      }))
+            ],
+          ),
+        );
+      },
+    );
+
+    if (currentDate != selectedDate) {
+      setState(() {
+        selectedDate = currentDate;
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    bool isChosen = false;
-
     return Container(
       margin: widget.margin,
-      height: 55,
+      height: 50,
       child: ElevatedButton(
-        onPressed: () {
-          showCupertinoModalPopup(
-              context: context,
-              builder: (context) {
-                return Container(
-                  // Wie groß wird das Auswahlrad
-                  height: MediaQuery.of(context).size.height * 0.3,
-
-                  decoration: const BoxDecoration(
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(20),
-                      topRight: Radius.circular(20),
-                    ),
-                    color: Colors.white,
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      TextButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                        child: const Text("Done"),
-                      ),
-                      Expanded(
-                        child: CupertinoDatePicker(
-                          initialDateTime: dateTime,
-                          mode: CupertinoDatePickerMode.date,
-                          maximumDate: DateTime.now(),
-                          onDateTimeChanged: (date) {
-                            setState(() {
-                              dateTime = date;
-                            });
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              });
-        },
+        onPressed: () => _selectDate(context),
         style: ElevatedButton.styleFrom(
           foregroundColor: Colors.black,
           backgroundColor: Colors.white,
@@ -76,17 +75,17 @@ class _DatePickerState extends State<DatePicker> {
           ),
           padding: const EdgeInsets.all(0),
         ),
-        child: const Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            Padding(
-              padding: EdgeInsets.symmetric(vertical: 16, horizontal: 14),
-              child: Text(
-                'Select Date of Birth',
-                style: Styles.textfieldHintStyle,
-              ),
-            ),
-          ],
+        child: Container(
+          alignment: Alignment.center,
+          padding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+          child: Text(
+            selectedDate != null
+                ? '${selectedDate!.day}.${selectedDate!.month}.${selectedDate!.year}'
+                : 'Select Date',
+            style: selectedDate != null
+                ? const TextStyle(fontSize: 16, color: Colors.black)
+                : Styles.textfieldHintStyle,
+          ),
         ),
       ),
     );
