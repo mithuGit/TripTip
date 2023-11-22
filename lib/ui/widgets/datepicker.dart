@@ -76,14 +76,14 @@ class _CupertinoDatePickerButtonState extends State<CupertinoDatePickerButton> {
           padding: const EdgeInsets.all(0),
         ),
         child: Container(
-          alignment: Alignment.center,
+          alignment: Alignment.centerLeft,
           padding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
           child: Text(
             selectedDate != null
                 ? '${selectedDate!.day}.${selectedDate!.month}.${selectedDate!.year}'
                 : 'Select Date',
             style: selectedDate != null
-                ? const TextStyle(fontSize: 16, color: Colors.black)
+                ? Styles.textfieldFilledStyle
                 : Styles.textfieldHintStyle,
           ),
         ),
