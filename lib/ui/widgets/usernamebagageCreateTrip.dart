@@ -16,9 +16,9 @@ class UsernameBagageCreateTrip extends StatefulWidget {
 class _UsernameBagageCreateTripState extends State<UsernameBagageCreateTrip> {
 final FirebaseAuth _auth = FirebaseAuth.instance;
   Future<User> _getNames() async {
-    String? name =  _auth.currentUser!.displayName;
     Image pb = Image.asset('assets/Personavatar.png');
-    if (name != null) {
+    if (_auth.currentUser != null) {
+      String name = _auth.currentUser!.displayName!;
       if(RegExp(r'.\ .').hasMatch(name)) {
         List<String> names = name.split(' ');
         List<String> firsts = names.sublist(0, names.length-1);
