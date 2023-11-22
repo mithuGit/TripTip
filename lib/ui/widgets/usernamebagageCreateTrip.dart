@@ -28,7 +28,7 @@ final FirebaseAuth _auth = FirebaseAuth.instance;
         return User(name, '', pb);
       }
     } else {
-      return User('Not', 'Registerd', pb);
+      return User('Not', 'Registered', pb);
     }
   }
   @override
