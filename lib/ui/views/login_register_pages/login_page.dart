@@ -10,6 +10,8 @@ import '../../widgets/my_textfield.dart';
 import '../verification/OTP_Form.dart';
 import 'package:dotted_line/dotted_line.dart';
 
+import 'home_page.dart';
+
 class LoginPage extends StatefulWidget {
   final Function()? onTap;
 
@@ -171,7 +173,17 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                         const SizedBox(height: 30),
                         MyButton(
-                          onTap: () => AuthService().signInWithGoogle(),
+                          onTap: () {
+                            signInWithGoogle().whenComplete(() {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) {
+                                    return HomePage();
+                                  },
+                                ),
+                              );
+                            });
+                          },
                           imagePath: 'assets/google_logo.png',
                           text: "Login with Google",
                         ),
