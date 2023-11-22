@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:internet_praktikum/ui/widgets/inputfield_search_lookahead.dart';
 import 'package:internet_praktikum/ui/widgets/my_button.dart';
 import 'package:internet_praktikum/ui/widgets/usernamebagageCreateTrip.dart';
 import '../../styles/Styles.dart';
@@ -106,6 +107,7 @@ class _TripCreateState extends State<CreateTrip> {
                           obscureText: false,
                           margin: const EdgeInsets.only(bottom: 25),
                         ),
+                        AsyncAutocomplete(),
                         MyButton(
                             onTap: connectPhotosAlbum,
                             imagePath: 'assets/googlephotos.png',
