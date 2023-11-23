@@ -178,11 +178,11 @@ class _RegisterPageState extends State<RegisterPage> {
 
                           const SizedBox(height: 30),
                             
-                          MyButton(
+                        /*   MyButton(
                             onTap: () => AuthService().signInWithGoogle(),
                             imagePath: 'assets/google_logo.png',
                             text: "Register with Google",
-                          ),
+                          ), */
                           const SizedBox(height: 25),
                             
                           MyButton(

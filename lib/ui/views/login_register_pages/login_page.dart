@@ -10,6 +10,8 @@ import '../../../core/services/auth_service.dart';
 import '../verification/OTP_Form.dart';
 import 'package:webview_flutter_plus/webview_flutter_plus.dart';
 
+import 'home_page.dart';
+
 class LoginPage extends StatefulWidget {
   final Function()? onTap;
 
@@ -189,7 +191,17 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                         const SizedBox(height: 30),
                         MyButton(
-                          onTap: () => AuthService().signInWithGoogle(),
+                          onTap: () {
+                            signInWithGoogle().whenComplete(() {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) {
+                                    return HomePage();
+                                  },
+                                ),
+                              );
+                            });
+                          },
                           imagePath: 'assets/google_logo.png',
                           text: "Login with Google",
                         ),
