@@ -10,7 +10,6 @@ import 'package:internet_praktikum/ui/widgets/inputfield.dart';
 import 'package:internet_praktikum/ui/widgets/inputfield_password_or_icon.dart';
 
 import '../../widgets/my_button.dart';
-import '../Resetpassword/Password_change.dart';
 
 class OTPForm extends StatefulWidget {
   final bool passwordverifier;
@@ -68,7 +67,7 @@ class _OTPFormState extends State<OTPForm> {
       //Utils.showSnackBar(e.toString());
     }
   }
-  
+
   @override
   Widget build(BuildContext context) {
     const String message = "Enter the Verification code sent at ";
@@ -115,6 +114,8 @@ class _OTPFormState extends State<OTPForm> {
                               fontSize: 20,
                             ),
                           ),
+
+                          /*
                           const SizedBox(height: 50),
                           OtpTextField(
                             fieldWidth: 60.0,
@@ -137,36 +138,50 @@ class _OTPFormState extends State<OTPForm> {
                             color: Colors.white,
                             size: 40,
                           ),
-                          const SizedBox(
-                            height: 35,
-                          ),
+                          const SizedBox(height: 35,),
+                          */
 
-
-                          // TODO Aber hier weiter machen !!!!!
-                          /*if(){
-                            MyButton(
-                              onTap: canResendEmail ? sendVerificationEmail() : null,
-                              text: "Resend Code",
+                          const SizedBox(height: 60),
+                          if (canResendEmail)
+                            const Icon(
+                              Icons.verified,
+                              color: Colors.white,
+                              size: 100,
                             )
-                          }
-                          else{
-                          };*/
+                          else
+                            const Icon(
+                              Icons.verified,
+                              color: Colors.green,
+                              size: 100,
+                            ),
+                          const SizedBox(height: 55,),
+                          
+                          
+                          
 
-                          // Dieser Button wird nur ausgeführt wenn EMail verifiziert wurde, ansonst kommt nur der Resend Code Button
-                          MyButton(
-                            onTap: () => {
-                              if (widget.passwordverifier)
-                                resetpassword(context)
-                              else
-                                Navigator.push(
+                          if (canResendEmail)
+                            MyButton(
+                              onTap: () => sendVerificationEmail(),
+                              text: "Resend Link",
+                            )
+                          else
+                            MyButton(
+                              onTap: () {
+                                if (widget.passwordverifier) {
+                                  resetpassword(context);
+                                } else {
+                                  Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                        builder: (context) => HomePage()))
-                            },
-                            text: widget.passwordverifier
-                                ? 'Change Password'
-                                : 'Next', // TODO: Text anpassen, weil eigentlich ist es ja Resend Code sondern Next
-                          ),
+                                      builder: (context) => HomePage(),
+                                    ),
+                                  );
+                                }
+                              },
+                              text: widget.passwordverifier
+                                  ? 'Change Password'
+                                  : 'Next',
+                            ),
 
                           // Würde hier ein Back-Button Sinn machen? Mithu-Thai: JA
                           /* MyButton(

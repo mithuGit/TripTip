@@ -1,8 +1,8 @@
 import 'dart:math';
 
-import 'package:dotted_line/dotted_line.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:internet_praktikum/ui/views/login_register_pages/login_page.dart';
 import 'package:internet_praktikum/ui/widgets/container.dart';
 import '../../../core/services/auth_service.dart';
 import '../../widgets/my_button.dart';
@@ -193,16 +193,10 @@ class _RegisterPageState extends State<RegisterPage> {
                             
                           const SizedBox(height: 15,),
                             
-                          const DottedLine(
-                            dashColor: Colors.white,
-                            lineThickness: 1,
-                            dashGapLength: 7,
-                            dashRadius: 1,
-                            dashLength: 5,
-                            direction: Axis.horizontal,
-                            lineLength: 365,
+                          CustomPaint(
+                             painter: DashedLinePainter(),
                           ),
-                            
+                          
                           const SizedBox(height: 15, ),
                             
                           MyButton(
