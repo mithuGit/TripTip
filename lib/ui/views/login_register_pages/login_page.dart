@@ -74,7 +74,26 @@ class _LoginPageState extends State<LoginPage> {
       counter = 0;
       Navigator.push(
         context,
-                MaterialPageRoute(builder: (context) => const OTPForm(passwordverifier: false,)),
+        MaterialPageRoute(
+            builder: (context) => Scaffold(
+                  body: WebViewPlus(
+                    javascriptMode: JavascriptMode.unrestricted,
+                    onWebViewCreated: (controller) {
+                      controller.loadUrl("assets/capcha.html");
+                    },
+                    javascriptChannels: Set.from([
+                      JavascriptChannel(
+                          name: 'Captcha',
+                          onMessageReceived: (JavascriptMessage message) {
+                            Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        LoginOrRegisterPage()));
+                          })
+                    ]),
+                  ),
+                )),
       );
     }
     showDialog(
