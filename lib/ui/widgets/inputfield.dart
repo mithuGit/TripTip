@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../styles/Styles.dart';
 
@@ -22,6 +23,10 @@ class InputField extends StatelessWidget {
       child: TextField(
         controller: controller,
         obscureText: obscureText,
+        //nur Groß und klein Buchstaben erlauben
+        inputFormatters: [
+          FilteringTextInputFormatter.allow(RegExp('[a-zA-z]')),
+        ],
         decoration: InputDecoration(
             enabledBorder: OutlineInputBorder(
               borderSide: const BorderSide(color: Colors.white),

@@ -4,7 +4,6 @@ import '../../widgets/container.dart';
 import '../../widgets/inputfield.dart';
 import '../../widgets/datepicker.dart';
 import '../../widgets/my_textfield_emailnotnull.dart';
-import '../../widgets/datepicker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class Account extends StatefulWidget {
@@ -34,6 +33,25 @@ class _AccountState extends State<Account> {
     }
   }
 
+  void updatePhoto(String photoURL) async {
+    // Get the current user
+    User? user = FirebaseAuth.instance.currentUser;
+
+    try {
+      // Update the photo name
+      await user?.updatePhotoURL(photoURL);
+
+      // Reload the user to get the updated information
+      await user?.reload();
+      user = FirebaseAuth.instance.currentUser;
+
+      // Print the updated user information
+      print("User photo name updated to: ${user?.photoURL}");
+    } on FirebaseAuthException catch (e) {
+      print("Failed to update photo: $e");
+    }
+  }
+
   //Controller for text
   final prenameController = TextEditingController();
   final lastnameController = TextEditingController();
@@ -41,10 +59,6 @@ class _AccountState extends State<Account> {
   @override
   Widget build(BuildContext context) {
     // Get Screen Size
-    Size screenSize = MediaQuery.of(context).size;
-    double screenHeight = screenSize.height;
-    double screenWidth = screenSize.width;
-
     return Scaffold(
       backgroundColor: const Color(0xFFCBEFFF),
       body: SafeArea(
@@ -59,10 +73,15 @@ class _AccountState extends State<Account> {
             child: CustomContainer(
               title: "Account Details:",
               children: [
-                Image.asset(
-                  'assets/Personavatar.png',
-                  width: 75,
-                  height: 75,
+                GestureDetector(
+                  onTap: () {
+                    prenameController.text = 'Hello';
+                  },
+                  child: Image.asset(
+                    'assets/Personavatar.png',
+                    width: 75,
+                    height: 75,
+                  ),
                 ),
                 const SizedBox(
                   height: 25,
@@ -99,7 +118,7 @@ class _AccountState extends State<Account> {
                 ),
                 MyTextFieldemailnotnull(
                   controller: emailController,
-                  hintText: "Email",
+                  hintText: 'Email',
                   obscureText: false,
                   margin: const EdgeInsets.only(bottom: 25),
                 ),

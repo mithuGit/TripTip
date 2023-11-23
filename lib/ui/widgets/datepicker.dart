@@ -40,13 +40,22 @@ class _CupertinoDatePickerButtonState extends State<CupertinoDatePickerButton> {
                 child: const Text('Done'),
               ),
               Expanded(
-                  child: CupertinoDatePicker(
-                      initialDateTime: DateTime.now(),
-                      mode: CupertinoDatePickerMode.date,
-                      maximumDate: DateTime.now(),
-                      onDateTimeChanged: (DateTime newDate) {
-                        currentDate = newDate;
-                      }))
+                  child: Container(
+                decoration: const BoxDecoration(
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(20),
+                    topRight: Radius.circular(20),
+                  ),
+                  color: Colors.white,
+                ),
+                child: CupertinoDatePicker(
+                    initialDateTime: DateTime.now(),
+                    mode: CupertinoDatePickerMode.date,
+                    maximumDate: DateTime.now(),
+                    onDateTimeChanged: (DateTime newDate) {
+                      currentDate = newDate;
+                    }),
+              ))
             ],
           ),
         );
