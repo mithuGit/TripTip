@@ -1,14 +1,14 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:internet_praktikum/ui/styles/Styles.dart';
+import 'package:internet_praktikum/ui/views/login_register_pages/login_or_register_page.dart';
 import 'package:internet_praktikum/ui/widgets/container.dart';
 import 'package:internet_praktikum/ui/widgets/inputfield.dart';
 import 'package:internet_praktikum/ui/widgets/my_button.dart';
 import 'package:internet_praktikum/ui/widgets/inputfield_password_or_icon.dart';
 import '../../../core/services/auth_service.dart';
-import '../../widgets/my_textfield.dart';
-import '../verification/OTP_form.dart';
-import 'package:dotted_line/dotted_line.dart';
+import '../verification/OTP_Form.dart';
+import 'package:webview_flutter_plus/webview_flutter_plus.dart';
 
 class LoginPage extends StatefulWidget {
   final Function()? onTap;
@@ -74,7 +74,7 @@ class _LoginPageState extends State<LoginPage> {
       counter = 0;
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => const OTPForm(passwordverifier: false,)),
+                MaterialPageRoute(builder: (context) => const OTPForm(passwordverifier: false,)),
       );
     }
     showDialog(
@@ -96,7 +96,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: SafeArea(
+      body: SafeArea(
         child: Container(
           decoration: const BoxDecoration(
             image: DecorationImage(
@@ -181,19 +181,17 @@ class _LoginPageState extends State<LoginPage> {
                           text: "Login with Facebook",
                         ),
                         const SizedBox(
-                          height: 15,
+                          height: 25,
                         ),
-                        const DottedLine(
-                          dashColor: Colors.white,
-                          lineThickness: 1,
-                          dashGapLength: 7,
-                          dashRadius: 1,
-                          dashLength: 5,
-                          direction: Axis.horizontal,
-                          lineLength: 365,
+
+                        // Hier wird eine gestrichelte Linie gezeichnet
+                        // mit der Klasse DashedLinePainter (siehe unten)
+                        CustomPaint(
+                          painter: DashedLinePainter(),
                         ),
+
                         const SizedBox(
-                          height: 15,
+                          height: 25,
                         ),
                         MyButton(
                           onTap: widget.onTap,
@@ -263,7 +261,9 @@ class _LoginPageState extends State<LoginPage> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => const OTPForm(passwordverifier: true,)),
+                                builder: (context) => const OTPForm(
+                                      passwordverifier: true,
+                                    )),
                           );
                         } else {
                           isValidEmail(passwordforgotController.text)
@@ -297,4 +297,22 @@ class _LoginPageState extends State<LoginPage> {
     RegExp regex = RegExp(emailRegex);
     return regex.hasMatch(email);
   }
+}
+
+// Mit dieser Klasse kann man eine gestrichelte Linie zeichnen lassen
+class DashedLinePainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    double dashWidth = 15, dashSpace = 5, startX = 0;
+    final paint = Paint()
+      ..color = Colors.white
+      ..strokeWidth = 2;
+    while (startX < size.width) {
+      canvas.drawLine(Offset(startX, 0), Offset(startX + dashWidth, 0), paint);
+      startX += dashWidth + dashSpace;
+    }
+  }
+
+  @override
+  bool shouldRepaint(CustomPainter oldDelegate) => false;
 }
