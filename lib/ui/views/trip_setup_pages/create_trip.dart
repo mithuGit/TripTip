@@ -89,12 +89,7 @@ class _TripCreateState extends State<CreateTrip> {
                     child: CustomContainer(
                       title: "Start your next Adventure:",
                       children: [
-                        InputField(
-                          controller: destinationText,
-                          hintText: 'Destination',
-                          obscureText: false,
-                          margin: const EdgeInsets.only(bottom: 25),
-                        ),
+                        AsyncAutocomplete(),
                         InputField(
                           controller: starttime,
                           hintText: 'Start Time',
@@ -107,7 +102,7 @@ class _TripCreateState extends State<CreateTrip> {
                           obscureText: false,
                           margin: const EdgeInsets.only(bottom: 25),
                         ),
-                        AsyncAutocomplete(),
+                        
                         MyButton(
                             onTap: connectPhotosAlbum,
                             imagePath: 'assets/googlephotos.png',
@@ -120,7 +115,7 @@ class _TripCreateState extends State<CreateTrip> {
                     )),
               ),
             ),
-            UsernameBagageCreateTrip()
+            const UsernameBagageCreateTrip()
           ]),
         ));
   }

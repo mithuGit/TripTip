@@ -22,5 +22,11 @@ class Styles {
       fontSize: 14,
       fontFamily: 'Ubuntu',
       fontWeight: FontWeight.w500,
-  );    
+  );   
+  static const textAutocomplete = TextStyle(
+      color: Colors.black,
+      fontSize: 12,
+      fontFamily: 'Ubuntu',
+      fontWeight: FontWeight.w500,
+  );  
 }
