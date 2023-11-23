@@ -15,10 +15,6 @@ class _AccountState extends State<Account> {
   @override
   Widget build(BuildContext context) {
     // Get Screen Size
-    Size screenSize = MediaQuery.of(context).size;
-    double screenHeight = screenSize.height;
-    double screenWidth = screenSize.width;
-
     return Scaffold(
         backgroundColor: const Color(0xFFCBEFFF),
         body: SafeArea(

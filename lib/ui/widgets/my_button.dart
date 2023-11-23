@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:internet_praktikum/ui/styles/Styles.dart';
 
 class MyButton extends StatelessWidget {
   final Function()? onTap;
@@ -6,69 +7,58 @@ class MyButton extends StatelessWidget {
   final IconData? iconData;
   final String? imagePath;
   final Color? colors;
+  final EdgeInsets? margin;
 
-  const MyButton({
-    Key? key,
-    required this.onTap,
-    required this.text,
-    this.iconData,
-    this.imagePath,
-    this.colors,
-  }) : super(key: key);
+  const MyButton(
+      {Key? key,
+      required this.onTap,
+      required this.text,
+      this.iconData,
+      this.imagePath,
+      this.colors,
+      this.margin})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(15),
-        decoration: BoxDecoration(
-          color: colors ?? Colors.transparent,
-          borderRadius: BorderRadius.circular(11),
-          border: Border.all(color: Colors.white),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            if (iconData != null)
-              Icon(
-                iconData!, // nicht sicher ob hier ein ! kommt
+    return Container(
+        margin: margin,
+        child: OutlinedButton(
+            onPressed: onTap,
+            style: OutlinedButton.styleFrom(
+              foregroundColor: const Color.fromARGB(100, 255, 255, 255),
+              padding: (iconData == null && imagePath == null)
+                  ? const EdgeInsets.all(16)
+                  : const EdgeInsets.only(
+                      top: 8, bottom: 8, left: 12, right: 12),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(11)),
+              side: const BorderSide(
+                width: 1.5,
+                color: Colors.white,
               ),
-            if (imagePath != null)
-              Image.asset(
-                imagePath!, // nicht sicher ob hier ein ! kommt
-                height: 24,
-              ),
-            if (imagePath != null || iconData != null)
-              const SizedBox(width: 20),
-            Expanded(
-              child: iconData != null || imagePath != null
-                  ? Align(
-                      alignment: Alignment.topLeft,
-                      child: Text(
-                        text,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ),
-                      ),
-                    )
-                  : Align(
-                      alignment: Alignment.center,
-                      child: Text(
-                        text,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ),
-                      ),
-                    ),
-            )
-          ],
-        ),
-      ),
-    );
+            ),
+            child: Row(
+                mainAxisAlignment: (iconData == null && imagePath == null)
+                    ? MainAxisAlignment.center
+                    : MainAxisAlignment.start,
+                children: [
+                  if ((iconData != null || imagePath != null)) ...[
+                    if (imagePath != null) ...[
+                      Image.asset(
+                        imagePath!,
+                        width: 30,
+                        height: 30,
+                      )
+                    ] else ...[
+                      Icon(iconData)
+                    ],
+                    const SizedBox(width: 20),
+                  ],
+                  Text(
+                    text,
+                    style: Styles.buttonFontStyle,
+                  )
+                ])));
   }
 }

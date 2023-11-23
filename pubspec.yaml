@@ -44,9 +44,14 @@ dependencies:
   flutter_svg: ^2.0.9
   dotted_line: ^3.2.2
   flutter_svg_provider: ^1.0.6
+  http: ^1.1.0
+  uuid: ^4.2.1
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  firebase_auth_mocks: ^0.13.0
+  fake_cloud_firestore: ^2.4.3
+  google_sign_in_mocks: ^0.3.0
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
