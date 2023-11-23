@@ -5,6 +5,7 @@ import '../../widgets/inputfield.dart';
 import '../../widgets/datepicker.dart';
 import '../../widgets/my_textfield_emailnotnull.dart';
 import '../../widgets/datepicker.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class Account extends StatefulWidget {
   const Account({super.key});
@@ -14,6 +15,25 @@ class Account extends StatefulWidget {
 }
 
 class _AccountState extends State<Account> {
+  void updateDisplayName(String newDisplayName) async {
+    // Get the current user
+    User? user = FirebaseAuth.instance.currentUser;
+
+    try {
+      // Update the display name
+      await user?.updateProfile(displayName: newDisplayName);
+
+      // Reload the user to get the updated information
+      await user?.reload();
+      user = FirebaseAuth.instance.currentUser;
+
+      // Print the updated user information
+      print("User display name updated to: ${user?.displayName}");
+    } on FirebaseAuthException catch (e) {
+      print("Failed to update display name: $e");
+    }
+  }
+
   //Controller for text
   final prenameController = TextEditingController();
   final lastnameController = TextEditingController();
@@ -39,6 +59,14 @@ class _AccountState extends State<Account> {
             child: CustomContainer(
               title: "Account Details:",
               children: [
+                Image.asset(
+                  'assets/Personavatar.png',
+                  width: 75,
+                  height: 75,
+                ),
+                const SizedBox(
+                  height: 25,
+                ),
                 InputField(
                   controller: prenameController,
                   hintText: 'Prename',
@@ -75,7 +103,13 @@ class _AccountState extends State<Account> {
                   obscureText: false,
                   margin: const EdgeInsets.only(bottom: 25),
                 ),
-                MyButton(onTap: () {}, text: 'Finish'),
+                MyButton(
+                    onTap: () {
+                      String displayName = prenameController.toString() +
+                          lastnameController.toString();
+                      updateDisplayName(displayName);
+                    },
+                    text: 'Finish'),
               ],
             ),
           ),

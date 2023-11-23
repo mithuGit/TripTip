@@ -77,7 +77,7 @@ class _CupertinoDatePickerButtonState extends State<CupertinoDatePickerButton> {
         ),
         child: Container(
           alignment: Alignment.centerLeft,
-          padding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
           child: Text(
             selectedDate != null
                 ? '${selectedDate!.day}.${selectedDate!.month}.${selectedDate!.year}'
