@@ -75,7 +75,7 @@ class _AccountState extends State<Account> {
                   obscureText: false,
                   margin: const EdgeInsets.only(bottom: 25),
                 ),
-                MyButton(onTap: () {}, text: 'Finish!!'),
+                MyButton(onTap: () {}, text: 'Finish'),
               ],
             ),
           ),
