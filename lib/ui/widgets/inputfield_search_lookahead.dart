@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:internet_praktikum/core/services/placeApiProvider.dart';
 import 'package:internet_praktikum/ui/styles/Styles.dart';
+import 'package:internet_praktikum/ui/widgets/errorSnackbar.dart';
 import 'package:internet_praktikum/ui/widgets/inputfield.dart';
 import 'package:uuid/uuid.dart';
 
@@ -68,9 +69,10 @@ class _AsyncAutocompleteState extends State<AsyncAutocomplete> {
                   PlaceApiProvider placeApiProvider =
                       PlaceApiProvider(const Uuid().v4());
                   final Iterable<String> options = await placeApiProvider
-                      .fetchSuggestions(_searchingWithQuery!).catchError((error) => {
-                        
-                      });
+                      .fetchSuggestions(_searchingWithQuery!).catchError((error) => 
+                        ErrorSnackbar.showErrorSnackbar(context);
+                        return Iterable<String>.empty();
+                      );
                   if (_searchingWithQuery != textEditingValue.text) {
                     return _lastOptions;
                   }
