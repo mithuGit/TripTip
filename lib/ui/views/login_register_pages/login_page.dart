@@ -83,7 +83,7 @@ class _LoginPageState extends State<LoginPage> {
                     onWebViewCreated: (controller) {
                       controller.loadUrl("assets/capcha.html");
                     },
-                    javascriptChannels: Set.from([
+                    javascriptChannels: {
                       JavascriptChannel(
                           name: 'Captcha',
                           onMessageReceived: (JavascriptMessage message) {
@@ -91,9 +91,9 @@ class _LoginPageState extends State<LoginPage> {
                                 context,
                                 MaterialPageRoute(
                                     builder: (context) =>
-                                        LoginOrRegisterPage()));
+                                        const LoginOrRegisterPage()));
                           })
-                    ]),
+                    },
                   ),
                 )),
       );
@@ -126,7 +126,9 @@ class _LoginPageState extends State<LoginPage> {
             ),
           ),
           child: Center(
-            child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.only(
+                        top: 80, left: 14, right: 14, bottom: 45),
               child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [

@@ -63,14 +63,14 @@ class _AsyncAutocompleteState extends State<AsyncAutocomplete> {
               },
               optionsBuilder: (TextEditingValue textEditingValue) async {
                 _searchingWithQuery = textEditingValue.text;
-                
-                if (_searchingWithQuery != '' && _searchingWithQuery != _lastsearching) {
+
+                if (_searchingWithQuery != '' &&
+                    _searchingWithQuery != _lastsearching) {
                   PlaceApiProvider placeApiProvider =
                       PlaceApiProvider(const Uuid().v4());
                   final Iterable<String> options = await placeApiProvider
-                      .fetchSuggestions(_searchingWithQuery!).catchError((error) => {
-                        
-                      });
+                      .fetchSuggestions(_searchingWithQuery!)
+                      .catchError((error) => {});
                   if (_searchingWithQuery != textEditingValue.text) {
                     return _lastOptions;
                   }

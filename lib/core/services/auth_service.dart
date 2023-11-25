@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
@@ -12,6 +13,25 @@ Future<UserCredential> signInWithGoogle() async {
     accessToken: gAuth.accessToken,
     idToken: gAuth.idToken,
   );
+
+  // hier muss noch eingebaut werden, wegen OTP Verifizierung
+  UserCredential userCredential =
+      await FirebaseAuth.instance.signInWithCredential(credential);
+
+  if (userCredential.user != null) {
+    if (userCredential.additionalUserInfo!.isNewUser) {
+      // add user to firestore
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userCredential.user!.uid)
+          .set({
+        'email': userCredential.user!.email,
+        'name': userCredential.user!.displayName,
+        'profilePicture': userCredential.user!.photoURL,
+        'uid': userCredential.user!.uid,
+      });
+    }
+  }
   // finally, lets sign in the user
   return await FirebaseAuth.instance.signInWithCredential(credential);
 }

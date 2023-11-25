@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:internet_praktikum/ui/views/login_register_pages/home_page.dart';
 import 'package:internet_praktikum/ui/views/login_register_pages/login_page.dart';
 import 'package:internet_praktikum/ui/widgets/container.dart';
 import '../../../core/services/auth_service.dart';
@@ -102,7 +103,9 @@ class _RegisterPageState extends State<RegisterPage> {
                 ),
             ),
             child: Center(
-              child: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.only(
+                        top: 80, left: 14, right: 14, bottom: 45),
                 child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -178,11 +181,22 @@ class _RegisterPageState extends State<RegisterPage> {
 
                           const SizedBox(height: 30),
                             
-                        /*   MyButton(
-                            onTap: () => AuthService().signInWithGoogle(),
+                          MyButton(
+                            //onTap: () => AuthService().signInWithGoogle(),
+                            onTap: () {
+                            signInWithGoogle().whenComplete(() {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) {
+                                    return HomePage();
+                                  },
+                                ),
+                              );
+                            });
+                          },
                             imagePath: 'assets/google_logo.png',
                             text: "Register with Google",
-                          ), */
+                          ), 
                           const SizedBox(height: 25),
                             
                           MyButton(
