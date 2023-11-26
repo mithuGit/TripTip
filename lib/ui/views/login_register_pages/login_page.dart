@@ -209,7 +209,17 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                         const SizedBox(height: 25),
                         MyButton(
-                          onTap: () {},
+                          onTap: () {
+                            signInWithFacebook().whenComplete(() {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) {
+                                    return HomePage();
+                                  },
+                                ),
+                              );
+                            });
+                          },
                           imagePath: 'assets/facebook_logo.png',
                           text: "Login with Facebook",
                         ),

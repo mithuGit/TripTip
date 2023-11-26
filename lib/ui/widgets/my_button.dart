@@ -26,6 +26,7 @@ class MyButton extends StatelessWidget {
         child: OutlinedButton(
             onPressed: onTap,
             style: OutlinedButton.styleFrom(
+              backgroundColor: colors,
               foregroundColor: const Color.fromARGB(100, 255, 255, 255),
               padding: (iconData == null && imagePath == null)
                   ? const EdgeInsets.all(16)

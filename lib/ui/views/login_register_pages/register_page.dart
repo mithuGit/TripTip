@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:internet_praktikum/ui/views/login_register_pages/home_page.dart';
@@ -200,7 +198,17 @@ class _RegisterPageState extends State<RegisterPage> {
                           const SizedBox(height: 25),
                             
                           MyButton(
-                            onTap: () {},
+                            onTap: () {
+                            signInWithFacebook().whenComplete(() {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) {
+                                    return HomePage();
+                                  },
+                                ),
+                              );
+                            });
+                          },
                             imagePath: 'assets/facebook_logo.png',
                             text: "Register with Facebook",
                           ),
