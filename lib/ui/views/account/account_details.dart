@@ -16,18 +16,17 @@ class Account extends StatefulWidget {
 }
 
 class _AccountState extends State<Account> {
-  final _db = FirebaseFirestore.instance;
   final currentUser = FirebaseAuth.instance.currentUser!;
 
   //all user
   final userCollection = FirebaseFirestore.instance.collection('users');
+  final authCollection = FirebaseAuth.instance.currentUser;
 
   //Controller for text
   final prenameController = TextEditingController();
   final lastnameController = TextEditingController();
   final emailController = TextEditingController();
   final dateOfBirthController = TextEditingController();
-
   late String selectedDate;
 
 //sets the changes to the Collection
@@ -43,6 +42,12 @@ class _AccountState extends State<Account> {
 
   @override
   Widget build(BuildContext context) {
+    List<String> parts =
+        FirebaseAuth.instance.currentUser!.toString().split(',');
+
+// Now, parts[0] contains the part before the ','
+    String preName = parts[0].trim();
+    String lastName = parts[1].trim();
     // Get Screen Size
     return Scaffold(
         backgroundColor: const Color(0xFFCBEFFF),
@@ -86,13 +91,13 @@ class _AccountState extends State<Account> {
                           ),
                           InputField(
                             controller: prenameController,
-                            hintText: 'Prename',
+                            hintText: preName != null ? preName : "Prename",
                             obscureText: false,
                             margin: const EdgeInsets.only(bottom: 25),
                           ),
                           InputField(
                             controller: lastnameController,
-                            hintText: 'Lastname',
+                            hintText: lastName != null ? lastName : 'LastName',
                             obscureText: false,
                             margin: const EdgeInsets.only(bottom: 12.5),
                           ),

@@ -63,7 +63,7 @@ class _LoginPageState extends State<LoginPage> {
           'uid': userCredential.user!.uid,
           'trips': null,
           'profilepicture': null,
-          'date of birth': null,
+          'dateOfBirth': null,
           // Add other data fields as needed
         });
       }
@@ -169,8 +169,6 @@ class _LoginPageState extends State<LoginPage> {
                         const SizedBox(height: 25),
                         MyButton(
                           text: 'Sign In',
-
-                          ///
                           onTap: () {
                             Navigator.push(
                                 context,
