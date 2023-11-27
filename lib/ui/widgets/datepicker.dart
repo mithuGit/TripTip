@@ -102,7 +102,7 @@ class _CupertinoDatePickerButtonState extends State<CupertinoDatePickerButton> {
           child: Text(
             selectedDate != null ? f_String : 'Select Date',
             style: selectedDate != null
-                ? Styles.textfieldHintStyle
+                ? Styles.inputField
                 : Styles.textfieldHintStyle,
           ),
         ),

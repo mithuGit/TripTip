@@ -41,20 +41,20 @@ class MyTextFieldemailnotnull extends StatelessWidget {
           return null;
         },
         decoration: InputDecoration(
-          enabledBorder: OutlineInputBorder(
-            borderSide: const BorderSide(color: Colors.white),
-            borderRadius: BorderRadius.circular(11.0),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.grey.shade400),
-            borderRadius: BorderRadius.circular(11.0),
-          ),
-          fillColor: Colors.white,
-          filled: true,
-          contentPadding: const EdgeInsets.only(top: 16, bottom: 16, left: 14, right: 14),
-          hintText: hintText,
-          hintStyle: Styles.textfieldHintStyle
-        ),
+            enabledBorder: OutlineInputBorder(
+              borderSide: const BorderSide(color: Colors.white),
+              borderRadius: BorderRadius.circular(11.0),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: Colors.grey.shade400),
+              borderRadius: BorderRadius.circular(11.0),
+            ),
+            fillColor: Colors.white,
+            filled: true,
+            contentPadding:
+                const EdgeInsets.only(top: 16, bottom: 16, left: 14, right: 14),
+            hintText: hintText,
+            hintStyle: Styles.textfieldHintStyle),
       ),
     );
   }

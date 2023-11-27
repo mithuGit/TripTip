@@ -6,7 +6,6 @@ import '../../widgets/inputfield.dart';
 import '../../widgets/datepicker.dart';
 import '../../widgets/my_textfield_emailnotnull.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Account extends StatefulWidget {
   const Account({super.key});
@@ -136,7 +135,9 @@ class _AccountState extends State<Account> {
                                     prenameController.value.text,
                                     lastnameController.value.text,
                                     selectedDate,
-                                    emailController.value.text);
+                                    emailController.value.text.isEmpty
+                                        ? userData['email']
+                                        : emailController.value.text);
                               },
                               text: 'Finish'),
                         ],
