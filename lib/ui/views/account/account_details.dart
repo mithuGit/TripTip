@@ -70,66 +70,70 @@ class _AccountState extends State<Account> {
             ),
           ),
           child: Center(
-            child: CustomContainer(
-              title: "Account Details:",
-              children: [
-                GestureDetector(
-                  onTap: () {
-                    prenameController.text = 'Hello';
-                  },
-                  child: Image.asset(
-                    'assets/Personavatar.png',
-                    width: 75,
-                    height: 75,
-                  ),
-                ),
-                const SizedBox(
-                  height: 25,
-                ),
-                InputField(
-                  controller: prenameController,
-                  hintText: 'Prename',
-                  obscureText: false,
-                  margin: const EdgeInsets.only(bottom: 25),
-                ),
-                InputField(
-                  controller: lastnameController,
-                  hintText: 'Lastname',
-                  obscureText: false,
-                  margin: const EdgeInsets.only(bottom: 12.5),
-                ),
-                const SizedBox(
-                  width: 148,
-                  height: 18,
-                  child: Text(
-                    'Date of Birth',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 12,
-                      fontFamily: 'Ubuntu',
-                      fontWeight: FontWeight.w500,
-                      height: 0,
+            child: Padding(
+              padding: const EdgeInsets.only(
+                  top: 80, left: 14, right: 14, bottom: 45),
+              child: CustomContainer(
+                title: "Account Details:",
+                children: [
+                  GestureDetector(
+                    onTap: () {
+                      prenameController.text = 'Hello';
+                    },
+                    child: Image.asset(
+                      'assets/Personavatar.png',
+                      width: 75,
+                      height: 75,
                     ),
                   ),
-                ),
-                const SizedBox(height: 12.5),
-                const CupertinoDatePickerButton(
-                  margin: EdgeInsets.only(bottom: 25),
-                ),
-                MyTextFieldemailnotnull(
-                  controller: emailController,
-                  hintText: 'Email',
-                  obscureText: false,
-                  margin: const EdgeInsets.only(bottom: 25),
-                ),
-                MyButton(
-                    onTap: () {
-                      String displayName = prenameController.toString() +
-                          lastnameController.toString();
-                      updateDisplayName(displayName);
-                    },
-                    text: 'Finish'),
-              ],
+                  const SizedBox(
+                    height: 25,
+                  ),
+                  InputField(
+                    controller: prenameController,
+                    hintText: 'Prename',
+                    obscureText: false,
+                    margin: const EdgeInsets.only(bottom: 25),
+                  ),
+                  InputField(
+                    controller: lastnameController,
+                    hintText: 'Lastname',
+                    obscureText: false,
+                    margin: const EdgeInsets.only(bottom: 12.5),
+                  ),
+                  const SizedBox(
+                    width: 148,
+                    height: 18,
+                    child: Text(
+                      'Date of Birth',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                        fontFamily: 'Ubuntu',
+                        fontWeight: FontWeight.w500,
+                        height: 0,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12.5),
+                  const CupertinoDatePickerButton(
+                    margin: EdgeInsets.only(bottom: 25),
+                  ),
+                  MyTextFieldemailnotnull(
+                    controller: emailController,
+                    hintText: 'Email',
+                    obscureText: false,
+                    margin: const EdgeInsets.only(bottom: 25),
+                  ),
+                  MyButton(
+                      onTap: () {
+                        String displayName = prenameController.toString() +
+                            lastnameController.toString();
+                        updateDisplayName(displayName);
+                      },
+                      text: 'Finish'),
+                ],
+              ),
             ),
           ),
         ),
