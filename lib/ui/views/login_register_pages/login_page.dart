@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:internet_praktikum/ui/styles/Styles.dart';
+import 'package:internet_praktikum/ui/views/account/account_details.dart';
 import 'package:internet_praktikum/ui/views/login_register_pages/login_or_register_page.dart';
 import 'package:internet_praktikum/ui/widgets/container.dart';
 import 'package:internet_praktikum/ui/widgets/inputfield.dart';
@@ -57,6 +58,12 @@ class _LoginPageState extends State<LoginPage> {
             .doc(userCredential.user!.uid)
             .set({
           'email': userCredential.user!.email,
+          'prename': userCredential.user!.displayName,
+          'lastname': userCredential.user!.displayName,
+          'uid': userCredential.user!.uid,
+          'trips': null,
+          'profilepicture': null,
+          'dateOfBirth': null,
           // Add other data fields as needed
         });
       }
@@ -162,7 +169,12 @@ class _LoginPageState extends State<LoginPage> {
                         const SizedBox(height: 25),
                         MyButton(
                           text: 'Sign In',
-                          onTap: signUserIn,
+                          onTap: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => const Account()));
+                          },
                         ),
                         const SizedBox(height: 30),
                         const Padding(

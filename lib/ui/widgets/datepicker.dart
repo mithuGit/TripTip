@@ -4,8 +4,10 @@ import '../styles/Styles.dart';
 
 class CupertinoDatePickerButton extends StatefulWidget {
   final margin;
+  final ValueChanged<String>? onDateSelected;
 
-  const CupertinoDatePickerButton({super.key, this.margin});
+  const CupertinoDatePickerButton(
+      {super.key, this.margin, this.onDateSelected});
 
   @override
   _CupertinoDatePickerButtonState createState() =>
@@ -14,6 +16,8 @@ class CupertinoDatePickerButton extends StatefulWidget {
 
 class _CupertinoDatePickerButtonState extends State<CupertinoDatePickerButton> {
   DateTime? selectedDate;
+
+  String f_String = "";
 
   Future<void> _selectDate(BuildContext context) async {
     DateTime currentDate = selectedDate ?? DateTime.now();
@@ -54,6 +58,11 @@ class _CupertinoDatePickerButtonState extends State<CupertinoDatePickerButton> {
                     maximumDate: DateTime.now(),
                     onDateTimeChanged: (DateTime newDate) {
                       currentDate = newDate;
+                      //formatieren des Strings
+                      f_String =
+                          '${newDate.day}.${newDate.month}.${newDate.year}';
+                      //pass to callback
+                      widget.onDateSelected?.call(f_String);
                     }),
               ))
             ],
@@ -65,6 +74,9 @@ class _CupertinoDatePickerButtonState extends State<CupertinoDatePickerButton> {
     if (currentDate != selectedDate) {
       setState(() {
         selectedDate = currentDate;
+        f_String =
+            '${currentDate.day}.${currentDate.month}.${currentDate.year}';
+        widget.onDateSelected?.call(f_String);
       });
     }
   }
@@ -88,12 +100,10 @@ class _CupertinoDatePickerButtonState extends State<CupertinoDatePickerButton> {
           alignment: Alignment.centerLeft,
           padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
           child: Text(
-            selectedDate != null
-                ? '${selectedDate!.day}.${selectedDate!.month}.${selectedDate!.year}'
-                : 'Select Date',
+            selectedDate != null ? f_String : 'Select Date',
             style: selectedDate != null
-                ? Styles.textfieldHintStyle
-                : Styles.textfieldHintStyle,
+                ? Styles.datepicker
+                : Styles.datepicker,
           ),
         ),
       ),
