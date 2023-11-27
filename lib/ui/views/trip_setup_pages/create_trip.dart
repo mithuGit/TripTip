@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:internet_praktikum/ui/widgets/datepicker.dart';
 import 'package:internet_praktikum/ui/widgets/errorSnackbar.dart';
 import 'package:internet_praktikum/ui/widgets/inputfield_search_lookahead.dart';
 import 'package:internet_praktikum/ui/widgets/my_button.dart';
@@ -57,7 +58,8 @@ class _TripCreateState extends State<CreateTrip> {
         'members': members
       });
     } catch (e) {
-      if (context.mounted) ErrorSnackbar.showErrorSnackbar(context, e.toString());
+      if (context.mounted)
+        ErrorSnackbar.showErrorSnackbar(context, e.toString());
     }
   }
 
@@ -87,17 +89,41 @@ class _TripCreateState extends State<CreateTrip> {
                           padding: EdgeInsets.only(bottom: 25),
                           child: AsyncAutocomplete(),
                         ),
-                        InputField(
-                          controller: starttime,
-                          hintText: 'Start Time',
-                          obscureText: false,
-                          margin: const EdgeInsets.only(bottom: 25),
+                        const SizedBox(
+                          width: 148,
+                          height: 18,
+                          child: Text(
+                            'Start Time',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                              fontFamily: 'Ubuntu',
+                              fontWeight: FontWeight.w500,
+                              height: 0,
+                            ),
+                          ),
                         ),
-                        InputField(
-                          controller: endtime,
-                          hintText: 'End Time',
-                          obscureText: false,
-                          margin: const EdgeInsets.only(bottom: 25),
+                        const SizedBox(height: 12.5),
+                        const CupertinoDatePickerButton(
+                          margin: EdgeInsets.only(bottom: 25),
+                        ),
+                        const SizedBox(
+                          width: 148,
+                          height: 18,
+                          child: Text(
+                            'End Time',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                              fontFamily: 'Ubuntu',
+                              fontWeight: FontWeight.w500,
+                              height: 0,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 12.5),
+                        const CupertinoDatePickerButton(
+                          margin: EdgeInsets.only(bottom: 25),
                         ),
                         MyButton(
                             onTap: connectPhotosAlbum,
@@ -116,4 +142,3 @@ class _TripCreateState extends State<CreateTrip> {
         ));
   }
 }
-
