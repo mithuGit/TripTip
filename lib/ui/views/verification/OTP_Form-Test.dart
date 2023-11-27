@@ -6,7 +6,6 @@ import 'package:flutter_otp_text_field/flutter_otp_text_field.dart';
 import 'package:internet_praktikum/ui/widgets/container.dart';
 
 import '../../widgets/my_button.dart';
-import '../Resetpassword/Password_change.dart';
 
 class OTPFormTest extends StatefulWidget {
   const OTPFormTest({Key? key}) : super(key: key);
@@ -60,7 +59,7 @@ class _OTPFormTestState extends State<OTPFormTest> {
       //Utils.showSnackBar(e.toString());
     }
   }
-  
+
   @override
   Widget build(BuildContext context) {
     const String message = "Enter the Verification code sent at ";
@@ -142,7 +141,8 @@ class _OTPFormTestState extends State<OTPFormTest> {
                                           const PasswordChange()))
                             },
                             */
-                            onTap: canResendEmail ? sendVerificationEmail : null,
+                            onTap:
+                                canResendEmail ? sendVerificationEmail : null,
                             text: 'Resend Code',
                           ),
 

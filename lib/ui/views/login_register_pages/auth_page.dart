@@ -6,8 +6,6 @@ import 'login_or_register_page.dart';
 class AuthPage extends StatelessWidget {
   const AuthPage({super.key});
 
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -18,10 +16,9 @@ class AuthPage extends StatelessWidget {
             if (snapshot.hasData) {
               return ProfilePage();
             }
-            if (snapshot.hasError){
+            if (snapshot.hasError) {
               return const Text("here is Buggy");
-            }
-            else {
+            } else {
               return const LoginOrRegisterPage();
             }
 

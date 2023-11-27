@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:internet_praktikum/ui/styles/Styles.dart';
 
 class InputFieldPasswortOrIcon extends StatefulWidget {
-  final controller;
+  final dynamic controller;
   final String hintText;
   final bool obscureText;
   final IconData? icon;
