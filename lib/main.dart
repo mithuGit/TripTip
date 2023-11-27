@@ -8,7 +8,6 @@ import 'package:internet_praktikum/ui/views/account/account_details.dart';
 import 'package:internet_praktikum/ui/views/login_register_pages/home_page.dart';
 import 'package:internet_praktikum/ui/views/login_register_pages/login_or_register_page.dart';
 import 'package:internet_praktikum/ui/views/trip_setup_pages/select_trip.dart';
-import 'package:provider/provider.dart';
 import 'firebase_options.dart';
 
 void main() async {
@@ -29,7 +28,7 @@ class Main extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       initialRoute: '/',
       title: 'Product App. ',
-      home: SelectTrip(),
+      home: LoginOrRegisterPage(),
     );
   }
 }
