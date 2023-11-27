@@ -72,7 +72,7 @@ class _TripCreateState extends State<CreateTrip> {
     // Get Screen Size
     return Scaffold(
         backgroundColor: const Color(0xFFCBEFFF),
-        resizeToAvoidBottomInset: false,
+        resizeToAvoidBottomInset: true,
         body: SafeArea(
           child: Stack(children: [
             Container(
