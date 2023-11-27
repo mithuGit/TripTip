@@ -78,7 +78,7 @@ class _AccountState extends State<Account> {
                         children: [
                           GestureDetector(
                             onTap: () {
-                              prenameController.text = 'Hello';
+                              //prenameController.text = 'Hello';
                             },
                             child: Image.asset(
                               'assets/Personavatar.png',
@@ -91,13 +91,13 @@ class _AccountState extends State<Account> {
                           ),
                           InputField(
                             controller: prenameController,
-                            hintText: preName != null ? preName : "Prename",
+                            hintText: "Prename",
                             obscureText: false,
                             margin: const EdgeInsets.only(bottom: 25),
                           ),
                           InputField(
                             controller: lastnameController,
-                            hintText: lastName != null ? lastName : 'LastName',
+                            hintText: 'LastName',
                             obscureText: false,
                             margin: const EdgeInsets.only(bottom: 12.5),
                           ),
@@ -117,7 +117,7 @@ class _AccountState extends State<Account> {
                           ),
                           const SizedBox(height: 12.5),
                           CupertinoDatePickerButton(
-                            margin: EdgeInsets.only(bottom: 25),
+                            margin: const EdgeInsets.only(bottom: 25),
                             onDateSelected: (String formattedDate) {
                               setState(() {
                                 selectedDate = formattedDate;

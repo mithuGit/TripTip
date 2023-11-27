@@ -78,6 +78,7 @@ flutter:
   assets:
     - assets/
     - assets/Personavatar.png
+    - assets/logo.png
   fonts:
     - family: Ubuntu
       fonts:
