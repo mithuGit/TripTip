@@ -10,6 +10,7 @@ class ProfilePage extends StatelessWidget {
   ProfilePage({Key? key}) : super(key: key);
 
   final auth = FirebaseAuth.instance;
+  final user = FirebaseAuth.instance.currentUser!;
 
   signOut(BuildContext context) async {
     await auth.signOut();
@@ -70,13 +71,13 @@ class ProfilePage extends StatelessWidget {
                   ),
                   const SizedBox(height: 10),
 
-                  const Text('Username',
+                  Text('Welcome ${user.displayName}',
                       style:
-                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                          const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
 
-                  const Text('Email',
+                  Text('Your email is ${user.email}',
                       style:
-                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                          const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
 
                   const SizedBox(height: 20),
 

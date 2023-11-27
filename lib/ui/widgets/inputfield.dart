@@ -8,13 +8,15 @@ class InputField extends StatelessWidget {
   final dynamic controller;
   final bool obscureText;
   final EdgeInsets? margin;
+  final FocusNode? focusNode;
 
   const InputField(
       {super.key,
       required this.hintText,
       this.controller,
       required this.obscureText,
-      this.margin});
+      this.margin,
+      this.focusNode});
 
   @override
   Widget build(BuildContext context) {

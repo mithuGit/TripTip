@@ -11,9 +11,4 @@ class Styles {
       fontSize: 14,
       fontWeight: FontWeight.w500,
       color: Color(0xFFA0A0A0));
-  static const textfieldFilledStyle = TextStyle(
-      fontFamily: 'Ubuntu',
-      fontSize: 14,
-      fontWeight: FontWeight.w500,
-      color: Colors.black);
 }
