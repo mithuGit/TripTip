@@ -16,9 +16,11 @@ class JoinTrip extends StatelessWidget {
   final groupController = TextEditingController();
 
   void join_trip() async {
-    final self = [_auth.currentUser?.uid];
+    final self = [
+      FirebaseFirestore.instance.collection("users").doc(_auth.currentUser?.uid)
+    ];
     final dir = groupController.text;
-    trips.doc(dir).update({"members": FieldValue.arrayUnion(self)});
+    trips.doc(dir).update({"members": FieldValue.arrayUnion(self)!});
   }
 
   @override
@@ -48,7 +50,7 @@ class JoinTrip extends StatelessWidget {
                           onTap: () {
                             join_trip();
                           },
-                          text: "Go Back")
+                          text: "Next")
                     ])),
               )),
         ])));
