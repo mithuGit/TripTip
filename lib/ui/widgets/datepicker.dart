@@ -92,7 +92,7 @@ class _CupertinoDatePickerButtonState extends State<CupertinoDatePickerButton> {
                 ? '${selectedDate!.day}.${selectedDate!.month}.${selectedDate!.year}'
                 : 'Select Date',
             style: selectedDate != null
-                ? Styles.textfieldFilledStyle
+                ? Styles.textfieldHintStyle
                 : Styles.textfieldHintStyle,
           ),
         ),
