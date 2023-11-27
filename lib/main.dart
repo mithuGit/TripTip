@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:internet_praktikum/ui/views/login_register_pages/home_page.dart';
 import 'package:internet_praktikum/ui/views/login_register_pages/login_or_register_page.dart';
+import 'package:internet_praktikum/ui/views/profile_pages/profile_page.dart';
 import 'package:provider/provider.dart';
 import 'firebase_options.dart';
 
@@ -21,12 +22,11 @@ class Main extends StatelessWidget {
     return const MaterialApp(
       debugShowCheckedModeBanner: false,
       initialRoute: '/',
-      title: 'Product App. ',
+      title: 'Let\'s Travel Together. ',
       home: AuthWrapper(),
     );
   }
 }
-
 
 // Mit dieser Klasse wird überprüft, ob der User eingeloggt ist oder nicht
 // Wenn er eingeloggt ist, wird er auf die HomePage weitergeleitet
@@ -41,14 +41,11 @@ class AuthWrapper extends StatelessWidget {
           // user logged in
           if (snapshot.hasData) {
             return HomePage(); // hier kann man zum testen auch ProfilePage() einfügen
-          }
-          if (snapshot.hasError) {
-            return const Text("here is Buggy");
+          } else if (snapshot.hasError) {
+            return const Text("Has Error");
           } else {
             return const LoginOrRegisterPage();
           }
-
-          // user not logged in
         });
   }
 }
