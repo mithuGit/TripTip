@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:internet_praktikum/ui/widgets/inputfield_search_lookahead.dart';
@@ -42,12 +44,15 @@ class _TripCreateState extends State<CreateTrip> {
       final String dest = destinationText.value.text;
       final String start = starttime.value.text;
       final String end = endtime.value.text;
-      print("Create Ttrip: " + dest + " " + start + " " + end);
+      final members = [];
+      members.add(_auth.currentUser?.uid);
+      print("Create Trip: " + dest + " " + start + " " + end);
       await trips.add({
-        'destination': dest, 
+        'destination': dest,
         'starttime': start,
         'endtime': end,
-        'createdBy' : _auth.currentUser?.uid
+        'createdBy': _auth.currentUser?.uid,
+        'members': members
       });
     } catch (e) {
       showDialog(
@@ -102,7 +107,6 @@ class _TripCreateState extends State<CreateTrip> {
                           obscureText: false,
                           margin: const EdgeInsets.only(bottom: 25),
                         ),
-                        
                         MyButton(
                             onTap: connectPhotosAlbum,
                             imagePath: 'assets/googlephotos.png',
