@@ -32,6 +32,9 @@ class _TripCreateState extends State<CreateTrip> {
   final destinationText = TextEditingController();
   final starttime = TextEditingController();
   final endtime = TextEditingController();
+  late String destination;
+  late String selectedStartDate;
+  late String selectedEndDate;
 
   void connectPhotosAlbum() async {
     setState(() {
@@ -41,19 +44,17 @@ class _TripCreateState extends State<CreateTrip> {
 
   Future<void> create_trip() async {
     try {
-      final String dest = destinationText.value.text;
-      final String start = starttime.value.text;
-      final String end = endtime.value.text;
       final members = [];
-      if (dest == '') throw Exception("Destination is empty");
-      if (start == '') throw Exception("Destination is empty");
-      if (end == '') throw Exception("Destination is empty");
+      if (destination == '') throw Exception("Destination is empty");
+      if (selectedStartDate == '') throw Exception("Destination is empty");
+      if (selectedEndDate == '') throw Exception("Destination is empty");
       members.add(_auth.currentUser?.uid);
-      print("Create Trip: " + dest + " " + start + " " + end);
+      print("Create Trip: $destination $selectedStartDate $selectedEndDate");
       await trips.add({
-        'destination': dest,
-        'starttime': start,
-        'endtime': end,
+        'city': destination,
+        'country': destination,
+        'starttime': selectedStartDate,
+        'endtime': selectedEndDate,
         'createdBy': _auth.currentUser?.uid,
         'members': members
       });
@@ -85,15 +86,21 @@ class _TripCreateState extends State<CreateTrip> {
                     child: CustomContainer(
                       title: "Start your next Adventure:",
                       children: [
-                        const Padding(
-                          padding: EdgeInsets.only(bottom: 25),
-                          child: AsyncAutocomplete(),
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 25),
+                          child: AsyncAutocomplete(
+                            onDestinationPick: (String formattedDate) {
+                              setState(() {
+                                destination = formattedDate;
+                              });
+                            },
+                          ),
                         ),
                         const SizedBox(
                           width: 148,
                           height: 18,
                           child: Text(
-                            'Start Time',
+                            'Start Date',
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 12,
@@ -104,14 +111,19 @@ class _TripCreateState extends State<CreateTrip> {
                           ),
                         ),
                         const SizedBox(height: 12.5),
-                        const CupertinoDatePickerButton(
-                          margin: EdgeInsets.only(bottom: 25),
+                        CupertinoDatePickerButton(
+                          margin: const EdgeInsets.only(bottom: 25),
+                          onDateSelected: (String formattedDate) {
+                            setState(() {
+                              selectedStartDate = formattedDate;
+                            });
+                          },
                         ),
                         const SizedBox(
                           width: 148,
                           height: 18,
                           child: Text(
-                            'End Time',
+                            'End Date',
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 12,
@@ -122,8 +134,13 @@ class _TripCreateState extends State<CreateTrip> {
                           ),
                         ),
                         const SizedBox(height: 12.5),
-                        const CupertinoDatePickerButton(
-                          margin: EdgeInsets.only(bottom: 25),
+                        CupertinoDatePickerButton(
+                          margin: const EdgeInsets.only(bottom: 25),
+                          onDateSelected: (String formattedDate) {
+                            setState(() {
+                              selectedEndDate = formattedDate;
+                            });
+                          },
                         ),
                         MyButton(
                             onTap: connectPhotosAlbum,

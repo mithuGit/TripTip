@@ -8,8 +8,9 @@ import 'package:uuid/uuid.dart';
 const Duration fakeAPIDuration = Duration(seconds: 1);
 
 class AsyncAutocomplete extends StatefulWidget {
-  const AsyncAutocomplete();
-
+  
+  final ValueChanged<String>? onDestinationPick;
+  const AsyncAutocomplete({super.key, this.onDestinationPick});
   @override
   State<AsyncAutocomplete> createState() => _AsyncAutocompleteState();
 }
@@ -95,6 +96,7 @@ class _AsyncAutocompleteState extends State<AsyncAutocomplete> {
         },
         onSelected: (String selection) {
           debugPrint('You just selected $selection');
+          widget.onDestinationPick?.call(selection);
         },
       ),
     );
