@@ -2,6 +2,7 @@ import 'dart:ffi';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:internet_praktikum/ui/widgets/errorSnackbar.dart';
 import 'package:internet_praktikum/ui/widgets/inputfield_search_lookahead.dart';
 import 'package:internet_praktikum/ui/widgets/my_button.dart';
 import 'package:internet_praktikum/ui/widgets/usernamebagageCreateTrip.dart';
@@ -39,12 +40,15 @@ class _TripCreateState extends State<CreateTrip> {
     });
   }
 
-  void create_trip() async {
+  Future<void> create_trip() async {
     try {
       final String dest = destinationText.value.text;
       final String start = starttime.value.text;
       final String end = endtime.value.text;
       final members = [];
+      if (dest == '') throw Exception("Destination is empty");
+      if (start == '') throw Exception("Destination is empty");
+      if (end == '') throw Exception("Destination is empty");
       members.add(_auth.currentUser?.uid);
       print("Create Trip: " + dest + " " + start + " " + end);
       await trips.add({
@@ -55,20 +59,7 @@ class _TripCreateState extends State<CreateTrip> {
         'members': members
       });
     } catch (e) {
-      showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            backgroundColor: Colors.red,
-            title: Center(
-              child: Text(
-                e.toString(),
-                style: Styles.textfieldHintStyle,
-              ),
-            ),
-          );
-        },
-      );
+      if (context.mounted) ErrorSnackbar.showErrorSnackbar(context, e.toString());
     }
   }
 
@@ -94,7 +85,10 @@ class _TripCreateState extends State<CreateTrip> {
                     child: CustomContainer(
                       title: "Start your next Adventure:",
                       children: [
-                        AsyncAutocomplete(),
+                        const Padding(
+                          padding: EdgeInsets.only(bottom: 25),
+                          child: AsyncAutocomplete(),
+                        ),
                         InputField(
                           controller: starttime,
                           hintText: 'Start Time',
