@@ -45,7 +45,7 @@ class _AsyncAutocompleteState extends State<AsyncAutocomplete> {
               color: Colors.white,
               child: Container(
                 width: constraints.biggest.width,
-                height: constraints.biggest.height,
+                //height: constraints.biggest.height,
                 padding: EdgeInsets.zero,
                 child: ListView.builder(
                   shrinkWrap: true,
@@ -85,8 +85,9 @@ class _AsyncAutocompleteState extends State<AsyncAutocomplete> {
               }
               return options;
             } catch (e) {
-              if (context.mounted)
+              if (context.mounted) {
                 ErrorSnackbar.showErrorSnackbar(context, e.toString());
+              }
               return _lastOptions;
             }
           } else {
