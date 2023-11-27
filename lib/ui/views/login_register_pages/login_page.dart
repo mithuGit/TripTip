@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:internet_praktikum/ui/styles/Styles.dart';
@@ -24,8 +25,8 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   // text editing controllers
   final emailController = TextEditingController();
-  final passwordforgotController = TextEditingController();
   final passwordController = TextEditingController();
+  final passwordforgotController = TextEditingController();
 
   var counter = 0;
 
@@ -43,27 +44,27 @@ class _LoginPageState extends State<LoginPage> {
 
     // try sign in
     try {
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
+      UserCredential userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: emailController.text,
         password: passwordController.text,
       );
+        
+      if (userCredential.user != null) {
+        // Assuming 'users' is the collection name in Firestore
+        await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userCredential.user!.uid)
+          .set({
+            'email': userCredential.user!.email,
+          // Add other data fields as needed
+        });
+      }
       // pop the loading circle
       Navigator.pop(context);
     } on FirebaseAuthException catch (e) {
       // pop the loading circle
       Navigator.pop(context);
-      // Wrong email
-      /*
-      if (e.code == 'user-not-found') {
-        //print('No user found for that email.');
-        showErrorMEssage('Wrong Email');
-      }
-      // Wrong password
-      else if (e.code == 'wrong-password') {
-        //print('Wrong password provided for this email.');
-        wrongPasswordMessage('Wrong Password');
-      }
-      */
+      // Wrong email | Wrong password
       showErrorMessage(e.code);
     }
   }
@@ -128,7 +129,7 @@ class _LoginPageState extends State<LoginPage> {
           child: Center(
             child: Padding(
               padding: const EdgeInsets.only(
-                        top: 80, left: 14, right: 14, bottom: 45),
+              top: 80, left: 14, right: 14, bottom: 45),
               child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [

@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:internet_praktikum/ui/views/login_register_pages/home_page.dart';
@@ -20,9 +21,7 @@ class RegisterPage extends StatefulWidget {
 class _RegisterPageState extends State<RegisterPage> {
   // text editing controllers
   final emailController = TextEditingController();
-
   final passwordController = TextEditingController();
-
   final confirmPasswordController = TextEditingController();
 
   // sign user up method
@@ -39,34 +38,32 @@ class _RegisterPageState extends State<RegisterPage> {
 
     // try sign up (try creating the user)
     try {
-      // check if passwords match
-      if (passwordController.text == confirmPasswordController.text) {
-        await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        // check if passwords match
+        if (passwordController.text == confirmPasswordController.text) {
+          UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
           email: emailController.text,
           password: passwordController.text,
         );
+        if (userCredential.user != null) {
+          // Assuming 'users' is the collection name in Firestore
+          await FirebaseFirestore.instance
+            .collection('users')
+            .doc(userCredential.user!.uid)
+            .set({
+              'email': userCredential.user!.email,
+            // Add other data fields as needed
+          });
+        }
       } else {
         // show error message
         showErrorMEssage('Passwords do not match!');
       }
-
       // pop the loading circle
       Navigator.pop(context);
     } on FirebaseAuthException catch (e) {
       // pop the loading circle
       Navigator.pop(context);
-      // Wrong email
-      /*
-      if (e.code == 'user-not-found') {
-        //print('No user found for that email.');
-        showErrorMEssage('Wrong Email');
-      }
-      // Wrong password
-      else if (e.code == 'wrong-password') {
-        //print('Wrong password provided for this email.');
-        wrongPasswordMessage('Wrong Password');
-      }
-      */
+      // Wrong email | Wrong password
       showErrorMEssage(e.code);
     }
   }

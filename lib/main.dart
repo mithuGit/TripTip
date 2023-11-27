@@ -27,15 +27,28 @@ class Main extends StatelessWidget {
   }
 }
 
+
+// Mit dieser Klasse wird überprüft, ob der User eingeloggt ist oder nicht
+// Wenn er eingeloggt ist, wird er auf die HomePage weitergeleitet
+// Wenn er nicht eingeloggt ist, wird er auf die LoginOrRegisterPage weitergeleitet
 class AuthWrapper extends StatelessWidget {
   const AuthWrapper({super.key});
   @override
   Widget build(BuildContext context) {
-    final firebaseUser = context.watch<User?>();
-    if (firebaseUser != null) {
-      return HomePage();
-    } else {
-      return const LoginOrRegisterPage();
-    }
+    return StreamBuilder<User?>(
+        stream: FirebaseAuth.instance.authStateChanges(),
+        builder: (context, snapshot) {
+          // user logged in
+          if (snapshot.hasData) {
+            return HomePage(); // hier kann man zum testen auch ProfilePage() einfügen
+          }
+          if (snapshot.hasError) {
+            return const Text("here is Buggy");
+          } else {
+            return const LoginOrRegisterPage();
+          }
+
+          // user not logged in
+        });
   }
 }

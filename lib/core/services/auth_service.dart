@@ -27,7 +27,7 @@ Future<UserCredential> signInWithGoogle() async {
           .doc(userCredential.user!.uid)
           .set({
         'email': userCredential.user!.email,
-        'name': userCredential.user!.displayName,
+        'displayName': userCredential.user!.displayName,
         'profilePicture': userCredential.user!.photoURL,
         'uid': userCredential.user!.uid,
       });
@@ -38,11 +38,29 @@ Future<UserCredential> signInWithGoogle() async {
 }
 
 Future<void> signInWithFacebook() async {
-
   final LoginResult loginResult = await FacebookAuth.instance.login();
 
-  final OAuthCredential facebookAuthCredential =
+  final credential =
       FacebookAuthProvider.credential(loginResult.accessToken!.token);
 
-  await FirebaseAuth.instance.signInWithCredential(facebookAuthCredential);
+  // hier muss noch eingebaut werden, wegen OTP Verifizierung
+  UserCredential userCredential =
+      await FirebaseAuth.instance.signInWithCredential(credential);
+
+  if (userCredential.user != null) {
+    if (userCredential.additionalUserInfo!.isNewUser) {
+      // add user to firestore
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userCredential.user!.uid)
+          .set({
+        'email': userCredential.user!.email,
+        'name': userCredential.user!.displayName,
+        'profilePicture': userCredential.user!.photoURL,
+        'uid': userCredential.user!.uid,
+      });
+    }
+  }
+
+  await FirebaseAuth.instance.signInWithCredential(credential);
 }
