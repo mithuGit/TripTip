@@ -1,5 +1,3 @@
-import 'dart:ffi';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:internet_praktikum/ui/widgets/errorSnackbar.dart';
@@ -47,8 +45,8 @@ class _TripCreateState extends State<CreateTrip> {
       final String end = endtime.value.text;
       final members = [];
       if (dest == '') throw Exception("Destination is empty");
-      if (start == '') throw Exception("Start Date is empty");
-      if (end == '') throw Exception("End Date is empty");
+      if (start == '') throw Exception("Destination is empty");
+      if (end == '') throw Exception("Destination is empty");
       members.add(_auth.currentUser?.uid);
       print("Create Trip: " + dest + " " + start + " " + end);
       await trips.add({
@@ -85,7 +83,7 @@ class _TripCreateState extends State<CreateTrip> {
                     child: CustomContainer(
                       title: "Start your next Adventure:",
                       children: [
-                        Padding(
+                        const Padding(
                           padding: EdgeInsets.only(bottom: 25),
                           child: AsyncAutocomplete(),
                         ),
@@ -118,3 +116,4 @@ class _TripCreateState extends State<CreateTrip> {
         ));
   }
 }
+

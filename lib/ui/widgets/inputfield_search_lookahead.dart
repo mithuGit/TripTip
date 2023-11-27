@@ -8,7 +8,7 @@ import 'package:uuid/uuid.dart';
 const Duration fakeAPIDuration = Duration(seconds: 1);
 
 class AsyncAutocomplete extends StatefulWidget {
-  const AsyncAutocomplete({super.key});
+  const AsyncAutocomplete();
 
   @override
   State<AsyncAutocomplete> createState() => _AsyncAutocompleteState();
@@ -45,7 +45,7 @@ class _AsyncAutocompleteState extends State<AsyncAutocomplete> {
               color: Colors.white,
               child: Container(
                 width: constraints.biggest.width,
-                //height: constraints.biggest.height,
+                height: constraints.biggest.height,
                 padding: EdgeInsets.zero,
                 child: ListView.builder(
                   shrinkWrap: true,
@@ -73,11 +73,11 @@ class _AsyncAutocompleteState extends State<AsyncAutocomplete> {
           if (_searchingWithQuery != '' &&
               _searchingWithQuery != _lastsearching) {
             PlaceApiProvider placeApiProvider =
-                PlaceApiProvider(const Uuid().v4());
+            PlaceApiProvider(const Uuid().v4());
             Iterable<String> options;
             try {
               options =
-                  await placeApiProvider.fetchSuggestions(_searchingWithQuery!);
+              await placeApiProvider.fetchSuggestions(_searchingWithQuery!);
               _lastsearching = _searchingWithQuery;
               _lastOptions = options;
               if (_searchingWithQuery != textEditingValue.text) {
@@ -85,9 +85,8 @@ class _AsyncAutocompleteState extends State<AsyncAutocomplete> {
               }
               return options;
             } catch (e) {
-              if (context.mounted) {
+              if (context.mounted)
                 ErrorSnackbar.showErrorSnackbar(context, e.toString());
-              }
               return _lastOptions;
             }
           } else {
@@ -101,3 +100,4 @@ class _AsyncAutocompleteState extends State<AsyncAutocomplete> {
     );
   }
 }
+
