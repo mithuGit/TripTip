@@ -23,7 +23,7 @@ class Main extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       initialRoute: '/',
       title: 'Product App. ',
-      home: Account(),
+      home: LoginOrRegisterPage(),
     );
   }
 }

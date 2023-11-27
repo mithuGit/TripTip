@@ -27,7 +27,7 @@ class InputField extends StatelessWidget {
         obscureText: obscureText,
         //nur Groß und klein Buchstaben erlauben
         inputFormatters: [
-          FilteringTextInputFormatter.allow(RegExp('[a-zA-z]')),
+          FilteringTextInputFormatter.allow(RegExp('[a-zA-Z@.]')),
         ],
         decoration: InputDecoration(
             enabledBorder: OutlineInputBorder(

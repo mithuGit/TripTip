@@ -45,6 +45,26 @@ class _RegisterPageState extends State<RegisterPage> {
           email: emailController.text,
           password: passwordController.text,
         );
+
+        ///-----
+        // after creating the user, create a new document in cloud firestore called Users
+        FirebaseFirestore.instance
+            .collection("users")
+            .doc(
+              userCredential.user!.uid,
+            )
+            .set({
+          'email': userCredential.user!.email,
+          'prename': userCredential.user!.displayName,
+          'lastname': userCredential.user!.displayName,
+          'uid': userCredential.user!.uid,
+          'trips': null,
+          'profilepicture': null,
+          'date of birth': null,
+        });
+
+        //--------
+
         if (userCredential.user != null) {
           // Assuming 'users' is the collection name in Firestore
           await FirebaseFirestore.instance
