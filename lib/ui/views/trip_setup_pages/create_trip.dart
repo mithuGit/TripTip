@@ -85,7 +85,7 @@ class _TripCreateState extends State<CreateTrip> {
                     child: CustomContainer(
                       title: "Start your next Adventure:",
                       children: [
-                        const Padding(
+                        Padding(
                           padding: EdgeInsets.only(bottom: 25),
                           child: AsyncAutocomplete(),
                         ),
