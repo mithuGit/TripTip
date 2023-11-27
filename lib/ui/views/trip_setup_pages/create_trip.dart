@@ -59,8 +59,9 @@ class _TripCreateState extends State<CreateTrip> {
         'members': members
       });
     } catch (e) {
-      if (context.mounted)
+      if (context.mounted) {
         ErrorSnackbar.showErrorSnackbar(context, e.toString());
+      }
     }
   }
 
