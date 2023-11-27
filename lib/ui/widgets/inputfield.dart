@@ -9,6 +9,7 @@ class InputField extends StatelessWidget {
   final bool obscureText;
   final EdgeInsets? margin;
   final FocusNode? focusNode;
+  
 
   const InputField(
       {super.key,
@@ -26,9 +27,9 @@ class InputField extends StatelessWidget {
         controller: controller,
         obscureText: obscureText,
         //nur Groß und klein Buchstaben erlauben
-        inputFormatters: [
-          FilteringTextInputFormatter.allow(RegExp('[a-zA-Z@.]')),
-        ],
+       // inputFormatters: [
+        //  FilteringTextInputFormatter.allow(RegExp('[a-zA-Z@.]')),
+        //],
         decoration: InputDecoration(
             enabledBorder: OutlineInputBorder(
               borderSide: const BorderSide(color: Colors.white),
