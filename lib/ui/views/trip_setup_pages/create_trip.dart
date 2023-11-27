@@ -47,8 +47,8 @@ class _TripCreateState extends State<CreateTrip> {
       final String end = endtime.value.text;
       final members = [];
       if (dest == '') throw Exception("Destination is empty");
-      if (start == '') throw Exception("Destination is empty");
-      if (end == '') throw Exception("Destination is empty");
+      if (start == '') throw Exception("Start Date is empty");
+      if (end == '') throw Exception("End Date is empty");
       members.add(_auth.currentUser?.uid);
       print("Create Trip: " + dest + " " + start + " " + end);
       await trips.add({
