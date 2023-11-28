@@ -57,6 +57,12 @@ class _LoginPageState extends State<LoginPage> {
             .doc(userCredential.user!.uid)
             .set({
           'email': userCredential.user!.email,
+          'prename': userCredential.user!.displayName,
+          'lastname': userCredential.user!.displayName,
+          'uid': userCredential.user!.uid,
+          'trips': null,
+          'profilepicture': null,
+          'dateOfBirth': null,
           // Add other data fields as needed
         });
       }
