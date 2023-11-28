@@ -2,14 +2,14 @@ import 'dart:async';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_otp_text_field/flutter_otp_text_field.dart';
 import 'package:internet_praktikum/ui/styles/Styles.dart';
 import 'package:internet_praktikum/ui/views/login_register_pages/home_page.dart';
+import 'package:internet_praktikum/ui/views/login_register_pages/login_or_register_page.dart';
 import 'package:internet_praktikum/ui/widgets/container.dart';
 import 'package:internet_praktikum/ui/widgets/inputfield.dart';
-import 'package:internet_praktikum/ui/widgets/inputfield_password_or_icon.dart';
 
 import '../../widgets/my_button.dart';
+import '../../widgets/inputfield_password_or_icon.dart';
 
 class OTPForm extends StatefulWidget {
   final bool passwordverifier;
@@ -26,7 +26,10 @@ class _OTPFormState extends State<OTPForm> {
   bool isEmailVerified = false;
   bool canResendEmail = false;
   Timer? timer;
+  FirebaseAuth auth = FirebaseAuth.instance;
 
+  
+  /*
   @override
   void initState() {
     super.initState();
@@ -67,6 +70,7 @@ class _OTPFormState extends State<OTPForm> {
       //Utils.showSnackBar(e.toString());
     }
   }
+  */
 
   @override
   Widget build(BuildContext context) {
@@ -74,117 +78,77 @@ class _OTPFormState extends State<OTPForm> {
 
     return Scaffold(
       body: SafeArea(
-        child: Container(
-          decoration: const BoxDecoration(
-            image: DecorationImage(
-              image: AssetImage('assets/BackgroundCity.png'),
-              fit: BoxFit.cover,
-            ),
-          ),
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              const Positioned(
-                top: 40, // Hier kannst du den Wert nach Bedarf anpassen
-                child: Icon(
-                  Icons.lock,
-                  size: 100,
+        child: Stack(
+          children: [
+            Container(
+              decoration: const BoxDecoration(
+                image: DecorationImage(
+                  image: AssetImage('assets/BackgroundCity.png'),
+                  fit: BoxFit.cover,
                 ),
               ),
-              Center(
-                child: SingleChildScrollView(
-                  //TODO: brauchen wir das eigentlich?
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
+              child: Center(
+                child: Padding(
+                  padding: const EdgeInsets.only(
+                      top: 158, left: 14, right: 14, bottom: 45),
+                  child: CustomContainer(
+                    title: "Verify your Email",
+                    smallSize: true,
                     children: [
-                      const SizedBox(
-                        height: 60,
+                      const SizedBox(height: 25),
+                      const Text(
+                        "$message support@MoneyTrip.com",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          //TODO: style in styles.dart Ubuntu verwenden
+                          color: Colors.white,
+                          fontSize: 20,
+                        ),
                       ),
-                      CustomContainer(
-                        title: "Verify your Email",
-                        smallSize: true,
-                        children: [
-                          const SizedBox(height: 25),
-                          const Text(
-                            "$message support@MoneyTrip.com",
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              //TODO: style in styles.dart Ubuntu verwenden
-                              color: Colors.white,
-                              fontSize: 20,
-                            ),
-                          ),
 
-                          /*
-                          const SizedBox(height: 50),
-                          OtpTextField(
-                            fieldWidth: 60.0,
-                            borderWidth: 4,
-                            textStyle: const TextStyle(
-                              fontSize: 20,
-                              color: Colors.black,
-                            ),
-                            borderColor: Colors.white,
-                            fillColor: Colors.white,
-                            numberOfFields: 4,
-                            filled: true,
-                            onSubmit: (code) {
-                              print("OTP is => $code");
-                            },
-                          ),
-                          const SizedBox(height: 35),
-                          const Icon(
-                            Icons.verified,
-                            color: Colors.white,
-                            size: 40,
-                          ),
-                          const SizedBox(height: 35,),
-                          */
+                      const SizedBox(height: 60),
+                      if (canResendEmail)
+                        const Icon(
+                          Icons.verified,
+                          color: Colors.white,
+                          size: 100,
+                        )
+                      else
+                        const Icon(
+                          Icons.verified,
+                          color: Colors.green,
+                          size: 100,
+                        ),
+                      const SizedBox(
+                        height: 55,
+                      ),
 
-                          const SizedBox(height: 60),
-                          if (canResendEmail)
-                            const Icon(
-                              Icons.verified,
-                              color: Colors.white,
-                              size: 100,
-                            )
-                          else
-                            const Icon(
-                              Icons.verified,
-                              color: Colors.green,
-                              size: 100,
-                            ),
-                          const SizedBox(height: 55,),
-                          
-                          
-                          
+                      if (canResendEmail)
+                        MyButton(
+                          onTap: () {}, // TODO: => sendVerificationEmail(),
+                          text: "Resend Link",
+                        )
+                      else
+                        MyButton(
+                          onTap: () {
+                            if (widget.passwordverifier) {
+                              resetpassword(context);
+                            } else {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => HomePage(),
+                                ),
+                              );
+                            }
+                          },
+                          text: widget.passwordverifier
+                              ? 'Change Password'
+                              : 'Next',
+                        ),
 
-                          if (canResendEmail)
-                            MyButton(
-                              onTap: () => sendVerificationEmail(),
-                              text: "Resend Link",
-                            )
-                          else
-                            MyButton(
-                              onTap: () {
-                                if (widget.passwordverifier) {
-                                  resetpassword(context);
-                                } else {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => HomePage(),
-                                    ),
-                                  );
-                                }
-                              },
-                              text: widget.passwordverifier
-                                  ? 'Change Password'
-                                  : 'Next',
-                            ),
-
-                          // Würde hier ein Back-Button Sinn machen? Mithu-Thai: JA
-                          /* MyButton(
+                      // Würde hier ein Back-Button Sinn machen? Mithu-Thai: JA
+                      /* MyButton(
                           onTap: () => {
                             Navigator.push(
                                 context,
@@ -194,14 +158,12 @@ class _OTPFormState extends State<OTPForm> {
                           text: 'Back',
                         ),
                         */
-                        ],
-                      ),
                     ],
                   ),
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -277,7 +239,7 @@ class _OTPFormState extends State<OTPForm> {
 
                   if (newPassword == confirmPassword) {
                     Navigator.push(context,
-                        MaterialPageRoute(builder: (context) => HomePage()));
+                        MaterialPageRoute(builder: (context) => LoginOrRegisterPage()));
                   } else {
                     // Passwörter stimmen nicht überein, zeige eine Fehlermeldung
                     showDialog(

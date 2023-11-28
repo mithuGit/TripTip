@@ -310,18 +310,22 @@ class _LoginPageState extends State<LoginPage> {
                       onTap: () {
                         String emailToCheck = passwordforgotController.text;
                         if (isValidEmail(emailToCheck)) {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => const OTPForm(
-                                      passwordverifier: true,
-                                    )),
-                          );
+                          resetPassword();
                         } else {
-                          isValidEmail(passwordforgotController.text)
-                              ? Colors.white
-                              : Colors.red;
-                          //hier fehlt noch was
+                          showDialog(
+                            context: context,
+                            builder: (context) {
+                              return const AlertDialog(
+                                backgroundColor: Colors.black,
+                                title: Center(
+                                  child: Text(
+                                    'Please enter a valid email',
+                                    style: Styles.textfieldHintStyle,
+                                  ),
+                                ),
+                              );
+                            },
+                          );
                         }
                       },
                     ),
@@ -347,6 +351,15 @@ class _LoginPageState extends State<LoginPage> {
         r'^[\w-]+(\.[\w-]+)*@([a-z\d-]+(\.[a-z\d-]+)*?\.[a-z]{2,6}|(\d{1,3}\.){3}\d{1,3})$';
     RegExp regex = RegExp(emailRegex);
     return regex.hasMatch(email);
+  }
+
+  Future resetPassword() async {
+    try {
+      await FirebaseAuth.instance
+          .sendPasswordResetEmail(email: emailController.text);
+    } on FirebaseAuthException catch (e) {
+      print(e);
+    }
   }
 }
 

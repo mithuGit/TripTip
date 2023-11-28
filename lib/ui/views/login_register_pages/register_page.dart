@@ -4,10 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:internet_praktikum/ui/views/login_register_pages/home_page.dart';
 import 'package:internet_praktikum/ui/views/login_register_pages/login_page.dart';
 import 'package:internet_praktikum/ui/widgets/container.dart';
+import 'package:internet_praktikum/ui/widgets/inputfield.dart';
 import '../../../core/services/auth_service.dart';
 import '../../widgets/my_button.dart';
 import '../../widgets/inputfield_password_or_icon.dart';
-import '../../widgets/my_textfield_emailnotnull.dart';
 
 class RegisterPage extends StatefulWidget {
   final Function()? onTap;
@@ -112,7 +112,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 child: CustomContainer(
                   title: "Register",
                   children: [
-                    MyTextFieldemailnotnull(
+                    InputField(
                         controller: emailController,
                         hintText: 'Email',
                         obscureText: false),

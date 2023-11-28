@@ -6,7 +6,6 @@ import 'package:internet_praktikum/ui/styles/Styles.dart';
 import 'package:internet_praktikum/ui/widgets/container.dart';
 import 'package:internet_praktikum/ui/widgets/inputfield.dart';
 import 'package:internet_praktikum/ui/widgets/my_button.dart';
-import 'package:internet_praktikum/ui/widgets/my_textfield.dart';
 
 class JoinTrip extends StatelessWidget {
   JoinTrip({super.key});
