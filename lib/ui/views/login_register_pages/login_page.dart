@@ -42,9 +42,6 @@ class _LoginPageState extends State<LoginPage> {
       },
     );
 
-      // pop the loading circle
-      Navigator.pop(context);
-
     // try sign in
     try {
       UserCredential userCredential =
@@ -52,7 +49,7 @@ class _LoginPageState extends State<LoginPage> {
         email: emailController.text,
         password: passwordController.text,
       );
-
+      Navigator.of(context).pop();
       if (userCredential.user != null) {
         // Assuming 'users' is the collection name in Firestore
         await FirebaseFirestore.instance
@@ -71,6 +68,7 @@ class _LoginPageState extends State<LoginPage> {
       }
     } on FirebaseAuthException catch (e) {
       print(e.code);
+      Navigator.of(context).pop();
       // Wrong email | Wrong password
       showErrorMessage(e.code);
     }
