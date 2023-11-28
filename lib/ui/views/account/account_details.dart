@@ -3,7 +3,6 @@ import 'package:internet_praktikum/ui/widgets/my_button.dart';
 import '../../widgets/container.dart';
 import '../../widgets/inputfield.dart';
 import '../../widgets/datepicker.dart';
-import '../../widgets/my_textfield_emailnotnull.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class Account extends StatefulWidget {
@@ -119,7 +118,7 @@ class _AccountState extends State<Account> {
                   const CupertinoDatePickerButton(
                     margin: EdgeInsets.only(bottom: 25),
                   ),
-                  MyTextFieldemailnotnull(
+                  InputField(
                     controller: emailController,
                     hintText: 'Email',
                     obscureText: false,

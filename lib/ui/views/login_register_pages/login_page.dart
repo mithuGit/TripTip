@@ -42,6 +42,9 @@ class _LoginPageState extends State<LoginPage> {
       },
     );
 
+      // pop the loading circle
+      Navigator.pop(context);
+
     // try sign in
     try {
       UserCredential userCredential =
@@ -66,11 +69,8 @@ class _LoginPageState extends State<LoginPage> {
           // Add other data fields as needed
         });
       }
-      // pop the loading circle
-      Navigator.pop(context);
     } on FirebaseAuthException catch (e) {
-      // pop the loading circle
-      Navigator.pop(context);
+      print(e.code);
       // Wrong email | Wrong password
       showErrorMessage(e.code);
     }
@@ -113,6 +113,7 @@ class _LoginPageState extends State<LoginPage> {
           backgroundColor: Colors.black,
           title: Center(
             child: Text(
+              //'Wrong email or password! Please try again.',
               message,
               style: Styles.textfieldHintStyle,
             ),

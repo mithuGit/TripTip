@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:internet_praktikum/ui/styles/Styles.dart';
 import 'package:internet_praktikum/ui/views/login_register_pages/home_page.dart';
 import 'package:internet_praktikum/ui/views/login_register_pages/login_page.dart';
 import 'package:internet_praktikum/ui/widgets/container.dart';
@@ -51,22 +52,25 @@ class _RegisterPageState extends State<RegisterPage> {
               .collection('users')
               .doc(userCredential.user!.uid)
               .set({
-          'email': userCredential.user!.email,
-          'prename': userCredential.user!.displayName,
-          'lastname': userCredential.user!.displayName,
-          'uid': userCredential.user!.uid,
-          'trips': null,
-          'profilepicture': null,
-          'dateOfBirth': null,
+            'email': userCredential.user!.email,
+            'prename': userCredential.user!.displayName,
+            'lastname': userCredential.user!.displayName,
+            'uid': userCredential.user!.uid,
+            'trips': null,
+            'profilepicture': null,
+            'dateOfBirth': null,
             // Add other data fields as needed
           });
         }
+      // pop the loading circle
+      Navigator.pop(context);
       } else {
+      // pop the loading circle
+      Navigator.pop(context);
         // show error message
         showErrorMEssage('Passwords do not match!');
       }
-      // pop the loading circle
-      Navigator.pop(context);
+      
     } on FirebaseAuthException catch (e) {
       // pop the loading circle
       Navigator.pop(context);
@@ -81,11 +85,12 @@ class _RegisterPageState extends State<RegisterPage> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          backgroundColor: Colors.deepPurple,
+          backgroundColor: Colors.black,
           title: Center(
             child: Text(
+              //'Registration failed! Please try again.',
               message,
-              style: const TextStyle(color: Colors.white),
+              style: Styles.textfieldHintStyle,
             ),
           ),
         );
