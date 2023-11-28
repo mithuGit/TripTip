@@ -44,18 +44,25 @@ class _LoginPageState extends State<LoginPage> {
 
     // try sign in
     try {
-      UserCredential userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
+      UserCredential userCredential =
+          await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: emailController.text,
         password: passwordController.text,
       );
-        
+
       if (userCredential.user != null) {
         // Assuming 'users' is the collection name in Firestore
         await FirebaseFirestore.instance
-          .collection('users')
-          .doc(userCredential.user!.uid)
-          .set({
-            'email': userCredential.user!.email,
+            .collection('users')
+            .doc(userCredential.user!.uid)
+            .set({
+          'email': userCredential.user!.email,
+          'prename': userCredential.user!.displayName,
+          'lastname': userCredential.user!.displayName,
+          'uid': userCredential.user!.uid,
+          'trips': null,
+          'profilepicture': null,
+          'dateOfBirth': null,
           // Add other data fields as needed
         });
       }
@@ -119,134 +126,135 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: Container(
-          decoration: const BoxDecoration(
-            image: DecorationImage(
-              image: AssetImage('assets/BackgroundCity.png'),
-              fit: BoxFit.cover,
+        child: Stack(children: [
+          Container(
+            decoration: const BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage('assets/BackgroundCity.png'),
+                fit: BoxFit.cover,
+              ),
             ),
-          ),
-          child: Center(
-            child: Padding(
-              padding: const EdgeInsets.only(
-              top: 80, left: 14, right: 14, bottom: 45),
-              child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
+            child: Center(
+              child: Padding(
+                padding: const EdgeInsets.only(
+                    top: 158, left: 14, right: 14, bottom: 45),
+                child: CustomContainer(
+                  title: "Login:",
                   children: [
-                    const Icon(
-                      Icons.lock,
-                      size: 100,
+                    InputField(
+                      controller: emailController,
+                      hintText: 'Email',
+                      obscureText: false,
+                      margin: const EdgeInsets.only(bottom: 25),
                     ),
-                    CustomContainer(
-                      title: "Login:",
-                      children: [
-                        InputField(
-                          controller: emailController,
-                          hintText: 'Email',
-                          obscureText: false,
-                          margin: const EdgeInsets.only(bottom: 25),
-                        ),
-                        InputFieldPasswortOrIcon(
-                          controller: passwordController,
-                          hintText: 'Password',
-                          obscureText: true,
-                          eyeCheckerStatus: true,
-                          useSuffixIcon: true,
-                        ),
-                        const SizedBox(height: 10),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: sendEmailforRestPassword(context),
-                        ),
-                        const SizedBox(height: 25),
-                        MyButton(
-                          text: 'Sign In',
-                          onTap: signUserIn,
-                        ),
-                        const SizedBox(height: 30),
-                        const Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 25.0),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: Divider(
-                                  thickness: 0.5,
-                                  color: Colors.white,
-                                ),
-                              ),
-                              Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 10.0),
-                                child: Text(
-                                  'Or continue with',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ),
-                              Expanded(
-                                child: Divider(
-                                  thickness: 0.5,
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ],
+                    InputFieldPasswortOrIcon(
+                      controller: passwordController,
+                      hintText: 'Password',
+                      obscureText: true,
+                      eyeCheckerStatus: true,
+                      useSuffixIcon: true,
+                    ),
+                    const SizedBox(height: 10),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: sendEmailforRestPassword(context),
+                    ),
+                    const SizedBox(height: 25),
+                    MyButton(
+                      text: 'Sign In',
+                      onTap: signUserIn,
+                    ),
+                    const SizedBox(height: 30),
+                    const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 25.0),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Divider(
+                              thickness: 0.5,
+                              color: Colors.white,
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 30),
-                        MyButton(
-                          onTap: () {
-                            signInWithGoogle().whenComplete(() {
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (context) {
-                                    return HomePage();
-                                  },
-                                ),
-                              );
-                            });
-                          },
-                          imagePath: 'assets/google_logo.png',
-                          text: "Login with Google",
-                        ),
-                        const SizedBox(height: 25),
-                        MyButton(
-                          onTap: () {
-                            signInWithFacebook().whenComplete(() {
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (context) {
-                                    return HomePage();
-                                  },
-                                ),
-                              );
-                            });
-                          },
-                          imagePath: 'assets/facebook_logo.png',
-                          text: "Login with Facebook",
-                        ),
-                        const SizedBox(
-                          height: 25,
-                        ),
-
-                        // Hier wird eine gestrichelte Linie gezeichnet
-                        // mit der Klasse DashedLinePainter (siehe unten)
-                        CustomPaint(
-                          painter: DashedLinePainter(),
-                        ),
-
-                        const SizedBox(
-                          height: 25,
-                        ),
-                        MyButton(
-                          onTap: widget.onTap,
-                          text: "Create a new Account", /*small: true,*/
-                        ),
-                      ],
+                          Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 10.0),
+                            child: Text(
+                              'Or continue with',
+                              style: TextStyle(
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            child: Divider(
+                              thickness: 0.5,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ]),
+                    const SizedBox(height: 30),
+                    MyButton(
+                      onTap: () {
+                        signInWithGoogle().whenComplete(() {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) {
+                                return HomePage();
+                              },
+                            ),
+                          );
+                        });
+                      },
+                      imagePath: 'assets/google_logo.png',
+                      text: "Login with Google",
+                    ),
+                    const SizedBox(height: 25),
+                    MyButton(
+                      onTap: () {
+                        signInWithFacebook().whenComplete(() {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) {
+                                return HomePage();
+                              },
+                            ),
+                          );
+                        });
+                      },
+                      imagePath: 'assets/facebook_logo.png',
+                      text: "Login with Facebook",
+                    ),
+                    const SizedBox(
+                      height: 25,
+                    ),
+
+                    // Hier wird eine gestrichelte Linie gezeichnet
+                    // mit der Klasse DashedLinePainter (siehe unten)
+                    CustomPaint(
+                      painter: DashedLinePainter(),
+                    ),
+
+                    const SizedBox(
+                      height: 25,
+                    ),
+                    MyButton(
+                      onTap: widget.onTap,
+                      text: "Create a new Account", /*small: true,*/
+                    ),
+                  ],
+                ),
+              ),
             ),
           ),
-        ),
+          SizedBox(
+              height: 158,
+              child: Center(
+                  child: Image.asset(
+                'assets/logo.png',
+                width: 76,
+              ))),
+        ]),
       ),
     );
   }
@@ -313,7 +321,6 @@ class _LoginPageState extends State<LoginPage> {
                           isValidEmail(passwordforgotController.text)
                               ? Colors.white
                               : Colors.red;
-
                           //hier fehlt noch was
                         }
                       },
