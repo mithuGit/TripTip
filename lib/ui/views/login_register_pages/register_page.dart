@@ -131,7 +131,6 @@ class _RegisterPageState extends State<RegisterPage> {
                         hintText: 'Email',
                         obscureText: false),
                     const SizedBox(height: 10),
-
                     InputFieldPasswortOrIcon(
                       controller: passwordController,
                       hintText: 'Password',
@@ -140,8 +139,6 @@ class _RegisterPageState extends State<RegisterPage> {
                       useSuffixIcon: true,
                     ),
                     const SizedBox(height: 10),
-
-                    // confirm Password
                     InputFieldPasswortOrIcon(
                       controller: confirmPasswordController,
                       hintText: 'Confirm Password',
@@ -149,17 +146,13 @@ class _RegisterPageState extends State<RegisterPage> {
                       eyeCheckerStatus: true,
                       useSuffixIcon: true,
                     ),
-
                     const SizedBox(height: 25),
-
                     MyButton(
                         onTap: () {
                           signUserUp();
                         },
                         text: 'Sign Up'),
-
                     const SizedBox(height: 30),
-
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 25.0),
                       child: Row(
@@ -188,9 +181,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         ],
                       ),
                     ),
-
                     const SizedBox(height: 30),
-
                     MyButton(
                       //onTap: () => AuthService().signInWithGoogle(),
                       onTap: () {
@@ -208,7 +199,6 @@ class _RegisterPageState extends State<RegisterPage> {
                       text: "Register with Google",
                     ),
                     const SizedBox(height: 25),
-
                     MyButton(
                       onTap: () {
                         signInWithFacebook().whenComplete(() {
@@ -224,19 +214,15 @@ class _RegisterPageState extends State<RegisterPage> {
                       imagePath: 'assets/facebook_logo.png',
                       text: "Register with Facebook",
                     ),
-
                     const SizedBox(
                       height: 15,
                     ),
-
                     CustomPaint(
                       painter: DashedLinePainter(),
                     ),
-
                     const SizedBox(
                       height: 15,
                     ),
-
                     MyButton(
                       onTap: widget.onTap,
                       text: "Already have an account?",
