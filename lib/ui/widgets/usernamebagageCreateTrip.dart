@@ -59,7 +59,7 @@ class _UsernameBagageCreateTripState extends State<UsernameBagageCreateTrip> {
                       TextSpan(
                         children: [
                           TextSpan(
-                            text: user.prename + '\n',
+                            text: '${user.prename}\n',
                             style: const TextStyle(
                               color: Colors.black,
                               fontSize: 20,

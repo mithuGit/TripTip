@@ -42,7 +42,7 @@ class _TripCreateState extends State<CreateTrip> {
       final String dest = destinationText.value.text;
       final String start = starttime.value.text;
       final String end = endtime.value.text;
-      print("Create Ttrip: " + dest + " " + start + " " + end);
+      print("Create Ttrip: $dest $start $end");
       await trips.add({
         'destination': dest, 
         'starttime': start,
@@ -89,7 +89,7 @@ class _TripCreateState extends State<CreateTrip> {
                     child: CustomContainer(
                       title: "Start your next Adventure:",
                       children: [
-                        AsyncAutocomplete(),
+                        const AsyncAutocomplete(),
                         InputField(
                           controller: starttime,
                           hintText: 'Start Time',

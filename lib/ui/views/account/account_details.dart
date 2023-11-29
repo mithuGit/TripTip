@@ -4,7 +4,6 @@ import 'package:internet_praktikum/ui/widgets/my_button.dart';
 import '../../widgets/container.dart';
 import '../../widgets/inputfield.dart';
 import '../../widgets/datepicker.dart';
-import '../../widgets/my_textfield_emailnotnull.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class Account extends StatefulWidget {
