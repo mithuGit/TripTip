@@ -28,7 +28,7 @@ class _RegisterPageState extends State<RegisterPage> {
   // sign user up method
   void signUserUp() async {
     // show loading circle
-    showDialog(
+    /*showDialog(
       context: context,
       builder: (context) {
         return const Center(
@@ -36,6 +36,7 @@ class _RegisterPageState extends State<RegisterPage> {
         );
       },
     );
+    */
 
     // try sign up (try creating the user)
     try {
@@ -46,7 +47,20 @@ class _RegisterPageState extends State<RegisterPage> {
           email: emailController.text,
           password: passwordController.text,
         );
+
+
+        // pop the loading circle
+        // Navigator.pop(context);
+
         if (userCredential.user != null) {
+          
+          // Hier wird die Verifizierung der E-Mail-Adresse des Users auf false gesetzt
+          await userCredential.user!.updateEmail(userCredential.user!.email!);
+
+          // Der User muss seine E-Mail-Adresse verifizieren, bevor er sich einloggen kann
+          // sendet eine EmailVerifizierung an die E-Mail-Adresse des Users
+          await userCredential.user!.sendEmailVerification(); 
+          
           // Assuming 'users' is the collection name in Firestore
           await FirebaseFirestore.instance
               .collection('users')
@@ -62,15 +76,12 @@ class _RegisterPageState extends State<RegisterPage> {
             // Add other data fields as needed
           });
         }
-      // pop the loading circle
-      Navigator.pop(context);
       } else {
-      // pop the loading circle
-      Navigator.pop(context);
+        // pop the loading circle
+        // Navigator.pop(context);
         // show error message
         showErrorMEssage('Passwords do not match!');
       }
-      
     } on FirebaseAuthException catch (e) {
       // pop the loading circle
       Navigator.pop(context);

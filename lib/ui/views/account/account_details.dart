@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:internet_praktikum/ui/views/login_register_pages/home_page.dart';
 import 'package:internet_praktikum/ui/widgets/my_button.dart';
 import '../../widgets/container.dart';
 import '../../widgets/inputfield.dart';
@@ -129,6 +130,12 @@ class _AccountState extends State<Account> {
                         String displayName = prenameController.toString() +
                             lastnameController.toString();
                         updateDisplayName(displayName);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => HomePage(),
+                          ),
+                        );
                       },
                       text: 'Finish'),
                 ],

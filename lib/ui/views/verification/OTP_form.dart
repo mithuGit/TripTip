@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:internet_praktikum/ui/styles/Styles.dart';
+import 'package:internet_praktikum/ui/views/account/account_details.dart';
 import 'package:internet_praktikum/ui/views/login_register_pages/home_page.dart';
 import 'package:internet_praktikum/ui/views/login_register_pages/login_or_register_page.dart';
 import 'package:internet_praktikum/ui/widgets/container.dart';
@@ -12,10 +13,8 @@ import '../../widgets/my_button.dart';
 import '../../widgets/inputfield_password_or_icon.dart';
 
 class OTPForm extends StatefulWidget {
-  final bool passwordverifier;
   const OTPForm({
     Key? key,
-    required this.passwordverifier,
   }) : super(key: key);
 
   @override
@@ -24,28 +23,17 @@ class OTPForm extends StatefulWidget {
 
 class _OTPFormState extends State<OTPForm> {
   bool isEmailVerified = false;
-  bool canResendEmail = false;
+  bool canResendEmail = true;
   Timer? timer;
-  FirebaseAuth auth = FirebaseAuth.instance;
 
-  
-  /*
   @override
   void initState() {
     super.initState();
     isEmailVerified = FirebaseAuth.instance.currentUser!.emailVerified;
 
     if (!isEmailVerified) {
-      sendVerificationEmail();
-
       Timer.periodic(const Duration(seconds: 3), (_) => checkEmailVerified());
     }
-  }
-
-  @override
-  void dispose() {
-    timer?.cancel();
-    super.dispose();
   }
 
   Future checkEmailVerified() async {
@@ -55,22 +43,11 @@ class _OTPFormState extends State<OTPForm> {
       isEmailVerified = FirebaseAuth.instance.currentUser!.emailVerified;
     });
 
-    if (isEmailVerified) timer?.cancel();
-  }
-
-  Future sendVerificationEmail() async {
-    try {
-      final user = FirebaseAuth.instance.currentUser!;
-      await user.sendEmailVerification();
-
-      setState(() => canResendEmail = false);
-      await Future.delayed(const Duration(seconds: 5));
-      setState(() => canResendEmail = true);
-    } catch (e) {
-      //Utils.showSnackBar(e.toString());
+    if (isEmailVerified) {
+      canResendEmail = false;
+      timer?.cancel();
     }
   }
-  */
 
   @override
   Widget build(BuildContext context) {
@@ -125,26 +102,21 @@ class _OTPFormState extends State<OTPForm> {
 
                       if (canResendEmail)
                         MyButton(
-                          onTap: () {}, // TODO: => sendVerificationEmail(),
+                          onTap:
+                              resendVerificationEmail, // TODO: => sendVerificationEmail(),
                           text: "Resend Link",
                         )
                       else
                         MyButton(
                           onTap: () {
-                            if (widget.passwordverifier) {
-                              resetpassword(context);
-                            } else {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => HomePage(),
-                                ),
-                              );
-                            }
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => Account(),
+                              ),
+                            );
                           },
-                          text: widget.passwordverifier
-                              ? 'Change Password'
-                              : 'Next',
+                          text: 'Next',
                         ),
 
                       // Würde hier ein Back-Button Sinn machen? Mithu-Thai: JA
@@ -169,100 +141,21 @@ class _OTPFormState extends State<OTPForm> {
     );
   }
 
-  void resetpassword(BuildContext context) {
-    final TextEditingController passwordController = TextEditingController();
-    final TextEditingController confirmPasswordController =
-        TextEditingController();
 
-    showModalBottomSheet(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-      ),
-      context: context,
-      builder: (BuildContext context) {
-        return Container(
-          decoration: const BoxDecoration(
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(100),
-              topRight: Radius.circular(100),
-            ),
-          ),
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const Text(
-                'Let\'s change your Password?',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-
-              const SizedBox(height: 20),
-
-              const Text(
-                'Please enter your new Password',
-                style: TextStyle(
-                  fontSize: 16,
-                ),
-              ),
-
-              const SizedBox(height: 40),
-
-              InputFieldPasswortOrIcon(
-                  controller: passwordController,
-                  hintText: "New Password",
-                  obscureText: true,
-                  eyeCheckerStatus: true,
-                  useSuffixIcon:
-                      true), //TODO: controller anpassen, weil hier muss es an Firebase angepasst werden
-
-              const SizedBox(height: 30),
-
-              InputFieldPasswortOrIcon(
-                  controller: confirmPasswordController,
-                  hintText: "Confirm Password",
-                  obscureText: true,
-                  eyeCheckerStatus: true,
-                  useSuffixIcon:
-                      true), //TODO: controller anpassen, weil hier muss es an Firebase angepasst werden
-
-              const SizedBox(height: 30),
-
-              MyButton(
-                text: 'Confirm',
-                colors: Colors.black,
-                onTap: () {
-                  String newPassword = passwordController.text;
-                  String confirmPassword = confirmPasswordController.text;
-
-                  if (newPassword == confirmPassword) {
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (context) => LoginOrRegisterPage()));
-                  } else {
-                    // Passwörter stimmen nicht überein, zeige eine Fehlermeldung
-                    showDialog(
-                        context: context,
-                        builder: (context) {
-                          return const AlertDialog(
-                            backgroundColor: Colors.black,
-                            title: Center(
-                              child: Text(
-                                "Passwords do not match",
-                                style: Styles.textfieldHintStyle,
-                              ),
-                            ),
-                          );
-                        });
-                    print("Password do not match");
-                  }
-                },
-              ),
-            ],
-          ),
-        );
-      },
-    );
+  Future<void> resendVerificationEmail() async {
+    try {
+      if (FirebaseAuth.instance.currentUser!.emailVerified) {
+        setState(() {
+          canResendEmail = false;
+        });
+      } else {
+        await FirebaseAuth.instance.currentUser!.sendEmailVerification();
+        canResendEmail = true;
+      }
+      // await Future.delayed(const Duration(seconds: 5));
+      // setState(() => canResendEmail =  FirebaseAuth.instance.currentUser!.emailVerified);
+    } on FirebaseAuthException catch (e) {
+      print(e.code);
+    }
   }
 }

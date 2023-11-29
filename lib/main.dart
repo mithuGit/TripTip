@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:internet_praktikum/ui/views/verification/OTP_form.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import 'package:internet_praktikum/ui/views/account/account_details.dart';
@@ -15,9 +16,7 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  runApp(ProviderScope(
-    child: const Main())
-  );
+  runApp(ProviderScope(child: const Main()));
 }
 
 class Main extends StatelessWidget {
@@ -43,14 +42,34 @@ class AuthWrapper extends StatelessWidget {
     return StreamBuilder<User?>(
         stream: FirebaseAuth.instance.authStateChanges(),
         builder: (context, snapshot) {
-          // user logged in
-          if (snapshot.hasData) {
-            return HomePage(); // hier kann man zum testen auch ProfilePage() einfügen
-          } else if (snapshot.hasError) {
-            return const Text("Has Error");
+          /*if(snapshot.data != null) {
+            return HomePage();
           } else {
             return const LoginOrRegisterPage();
+          }*/
+
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            // Wenn die Authentifizierung noch lädt, zeige einen Ladebildschirm oder Spinner
+            return const CircularProgressIndicator();
           }
+
+          if (snapshot.hasError) {
+            // Wenn ein Fehler auftritt, zeige eine Fehlermeldung
+            return const Text("Fehler bei der Authentifizierung");
+          }
+
+          // user logged in
+          User? user = snapshot.data;
+
+          if (user != null && !user.emailVerified) {
+            print(user.emailVerified);
+            return const OTPForm();
+          } else if (user != null && user.emailVerified) {
+            return HomePage();
+          } else if (user == null) {
+            return const LoginOrRegisterPage();
+          }
+          return const CircularProgressIndicator();
         });
   }
 }

@@ -33,7 +33,7 @@ class _LoginPageState extends State<LoginPage> {
   // sign user in method
   void signUserIn() async {
     // show loading circle
-    showDialog(
+    /*showDialog(
       context: context,
       builder: (context) {
         return const Center(
@@ -41,6 +41,7 @@ class _LoginPageState extends State<LoginPage> {
         );
       },
     );
+    */
 
     // try sign in
     try {
@@ -49,7 +50,7 @@ class _LoginPageState extends State<LoginPage> {
         email: emailController.text,
         password: passwordController.text,
       );
-      Navigator.of(context).pop();
+      // Navigator.of(context).pop();
       if (userCredential.user != null) {
         // Assuming 'users' is the collection name in Firestore
         await FirebaseFirestore.instance
@@ -68,7 +69,7 @@ class _LoginPageState extends State<LoginPage> {
       }
     } on FirebaseAuthException catch (e) {
       print(e.code);
-      Navigator.of(context).pop();
+      // Navigator.of(context).pop();
       // Wrong email | Wrong password
       showErrorMessage(e.code);
     }
@@ -309,7 +310,8 @@ class _LoginPageState extends State<LoginPage> {
                       onTap: () {
                         String emailToCheck = passwordforgotController.text;
                         if (isValidEmail(emailToCheck)) {
-                          resetPassword();
+                          resetPassword(emailToCheck);
+                          Navigator.of(context).pop();
                         } else {
                           showDialog(
                             context: context,
@@ -351,16 +353,17 @@ class _LoginPageState extends State<LoginPage> {
     RegExp regex = RegExp(emailRegex);
     return regex.hasMatch(email);
   }
-
-  Future resetPassword() async {
+  
+  Future resetPassword(String email) async {
     try {
       await FirebaseAuth.instance
-          .sendPasswordResetEmail(email: emailController.text);
+          .sendPasswordResetEmail(email: email.trim());
     } on FirebaseAuthException catch (e) {
       print(e);
     }
   }
 }
+
 
 // Mit dieser Klasse kann man eine gestrichelte Linie zeichnen lassen
 class DashedLinePainter extends CustomPainter {
