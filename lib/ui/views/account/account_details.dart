@@ -123,7 +123,7 @@ class _AccountState extends State<Account> {
                               });
                             },
                           ),
-                          MyTextFieldemailnotnull(
+                          InputField(
                             controller: emailController,
                             hintText: userData['email'],
                             obscureText: false,

@@ -8,13 +8,13 @@ class HomePage extends StatelessWidget {
 
   final user = FirebaseAuth.instance.currentUser!;
 
-  void signUserOut() async{
+  void signUserOut() async {
     await FirebaseAuth.instance.signOut();
   }
 
   void deleteUser() async {
     await FirebaseAuth.instance.currentUser!.delete();
-  } 
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -36,13 +36,15 @@ class HomePage extends StatelessWidget {
             const SizedBox(height: 20),
             Text('Your profile picture is ${user.photoURL}'),
             MyButton(
-              onTap: signUserOut, 
+              onTap: signUserOut,
               text: "Logout",
-              colors: Colors.red,),
+              colors: Colors.red,
+            ),
             MyButton(
-              onTap: deleteUser, 
+              onTap: deleteUser,
               text: "Delete Account",
-              colors: Colors.red,),
+              colors: Colors.red,
+            ),
           ],
         ),
       ),
