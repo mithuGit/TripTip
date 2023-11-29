@@ -2,13 +2,13 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:internet_praktikum/ui/styles/Styles.dart';
-import 'package:internet_praktikum/ui/views/account/account_details.dart';
 import 'package:internet_praktikum/ui/views/login_register_pages/login_or_register_page.dart';
 import 'package:internet_praktikum/ui/widgets/container.dart';
 import 'package:internet_praktikum/ui/widgets/inputfield.dart';
 import 'package:internet_praktikum/ui/widgets/my_button.dart';
 import 'package:internet_praktikum/ui/widgets/inputfield_password_or_icon.dart';
 import '../../../core/services/auth_service.dart';
+import '../account/account_details.dart';
 import '../verification/OTP_Form.dart';
 import 'package:webview_flutter_plus/webview_flutter_plus.dart';
 
@@ -34,7 +34,7 @@ class _LoginPageState extends State<LoginPage> {
   // sign user in method
   void signUserIn() async {
     // show loading circle
-    showDialog(
+    /*showDialog(
       context: context,
       builder: (context) {
         return const Center(
@@ -42,6 +42,7 @@ class _LoginPageState extends State<LoginPage> {
         );
       },
     );
+    */
 
     // try sign in
     try {
@@ -50,7 +51,7 @@ class _LoginPageState extends State<LoginPage> {
         email: emailController.text,
         password: passwordController.text,
       );
-
+      // Navigator.of(context).pop();
       if (userCredential.user != null) {
         // Assuming 'users' is the collection name in Firestore
         await FirebaseFirestore.instance
@@ -66,15 +67,23 @@ class _LoginPageState extends State<LoginPage> {
           'dateOfBirth': null,
           // Add other data fields as needed
         });
+        // Route to the Account page
+        // ignore: use_build_context_synchronously
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const Account(),
+          ),
+        );
       }
-      // pop the loading circle
-      Navigator.pop(context);
     } on FirebaseAuthException catch (e) {
-      // pop the loading circle
-      Navigator.pop(context);
+      print(e.code);
+      // Navigator.of(context).pop();
       // Wrong email | Wrong password
       showErrorMessage(e.code);
     }
+
+    //route to account details page
   }
 
   //error messsage to user
@@ -114,6 +123,7 @@ class _LoginPageState extends State<LoginPage> {
           backgroundColor: Colors.black,
           title: Center(
             child: Text(
+              //'Wrong email or password! Please try again.',
               message,
               style: Styles.textfieldHintStyle,
             ),
@@ -163,12 +173,7 @@ class _LoginPageState extends State<LoginPage> {
                     const SizedBox(height: 25),
                     MyButton(
                       text: 'Sign In',
-                      onTap: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => const Account()));
-                      },
+                      onTap: signUserIn,
                     ),
                     const SizedBox(height: 30),
                     const Padding(
@@ -316,19 +321,23 @@ class _LoginPageState extends State<LoginPage> {
                       onTap: () {
                         String emailToCheck = passwordforgotController.text;
                         if (isValidEmail(emailToCheck)) {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => const OTPForm(
-                                      passwordverifier: true,
-                                    )),
-                          );
+                          resetPassword(emailToCheck);
+                          Navigator.of(context).pop();
                         } else {
-                          isValidEmail(passwordforgotController.text)
-                              ? Colors.white
-                              : Colors.red;
-
-                          //hier fehlt noch was
+                          showDialog(
+                            context: context,
+                            builder: (context) {
+                              return const AlertDialog(
+                                backgroundColor: Colors.black,
+                                title: Center(
+                                  child: Text(
+                                    'Please enter a valid email',
+                                    style: Styles.textfieldHintStyle,
+                                  ),
+                                ),
+                              );
+                            },
+                          );
                         }
                       },
                     ),
@@ -354,6 +363,14 @@ class _LoginPageState extends State<LoginPage> {
         r'^[\w-]+(\.[\w-]+)*@([a-z\d-]+(\.[a-z\d-]+)*?\.[a-z]{2,6}|(\d{1,3}\.){3}\d{1,3})$';
     RegExp regex = RegExp(emailRegex);
     return regex.hasMatch(email);
+  }
+
+  Future resetPassword(String email) async {
+    try {
+      await FirebaseAuth.instance.sendPasswordResetEmail(email: email.trim());
+    } on FirebaseAuthException catch (e) {
+      print(e);
+    }
   }
 }
 

@@ -17,19 +17,36 @@ class InputField extends StatelessWidget {
       this.margin,
       this.focusNode});
 
+  bool isValidEmail(String email) {
+    String emailRegex =
+        r'^[\w-]+(\.[\w-]+)*@([a-z\d-]+(\.[a-z\d-]+)*?\.[a-z]{2,6}|(\d{1,3}\.){3}\d{1,3})$';
+    RegExp regex = RegExp(emailRegex);
+    return regex.hasMatch(email);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
       margin: margin,
-      child: TextField(
+      child: TextFormField(
         controller: controller,
         obscureText: obscureText,
+        autovalidateMode: AutovalidateMode.onUserInteraction,
+        validator: (value) {
+          if (hintText == 'Email') {
+            // Validierung für die E-Mail-Adresse
+            if (value == null || value.isEmpty) {
+              return 'Please enter a email adress';
+            } else if (!isValidEmail(value)) {
+              return 'Please enter an valid email adress';
+            }
+          }
+          return null;
+        },
         style: Styles.inputField,
         focusNode: focusNode,
         cursorColor: const Color.fromARGB(0, 113, 113, 113),
         cursorWidth: 1.5,
-
-        //nur Groß und klein Buchstaben erlauben
         decoration: InputDecoration(
             enabledBorder: OutlineInputBorder(
               borderSide: const BorderSide(color: Colors.white),

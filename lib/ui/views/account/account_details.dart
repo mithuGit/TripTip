@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:internet_praktikum/ui/views/login_register_pages/home_page.dart';
 import 'package:internet_praktikum/ui/widgets/my_button.dart';
 import '../../widgets/container.dart';
 import '../../widgets/inputfield.dart';
@@ -14,11 +15,10 @@ class Account extends StatefulWidget {
 }
 
 class _AccountState extends State<Account> {
+  //auth user
   final currentUser = FirebaseAuth.instance.currentUser!;
-
   //all user
   final userCollection = FirebaseFirestore.instance.collection('users');
-  final authCollection = FirebaseAuth.instance.currentUser;
 
   //Controller for text
   final prenameController = TextEditingController();
@@ -38,15 +38,18 @@ class _AccountState extends State<Account> {
     });
   }
 
+  // Update user email in Firebase Authentication
+  Future<void> updateUserEmail(String newEmail) async {
+    try {
+      await currentUser.updateEmail(newEmail);
+    } catch (e) {
+      // Handle the error, for example, show an error message to the user
+      print("Error updating email: $e");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    List<String> parts =
-        FirebaseAuth.instance.currentUser!.toString().split(',');
-
-// Now, parts[0] contains the part before the ','
-    String preName = parts[0].trim();
-    String lastName = parts[1].trim();
-    // Get Screen Size
     return Scaffold(
         backgroundColor: const Color(0xFFCBEFFF),
         body: StreamBuilder<DocumentSnapshot>(
@@ -58,7 +61,6 @@ class _AccountState extends State<Account> {
             //get User Data
             if (snapshot.hasData) {
               final userData = snapshot.data!.data() as Map<String, dynamic>;
-
               return SafeArea(
                 child: Container(
                   decoration: const BoxDecoration(
@@ -124,12 +126,12 @@ class _AccountState extends State<Account> {
                           ),
                           InputField(
                             controller: emailController,
-                            hintText: userData['email'],
+                            hintText: "Email",
                             obscureText: false,
                             margin: const EdgeInsets.only(bottom: 25),
                           ),
                           MyButton(
-                              onTap: () {
+                              onTap: () async {
                                 updateUserData(
                                     prenameController.value.text,
                                     lastnameController.value.text,
@@ -137,6 +139,16 @@ class _AccountState extends State<Account> {
                                     emailController.value.text.isEmpty
                                         ? userData['email']
                                         : emailController.value.text);
+                                if (emailController.text.isNotEmpty &&
+                                    emailController.text != currentUser.email) {
+                                  await updateUserEmail(emailController.text);
+                                }
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => HomePage(),
+                                  ),
+                                );
                               },
                               text: 'Finish'),
                         ],

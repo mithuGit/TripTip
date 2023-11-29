@@ -60,7 +60,7 @@ class _RegisterPageState extends State<RegisterPage> {
           'uid': userCredential.user!.uid,
           'trips': null,
           'profilepicture': null,
-          'date of birth': null,
+          'dateOfBirth': null,
         });
 
         //--------
