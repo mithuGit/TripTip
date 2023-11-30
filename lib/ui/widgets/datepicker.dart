@@ -3,11 +3,12 @@ import 'package:flutter/material.dart';
 import '../styles/Styles.dart';
 
 class CupertinoDatePickerButton extends StatefulWidget {
-  final margin;
+  final EdgeInsets? margin;
+  final bool showFuture; // this field is set to true when the datepicker is used for the future Dates
   final ValueChanged<String>? onDateSelected;
 
   const CupertinoDatePickerButton(
-      {super.key, this.margin, this.onDateSelected});
+      {super.key, this.margin, this.onDateSelected, required this.showFuture});
 
   @override
   _CupertinoDatePickerButtonState createState() =>
@@ -55,7 +56,8 @@ class _CupertinoDatePickerButtonState extends State<CupertinoDatePickerButton> {
                 child: CupertinoDatePicker(
                     initialDateTime: DateTime.now(),
                     mode: CupertinoDatePickerMode.date,
-                    maximumDate: DateTime.now(),
+                    maximumDate:  !widget.showFuture ? DateTime.now() : null,
+                    minimumDate: widget.showFuture ? DateTime.now() : null,
                     onDateTimeChanged: (DateTime newDate) {
                       currentDate = newDate;
                       //formatieren des Strings
