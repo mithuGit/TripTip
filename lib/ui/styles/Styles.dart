@@ -29,4 +29,9 @@ class Styles {
     fontFamily: 'Ubuntu',
     fontWeight: FontWeight.w500,
   );
+  static const title = TextStyle(
+      fontFamily: 'fonts/Ubuntu-Regular.ttf',
+      fontSize: 20,
+      fontWeight: FontWeight.w500,
+      color: Colors.black);
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:internet_praktikum/ui/views/finanzen/finazen.dart';
 import 'package:internet_praktikum/ui/views/login_register_pages/login_or_register_page.dart';
 import 'firebase_options.dart';
 
@@ -19,7 +20,7 @@ class Main extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       initialRoute: '/',
       title: 'Product App. ',
-      home: LoginOrRegisterPage(),
+      home: Finanzen(),
     );
   }
 }
