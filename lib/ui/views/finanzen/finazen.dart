@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:internet_praktikum/ui/styles/Styles.dart';
 
 import '../../widgets/finanzen/extendablecontainer.dart';
+import '../../widgets/finanzen/slidablebutton.dart';
 
 class Finanzen extends StatefulWidget {
   const Finanzen({Key? key}) : super(key: key);
@@ -36,8 +37,12 @@ class _FinanzenState extends State<Finanzen> {
                       fit: BoxFit.fill, // Maintain width, adjust height
                     ),
                   ),
-                  child: Center(
-                    child: ExpandableContainer(),
+                  child: const Center(
+                    child: //ExpandableContainer(),
+                        SlideButton(
+                      buttonText: 'Slide to Pay',
+                      margin: const EdgeInsets.only(bottom: 25),
+                    ),
                   ),
                 ),
               ),

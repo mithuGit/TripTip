@@ -24,11 +24,30 @@ class _ExpandableContainerState extends State<ExpandableContainer> {
         width: 200.0,
         height: isExpanded ? 150.0 : 50.0,
         color: Colors.grey,
-        child: Center(
-          child: Text(
-            isExpanded ? 'Expanded - Click to Shrink' : 'Click to Expand',
-            style: const TextStyle(color: Colors.white),
-          ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              isExpanded ? 'Clicked Me' : 'Click Me',
+              style: const TextStyle(color: Colors.white),
+            ),
+            if (isExpanded) ...[
+              SizedBox(height: 10.0),
+              Text(
+                'Essen',
+                style: const TextStyle(color: Colors.white),
+              ),
+              Text(
+                'Fahrkarte',
+                style: const TextStyle(color: Colors.white),
+              ),
+              Text(
+                'Eintritt',
+                style: const TextStyle(color: Colors.white),
+              ),
+              // Add more items as needed
+            ],
+          ],
         ),
       ),
     );
