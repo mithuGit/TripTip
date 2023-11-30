@@ -118,9 +118,10 @@ class _AccountState extends State<Account> {
                           const SizedBox(height: 12.5),
                           CupertinoDatePickerButton(
                             margin: EdgeInsets.only(bottom: 25),
-                            onDateSelected: (String formattedDate) {
+                            showFuture: false,
+                            onDateSelected: (DateStringTupel formattedDate) {
                               setState(() {
-                                selectedDate = formattedDate;
+                                selectedDate = formattedDate.dateString;
                               });
                             },
                           ),

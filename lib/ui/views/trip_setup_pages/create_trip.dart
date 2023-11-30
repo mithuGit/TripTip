@@ -32,9 +32,9 @@ class _TripCreateState extends State<CreateTrip> {
   final destinationText = TextEditingController();
   final starttime = TextEditingController();
   final endtime = TextEditingController();
-  late String destination;
-  late String selectedStartDate;
-  late String selectedEndDate;
+  String? destination;
+  DateTime? selectedStartDate;
+  DateTime? selectedEndDate;
 
   void connectPhotosAlbum() async {
     setState(() {
@@ -45,16 +45,18 @@ class _TripCreateState extends State<CreateTrip> {
   Future<void> create_trip() async {
     try {
       final members = [];
-      if (destination == '') throw Exception("Destination is empty");
-      if (selectedStartDate == '') throw Exception("Destination is empty");
-      if (selectedEndDate == '') throw Exception("Destination is empty");
+      if (destination == null) throw Exception("Destination is empty");
+      if (selectedStartDate == null) throw Exception("You need to select a start date!");
+      if (selectedEndDate == null) throw Exception("You need to select a end date!");
+      if (selectedEndDate!.millisecondsSinceEpoch < selectedStartDate!.millisecondsSinceEpoch) throw Exception("End date must be after start date!");
+
       members.add(_auth.currentUser?.uid);
       print("Create Trip: $destination $selectedStartDate $selectedEndDate");
       await trips.add({
         'city': destination,
         'country': destination,
-        'starttime': selectedStartDate,
-        'endtime': selectedEndDate,
+        'startdate': selectedStartDate,
+        'enddate': selectedEndDate,
         'createdBy': _auth.currentUser?.uid,
         'members': members
       });
@@ -114,9 +116,10 @@ class _TripCreateState extends State<CreateTrip> {
                         const SizedBox(height: 12.5),
                         CupertinoDatePickerButton(
                           margin: const EdgeInsets.only(bottom: 25),
-                          onDateSelected: (String formattedDate) {
+                          showFuture: true,
+                          onDateSelected: (DateStringTupel formattedDate) {
                             setState(() {
-                              selectedStartDate = formattedDate;
+                              selectedStartDate = formattedDate.date;
                             });
                           },
                         ),
@@ -137,9 +140,10 @@ class _TripCreateState extends State<CreateTrip> {
                         const SizedBox(height: 12.5),
                         CupertinoDatePickerButton(
                           margin: const EdgeInsets.only(bottom: 25),
-                          onDateSelected: (String formattedDate) {
+                          showFuture: true,
+                          onDateSelected: (DateStringTupel formattedDate) {
                             setState(() {
-                              selectedEndDate = formattedDate;
+                              selectedEndDate = formattedDate.date;
                             });
                           },
                         ),
@@ -150,7 +154,11 @@ class _TripCreateState extends State<CreateTrip> {
                         MyButton(
                             margin: const EdgeInsets.only(top: 30),
                             onTap: create_trip,
-                            text: 'Create Trip')
+                            text: 'Create Trip'),
+                        MyButton(
+                            margin: const EdgeInsets.only(top: 30),
+                            onTap: Navigator.of(context).pop,
+                            text: 'Cancel')
                       ],
                     )),
               ),
