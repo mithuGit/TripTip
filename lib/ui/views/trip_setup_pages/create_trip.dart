@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:internet_praktikum/core/services/placeApiProvider.dart';
 import 'package:internet_praktikum/ui/widgets/datepicker.dart';
 import 'package:internet_praktikum/ui/widgets/errorSnackbar.dart';
 import 'package:internet_praktikum/ui/widgets/inputfield_search_lookahead.dart';
@@ -32,7 +33,7 @@ class _TripCreateState extends State<CreateTrip> {
   final destinationText = TextEditingController();
   final starttime = TextEditingController();
   final endtime = TextEditingController();
-  String? destination;
+  PlaceDetails? destination;
   DateTime? selectedStartDate;
   DateTime? selectedEndDate;
 
@@ -53,8 +54,8 @@ class _TripCreateState extends State<CreateTrip> {
       members.add(_auth.currentUser?.uid);
       print("Create Trip: $destination $selectedStartDate $selectedEndDate");
       await trips.add({
-        'city': destination,
-        'country': destination,
+        'city': destination?.cityName,
+        'placedetails' : destination?.placeDetails,
         'startdate': selectedStartDate,
         'enddate': selectedEndDate,
         'createdBy': _auth.currentUser?.uid,
@@ -92,9 +93,9 @@ class _TripCreateState extends State<CreateTrip> {
                         Padding(
                           padding: const EdgeInsets.only(bottom: 25),
                           child: AsyncAutocomplete(
-                            onDestinationPick: (String formattedDate) {
+                            onDestinationPick: (PlaceDetails details) {
                               setState(() {
-                                destination = formattedDate;
+                                destination = details;
                               });
                             },
                           ),
