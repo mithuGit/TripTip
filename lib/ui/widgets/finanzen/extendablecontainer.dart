@@ -32,18 +32,18 @@ class _ExpandableContainerState extends State<ExpandableContainer> {
               style: const TextStyle(color: Colors.white),
             ),
             if (isExpanded) ...[
-              SizedBox(height: 10.0),
-              Text(
+              const SizedBox(height: 10.0),
+              const Text(
                 'Essen',
-                style: const TextStyle(color: Colors.white),
+                style: TextStyle(color: Colors.white),
               ),
-              Text(
+              const Text(
                 'Fahrkarte',
-                style: const TextStyle(color: Colors.white),
+                style: TextStyle(color: Colors.white),
               ),
-              Text(
+              const Text(
                 'Eintritt',
-                style: const TextStyle(color: Colors.white),
+                style: TextStyle(color: Colors.white),
               ),
               // Add more items as needed
             ],

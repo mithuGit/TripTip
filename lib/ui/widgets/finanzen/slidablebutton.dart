@@ -25,9 +25,11 @@ class SlideButton extends StatelessWidget {
           sliderButtonIcon: const Icon(Icons.double_arrow_outlined),
           text: buttonText, // Use the provided buttonText property
           textStyle: Styles.title,
-          // Icon dreht sich wenn dreht
+          // Icon dreht sich wenn true
           sliderRotate: true,
           onSubmit: () {
+            return null;
+          
             // do something
           },
         ),
