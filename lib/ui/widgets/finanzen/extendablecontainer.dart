@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
 class ExpandableContainer extends StatefulWidget {
-  const ExpandableContainer({Key? key}) : super(key: key);
+  const ExpandableContainer({Key? key, required this.name}) : super(key: key);
+
+  final String name;
 
   @override
   State<ExpandableContainer> createState() => _ExpandableContainerState();
@@ -21,31 +23,40 @@ class _ExpandableContainerState extends State<ExpandableContainer> {
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
-        width: 200.0,
-        height: isExpanded ? 150.0 : 50.0,
-        color: Colors.grey,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+        height: isExpanded ? 100.0 : 60.0, // Adjust the height as needed
+        decoration: BoxDecoration(
+          color: Color(0xE51E1E1E), // Grey background color
+          border: Border.all(color: Color(0xE51E1E1E)),
+          borderRadius: BorderRadius.circular(34.5),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              isExpanded ? 'Clicked Me' : 'Click Me',
-              style: const TextStyle(color: Colors.white),
+            Padding(
+              padding: const EdgeInsets.only(top: 8.0, bottom: 8.0, left: 25),
+              child: Text(
+                widget.name,
+                style: TextStyle(
+                    fontSize: 14.0,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(right: 25),
+              child: Icon(
+                isExpanded ? Icons.remove : Icons.add,
+                size: 18.0,
+                color: Colors.white,
+              ),
             ),
             if (isExpanded) ...[
-              const SizedBox(height: 10.0),
+              const SizedBox(height: 6.0),
               const Text(
-                'Essen',
-                style: TextStyle(color: Colors.white),
+                'Additional Text',
+                style: TextStyle(fontSize: 12.0),
               ),
-              const Text(
-                'Fahrkarte',
-                style: TextStyle(color: Colors.white),
-              ),
-              const Text(
-                'Eintritt',
-                style: TextStyle(color: Colors.white),
-              ),
-              // Add more items as needed
+              // You can add more text or widgets here based on your requirements
             ],
           ],
         ),

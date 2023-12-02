@@ -95,10 +95,9 @@ class _AccountState extends State<Account> {
                       child: CustomContainer(
                         title: "Account Details:",
                         children: [
+                          // Profile Picture
                           GestureDetector(
-                            onTap: () {
-                              //prenameController.text = 'Hello';
-                            },
+                            onTap: () {},
                             child: Image.asset(
                               'assets/Personavatar.png',
                               width: 75,
