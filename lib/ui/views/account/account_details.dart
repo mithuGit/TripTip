@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:internet_praktikum/ui/views/login_register_pages/home_page.dart';
 import 'package:internet_praktikum/ui/widgets/my_button.dart';
@@ -44,7 +45,25 @@ class _AccountState extends State<Account> {
       await currentUser.updateEmail(newEmail);
     } catch (e) {
       // Handle the error, for example, show an error message to the user
-      print("Error updating email: $e");
+      if (kDebugMode) {
+        print("Error updating email: $e");
+      }
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    emailController.text = currentUser.email!;
+    if (currentUser.displayName != null &&
+        currentUser.displayName!.isNotEmpty) {
+      List<String> displayNameParts = currentUser.displayName!.split(', ');
+      if (displayNameParts.length == 2) {
+        prenameController.text =
+            displayNameParts[1]; // Assuming Prename is the second part
+        lastnameController.text =
+            displayNameParts[0]; // Assuming LastName is the first part
+      }
     }
   }
 
