@@ -87,12 +87,8 @@ class _LoginPageState extends State<LoginPage> {
     showDialog(
       context: context,
       builder: (context) {
-        // ignore: deprecated_member_use
-        return WillPopScope(
-          onWillPop: () async {
-            // Verhindere, dass der Dialog manuell geschlossen wird
-            return false;
-          },
+        return PopScope(
+          canPop: false,
           child: AlertDialog(
             backgroundColor: Colors.black,
             title: Center(
