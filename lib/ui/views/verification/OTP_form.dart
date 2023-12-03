@@ -2,12 +2,9 @@ import 'dart:async';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:internet_praktikum/ui/styles/Styles.dart';
 import 'package:internet_praktikum/ui/views/account/account_details.dart';
 import 'package:internet_praktikum/ui/widgets/container.dart';
-
 import '../../widgets/my_button.dart';
-import '../../widgets/inputfield_password_or_icon.dart';
 
 class OTPForm extends StatefulWidget {
   const OTPForm({
@@ -48,7 +45,7 @@ class _OTPFormState extends State<OTPForm> {
 
   @override
   Widget build(BuildContext context) {
-    const String message = "Enter the Verification code sent at ";
+    const String message = "We have sent a verification link to your email. \n";
 
     return Scaffold(
       body: SafeArea(
@@ -71,7 +68,7 @@ class _OTPFormState extends State<OTPForm> {
                     children: [
                       const SizedBox(height: 25),
                       const Text(
-                        "$message support@MoneyTrip.com",
+                        "$message Please check your inbox.",
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           //TODO: style in styles.dart Ubuntu verwenden

@@ -8,7 +8,6 @@ import 'package:internet_praktikum/ui/widgets/inputfield.dart';
 import 'package:internet_praktikum/ui/widgets/my_button.dart';
 import 'package:internet_praktikum/ui/widgets/inputfield_password_or_icon.dart';
 import '../../../core/services/auth_service.dart';
-import '../verification/OTP_Form.dart';
 import 'package:webview_flutter_plus/webview_flutter_plus.dart';
 
 import 'home_page.dart';
@@ -32,7 +31,6 @@ class _LoginPageState extends State<LoginPage> {
 
   // sign user in method
   void signUserIn() async {
-
     // try sign in
     try {
       UserCredential userCredential =
@@ -61,28 +59,27 @@ class _LoginPageState extends State<LoginPage> {
       print(e.code);
       // Wrong email | Wrong password
       if (e.code == 'user-not-found' || e.code == 'wrong-password') {
-        showErrorMessage('Wrong email or password! Please try again.');
+        showMessage('Wrong email or password! Please try again.');
       }
       // User disabled
       else if (e.code == 'user-disabled') {
-        showErrorMessage('This user has been disabled.');
+        showMessage('This user has been disabled.');
       }
       // Too many requests
       else if (e.code == 'too-many-requests') {
-        showErrorMessage('Too many requests. Try again later.');
+        showMessage('Too many requests. Try again later.');
       }
       // Operation not allowed
       else if (e.code == 'operation-not-allowed') {
-        showErrorMessage('Operation not allowed. Try again later.');
-      }
-      else{
-        showErrorMessage('Something went wrong. Try again later.');
+        showMessage('Operation not allowed. Try again later.');
+      } else {
+        showMessage('Something went wrong. Try again later.');
       }
     }
   }
 
   //error messsage to user
-  void showErrorMessage(String message) {
+  void showMessage(String message) {
     counter++;
     // Wenn Counter gleich 3 ist, wird eigentlich hier Capcha aufgerufen
     if (counter == 3) {
@@ -323,21 +320,11 @@ class _LoginPageState extends State<LoginPage> {
                         if (isValidEmail(emailToCheck)) {
                           resetPassword(emailToCheck);
                           Navigator.of(context).pop();
+                          showMessage(
+                              'A reset link has been sent to your email.');
                         } else {
-                          showDialog(
-                            context: context,
-                            builder: (context) {
-                              return const AlertDialog(
-                                backgroundColor: Colors.black,
-                                title: Center(
-                                  child: Text(
-                                    'Please enter a valid email',
-                                    style: Styles.textfieldHintStyle,
-                                  ),
-                                ),
-                              );
-                            },
-                          );
+                          showMessage(
+                              'Please enter a valid email');
                         }
                       },
                     ),
@@ -364,17 +351,15 @@ class _LoginPageState extends State<LoginPage> {
     RegExp regex = RegExp(emailRegex);
     return regex.hasMatch(email);
   }
-  
+
   Future resetPassword(String email) async {
     try {
-      await FirebaseAuth.instance
-          .sendPasswordResetEmail(email: email.trim());
+      await FirebaseAuth.instance.sendPasswordResetEmail(email: email.trim());
     } on FirebaseAuthException catch (e) {
       print(e);
     }
   }
 }
-
 
 // Mit dieser Klasse kann man eine gestrichelte Linie zeichnen lassen
 class DashedLinePainter extends CustomPainter {
