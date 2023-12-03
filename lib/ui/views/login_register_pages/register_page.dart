@@ -1,13 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:internet_praktikum/ui/styles/Styles.dart';
 import 'package:internet_praktikum/ui/views/login_register_pages/home_page.dart';
 import 'package:internet_praktikum/ui/views/login_register_pages/login_page.dart';
 import 'package:internet_praktikum/ui/widgets/container.dart';
+import 'package:internet_praktikum/ui/widgets/inputfield.dart';
 import '../../../core/services/auth_service.dart';
 import '../../widgets/my_button.dart';
 import '../../widgets/inputfield_password_or_icon.dart';
-import '../../widgets/my_textfield_emailnotnull.dart';
 
 class RegisterPage extends StatefulWidget {
   final Function()? onTap;
@@ -26,16 +27,6 @@ class _RegisterPageState extends State<RegisterPage> {
 
   // sign user up method
   void signUserUp() async {
-    // show loading circle
-    showDialog(
-      context: context,
-      builder: (context) {
-        return const Center(
-          child: CircularProgressIndicator(),
-        );
-      },
-    );
-
     // try sign up (try creating the user)
     try {
       // check if passwords match
@@ -46,32 +37,26 @@ class _RegisterPageState extends State<RegisterPage> {
           password: passwordController.text,
         );
 
-        ///-----
-        // after creating the user, create a new document in cloud firestore called Users
-        FirebaseFirestore.instance
-            .collection("users")
-            .doc(
-              userCredential.user!.uid,
-            )
-            .set({
-          'email': userCredential.user!.email,
-          'prename': userCredential.user!.displayName,
-          'lastname': userCredential.user!.displayName,
-          'uid': userCredential.user!.uid,
-          'trips': null,
-          'profilepicture': null,
-          'date of birth': null,
-        });
-
-        //--------
-
         if (userCredential.user != null) {
+          // Hier wird die Verifizierung der E-Mail-Adresse des Users auf false gesetzt
+          await userCredential.user!.updateEmail(userCredential.user!.email!);
+
+          // Der User muss seine E-Mail-Adresse verifizieren, bevor er sich einloggen kann
+          // sendet eine EmailVerifizierung an die E-Mail-Adresse des Users
+          await userCredential.user!.sendEmailVerification();
+
           // Assuming 'users' is the collection name in Firestore
           await FirebaseFirestore.instance
               .collection('users')
               .doc(userCredential.user!.uid)
               .set({
             'email': userCredential.user!.email,
+            'prename': userCredential.user!.displayName,
+            'lastname': userCredential.user!.displayName,
+            'uid': userCredential.user!.uid,
+            'trips': null,
+            'profilepicture': null,
+            'dateOfBirth': null,
             // Add other data fields as needed
           });
         }
@@ -79,13 +64,22 @@ class _RegisterPageState extends State<RegisterPage> {
         // show error message
         showErrorMEssage('Passwords do not match!');
       }
-      // pop the loading circle
-      Navigator.pop(context);
     } on FirebaseAuthException catch (e) {
-      // pop the loading circle
-      Navigator.pop(context);
+      print(e.code);
       // Wrong email | Wrong password
-      showErrorMEssage(e.code);
+      if (e.code == 'weak-password') {
+        showErrorMEssage('The password provided is too weak.');
+      } else if (e.code == 'email-already-in-use') {
+        showErrorMEssage('The account already exists for that email.');
+      } else if (e.code == 'invalid-email') {
+        showErrorMEssage('The email address is not valid.');
+      } else if (e.code == 'operation-not-allowed') {
+        showErrorMEssage('Error during sign up.');
+      } else if (e.code == 'user-disabled') {
+        showErrorMEssage('The user account has been disabled.');
+      } else {
+        showErrorMEssage('An undefined Error happened.');
+      }
     }
   }
 
@@ -94,164 +88,173 @@ class _RegisterPageState extends State<RegisterPage> {
     showDialog(
       context: context,
       builder: (context) {
+        // Zeige AlertDialog mit der Fehlermeldung
         return AlertDialog(
-          backgroundColor: Colors.deepPurple,
+          backgroundColor: Colors.black,
           title: Center(
             child: Text(
               message,
-              style: const TextStyle(color: Colors.white),
+              style: Styles.textfieldHintStyle,
             ),
           ),
         );
       },
     );
+
+    // Verzögere das Ausblenden der Fehlermeldung nach 5 Sekunden
+    Future.delayed(const Duration(seconds: 5), () {
+      Navigator.of(context).pop(); // Schließt den Dialog nach 5 Sekunden
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: SafeArea(
-      child: Container(
-        decoration: const BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage('assets/BackgroundCity.png'),
-            fit: BoxFit.cover,
-          ),
-        ),
-        child: Center(
-          child: Padding(
-            padding:
-                const EdgeInsets.only(top: 80, left: 14, right: 14, bottom: 45),
-            child:
-                Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-              const Icon(
-                Icons.lock,
-                size: 100,
+      body: SafeArea(
+        child: Stack(children: [
+          Container(
+            decoration: const BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage('assets/BackgroundCity.png'),
+                fit: BoxFit.cover,
               ),
-              CustomContainer(
-                title: "Register",
-                children: [
-                  MyTextFieldemailnotnull(
-                      controller: emailController,
-                      hintText: 'Email',
-                      obscureText: false),
-                  const SizedBox(height: 10),
+            ),
+            child: Center(
+              child: Padding(
+                padding: const EdgeInsets.only(
+                    top: 158, left: 14, right: 14, bottom: 45),
+                child: CustomContainer(
+                  title: "Register",
+                  children: [
+                    InputField(
+                        controller: emailController,
+                        hintText: 'Email',
+                        obscureText: false),
+                    const SizedBox(height: 10),
 
-                  InputFieldPasswortOrIcon(
-                    controller: passwordController,
-                    hintText: 'Password',
-                    obscureText: true,
-                    eyeCheckerStatus: true,
-                    useSuffixIcon: true,
-                  ),
-                  const SizedBox(height: 10),
+                    InputFieldPasswortOrIcon(
+                      controller: passwordController,
+                      hintText: 'Password',
+                      obscureText: true,
+                      eyeCheckerStatus: true,
+                      useSuffixIcon: true,
+                    ),
+                    const SizedBox(height: 10),
 
-                  // confirm Password
-                  InputFieldPasswortOrIcon(
-                    controller: confirmPasswordController,
-                    hintText: 'Confirm Password',
-                    obscureText: true,
-                    eyeCheckerStatus: true,
-                    useSuffixIcon: true,
-                  ),
+                    // confirm Password
+                    InputFieldPasswortOrIcon(
+                      controller: confirmPasswordController,
+                      hintText: 'Confirm Password',
+                      obscureText: true,
+                      eyeCheckerStatus: true,
+                      useSuffixIcon: true,
+                    ),
 
-                  const SizedBox(height: 25),
+                    const SizedBox(height: 25),
 
-                  MyButton(
-                      onTap: () {
-                        signUserUp();
-                      },
-                      text: 'Sign Up'),
+                    MyButton(
+                        onTap: () {
+                          signUserUp();
+                        },
+                        text: 'Sign Up'),
 
-                  const SizedBox(height: 30),
+                    const SizedBox(height: 30),
 
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 25.0),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: Divider(
-                            thickness: 0.5,
-                            color: Colors.grey[400],
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 25.0),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Divider(
+                              thickness: 0.5,
+                              color: Colors.grey[400],
+                            ),
                           ),
-                        ),
-                        const Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 10.0),
-                          child: Text(
-                            'Or continue with',
-                            style: TextStyle(
+                          const Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 10.0),
+                            child: Text(
+                              'Or continue with',
+                              style: TextStyle(
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                          const Expanded(
+                            child: Divider(
+                              thickness: 0.5,
                               color: Colors.white,
                             ),
                           ),
-                        ),
-                        const Expanded(
-                          child: Divider(
-                            thickness: 0.5,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
 
-                  const SizedBox(height: 30),
+                    const SizedBox(height: 30),
 
-                  MyButton(
-                    //onTap: () => AuthService().signInWithGoogle(),
-                    onTap: () {
-                      signInWithGoogle().whenComplete(() {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) {
-                              return HomePage();
-                            },
-                          ),
-                        );
-                      });
-                    },
-                    imagePath: 'assets/google_logo.png',
-                    text: "Register with Google",
-                  ),
-                  const SizedBox(height: 25),
+                    MyButton(
+                      //onTap: () => AuthService().signInWithGoogle(),
+                      onTap: () {
+                        signInWithGoogle().whenComplete(() {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) {
+                                return HomePage();
+                              },
+                            ),
+                          );
+                        });
+                      },
+                      imagePath: 'assets/google_logo.png',
+                      text: "Register with Google",
+                    ),
+                    const SizedBox(height: 25),
 
-                  MyButton(
-                    onTap: () {
-                      signInWithFacebook().whenComplete(() {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) {
-                              return HomePage();
-                            },
-                          ),
-                        );
-                      });
-                    },
-                    imagePath: 'assets/facebook_logo.png',
-                    text: "Register with Facebook",
-                  ),
+                    MyButton(
+                      onTap: () {
+                        signInWithFacebook().whenComplete(() {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) {
+                                return HomePage();
+                              },
+                            ),
+                          );
+                        });
+                      },
+                      imagePath: 'assets/facebook_logo.png',
+                      text: "Register with Facebook",
+                    ),
 
-                  const SizedBox(
-                    height: 15,
-                  ),
+                    const SizedBox(
+                      height: 15,
+                    ),
 
-                  CustomPaint(
-                    painter: DashedLinePainter(),
-                  ),
+                    CustomPaint(
+                      painter: DashedLinePainter(),
+                    ),
 
-                  const SizedBox(
-                    height: 15,
-                  ),
+                    const SizedBox(
+                      height: 15,
+                    ),
 
-                  MyButton(
-                    onTap: widget.onTap,
-                    text: "Already have an account?",
-                  )
-                ],
+                    MyButton(
+                      onTap: widget.onTap,
+                      text: "Already have an account?",
+                    )
+                  ],
+                ),
               ),
-            ]),
+            ),
           ),
-        ),
+          SizedBox(
+              height: 158,
+              child: Center(
+                  child: Image.asset(
+                'assets/logo.png',
+                width: 76,
+              ))),
+        ]),
       ),
-    ));
+    );
   }
 }

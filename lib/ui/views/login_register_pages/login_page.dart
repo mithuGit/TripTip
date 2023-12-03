@@ -2,7 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:internet_praktikum/ui/styles/Styles.dart';
-import 'package:internet_praktikum/ui/views/account/account_details.dart';
 import 'package:internet_praktikum/ui/views/login_register_pages/login_or_register_page.dart';
 import 'package:internet_praktikum/ui/widgets/container.dart';
 import 'package:internet_praktikum/ui/widgets/inputfield.dart';
@@ -50,7 +49,7 @@ class _LoginPageState extends State<LoginPage> {
         email: emailController.text,
         password: passwordController.text,
       );
-
+      // Navigator.of(context).pop();
       if (userCredential.user != null) {
         // Assuming 'users' is the collection name in Firestore
         await FirebaseFirestore.instance
@@ -67,13 +66,27 @@ class _LoginPageState extends State<LoginPage> {
           // Add other data fields as needed
         });
       }
-      // pop the loading circle
-      Navigator.pop(context);
     } on FirebaseAuthException catch (e) {
-      // pop the loading circle
-      Navigator.pop(context);
+      print(e.code);
       // Wrong email | Wrong password
-      showErrorMessage(e.code);
+      if (e.code == 'user-not-found' || e.code == 'wrong-password') {
+        showErrorMessage('Wrong email or password! Please try again.');
+      }
+      // User disabled
+      else if (e.code == 'user-disabled') {
+        showErrorMessage('This user has been disabled.');
+      }
+      // Too many requests
+      else if (e.code == 'too-many-requests') {
+        showErrorMessage('Too many requests. Try again later.');
+      }
+      // Operation not allowed
+      else if (e.code == 'operation-not-allowed') {
+        showErrorMessage('Operation not allowed. Try again later.');
+      }
+      else{
+        showErrorMessage('Something went wrong. Try again later.');
+      }
     }
   }
 
@@ -114,6 +127,7 @@ class _LoginPageState extends State<LoginPage> {
           backgroundColor: Colors.black,
           title: Center(
             child: Text(
+              //'Wrong email or password! Please try again.',
               message,
               style: Styles.textfieldHintStyle,
             ),
@@ -121,145 +135,146 @@ class _LoginPageState extends State<LoginPage> {
         );
       },
     );
+
+    // Verzögere das Ausblenden der Fehlermeldung nach 5 Sekunden
+    Future.delayed(const Duration(seconds: 5), () {
+      Navigator.of(context).pop(); // Schließt den Dialog nach 5 Sekunden
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: Container(
-          decoration: const BoxDecoration(
-            image: DecorationImage(
-              image: AssetImage('assets/BackgroundCity.png'),
-              fit: BoxFit.cover,
+        child: Stack(children: [
+          Container(
+            decoration: const BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage('assets/BackgroundCity.png'),
+                fit: BoxFit.cover,
+              ),
             ),
-          ),
-          child: Center(
-            child: Padding(
-              padding: const EdgeInsets.only(
-                  top: 80, left: 14, right: 14, bottom: 45),
-              child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
+            child: Center(
+              child: Padding(
+                padding: const EdgeInsets.only(
+                    top: 158, left: 14, right: 14, bottom: 45),
+                child: CustomContainer(
+                  title: "Login:",
                   children: [
-                    const Icon(
-                      Icons.lock,
-                      size: 100,
+                    InputField(
+                      controller: emailController,
+                      hintText: 'Email',
+                      obscureText: false,
+                      margin: const EdgeInsets.only(bottom: 25),
                     ),
-                    CustomContainer(
-                      title: "Login:",
-                      children: [
-                        InputField(
-                          controller: emailController,
-                          hintText: 'Email',
-                          obscureText: false,
-                          margin: const EdgeInsets.only(bottom: 25),
-                        ),
-                        InputFieldPasswortOrIcon(
-                          controller: passwordController,
-                          hintText: 'Password',
-                          obscureText: true,
-                          eyeCheckerStatus: true,
-                          useSuffixIcon: true,
-                        ),
-                        const SizedBox(height: 10),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: sendEmailforRestPassword(context),
-                        ),
-                        const SizedBox(height: 25),
-                        MyButton(
-                          text: 'Sign In',
-                          onTap: () {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => const Account()));
-                          },
-                        ),
-                        const SizedBox(height: 30),
-                        const Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 25.0),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: Divider(
-                                  thickness: 0.5,
-                                  color: Colors.white,
-                                ),
-                              ),
-                              Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 10.0),
-                                child: Text(
-                                  'Or continue with',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ),
-                              Expanded(
-                                child: Divider(
-                                  thickness: 0.5,
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ],
+                    InputFieldPasswortOrIcon(
+                      controller: passwordController,
+                      hintText: 'Password',
+                      obscureText: true,
+                      eyeCheckerStatus: true,
+                      useSuffixIcon: true,
+                    ),
+                    const SizedBox(height: 10),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: sendEmailforRestPassword(context),
+                    ),
+                    const SizedBox(height: 25),
+                    MyButton(
+                      text: 'Sign In',
+                      onTap: signUserIn,
+                    ),
+                    const SizedBox(height: 30),
+                    const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 25.0),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Divider(
+                              thickness: 0.5,
+                              color: Colors.white,
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 30),
-                        MyButton(
-                          onTap: () {
-                            signInWithGoogle().whenComplete(() {
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (context) {
-                                    return HomePage();
-                                  },
-                                ),
-                              );
-                            });
-                          },
-                          imagePath: 'assets/google_logo.png',
-                          text: "Login with Google",
-                        ),
-                        const SizedBox(height: 25),
-                        MyButton(
-                          onTap: () {
-                            signInWithFacebook().whenComplete(() {
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (context) {
-                                    return HomePage();
-                                  },
-                                ),
-                              );
-                            });
-                          },
-                          imagePath: 'assets/facebook_logo.png',
-                          text: "Login with Facebook",
-                        ),
-                        const SizedBox(
-                          height: 25,
-                        ),
-
-                        // Hier wird eine gestrichelte Linie gezeichnet
-                        // mit der Klasse DashedLinePainter (siehe unten)
-                        CustomPaint(
-                          painter: DashedLinePainter(),
-                        ),
-
-                        const SizedBox(
-                          height: 25,
-                        ),
-                        MyButton(
-                          onTap: widget.onTap,
-                          text: "Create a new Account", /*small: true,*/
-                        ),
-                      ],
+                          Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 10.0),
+                            child: Text(
+                              'Or continue with',
+                              style: TextStyle(
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            child: Divider(
+                              thickness: 0.5,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ]),
+                    const SizedBox(height: 30),
+                    MyButton(
+                      onTap: () {
+                        signInWithGoogle().whenComplete(() {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) {
+                                return HomePage();
+                              },
+                            ),
+                          );
+                        });
+                      },
+                      imagePath: 'assets/google_logo.png',
+                      text: "Login with Google",
+                    ),
+                    const SizedBox(height: 25),
+                    MyButton(
+                      onTap: () {
+                        signInWithFacebook().whenComplete(() {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) {
+                                return HomePage();
+                              },
+                            ),
+                          );
+                        });
+                      },
+                      imagePath: 'assets/facebook_logo.png',
+                      text: "Login with Facebook",
+                    ),
+                    const SizedBox(
+                      height: 25,
+                    ),
+
+                    // Hier wird eine gestrichelte Linie gezeichnet
+                    // mit der Klasse DashedLinePainter (siehe unten)
+                    CustomPaint(
+                      painter: DashedLinePainter(),
+                    ),
+
+                    const SizedBox(
+                      height: 25,
+                    ),
+                    MyButton(
+                      onTap: widget.onTap,
+                      text: "Create a new Account", /*small: true,*/
+                    ),
+                  ],
+                ),
+              ),
             ),
           ),
-        ),
+          SizedBox(
+              height: 158,
+              child: Center(
+                  child: Image.asset(
+                'assets/logo.png',
+                width: 76,
+              ))),
+        ]),
       ),
     );
   }
@@ -315,18 +330,23 @@ class _LoginPageState extends State<LoginPage> {
                       onTap: () {
                         String emailToCheck = passwordforgotController.text;
                         if (isValidEmail(emailToCheck)) {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => const OTPForm(
-                                      passwordverifier: true,
-                                    )),
-                          );
+                          resetPassword(emailToCheck);
+                          Navigator.of(context).pop();
                         } else {
-                          isValidEmail(passwordforgotController.text)
-                              ? Colors.white
-                              : Colors.red;
-                          //hier fehlt noch was
+                          showDialog(
+                            context: context,
+                            builder: (context) {
+                              return const AlertDialog(
+                                backgroundColor: Colors.black,
+                                title: Center(
+                                  child: Text(
+                                    'Please enter a valid email',
+                                    style: Styles.textfieldHintStyle,
+                                  ),
+                                ),
+                              );
+                            },
+                          );
                         }
                       },
                     ),
@@ -353,7 +373,17 @@ class _LoginPageState extends State<LoginPage> {
     RegExp regex = RegExp(emailRegex);
     return regex.hasMatch(email);
   }
+
+  Future resetPassword(String email) async {
+    try {
+      await FirebaseAuth.instance
+          .sendPasswordResetEmail(email: email.trim());
+    } on FirebaseAuthException catch (e) {
+      print(e);
+    }
+  }
 }
+
 
 // Mit dieser Klasse kann man eine gestrichelte Linie zeichnen lassen
 class DashedLinePainter extends CustomPainter {
