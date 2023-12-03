@@ -4,10 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:internet_praktikum/ui/styles/Styles.dart';
 import 'package:internet_praktikum/ui/views/account/account_details.dart';
-import 'package:internet_praktikum/ui/views/login_register_pages/home_page.dart';
-import 'package:internet_praktikum/ui/views/login_register_pages/login_or_register_page.dart';
 import 'package:internet_praktikum/ui/widgets/container.dart';
-import 'package:internet_praktikum/ui/widgets/inputfield.dart';
 
 import '../../widgets/my_button.dart';
 import '../../widgets/inputfield_password_or_icon.dart';
@@ -152,8 +149,6 @@ class _OTPFormState extends State<OTPForm> {
         await FirebaseAuth.instance.currentUser!.sendEmailVerification();
         canResendEmail = true;
       }
-      // await Future.delayed(const Duration(seconds: 5));
-      // setState(() => canResendEmail =  FirebaseAuth.instance.currentUser!.emailVerified);
     } on FirebaseAuthException catch (e) {
       print(e.code);
     }

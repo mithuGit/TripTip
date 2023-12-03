@@ -27,17 +27,6 @@ class _RegisterPageState extends State<RegisterPage> {
 
   // sign user up method
   void signUserUp() async {
-    // show loading circle
-    /*showDialog(
-      context: context,
-      builder: (context) {
-        return const Center(
-          child: CircularProgressIndicator(),
-        );
-      },
-    );
-    */
-
     // try sign up (try creating the user)
     try {
       // check if passwords match
@@ -48,19 +37,14 @@ class _RegisterPageState extends State<RegisterPage> {
           password: passwordController.text,
         );
 
-
-        // pop the loading circle
-        // Navigator.pop(context);
-
         if (userCredential.user != null) {
-          
           // Hier wird die Verifizierung der E-Mail-Adresse des Users auf false gesetzt
           await userCredential.user!.updateEmail(userCredential.user!.email!);
 
           // Der User muss seine E-Mail-Adresse verifizieren, bevor er sich einloggen kann
           // sendet eine EmailVerifizierung an die E-Mail-Adresse des Users
-          await userCredential.user!.sendEmailVerification(); 
-          
+          await userCredential.user!.sendEmailVerification();
+
           // Assuming 'users' is the collection name in Firestore
           await FirebaseFirestore.instance
               .collection('users')
@@ -77,16 +61,25 @@ class _RegisterPageState extends State<RegisterPage> {
           });
         }
       } else {
-        // pop the loading circle
-        // Navigator.pop(context);
         // show error message
         showErrorMEssage('Passwords do not match!');
       }
     } on FirebaseAuthException catch (e) {
-      // pop the loading circle
-      Navigator.pop(context);
+      print(e.code);
       // Wrong email | Wrong password
-      showErrorMEssage(e.code);
+      if (e.code == 'weak-password') {
+        showErrorMEssage('The password provided is too weak.');
+      } else if (e.code == 'email-already-in-use') {
+        showErrorMEssage('The account already exists for that email.');
+      } else if (e.code == 'invalid-email') {
+        showErrorMEssage('The email address is not valid.');
+      } else if (e.code == 'operation-not-allowed') {
+        showErrorMEssage('Error during sign up.');
+      } else if (e.code == 'user-disabled') {
+        showErrorMEssage('The user account has been disabled.');
+      } else {
+        showErrorMEssage('An undefined Error happened.');
+      }
     }
   }
 
@@ -95,11 +88,11 @@ class _RegisterPageState extends State<RegisterPage> {
     showDialog(
       context: context,
       builder: (context) {
+        // Zeige AlertDialog mit der Fehlermeldung
         return AlertDialog(
           backgroundColor: Colors.black,
           title: Center(
             child: Text(
-              //'Registration failed! Please try again.',
               message,
               style: Styles.textfieldHintStyle,
             ),
@@ -107,6 +100,11 @@ class _RegisterPageState extends State<RegisterPage> {
         );
       },
     );
+
+    // Verzögere das Ausblenden der Fehlermeldung nach 5 Sekunden
+    Future.delayed(const Duration(seconds: 5), () {
+      Navigator.of(context).pop(); // Schließt den Dialog nach 5 Sekunden
+    });
   }
 
   @override

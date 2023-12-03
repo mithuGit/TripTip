@@ -32,16 +32,6 @@ class _LoginPageState extends State<LoginPage> {
 
   // sign user in method
   void signUserIn() async {
-    // show loading circle
-    /*showDialog(
-      context: context,
-      builder: (context) {
-        return const Center(
-          child: CircularProgressIndicator(),
-        );
-      },
-    );
-    */
 
     // try sign in
     try {
@@ -69,9 +59,25 @@ class _LoginPageState extends State<LoginPage> {
       }
     } on FirebaseAuthException catch (e) {
       print(e.code);
-      // Navigator.of(context).pop();
       // Wrong email | Wrong password
-      showErrorMessage(e.code);
+      if (e.code == 'user-not-found' || e.code == 'wrong-password') {
+        showErrorMessage('Wrong email or password! Please try again.');
+      }
+      // User disabled
+      else if (e.code == 'user-disabled') {
+        showErrorMessage('This user has been disabled.');
+      }
+      // Too many requests
+      else if (e.code == 'too-many-requests') {
+        showErrorMessage('Too many requests. Try again later.');
+      }
+      // Operation not allowed
+      else if (e.code == 'operation-not-allowed') {
+        showErrorMessage('Operation not allowed. Try again later.');
+      }
+      else{
+        showErrorMessage('Something went wrong. Try again later.');
+      }
     }
   }
 
@@ -120,6 +126,11 @@ class _LoginPageState extends State<LoginPage> {
         );
       },
     );
+
+    // Verzögere das Ausblenden der Fehlermeldung nach 5 Sekunden
+    Future.delayed(const Duration(seconds: 5), () {
+      Navigator.of(context).pop(); // Schließt den Dialog nach 5 Sekunden
+    });
   }
 
   @override
