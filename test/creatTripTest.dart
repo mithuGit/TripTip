@@ -27,7 +27,7 @@ void main() async {
   );
   final user = MockUser(
     isAnonymous: false,
-    uid: 'someuid',
+    uid: 'uid',
     email: 'bob@somedomain.com',
     displayName: 'Bob',
   );
@@ -38,16 +38,17 @@ void main() async {
 
   testWidgets('shows messages', (WidgetTester tester) async {
     final firestore = FakeFirebaseFirestore();
-    await firestore.collection('messageCollection').add({
-      'message': 'Hello world!',
-      'created_at': FieldValue.serverTimestamp(),
+    await firestore.collection('users').add({
+      'uid': 'uid',
+      'prename': 'Prename',
+      'lastname': 'Lastname',
     });
-    await tester.idle();
+    
     // Create the widget by telling the tester to build it.
     await tester.pumpWidget(MaterialApp(
         title: 'Firestore Example',
         home: CreateTrip(firestore: firestore, auth: auth)));
-
-    tester.pumpAndSettle();
+    await tester.idle();
+    await tester.pump(); 
   });
 }

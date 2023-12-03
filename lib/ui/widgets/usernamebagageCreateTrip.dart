@@ -35,7 +35,7 @@ class _UsernameBagageCreateTripState extends State<UsernameBagageCreateTrip> {
             pb = Image.network(value.docs[0].data()['profileImage']);
           }
           if (value.docs[0].data()['prename'] != null) {
-            prename = value.docs[0].data()['firstname'];
+            prename = value.docs[0].data()['prename'];
           }
           if (value.docs[0].data()['lastname'] != null) {
             lastname = value.docs[0].data()['lastname'];
