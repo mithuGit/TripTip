@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -80,6 +82,35 @@ class _LoginPageState extends State<LoginPage> {
 
   //error messsage to user
   void showMessage(String message) {
+    Completer<bool> dialogCompleter = Completer<bool>();
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        // ignore: deprecated_member_use
+        return WillPopScope(
+          onWillPop: () async {
+            // Verhindere, dass der Dialog manuell geschlossen wird
+            return false;
+          },
+          child: AlertDialog(
+            backgroundColor: Colors.black,
+            title: Center(
+              child: Text(
+                message,
+                style: Styles.textfieldHintStyle,
+              ),
+            ),
+          ),
+        );
+      },
+    ).then((_) {
+      // Dialog wurde geschlossen, entweder durch Zurück-Taste oder automatisch nach 3 Sekunden
+      if (!dialogCompleter.isCompleted) {
+        dialogCompleter.complete(true);
+      }
+    });
+
     counter++;
     // Wenn Counter gleich 3 ist, wird eigentlich hier Capcha aufgerufen
     if (counter == 3) {
@@ -107,27 +138,15 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 )),
       );
+    } else {
+      // Verzögere das Ausblenden der Fehlermeldung nach 2 Sekunden
+      Future.delayed(const Duration(seconds: 2), () {
+        if (!dialogCompleter.isCompleted) {
+          Navigator.of(context).pop(); // Schließt den Dialog nach 2 Sekunden
+          dialogCompleter.complete(true);
+        }
+      });
     }
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          backgroundColor: Colors.black,
-          title: Center(
-            child: Text(
-              //'Wrong email or password! Please try again.',
-              message,
-              style: Styles.textfieldHintStyle,
-            ),
-          ),
-        );
-      },
-    );
-
-    // Verzögere das Ausblenden der Fehlermeldung nach 5 Sekunden
-    Future.delayed(const Duration(seconds: 5), () {
-      Navigator.of(context).pop(); // Schließt den Dialog nach 5 Sekunden
-    });
   }
 
   @override
@@ -323,8 +342,7 @@ class _LoginPageState extends State<LoginPage> {
                           showMessage(
                               'A reset link has been sent to your email.');
                         } else {
-                          showMessage(
-                              'Please enter a valid email');
+                          showMessage('Please enter a valid email');
                         }
                       },
                     ),
