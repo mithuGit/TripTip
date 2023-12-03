@@ -50,5 +50,6 @@ void main() async {
         home: CreateTrip(firestore: firestore, auth: auth)));
     await tester.idle();
     await tester.pump(); 
+    
   });
 }

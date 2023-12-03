@@ -1,4 +1,3 @@
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -13,7 +12,8 @@ class User {
 class UsernameBagageCreateTrip extends StatefulWidget {
   final FirebaseAuth auth;
   final FirebaseFirestore firestore;
-  UsernameBagageCreateTrip({super.key, required this.firestore, required this.auth});
+  UsernameBagageCreateTrip(
+      {super.key, required this.firestore, required this.auth});
 
   @override
   State<UsernameBagageCreateTrip> createState() =>
@@ -27,24 +27,18 @@ class _UsernameBagageCreateTripState extends State<UsernameBagageCreateTrip> {
     String lastname = 'Registered';
 
     if (widget.auth.currentUser != null) {
-      widget.firestore.collection('users').where('uid', isEqualTo: widget.auth.currentUser!.uid).get().then((value) {
-        if (value.docs.isNotEmpty) {
-          // is needed to load the data from the collection wiche is linked to firebaseAuth uid
-          // for every field in the collection we need to check if it is null
-          if (value.docs[0].data()['profilepicture'] != null) {
-            pb = Image.network(value.docs[0].data()['profileImage']);
-          }
-          if (value.docs[0].data()['prename'] != null) {
-            prename = value.docs[0].data()['prename'];
-          }
-          if (value.docs[0].data()['lastname'] != null) {
-            lastname = value.docs[0].data()['lastname'];
-          }
-        }
-      });
+      final ref = await widget.firestore
+          .collection('users')
+          .where('uid', isEqualTo: widget.auth.currentUser!.uid)
+          .get();
+      if (ref.docs.isNotEmpty) {
+        final data = ref.docs.first.data();
+        prename = data['prename'];
+        lastname = data['lastname'];
+        if(data['profilePicture'] != null) pb = Image.network(data['profilePicture']);
+      }
 
       return User(prename, lastname, pb);
-      
     } else {
       return User('Not', 'Registered', pb);
     }
