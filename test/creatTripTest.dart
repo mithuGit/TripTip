@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:internet_praktikum/ui/widgets/usernamebagageCreateTrip.dart';
+import 'package:internet_praktikum/ui/views/trip_setup_pages/create_trip.dart';
 import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 import 'package:google_sign_in_mocks/google_sign_in_mocks.dart';
 
@@ -28,7 +28,7 @@ void main() async {
     print(res?.displayName);
     testWidgets('UsernameBagageCreateTrip has the correct title', (tester) async {
     // Create the widget by telling the tester to build it.
-    await tester.pumpWidget(const UsernameBagageCreateTrip());
+    await tester.pumpWidget(CreateTrip(firestore : FirebaseFirestore.instance, auth : auth));
 
     // Create the Finders.
     final titleFinder = find.text('T');

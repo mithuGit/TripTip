@@ -12,8 +12,7 @@ import '../../widgets/inputfield.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class CreateTrip extends StatefulWidget {
-  const CreateTrip({super.key});
-
+  CreateTrip({super.key});
   @override
   State<CreateTrip> createState() => _TripCreateState();
 }
