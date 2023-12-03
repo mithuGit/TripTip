@@ -1,6 +1,7 @@
+
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 
 class User {
   String prename;
@@ -10,7 +11,9 @@ class User {
 }
 
 class UsernameBagageCreateTrip extends StatefulWidget {
-  const UsernameBagageCreateTrip({super.key});
+  final FirebaseAuth auth;
+  final FirebaseFirestore firestore;
+  UsernameBagageCreateTrip({super.key, required this.firestore, required this.auth});
 
   @override
   State<UsernameBagageCreateTrip> createState() =>
@@ -18,15 +21,13 @@ class UsernameBagageCreateTrip extends StatefulWidget {
 }
 
 class _UsernameBagageCreateTripState extends State<UsernameBagageCreateTrip> {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-  final FirebaseFirestore firestore = FirebaseFirestore.instance;
   Future<User> _getNames() async {
     Image pb = Image.asset('assets/Personavatar.png');
     String prename = 'Not';
     String lastname = 'Registered';
 
-    if (_auth.currentUser != null) {
-      firestore.collection('users').where('uid', isEqualTo: _auth.currentUser!.uid).get().then((value) {
+    if (widget.auth.currentUser != null) {
+      widget.firestore.collection('users').where('uid', isEqualTo: widget.auth.currentUser!.uid).get().then((value) {
         if (value.docs.isNotEmpty) {
           // is needed to load the data from the collection wiche is linked to firebaseAuth uid
           // for every field in the collection we need to check if it is null

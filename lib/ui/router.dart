@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -21,7 +22,8 @@ class MyRouter {
           FirebaseAuth auth = FirebaseAuth.instance;
           if (auth.currentUser == null) {
             return '/loginorregister';
-          }  else if(auth.currentUser != null && !auth.currentUser!.emailVerified) {
+          } else if (auth.currentUser != null &&
+              !auth.currentUser!.emailVerified) {
             return '/otp';
           } else {
             return null; // return "null" to display the intended route without redirecting
@@ -45,7 +47,10 @@ class MyRouter {
       GoRoute(
         name: 'createtrip',
         path: '/createtrip',
-        builder: (context, state) => CreateTrip(),
+        builder: (context, state) => CreateTrip(
+          auth: FirebaseAuth.instance,
+          firestore: FirebaseFirestore.instance,
+        ),
       ),
       GoRoute(
         name: 'selecttrip',

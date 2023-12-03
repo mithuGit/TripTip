@@ -12,7 +12,9 @@ import '../../widgets/inputfield.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class CreateTrip extends StatefulWidget {
-  CreateTrip({super.key});
+  final FirebaseFirestore firestore;
+  final FirebaseAuth auth;
+  CreateTrip({super.key, required this.firestore, required this.auth});
   @override
   State<CreateTrip> createState() => _TripCreateState();
 }
@@ -25,10 +27,8 @@ class User {
 }
 
 class _TripCreateState extends State<CreateTrip> {
-  FirebaseFirestore firestore = FirebaseFirestore.instance;
-  CollectionReference trips = FirebaseFirestore.instance.collection('trips');
-  final FirebaseAuth _auth = FirebaseAuth.instance;
 
+  CollectionReference trips = FirebaseFirestore.instance.collection('trips');
   final destinationText = TextEditingController();
   final starttime = TextEditingController();
   final endtime = TextEditingController();
@@ -50,14 +50,14 @@ class _TripCreateState extends State<CreateTrip> {
       if (selectedEndDate == null) throw Exception("You need to select a end date!");
       if (selectedEndDate!.millisecondsSinceEpoch < selectedStartDate!.millisecondsSinceEpoch) throw Exception("End date must be after start date!");
 
-      members.add(_auth.currentUser?.uid);
+      members.add(widget.auth.currentUser?.uid);
       print("Create Trip: $destination $selectedStartDate $selectedEndDate");
       await trips.add({
         'city': destination?.cityName,
         'placedetails' : destination?.placeDetails,
         'startdate': selectedStartDate,
         'enddate': selectedEndDate,
-        'createdBy': _auth.currentUser?.uid,
+        'createdBy': widget.auth.currentUser?.uid,
         'members': members
       });
     } catch (e) {
@@ -163,7 +163,7 @@ class _TripCreateState extends State<CreateTrip> {
                     )),
               ),
             ),
-            const UsernameBagageCreateTrip()
+            UsernameBagageCreateTrip(firestore: widget.firestore, auth: widget.auth,)
           ]),
         ));
   }
