@@ -34,7 +34,7 @@ class SelectTrip extends StatelessWidget {
                                     context,
                                     MaterialPageRoute(
                                         builder: (context) =>
-                                            const CreateTrip()));
+                                             CreateTrip()));
                               },
                               text: "Create Trip"),
                           MyButton(

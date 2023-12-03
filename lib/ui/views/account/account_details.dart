@@ -136,11 +136,12 @@ class _AccountState extends State<Account> {
                           const SizedBox(height: 12.5),
                           CupertinoDatePickerButton(
                             margin: const EdgeInsets.only(bottom: 25),
-                            onDateSelected: (String formattedDate) {
+                            onDateSelected: (DateStringTupel dateStringTupel) {
                               setState(() {
-                                selectedDate = formattedDate;
+                                selectedDate = dateStringTupel.dateString;
                               });
                             },
+                            showFuture: false,
                           ),
                           InputField(
                             controller: emailController,

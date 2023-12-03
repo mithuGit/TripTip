@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:internet_praktikum/ui/styles/Styles.dart';
 import 'package:internet_praktikum/ui/views/login_register_pages/login_or_register_page.dart';
 import 'package:internet_praktikum/ui/widgets/container.dart';
@@ -217,13 +218,7 @@ class _LoginPageState extends State<LoginPage> {
                     MyButton(
                       onTap: () {
                         signInWithGoogle().whenComplete(() {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) {
-                                return HomePage();
-                              },
-                            ),
-                          );
+                         context.go('/');
                         });
                       },
                       imagePath: 'assets/google_logo.png',
