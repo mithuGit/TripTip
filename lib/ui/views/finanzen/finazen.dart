@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:internet_praktikum/ui/styles/Styles.dart';
 
 import '../../widgets/finanzen/extendablecontainer.dart';
-import '../../widgets/finanzen/slidablebutton.dart';
 
 class Finanzen extends StatefulWidget {
   const Finanzen({Key? key}) : super(key: key);
@@ -48,7 +47,7 @@ class _FinanzenState extends State<Finanzen> {
             ),
             const Padding(
               padding:
-                  EdgeInsets.only(top: 80, left: 20, right: 20, bottom: 45),
+                  EdgeInsets.only(top: 80, left: 15, right: 15, bottom: 45),
               child: ExpandableContainer(
                 name: "Felix",
               ),

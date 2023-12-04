@@ -36,7 +36,7 @@ class Styles {
       color: Colors.black);
   static const listView = TextStyle(
     color: Colors.white,
-    fontSize: 18,
+    fontSize: 17,
     fontFamily: 'Ubuntu',
     fontWeight: FontWeight.w500,
   );

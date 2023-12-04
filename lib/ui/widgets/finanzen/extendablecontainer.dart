@@ -15,40 +15,53 @@ class ExpandableContainer extends StatefulWidget {
 class _ExpandableContainerState extends State<ExpandableContainer> {
   bool isExpanded = false;
 
+  // Example list of items
+  List<ExpandableItem> items = [
+    ExpandableItem(text: 'Test1', price: '10 €'),
+    ExpandableItem(text: 'Test2', price: '20 €'),
+    ExpandableItem(text: 'Test3', price: '30 €'),
+    ExpandableItem(text: 'Test4', price: '40 €'),
+    ExpandableItem(text: 'Test5', price: '50 €'),
+    ExpandableItem(text: 'Test6', price: '60 €'),
+  ];
   // Example list of strings
   List<String> additionalTexts = [
     'Test1',
     'Test1',
-    'Test1',
-    'Test1',
   ];
 
-  double calculateMainHight(List<String> list) {
+  List<String> prices = [
+    '10 €',
+    '20 €',
+  ];
+
+  double calculateMainHight(List<ExpandableItem> list, double screenHeight) {
     if (list.length >= 4) {
-      return 270;
+      return screenHeight * 0.35;
     } else if (list.length == 3) {
-      return 260;
+      return screenHeight * 0.302;
     } else if (list.length == 2) {
-      return 210;
+      return screenHeight * 0.27;
     } else {
-      return 200;
+      return screenHeight * 0.22;
     }
   }
 
-  double calculateSmallHight(List<String> list) {
+  double calculateSmallHight(List<ExpandableItem> list, double height) {
     if (list.length >= 4) {
-      return 230;
+      return height * 0.17 + 13;
     } else if (list.length == 3) {
-      return 220;
+      return height * 0.15 + 13;
     } else if (list.length == 2) {
-      return 170;
+      return height * 0.09 + 13;
     } else {
-      return 160;
+      return height * 0.039 + 13;
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    print(MediaQuery.of(context).size.height * 0.35);
     return GestureDetector(
       onTap: () {
         setState(() {
@@ -59,7 +72,7 @@ class _ExpandableContainerState extends State<ExpandableContainer> {
         duration: const Duration(milliseconds: 400),
         curve: Curves.easeInOut,
         height: isExpanded
-            ? calculateMainHight(additionalTexts)
+            ? calculateMainHight(items, MediaQuery.of(context).size.height)
             : 60.0, // Adjust the height as needed
         decoration: BoxDecoration(
           color: const Color(0xE51E1E1E), // Grey background color
@@ -73,62 +86,82 @@ class _ExpandableContainerState extends State<ExpandableContainer> {
               padding: const EdgeInsets.only(
                 top: 10.0,
                 left: 25,
+                right: 25,
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    widget.name,
-                    style: const TextStyle(
-                        fontSize: 20.0,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(
-                      right: 25,
-                      top: 10,
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 5.0),
+                      child: Text(
+                        widget.name,
+                        style: const TextStyle(
+                          fontSize: 20.0,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
                     ),
-                    child: Icon(
-                      isExpanded ? Icons.remove : Icons.add,
-                      size: 18.0,
-                      color: Colors.white,
+                  ),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 5.0),
+                      child: Text(
+                        '0 €',
+                        style: const TextStyle(
+                          fontSize: 20.0,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
                     ),
                   ),
                 ],
               ),
             ),
             if (isExpanded) ...[
-              SizedBox(
-                height: calculateSmallHight(additionalTexts),
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 10, top: 10, right: 10),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.only(
-                              left: 20, top: 10, right: 20),
-                          child: ListView.builder(
-                            shrinkWrap: true,
-                            itemCount: additionalTexts.length,
-                            itemBuilder: (context, index) {
-                              return Container(
-                                margin: const EdgeInsets.only(bottom: 10),
-                                child: Text(additionalTexts[index],
-                                    style: Styles.listView),
-                              );
-                            },
+              Padding(
+                padding: const EdgeInsets.only(top: 8.0),
+                child: SizedBox(
+                  height: calculateSmallHight(
+                      items, MediaQuery.of(context).size.height),
+                  child: Padding(
+                    padding:
+                        const EdgeInsets.only(left: 5, right: 5, bottom: 10),
+                    child: ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: items.length,
+                      itemBuilder: (context, index) {
+                        return Container(
+                          margin: const EdgeInsets.only(
+                              left: 20, right: 20, top: 10),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                items[index].text,
+                                style: Styles.listView,
+                              ),
+                              Text(
+                                items[index].price,
+                                style: Styles.listView,
+                              ),
+                            ],
                           ),
-                        ),
-                      ),
-                      const SlideButton(
-                        buttonText: 'Slide to Pay',
-                        margin: EdgeInsets.only(top: 25, bottom: 20),
-                      ),
-                    ],
+                        );
+                      },
+                    ),
                   ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 10, left: 20, right: 20),
+                child: const SlideButton(
+                  buttonText: 'Slide to Pay',
+                  margin: EdgeInsets.only(bottom: 8),
                 ),
               ),
             ],
@@ -137,4 +170,11 @@ class _ExpandableContainerState extends State<ExpandableContainer> {
       ),
     );
   }
+}
+
+class ExpandableItem {
+  final String text;
+  final String price;
+
+  ExpandableItem({required this.text, required this.price});
 }
