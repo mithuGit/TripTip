@@ -1,0 +1,14 @@
+image: ghcr.io/cirruslabs/flutter:latest
+stages:
+  - tests
+unit tests:
+  stage: tests
+  script:
+    - flutter test --coverage ./lib
+    - lcov -r coverage/lcov.info '*/__test*__/*' -o coverage/lcov_cleaned.info
+    - genhtml coverage/lcov_cleaned.info --output=coverage
+  tags:
+    - flutter
+  artifacts:
+    paths:
+      - coverage
