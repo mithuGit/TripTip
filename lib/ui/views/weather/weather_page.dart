@@ -62,9 +62,6 @@ class _WeatherPageState extends State<WeatherPage> {
 
             Lottie.asset(
               WeatherService.getWeatherAnimation(actualWeather?.mainCondition),
-              //width: 200,
-              //height: 200,
-              //fit: BoxFit.fill,
             ),
 
             // temperature

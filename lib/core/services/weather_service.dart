@@ -9,12 +9,10 @@ class WeatherService {
   final String apiKey;
   WeatherService(this.apiKey);
 
-  //final WeatherService _weatherService;
   
   static String cityName = "";
   static Weather? actualWeather;
 
-  //WeatherService(String apiKey) : _weatherService = WeatherService(apiKey);
 
   Future<Weather?> fetchWeather() async {
     try {
