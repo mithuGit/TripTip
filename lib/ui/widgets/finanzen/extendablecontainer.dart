@@ -15,7 +15,7 @@ class ExpandableContainer extends StatefulWidget {
 class _ExpandableContainerState extends State<ExpandableContainer> {
   bool isExpanded = false;
 
-  // Example list of items
+  // TesterList
   List<ExpandableItem> items = [
     ExpandableItem(text: 'Test1', price: '10 €'),
     ExpandableItem(text: 'Test2', price: '20 €'),
@@ -23,16 +23,6 @@ class _ExpandableContainerState extends State<ExpandableContainer> {
     ExpandableItem(text: 'Test4', price: '40 €'),
     ExpandableItem(text: 'Test5', price: '50 €'),
     ExpandableItem(text: 'Test6', price: '60 €'),
-  ];
-  // Example list of strings
-  List<String> additionalTexts = [
-    'Test1',
-    'Test1',
-  ];
-
-  List<String> prices = [
-    '10 €',
-    '20 €',
   ];
 
   double calculateMainHight(List<ExpandableItem> list, double screenHeight) {

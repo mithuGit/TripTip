@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:internet_praktikum/ui/styles/Styles.dart';
+import 'package:internet_praktikum/ui/widgets/finanzen/payment.dart';
 import 'package:slide_to_act/slide_to_act.dart';
 
 class SlideButton extends StatelessWidget {
@@ -29,7 +30,12 @@ class SlideButton extends StatelessWidget {
         // Icon dreht sich wenn true
         sliderRotate: true,
         height: 50,
-        onSubmit: () {},
+        onSubmit: () {
+          return Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const Payment()),
+          );
+        },
       ),
     );
   }
