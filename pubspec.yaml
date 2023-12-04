@@ -87,7 +87,9 @@ flutter:
     - assets/
     - assets/Personavatar.png
     - assets/weather_pic/
+    - assets/weather_button_pic/
     - assets/navbar_pic/
+    - assets/mainpage_pic/
   fonts:
     - family: Ubuntu
       fonts:
