@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -8,7 +10,6 @@ import 'package:internet_praktikum/ui/widgets/inputfield.dart';
 import 'package:internet_praktikum/ui/widgets/my_button.dart';
 import 'package:internet_praktikum/ui/widgets/inputfield_password_or_icon.dart';
 import '../../../core/services/auth_service.dart';
-import '../account/account_details.dart';
 import 'package:webview_flutter_plus/webview_flutter_plus.dart';
 
 import 'home_page.dart';
@@ -32,17 +33,6 @@ class _LoginPageState extends State<LoginPage> {
 
   // sign user in method
   void signUserIn() async {
-    // show loading circle
-    /*showDialog(
-      context: context,
-      builder: (context) {
-        return const Center(
-          child: CircularProgressIndicator(),
-        );
-      },
-    );
-    */
-
     // try sign in
     try {
       UserCredential userCredential =
@@ -66,27 +56,57 @@ class _LoginPageState extends State<LoginPage> {
           'dateOfBirth': null,
           // Add other data fields as needed
         });
-        // Route to the Account page
-        // ignore: use_build_context_synchronously
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const Account(),
-          ),
-        );
       }
     } on FirebaseAuthException catch (e) {
       print(e.code);
-      // Navigator.of(context).pop();
       // Wrong email | Wrong password
-      showErrorMessage(e.code);
+      if (e.code == 'user-not-found' || e.code == 'wrong-password') {
+        showMessage('Wrong email or password! Please try again.');
+      }
+      // User disabled
+      else if (e.code == 'user-disabled') {
+        showMessage('This user has been disabled.');
+      }
+      // Too many requests
+      else if (e.code == 'too-many-requests') {
+        showMessage('Too many requests. Try again later.');
+      }
+      // Operation not allowed
+      else if (e.code == 'operation-not-allowed') {
+        showMessage('Operation not allowed. Try again later.');
+      } else {
+        showMessage('Something went wrong. Try again later.');
+      }
     }
-
-    //route to account details page
   }
 
   //error messsage to user
-  void showErrorMessage(String message) {
+  void showMessage(String message) {
+    Completer<bool> dialogCompleter = Completer<bool>();
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return PopScope(
+          canPop: false,
+          child: AlertDialog(
+            backgroundColor: Colors.black,
+            title: Center(
+              child: Text(
+                message,
+                style: Styles.textfieldHintStyle,
+              ),
+            ),
+          ),
+        );
+      },
+    ).then((_) {
+      // Dialog wurde geschlossen, entweder durch Zurück-Taste oder automatisch nach 3 Sekunden
+      if (!dialogCompleter.isCompleted) {
+        dialogCompleter.complete(true);
+      }
+    });
+
     counter++;
     // Wenn Counter gleich 3 ist, wird eigentlich hier Capcha aufgerufen
     if (counter == 3) {
@@ -114,22 +134,15 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 )),
       );
+    } else {
+      // Verzögere das Ausblenden der Fehlermeldung nach 2 Sekunden
+      Future.delayed(const Duration(seconds: 2), () {
+        if (!dialogCompleter.isCompleted) {
+          Navigator.of(context).pop(); // Schließt den Dialog nach 2 Sekunden
+          dialogCompleter.complete(true);
+        }
+      });
     }
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          backgroundColor: Colors.black,
-          title: Center(
-            child: Text(
-              //'Wrong email or password! Please try again.',
-              message,
-              style: Styles.textfieldHintStyle,
-            ),
-          ),
-        );
-      },
-    );
   }
 
   @override
@@ -322,21 +335,10 @@ class _LoginPageState extends State<LoginPage> {
                         if (isValidEmail(emailToCheck)) {
                           resetPassword(emailToCheck);
                           Navigator.of(context).pop();
+                          showMessage(
+                              'A reset link has been sent to your email.');
                         } else {
-                          showDialog(
-                            context: context,
-                            builder: (context) {
-                              return const AlertDialog(
-                                backgroundColor: Colors.black,
-                                title: Center(
-                                  child: Text(
-                                    'Please enter a valid email',
-                                    style: Styles.textfieldHintStyle,
-                                  ),
-                                ),
-                              );
-                            },
-                          );
+                          showMessage('Please enter a valid email');
                         }
                       },
                     ),

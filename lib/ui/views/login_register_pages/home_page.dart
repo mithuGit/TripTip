@@ -5,6 +5,7 @@ import 'package:internet_praktikum/core/services/weather_service.dart';
 import 'package:internet_praktikum/ui/widgets/header_button.dart';
 import 'package:internet_praktikum/ui/views/weather/weather_page.dart';
 import 'package:internet_praktikum/ui/widgets/my_button.dart';
+import 'package:internet_praktikum/ui/widgets/topbar.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -15,23 +16,6 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final user = FirebaseAuth.instance.currentUser!;
-  final WeatherService _weatherHandler =
-      WeatherService("5a9d3eda46bcddc1662d351abc13c798");
-  Weather? actualWeather;
-
-  @override
-  void initState() {
-    super.initState();
-    fetchWeather();
-  }
-
-  Future<void> fetchWeather() async {
-    // is not the same as in weather_info.dart
-    final weather = await _weatherHandler.fetchWeather();
-    setState(() {
-      actualWeather = weather;
-    });
-  }
 
   void signUserOut() async {
     await FirebaseAuth.instance.signOut();
@@ -52,30 +36,11 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
         extendBody: true,
-        appBar: AppBar(
-            backgroundColor: Colors.white,
-            centerTitle: true,
-            title: const Text(
-              "Frankfurt am Main", // TODO: Hier muss der Name der Stadt stehen, die der User ausgewählt hat
-              style: TextStyle(fontSize: 20),
-            ),
-            leading: HeaderButton(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const WeatherPage()),
-                );
-              },
-              temperature:
-                  '${WeatherService.actualWeather?.temperature.round()}°C',
-              weatherImage: WeatherService.getWeatherIcon(
-                  WeatherService.actualWeather?.mainCondition),
-            ),
-            actions: [
-              HeaderButton(
-                onTap: () {},
-              ),
-            ]),
+        appBar: const TopBar(
+          isDash: true,
+          icon: Icons.add,
+          onTapForIconWidget: null,
+        ),
         body: Stack(
           children: [
             Container(

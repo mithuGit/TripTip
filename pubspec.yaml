@@ -53,8 +53,6 @@ dependencies:
   geocoding: ^2.1.1
   lottie: ^2.7.0
   
-  dotted_line: ^3.2.2
-  slide_to_act: ^2.0.2
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -92,9 +90,6 @@ flutter:
     - assets/weather_button_pic/
     - assets/navbar_pic/
     - assets/mainpage_pic/
-    - assets/logo.png
-    - assets/bg_finanzen.png
-    - assets/ icon _credit card_.png
   fonts:
     - family: Ubuntu
       fonts:

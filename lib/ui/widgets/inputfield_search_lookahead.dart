@@ -8,7 +8,7 @@ import 'package:uuid/uuid.dart';
 const Duration fakeAPIDuration = Duration(seconds: 1);
 
 class AsyncAutocomplete extends StatefulWidget {
-  const AsyncAutocomplete({super.key});
+  const AsyncAutocomplete();
 
   @override
   State<AsyncAutocomplete> createState() => _AsyncAutocompleteState();

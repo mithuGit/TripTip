@@ -27,12 +27,9 @@ Future<UserCredential> signInWithGoogle() async {
           .doc(userCredential.user!.uid)
           .set({
         'email': userCredential.user!.email,
-        'prename': userCredential.user!.displayName,
-        'lastname': userCredential.user!.displayName,
+        'displayName': userCredential.user!.displayName,
+        'profilePicture': userCredential.user!.photoURL,
         'uid': userCredential.user!.uid,
-        'trips': null,
-        'profilepicture': null,
-        'date of birth': null,
       });
     }
   }
@@ -57,12 +54,10 @@ Future<void> signInWithFacebook() async {
           .collection('users')
           .doc(userCredential.user!.uid)
           .set({
-        'prename': userCredential.user!.displayName,
-        'lastname': 'LastNameTest',
-        'date of birth': null,
         'email': userCredential.user!.email,
-        'trips': null,
-        'profilepicture': userCredential.user!.photoURL,
+        'name': userCredential.user!.displayName,
+        'profilePicture': userCredential.user!.photoURL,
+        'uid': userCredential.user!.uid,
       });
     }
   }

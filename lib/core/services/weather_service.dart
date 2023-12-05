@@ -9,8 +9,10 @@ class WeatherService {
   final String apiKey;
   WeatherService(this.apiKey);
 
+  
   static String cityName = "";
   static Weather? actualWeather;
+
 
   Future<Weather?> fetchWeather() async {
     try {
@@ -32,6 +34,8 @@ class WeatherService {
         return 'assets/weather_button_pic/cloud.png';
       case 'rain':
         return 'assets/weather_button_pic/rain.png';
+      case 'drizzle':
+        return 'assets/weather_button_pic/rain.png';
       case 'snow':
         return 'assets/weather_button_pic/snow.png';
       case 'clear':
@@ -49,10 +53,11 @@ class WeatherService {
     }
   }
 
-  static String getWeatherAnimation(String? mainCondition) {
+  static String getWeatherAnimation(String? mainCondition){
+
     if (mainCondition == null) return 'assets/weather_pic/sunny.json';
 
-    switch (mainCondition.toLowerCase()) {
+    switch (mainCondition.toLowerCase()){
       case 'clouds':
         return 'assets/weather_pic/cloudy.json';
       case 'rain':
@@ -74,7 +79,9 @@ class WeatherService {
       default:
         return 'assets/weather_pic/sunny.json';
     }
+
   }
+
 
   Future<Weather> getWeather(String cityName) async {
     final url = '$BASE_URL?q=$cityName&appid=$apiKey&units=metric';

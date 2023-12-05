@@ -135,6 +135,7 @@ class _OTPFormState extends State<OTPForm> {
     );
   }
 
+
   Future<void> resendVerificationEmail() async {
     try {
       if (FirebaseAuth.instance.currentUser!.emailVerified) {

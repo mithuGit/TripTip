@@ -11,21 +11,21 @@ void main() {
     // Verify that the widgets are present
     //expect(find.byKey(const Key('Email')), findsOneWidget);
     //expect(find.byKey(const Key('Password')), findsOneWidget);
-    expect(find.widgetWithText(MyButton, "Sign In"), findsOneWidget);
+    expect(find.widgetWithText(MyButton,"Sign In"), findsOneWidget);
 
     // Simulate user input
     //await tester.enterText(find.byKey(const Key('Email')), 'thaibinhnguyen7@outlook.de');
     //await tester.enterText(find.byKey(const Key('Password')), 'test123');
 
     // Tap the login button
-    await tester.tap(find.widgetWithText(MyButton, "Sign In"));
+    await tester.tap(find.widgetWithText(MyButton,"Sign In"));
 
     // Wait for changes to be processed
     await tester.pump();
 
     // Verify the appearance of the dialog
     //expect(find.byType(Dialog), findsOneWidget);
-
+    
     // Assuming that the dialog contains the specified text
     expect(find.text('Something went wrong. Try again later.'), findsOneWidget);
   });
