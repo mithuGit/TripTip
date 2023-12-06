@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -62,48 +64,60 @@ class _RegisterPageState extends State<RegisterPage> {
         }
       } else {
         // show error message
-        showErrorMEssage('Passwords do not match!');
+        showErrorMessage('Passwords do not match!');
       }
     } on FirebaseAuthException catch (e) {
       print(e.code);
       // Wrong email | Wrong password
       if (e.code == 'weak-password') {
-        showErrorMEssage('The password provided is too weak.');
+        showErrorMessage('The password provided is too weak.');
       } else if (e.code == 'email-already-in-use') {
-        showErrorMEssage('The account already exists for that email.');
+        showErrorMessage('The account already exists for that email.');
       } else if (e.code == 'invalid-email') {
-        showErrorMEssage('The email address is not valid.');
+        showErrorMessage('The email address is not valid.');
       } else if (e.code == 'operation-not-allowed') {
-        showErrorMEssage('Error during sign up.');
+        showErrorMessage('Error during sign up.');
       } else if (e.code == 'user-disabled') {
-        showErrorMEssage('The user account has been disabled.');
+        showErrorMessage('The user account has been disabled.');
       } else {
-        showErrorMEssage('An undefined Error happened.');
+        showErrorMessage('An undefined Error happened.');
       }
     }
   }
 
   //error messsage to user
-  void showErrorMEssage(String message) {
+  void showErrorMessage(String message) {
+    Completer<bool> dialogCompleter = Completer<bool>();
+
     showDialog(
       context: context,
       builder: (context) {
-        // Zeige AlertDialog mit der Fehlermeldung
-        return AlertDialog(
-          backgroundColor: Colors.black,
-          title: Center(
-            child: Text(
-              message,
-              style: Styles.textfieldHintStyle,
+        return PopScope(
+          canPop: false,
+          child: AlertDialog(
+            backgroundColor: Colors.black,
+            title: Center(
+              child: Text(
+                message,
+                style: Styles.textfieldHintStyle,
+              ),
             ),
           ),
         );
       },
-    );
+    ).then((_) {
+      // Dialog wurde geschlossen, entweder durch Zurück-Taste oder automatisch nach 3 Sekunden
+      if (!dialogCompleter.isCompleted) {
+        dialogCompleter.complete(true);
+      }
+    });
 
-    // Verzögere das Ausblenden der Fehlermeldung nach 5 Sekunden
-    Future.delayed(const Duration(seconds: 5), () {
-      Navigator.of(context).pop(); // Schließt den Dialog nach 5 Sekunden
+    // Verzögere das Ausblenden der Fehlermeldung nach 2 Sekunden
+    Future.delayed(const Duration(seconds: 2), () {
+      if (!dialogCompleter.isCompleted) {
+        Navigator.of(context).pop(); // Schließt den Dialog nach 2 Sekunden
+        dialogCompleter.complete(true);
+      }
     });
   }
 
