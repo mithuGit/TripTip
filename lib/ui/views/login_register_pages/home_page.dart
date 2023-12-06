@@ -1,9 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:internet_praktikum/ui/views/weather/weather.dart';
-import 'package:internet_praktikum/core/services/weather_service.dart';
-import 'package:internet_praktikum/ui/widgets/header_button.dart';
-import 'package:internet_praktikum/ui/views/weather/weather_page.dart';
 import 'package:internet_praktikum/ui/widgets/my_button.dart';
 import 'package:internet_praktikum/ui/widgets/topbar.dart';
 

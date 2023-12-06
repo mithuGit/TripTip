@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:internet_praktikum/ui/views/weather/weather.dart';
@@ -9,14 +10,13 @@ class WeatherService {
   final String apiKey;
   WeatherService(this.apiKey);
 
-  
   static String cityName = "";
   static Weather? actualWeather;
 
-
   Future<Weather?> fetchWeather() async {
     try {
-      String cityName = await getCurrentCity();
+      String cityName = await getCity(double.parse(await getLatitude().toString()), double.parse(await getLongitude().toString()));
+      //String cityName = await getCurrentCity();
       final weather = await getWeather(cityName);
       actualWeather = weather;
       return weather;
@@ -53,11 +53,10 @@ class WeatherService {
     }
   }
 
-  static String getWeatherAnimation(String? mainCondition){
-
+  static String getWeatherAnimation(String? mainCondition) {
     if (mainCondition == null) return 'assets/weather_pic/sunny.json';
 
-    switch (mainCondition.toLowerCase()){
+    switch (mainCondition.toLowerCase()) {
       case 'clouds':
         return 'assets/weather_pic/cloudy.json';
       case 'rain':
@@ -79,9 +78,7 @@ class WeatherService {
       default:
         return 'assets/weather_pic/sunny.json';
     }
-
   }
-
 
   Future<Weather> getWeather(String cityName) async {
     final url = '$BASE_URL?q=$cityName&appid=$apiKey&units=metric';
@@ -113,5 +110,62 @@ class WeatherService {
     String? cityName = placemarks[0].locality;
 
     return cityName ?? "";
+  }
+
+  Future<String> getCity(double latitude, double longitude) async {
+    try {
+      const apiKey = '5a9d3eda46bcddc1662d351abc13c798';
+      final url =
+          'http://api.openweathermap.org/geo/1.0/reverse?lat=$latitude&lon=$longitude&limit=1&appid=$apiKey';
+
+      final response = await http.get(Uri.parse(url));
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final cityName = data[0]['name'];
+        return cityName;
+      } else {
+        throw Exception('Failed to get city name from coordinates');
+      }
+    } catch (e) {
+      print(e);
+      return ""; // oder eine Standardstadt, falls ein Fehler auftritt
+    }
+  }
+
+  Future<Object?> getLatitude() async {
+    final ref = FirebaseDatabase.instance.ref('trips');
+
+    final snapshot = await ref
+        .child("placedetails")
+        .child("location")
+        .child("latitude")
+        .get();
+
+    if (snapshot.exists) {
+      print(snapshot.value);
+      return snapshot.value;
+    } else {
+      print('No data available');
+      return "";
+    }
+  }
+
+  Future<Object?> getLongitude() async {
+    final ref = FirebaseDatabase.instance.ref('trips');
+
+    final snapshot = await ref
+        .child("placedetails")
+        .child("location")
+        .child("longitude")
+        .get();
+
+    if (snapshot.exists) {
+      print(snapshot.value);
+      return snapshot.value;
+    } else {
+      print('No data available');
+      return "";
+    }
   }
 }
