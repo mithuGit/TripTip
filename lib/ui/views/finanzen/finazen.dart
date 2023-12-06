@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:internet_praktikum/ui/styles/Styles.dart';
+import 'package:internet_praktikum/ui/views/finanzen/request.dart';
 
 import '../../widgets/finanzen/extendablecontainer.dart';
 
@@ -23,7 +24,15 @@ class _FinanzenState extends State<Finanzen> {
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 20),
-            child: Image.asset('assets/ icon _credit card_.png'),
+            child: GestureDetector(
+              onTap: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const RequestMoney()));
+              },
+              child: Image.asset('assets/ icon _credit card_.png'),
+            ),
           )
         ],
       ),

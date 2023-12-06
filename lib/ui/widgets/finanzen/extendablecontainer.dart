@@ -20,9 +20,9 @@ class _ExpandableContainerState extends State<ExpandableContainer> {
     ExpandableItem(text: 'Test1', price: '10 €'),
     ExpandableItem(text: 'Test2', price: '20 €'),
     ExpandableItem(text: 'Test3', price: '30 €'),
-    /*ExpandableItem(text: 'Test4', price: '40 €'),
+    ExpandableItem(text: 'Test4', price: '40 €'),
     ExpandableItem(text: 'Test5', price: '50 €'),
-    ExpandableItem(text: 'Test6', price: '60 €'),*/
+    ExpandableItem(text: 'Test6', price: '60 €'),
   ];
 
   double calculateMainHight(List<ExpandableItem> list, double screenHeight) {
