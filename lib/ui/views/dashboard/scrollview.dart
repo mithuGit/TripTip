@@ -12,6 +12,7 @@ class ScrollViewWidget extends StatefulWidget {
 }
 
 class _ScrollViewWidget extends State<ScrollViewWidget> {
+  List<dynamic> newArray = List.empty();
   @override
   Widget build(BuildContext context) {
     FirebaseFirestore firestore = FirebaseFirestore.instance;
@@ -19,6 +20,9 @@ class _ScrollViewWidget extends State<ScrollViewWidget> {
         firestore.collection('days').doc(widget.day?.id).snapshots();
     final Color oddItemColor = Colors.lime.shade100;
     final Color evenItemColor = Colors.deepPurple.shade100;
+    List<dynamic> bufferArray = List.empty();
+
+    int movingIndex = 0; // The index of the card that is currently moving
 
     Widget proxyDecorator(
         Widget child, int index, Animation<double> animation) {
@@ -33,9 +37,8 @@ class _ScrollViewWidget extends State<ScrollViewWidget> {
             // Create a Card based on the color and the content of the dragged one
             // and set its elevation to the animated value.
             child: DashboardWidget(
+              title: bufferArray[index]["title"] as String,
               key: Key('$index'),
-              elevation: elevation,
-              title: 'Card: $index',
             ),
           );
         },
@@ -51,53 +54,51 @@ class _ScrollViewWidget extends State<ScrollViewWidget> {
             return const Text('Something went wrong');
           }
 
-          print(snapshot);
-
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Text("Loading");
+            if (bufferArray.isEmpty) {
+              return const Text("Loading");
+            }
+            return ListView(
+              children: bufferArray
+                  .map((con) {
+                    return DashboardWidget(
+                        key: Key(con!.hashCode.toString()),
+                        title: con!["title"] as String);
+                  })
+                  .toList()
+                  .cast(),
+            );
           }
-          List<dynamic> currentArray = snapshot.data!.get('widgets') ?? [];
+
+          List<dynamic> currentArray = snapshot!.data!.get('widgets') ?? [];
+          bufferArray = currentArray;
+
           return ReorderableListView(
+            proxyDecorator: proxyDecorator,
             padding: const EdgeInsets.symmetric(horizontal: 23),
             onReorder: (int oldIndex, int newIndex) {
               setState(() {
                 if (oldIndex < newIndex) {
                   newIndex -= 1;
                 }
-                // final int item = _items.removeAt(oldIndex);
-                // _items.insert(newIndex, item);
+                movingIndex = oldIndex;
+                Map<String, dynamic> item = bufferArray.removeAt(oldIndex);
+                bufferArray.insert(newIndex, item);
+                firestore
+                    .collection('days')
+                    .doc(widget.day?.id)
+                    .set({"widgets": bufferArray});
               });
             },
             children: currentArray
-                .map((widget) {
+                .map((con) {
                   return DashboardWidget(
-                      key: Key(widget!.hashCode.toString()),
-                      title: widget!["title"] as String);
+                      key: Key(con!.hashCode.toString()),
+                      title: con!["title"] as String);
                 })
                 .toList()
                 .cast(),
           );
-
-          /*  
-
-     List<DashboardWidget> cards = <DashboardWidget>[
-      for (int index = 0; index < _items.length; index += 1)
-        DashboardWidget(key: Key('$index'), title: 'Card: $index')
-    ];
-    
-     padding: const EdgeInsets.symmetric(horizontal: 23),
-      proxyDecorator: proxyDecorator,
-      buildDefaultDragHandles: true,
-      onReorder: (int oldIndex, int newIndex) {
-        setState(() {
-          if (oldIndex < newIndex) {
-            newIndex -= 1;
-          }
-          final int item = _items.removeAt(oldIndex);
-          _items.insert(newIndex, item);
-        });
-      },
-      children: cards, */
         });
   }
 }
