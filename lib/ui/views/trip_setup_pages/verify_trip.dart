@@ -1,11 +1,9 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:internet_praktikum/ui/widgets/container.dart';
-import 'package:internet_praktikum/ui/widgets/inputfield.dart';
 import 'package:internet_praktikum/ui/widgets/my_button.dart';
 
 class VerifyTrip extends StatelessWidget {
-  VerifyTrip({super.key, required this.dest});
+  const VerifyTrip({super.key, required this.dest});
 
   final String dest;
 

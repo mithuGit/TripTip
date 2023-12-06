@@ -106,7 +106,7 @@ class _OTPFormState extends State<OTPForm> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => Account(),
+                                builder: (context) => const Account(),
                               ),
                             );
                           },

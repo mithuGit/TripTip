@@ -1,4 +1,3 @@
-import 'dart:ffi';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -6,7 +5,6 @@ import 'package:internet_praktikum/ui/widgets/errorSnackbar.dart';
 import 'package:internet_praktikum/ui/widgets/inputfield_search_lookahead.dart';
 import 'package:internet_praktikum/ui/widgets/my_button.dart';
 import 'package:internet_praktikum/ui/widgets/usernamebagageCreateTrip.dart';
-import '../../styles/Styles.dart';
 import '../../widgets/container.dart';
 import '../../widgets/inputfield.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -50,7 +48,7 @@ class _TripCreateState extends State<CreateTrip> {
       if (start == '') throw Exception("Destination is empty");
       if (end == '') throw Exception("Destination is empty");
       members.add(_auth.currentUser?.uid);
-      print("Create Trip: " + dest + " " + start + " " + end);
+      print("Create Trip: $dest $start $end");
       await trips.add({
         'destination': dest,
         'starttime': start,
@@ -59,8 +57,9 @@ class _TripCreateState extends State<CreateTrip> {
         'members': members
       });
     } catch (e) {
-      if (context.mounted)
+      if (context.mounted) {
         ErrorSnackbar.showErrorSnackbar(context, e.toString());
+      }
     }
   }
 

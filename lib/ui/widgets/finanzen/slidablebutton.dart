@@ -21,9 +21,12 @@ class SlideButton extends StatelessWidget {
         innerColor: const Color(0xFFD9D9D9),
         outerColor: Colors.white,
         textColor: Colors.black,
-        sliderButtonIcon: const Icon(
-          Icons.arrow_forward,
-          size: 10,
+        sliderButtonIcon: Transform.scale(
+          scale: 2.33, // Adjust the scale factor as needed
+          child: const Icon(
+            Icons.arrow_forward,
+            size: 12,
+          ),
         ),
         text: buttonText, // Use the provided buttonText property
         textStyle: Styles.title,

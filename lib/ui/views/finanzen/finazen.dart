@@ -22,7 +22,7 @@ class _FinanzenState extends State<Finanzen> {
         centerTitle: true,
         actions: [
           Padding(
-            padding: const EdgeInsets.all(5.0),
+            padding: const EdgeInsets.only(right: 20),
             child: Image.asset('assets/ icon _credit card_.png'),
           )
         ],

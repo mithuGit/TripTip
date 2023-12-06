@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:internet_praktikum/main.dart';
 import 'package:internet_praktikum/ui/views/trip_setup_pages/create_trip.dart';
 import 'package:internet_praktikum/ui/views/trip_setup_pages/join_trip.dart';
 import 'package:internet_praktikum/ui/widgets/container.dart';

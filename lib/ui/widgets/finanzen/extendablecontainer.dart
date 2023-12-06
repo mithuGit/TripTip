@@ -20,38 +20,37 @@ class _ExpandableContainerState extends State<ExpandableContainer> {
     ExpandableItem(text: 'Test1', price: '10 €'),
     ExpandableItem(text: 'Test2', price: '20 €'),
     ExpandableItem(text: 'Test3', price: '30 €'),
-    ExpandableItem(text: 'Test4', price: '40 €'),
+    /*ExpandableItem(text: 'Test4', price: '40 €'),
     ExpandableItem(text: 'Test5', price: '50 €'),
-    ExpandableItem(text: 'Test6', price: '60 €'),
+    ExpandableItem(text: 'Test6', price: '60 €'),*/
   ];
 
   double calculateMainHight(List<ExpandableItem> list, double screenHeight) {
     if (list.length >= 4) {
-      return screenHeight * 0.35;
+      return screenHeight * 0.33;
     } else if (list.length == 3) {
-      return screenHeight * 0.302;
+      return screenHeight * 0.295;
     } else if (list.length == 2) {
-      return screenHeight * 0.27;
+      return screenHeight * 0.25;
     } else {
-      return screenHeight * 0.22;
+      return screenHeight * 0.21;
     }
   }
 
   double calculateSmallHight(List<ExpandableItem> list, double height) {
     if (list.length >= 4) {
-      return height * 0.17 + 13;
+      return height * 0.159 + 13;
     } else if (list.length == 3) {
-      return height * 0.15 + 13;
+      return height * 0.126 + 13;
     } else if (list.length == 2) {
-      return height * 0.09 + 13;
+      return height * 0.08 + 13;
     } else {
-      return height * 0.039 + 13;
+      return height * 0.038 + 13;
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    print(MediaQuery.of(context).size.height * 0.35);
     return GestureDetector(
       onTap: () {
         setState(() {
@@ -63,7 +62,7 @@ class _ExpandableContainerState extends State<ExpandableContainer> {
         curve: Curves.easeInOut,
         height: isExpanded
             ? calculateMainHight(items, MediaQuery.of(context).size.height)
-            : 60.0, // Adjust the height as needed
+            : 65.0, // Adjust the height as needed
         decoration: BoxDecoration(
           color: const Color(0xE51E1E1E), // Grey background color
           border: Border.all(color: const Color(0xE51E1E1E)),
@@ -74,9 +73,10 @@ class _ExpandableContainerState extends State<ExpandableContainer> {
           children: [
             Padding(
               padding: const EdgeInsets.only(
-                top: 10.0,
-                left: 25,
+                top: 5.0,
+                left: 10,
                 right: 25,
+                bottom: 5.0,
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -85,23 +85,36 @@ class _ExpandableContainerState extends State<ExpandableContainer> {
                     alignment: Alignment.centerLeft,
                     child: Padding(
                       padding: const EdgeInsets.only(top: 5.0),
-                      child: Text(
-                        widget.name,
-                        style: const TextStyle(
-                          fontSize: 20.0,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 44,
+                            height: 44,
+                            decoration: const BoxDecoration(
+                                shape: BoxShape.circle, color: Colors.grey),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(left: 10.0),
+                            child: Text(
+                              widget.name,
+                              style: const TextStyle(
+                                fontSize: 20.0,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
-                  Align(
+                  const Align(
                     alignment: Alignment.centerRight,
                     child: Padding(
-                      padding: const EdgeInsets.only(top: 5.0),
+                      padding: EdgeInsets.only(top: 5.0),
                       child: Text(
                         '0 €',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 20.0,
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
@@ -147,9 +160,10 @@ class _ExpandableContainerState extends State<ExpandableContainer> {
                   ),
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.only(top: 10, left: 20, right: 20),
-                child: const SlideButton(
+              const Padding(
+                padding:
+                    EdgeInsets.only(top: 5, left: 20, right: 20, bottom: 5),
+                child: SlideButton(
                   buttonText: 'Slide to Pay',
                   margin: EdgeInsets.only(bottom: 8),
                 ),

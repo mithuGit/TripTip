@@ -212,7 +212,7 @@ class _RegisterPageState extends State<RegisterPage> {
                           Navigator.of(context).push(
                             MaterialPageRoute(
                               builder: (context) {
-                                return HomePage();
+                                return const HomePage();
                               },
                             ),
                           );
@@ -229,7 +229,7 @@ class _RegisterPageState extends State<RegisterPage> {
                           Navigator.of(context).push(
                             MaterialPageRoute(
                               builder: (context) {
-                                return HomePage();
+                                return const HomePage();
                               },
                             ),
                           );
