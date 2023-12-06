@@ -1,7 +1,11 @@
+import 'dart:html';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:internet_praktikum/ui/widgets/my_button.dart';
 import 'package:internet_praktikum/ui/widgets/topbar.dart';
+import 'package:internet_praktikum/ui/views/dashboard/scrollview.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -12,6 +16,8 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final user = FirebaseAuth.instance.currentUser!;
+  //Todo: wir brauchen von euch Hunden den selected Day... dann können wir die Datenbank abfragen und die Daten anzeigen
+  DateTime? selectedDay = DateTime(2023, 1, 10, 00, 00);
 
   void signUserOut() async {
     await FirebaseAuth.instance.signOut();
@@ -19,6 +25,19 @@ class _HomePageState extends State<HomePage> {
 
   void deleteUser() async {
     await FirebaseAuth.instance.currentUser!.delete();
+  }
+
+  Future<DocumentReference> getCurrentDay() async {
+    final userCollection = FirebaseFirestore.instance.collection('users');
+    final userDoc = await userCollection.doc(user.uid).get();
+    final tripId = userDoc.data()?['selectedtrip'];
+    final currentTrip =
+        await FirebaseFirestore.instance.collection('trips').doc(tripId).get();
+    Map<String, dynamic> day = currentTrip
+        .data()?['days']
+        .where((el) => el['date'] == selectedDay)
+        .first;
+    return day.entries.first.value;
   }
 
   /*void _onItemTapped(int index) {
@@ -40,41 +59,26 @@ class _HomePageState extends State<HomePage> {
         body: Stack(
           children: [
             Container(
-              decoration: const BoxDecoration(
-                image: DecorationImage(
-                  image: AssetImage(
-                      'assets/mainpage_pic/dashboard.png'), // assets/BackgroundCity.png
-                  fit: BoxFit.fill,
+                decoration: const BoxDecoration(
+                  image: DecorationImage(
+                    image: AssetImage(
+                        'assets/mainpage_pic/dashboard.png'), // assets/BackgroundCity.png
+                    fit: BoxFit.fill,
+                  ),
                 ),
-              ),
-              child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Text('Welcome ${user.displayName}'),
-                    const SizedBox(height: 20),
-                    Text('Your email is ${user.email}'),
-                    const SizedBox(height: 20),
-                    Text('Your uid is ${user.uid}'),
-                    const SizedBox(height: 20),
-                    Text('Your profile picture is ${user.photoURL}'),
-                    //Uri.file(user.photoURL!).isAbsolute
-                    //    ? Image.network(user.photoURL!)
-                    //    : Image.asset(user.photoURL!),
-                    MyButton(
-                      onTap: signUserOut,
-                      text: "Logout",
-                      colors: Colors.red,
-                    ),
-                    MyButton(
-                      onTap: deleteUser,
-                      text: "Delete Account",
-                      colors: Colors.red,
-                    ),
-                  ],
-                ),
-              ),
-            ),
+                child: Center(
+                    child: FutureBuilder<DocumentReference>(
+                        future: getCurrentDay(),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return const CircularProgressIndicator(); // Show loading indicator while waiting for the Future
+                          } else if (snapshot.hasError) {
+                            return Text('Error: ${snapshot.error}');
+                          } else {
+                            return ScrollViewWidget(day: snapshot.data!);
+                          }
+                        }))) //ScrollView
           ],
         ),
         bottomNavigationBar: NavigationBarTheme(

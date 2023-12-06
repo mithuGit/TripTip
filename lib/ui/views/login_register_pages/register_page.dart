@@ -59,6 +59,7 @@ class _RegisterPageState extends State<RegisterPage> {
             'trips': null,
             'profilepicture': null,
             'dateOfBirth': null,
+            'selectedtrip': null
             // Add other data fields as needed
           });
         }

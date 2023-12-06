@@ -1,33 +1,29 @@
 import 'dart:ui';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:internet_praktikum/ui/widgets/dashboardWidget.dart';
 
 class ScrollViewWidget extends StatefulWidget {
-  const ScrollViewWidget({super.key});
+  final DocumentReference? day;
+  const ScrollViewWidget({super.key, required this.day});
 
   @override
   State<ScrollViewWidget> createState() => _ScrollViewWidget();
 }
 
 class _ScrollViewWidget extends State<ScrollViewWidget> {
-  final List<int> _items = List<int>.generate(50, (int index) => index);
 
   @override
   Widget build(BuildContext context) {
+    FirebaseFirestore firestore = FirebaseFirestore.instance;
+    final Stream<DocumentSnapshot> _dayStream = firestore.collection('days').doc(widget.day?.id).snapshots();
+
     final Color oddItemColor = Colors.lime.shade100;
     final Color evenItemColor = Colors.deepPurple.shade100;
 
-    final List<Card> cards = <Card>[
+    final List<DashboardWidget> cards = <DashboardWidget>[
       for (int index = 0; index < _items.length; index += 1)
-        Card(
-          key: Key('$index'),
-          color: _items[index].isOdd ? oddItemColor : evenItemColor,
-          child: SizedBox(
-            height: 80,
-            child: Center(
-              child: Text('Card ${_items[index]}'),
-            ),
-          ),
-        ),
+        DashboardWidget(key: Key('$index'), title: 'Card: $index')
     ];
 
     Widget proxyDecorator(
@@ -42,10 +38,10 @@ class _ScrollViewWidget extends State<ScrollViewWidget> {
             scale: scale,
             // Create a Card based on the color and the content of the dragged one
             // and set its elevation to the animated value.
-            child: Card(
+            child: DashboardWidget(
+              key: Key('$index'),
               elevation: elevation,
-              color: cards[index].color,
-              child: cards[index].child,
+              title: 'Card: $index',
             ),
           );
         },
@@ -53,9 +49,16 @@ class _ScrollViewWidget extends State<ScrollViewWidget> {
       );
     }
 
-    return ReorderableListView(
-      padding: const EdgeInsets.symmetric(horizontal: 40),
+    return StreamBuilder<DocumentSnapshot>(
+      stream: _dayStream,
+      builder: (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot)
+    { 
+
+      
+      return ReorderableListView(
+      padding: const EdgeInsets.symmetric(horizontal: 23),
       proxyDecorator: proxyDecorator,
+      buildDefaultDragHandles: true,
       onReorder: (int oldIndex, int newIndex) {
         setState(() {
           if (oldIndex < newIndex) {
@@ -67,5 +70,6 @@ class _ScrollViewWidget extends State<ScrollViewWidget> {
       },
       children: cards,
     );
-  }
+  };
+
 }

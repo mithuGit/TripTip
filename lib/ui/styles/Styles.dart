@@ -39,4 +39,9 @@ class Styles {
       fontSize: 20,
       fontWeight: FontWeight.w500,
       color: Colors.black);
+  static const dashboardWidgetTitle = TextStyle(
+      fontFamily: 'fonts/Ubuntu-Regular.ttf',
+      fontSize: 20,
+      fontWeight: FontWeight.w500,
+      color: Colors.white);
 }

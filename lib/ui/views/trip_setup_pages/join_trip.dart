@@ -15,10 +15,14 @@ class JoinTrip extends StatelessWidget {
   final groupController = TextEditingController();
 
   void join_trip() async {
+    final dir = groupController.text;
     final self = [
       FirebaseFirestore.instance.collection("users").doc(_auth.currentUser?.uid)
     ];
-    final dir = groupController.text;
+    FirebaseFirestore.instance
+        .collection("users")
+        .doc(_auth.currentUser?.uid)
+        .set({"selectedtrip": dir});
     trips.doc(dir).update({"members": FieldValue.arrayUnion(self)!});
   }
 

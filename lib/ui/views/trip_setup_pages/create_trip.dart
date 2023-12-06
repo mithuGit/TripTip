@@ -27,7 +27,6 @@ class User {
 }
 
 class _TripCreateState extends State<CreateTrip> {
-
   CollectionReference trips = FirebaseFirestore.instance.collection('trips');
   final destinationText = TextEditingController();
   final starttime = TextEditingController();
@@ -46,20 +45,28 @@ class _TripCreateState extends State<CreateTrip> {
     try {
       final members = [];
       if (destination == null) throw Exception("Destination is empty");
-      if (selectedStartDate == null) throw Exception("You need to select a start date!");
-      if (selectedEndDate == null) throw Exception("You need to select a end date!");
-      if (selectedEndDate!.millisecondsSinceEpoch < selectedStartDate!.millisecondsSinceEpoch) throw Exception("End date must be after start date!");
+      if (selectedStartDate == null)
+        throw Exception("You need to select a start date!");
+      if (selectedEndDate == null)
+        throw Exception("You need to select a end date!");
+      if (selectedEndDate!.millisecondsSinceEpoch <
+          selectedStartDate!.millisecondsSinceEpoch)
+        throw Exception("End date must be after start date!");
 
       members.add(widget.auth.currentUser?.uid);
       print("Create Trip: $destination $selectedStartDate $selectedEndDate");
-      await trips.add({
+      DocumentReference docRef = await trips.add({
         'city': destination?.cityName,
-        'placedetails' : destination?.placeDetails,
+        'placedetails': destination?.placeDetails,
         'startdate': selectedStartDate,
         'enddate': selectedEndDate,
         'createdBy': widget.auth.currentUser?.uid,
         'members': members
       });
+      await widget.firestore
+          .collection("users")
+          .doc(widget.auth.currentUser?.uid)
+          .update({"selectedtrip": docRef.id});
     } catch (e) {
       if (context.mounted) {
         ErrorSnackbar.showErrorSnackbar(context, e.toString());
@@ -163,7 +170,10 @@ class _TripCreateState extends State<CreateTrip> {
                     )),
               ),
             ),
-            UsernameBagageCreateTrip(firestore: widget.firestore, auth: widget.auth,)
+            UsernameBagageCreateTrip(
+              firestore: widget.firestore,
+              auth: widget.auth,
+            )
           ]),
         ));
   }
