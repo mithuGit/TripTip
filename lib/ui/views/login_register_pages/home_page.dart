@@ -1,5 +1,3 @@
-import 'dart:html';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -17,8 +15,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final user = FirebaseAuth.instance.currentUser!;
   //Todo: wir brauchen von euch Hunden den selected Day... dann können wir die Datenbank abfragen und die Daten anzeigen
-  DateTime? selectedDay = DateTime(2023, 1, 10, 00, 00);
-
+  DateTime? selectedDay = DateTime(2023, 10, 1);
   void signUserOut() async {
     await FirebaseAuth.instance.signOut();
   }
@@ -28,16 +25,26 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<DocumentReference> getCurrentDay() async {
+    print('DateTime: $selectedDay');
     final userCollection = FirebaseFirestore.instance.collection('users');
     final userDoc = await userCollection.doc(user.uid).get();
     final tripId = userDoc.data()?['selectedtrip'];
     final currentTrip =
         await FirebaseFirestore.instance.collection('trips').doc(tripId).get();
-    Map<String, dynamic> day = currentTrip
-        .data()?['days']
-        .where((el) => el['date'] == selectedDay)
+    Map<String, dynamic>? currentTripdata = currentTrip.data();
+
+    List<dynamic> days = currentTripdata?['days'].toList();
+    print((days[0]['starttime'] as Timestamp).toDate());
+    Map<String, dynamic> day = days
+        .where((el) =>
+            (el['starttime'] as Timestamp).toDate().day == selectedDay!.day &&
+            (el['starttime'] as Timestamp).toDate().month ==
+                selectedDay!.month &&
+            (el['starttime'] as Timestamp).toDate().year == selectedDay!.year)
         .first;
-    return day.entries.first.value;
+
+    print(day.toString());
+    return day['ref'];
   }
 
   /*void _onItemTapped(int index) {

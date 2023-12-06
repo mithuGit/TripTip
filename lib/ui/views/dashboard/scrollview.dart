@@ -17,7 +17,6 @@ class _ScrollViewWidget extends State<ScrollViewWidget> {
     FirebaseFirestore firestore = FirebaseFirestore.instance;
     final Stream<DocumentSnapshot> _dayStream =
         firestore.collection('days').doc(widget.day?.id).snapshots();
-
     final Color oddItemColor = Colors.lime.shade100;
     final Color evenItemColor = Colors.deepPurple.shade100;
 
@@ -52,9 +51,12 @@ class _ScrollViewWidget extends State<ScrollViewWidget> {
             return const Text('Something went wrong');
           }
 
+          print(snapshot);
+
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Text("Loading");
           }
+          List<dynamic> currentArray = snapshot.data!.get('widgets') ?? [];
           return ReorderableListView(
             padding: const EdgeInsets.symmetric(horizontal: 23),
             onReorder: (int oldIndex, int newIndex) {
@@ -66,11 +68,11 @@ class _ScrollViewWidget extends State<ScrollViewWidget> {
                 // _items.insert(newIndex, item);
               });
             },
-            children: snapshot.data!['widgets']
-                .map((DocumentSnapshot document) {
-                  Map<String, dynamic> data =
-                      document.data()! as Map<String, dynamic>;
-                  return DashboardWidget(title: data['title'] as String);
+            children: currentArray
+                .map((widget) {
+                  return DashboardWidget(
+                      key: Key(widget!.hashCode.toString()),
+                      title: widget!["title"] as String);
                 })
                 .toList()
                 .cast(),
