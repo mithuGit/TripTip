@@ -15,7 +15,9 @@ class WeatherService {
 
   Future<Weather?> fetchWeather() async {
     try {
-      String cityName = await getCity(double.parse(await getLatitude().toString()), double.parse(await getLongitude().toString()));
+      String cityName = await getCityFromCoordinates(
+          double.parse(await getLatitude().toString()),
+          double.parse(await getLongitude().toString()));
       //String cityName = await getCurrentCity();
       final weather = await getWeather(cityName);
       actualWeather = weather;
@@ -113,6 +115,8 @@ class WeatherService {
   }
 
   Future<String> getCity(double latitude, double longitude) async {
+    print("Latitude: $latitude");
+    print("Longitude: $longitude");
     try {
       const apiKey = '5a9d3eda46bcddc1662d351abc13c798';
       final url =
@@ -135,6 +139,7 @@ class WeatherService {
 
   Future<Object?> getLatitude() async {
     final ref = FirebaseDatabase.instance.ref('trips');
+    print("hallloooo11");
 
     final snapshot = await ref
         .child("placedetails")
@@ -153,6 +158,7 @@ class WeatherService {
 
   Future<Object?> getLongitude() async {
     final ref = FirebaseDatabase.instance.ref('trips');
+    print("hallloooo22");
 
     final snapshot = await ref
         .child("placedetails")
@@ -167,5 +173,48 @@ class WeatherService {
       print('No data available');
       return "";
     }
+  }
+}
+
+Future<String> getCityFromCoordinates(double latitude, double longitude) async {
+  try {
+    final ref = FirebaseDatabase.instance.ref('trips');
+    final snapshot = await ref
+        .child("placedetails")
+        .child("location")
+        .child("latitude")
+        .get();
+
+    if (snapshot.exists) {
+      final latitudeData = snapshot.value;
+      if (latitudeData == latitude) {
+        final longitudeSnapshot = await ref
+            .child("placedetails")
+            .child("location")
+            .child("longitude")
+            .get();
+
+        if (longitudeSnapshot.exists) {
+          final longitudeData = longitudeSnapshot.value;
+          if (longitudeData == longitude) {
+            final cityNameSnapshot = await ref
+                .child("placedetails")
+                .child("location")
+                .child("cityName")
+                .get();
+
+            if (cityNameSnapshot.exists) {
+              final cityName = cityNameSnapshot.value;
+              return cityName.toString();
+            }
+          }
+        }
+      }
+    }
+
+    return ""; // return empty string if city name not found
+  } catch (e) {
+    print(e);
+    return ""; // return empty string if an error occurs
   }
 }
