@@ -12,19 +12,14 @@ class ScrollViewWidget extends StatefulWidget {
 }
 
 class _ScrollViewWidget extends State<ScrollViewWidget> {
-
   @override
   Widget build(BuildContext context) {
     FirebaseFirestore firestore = FirebaseFirestore.instance;
-    final Stream<DocumentSnapshot> _dayStream = firestore.collection('days').doc(widget.day?.id).snapshots();
+    final Stream<DocumentSnapshot> _dayStream =
+        firestore.collection('days').doc(widget.day?.id).snapshots();
 
     final Color oddItemColor = Colors.lime.shade100;
     final Color evenItemColor = Colors.deepPurple.shade100;
-
-    final List<DashboardWidget> cards = <DashboardWidget>[
-      for (int index = 0; index < _items.length; index += 1)
-        DashboardWidget(key: Key('$index'), title: 'Card: $index')
-    ];
 
     Widget proxyDecorator(
         Widget child, int index, Animation<double> animation) {
@@ -50,13 +45,45 @@ class _ScrollViewWidget extends State<ScrollViewWidget> {
     }
 
     return StreamBuilder<DocumentSnapshot>(
-      stream: _dayStream,
-      builder: (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot)
-    { 
+        stream: _dayStream,
+        builder:
+            (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+          if (snapshot.hasError) {
+            return const Text('Something went wrong');
+          }
 
-      
-      return ReorderableListView(
-      padding: const EdgeInsets.symmetric(horizontal: 23),
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Text("Loading");
+          }
+          return ReorderableListView(
+            padding: const EdgeInsets.symmetric(horizontal: 23),
+            onReorder: (int oldIndex, int newIndex) {
+              setState(() {
+                if (oldIndex < newIndex) {
+                  newIndex -= 1;
+                }
+                // final int item = _items.removeAt(oldIndex);
+                // _items.insert(newIndex, item);
+              });
+            },
+            children: snapshot.data!['widgets']
+                .map((DocumentSnapshot document) {
+                  Map<String, dynamic> data =
+                      document.data()! as Map<String, dynamic>;
+                  return DashboardWidget(title: data['title'] as String);
+                })
+                .toList()
+                .cast(),
+          );
+
+          /*  
+
+     List<DashboardWidget> cards = <DashboardWidget>[
+      for (int index = 0; index < _items.length; index += 1)
+        DashboardWidget(key: Key('$index'), title: 'Card: $index')
+    ];
+    
+     padding: const EdgeInsets.symmetric(horizontal: 23),
       proxyDecorator: proxyDecorator,
       buildDefaultDragHandles: true,
       onReorder: (int oldIndex, int newIndex) {
@@ -68,8 +95,7 @@ class _ScrollViewWidget extends State<ScrollViewWidget> {
           _items.insert(newIndex, item);
         });
       },
-      children: cards,
-    );
-  };
-
+      children: cards, */
+        });
+  }
 }
