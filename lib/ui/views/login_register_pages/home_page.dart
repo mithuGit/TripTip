@@ -32,9 +32,7 @@ class _HomePageState extends State<HomePage> {
     final currentTrip =
         await FirebaseFirestore.instance.collection('trips').doc(tripId).get();
     Map<String, dynamic>? currentTripdata = currentTrip.data();
-
     List<dynamic> days = currentTripdata?['days'].toList();
-    print((days[0]['starttime'] as Timestamp).toDate());
     Map<String, dynamic> day = days
         .where((el) =>
             (el['starttime'] as Timestamp).toDate().day == selectedDay!.day &&
@@ -42,8 +40,6 @@ class _HomePageState extends State<HomePage> {
                 selectedDay!.month &&
             (el['starttime'] as Timestamp).toDate().year == selectedDay!.year)
         .first;
-
-    print(day.toString());
     return day['ref'];
   }
 

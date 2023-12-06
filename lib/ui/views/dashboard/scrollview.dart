@@ -11,7 +11,7 @@ class ScrollViewWidget extends StatefulWidget {
   State<ScrollViewWidget> createState() => _ScrollViewWidget();
 }
 
-class _ScrollViewWidget extends State<ScrollViewWidget> {
+class _ScrollViewWidget extends State<ScrollViewWidget> with SingleTickerProviderStateMixin {
   List<dynamic> newArray = List.empty();
   @override
   Widget build(BuildContext context) {
@@ -22,7 +22,24 @@ class _ScrollViewWidget extends State<ScrollViewWidget> {
     final Color evenItemColor = Colors.deepPurple.shade100;
     List<dynamic> bufferArray = List.empty();
 
+    bool _editable = false;
     int movingIndex = 0; // The index of the card that is currently moving
+
+    late AnimationController _controller;
+    late Animation<double> _animation;
+
+    @override
+    void initState() {
+      super.initState();
+      _controller = AnimationController(
+        vsync: this,
+        duration: Duration(milliseconds: 500),
+      )..repeat(reverse: true);
+      _animation = Tween(begin: -0.1, end: 0.1).animate(_controller)
+        ..addListener(() {
+          setState(() {});
+        });
+    }
 
     Widget proxyDecorator(
         Widget child, int index, Animation<double> animation) {
@@ -73,32 +90,61 @@ class _ScrollViewWidget extends State<ScrollViewWidget> {
           List<dynamic> currentArray = snapshot!.data!.get('widgets') ?? [];
           bufferArray = currentArray;
 
-          return ReorderableListView(
-            proxyDecorator: proxyDecorator,
-            padding: const EdgeInsets.symmetric(horizontal: 23),
-            onReorder: (int oldIndex, int newIndex) {
-              setState(() {
-                if (oldIndex < newIndex) {
-                  newIndex -= 1;
-                }
-                movingIndex = oldIndex;
-                Map<String, dynamic> item = bufferArray.removeAt(oldIndex);
-                bufferArray.insert(newIndex, item);
-                firestore
-                    .collection('days')
-                    .doc(widget.day?.id)
-                    .set({"widgets": bufferArray});
-              });
-            },
-            children: currentArray
-                .map((con) {
-                  return DashboardWidget(
-                      key: Key(con!.hashCode.toString()),
-                      title: con!["title"] as String);
-                })
-                .toList()
-                .cast(),
-          );
+          if (_editable) {
+            return Container(
+              margin: const EdgeInsets.only(
+                  bottom: 65), // 65 because of the bottom navigation bar
+              child: ReorderableListView(
+                padding: const EdgeInsets.symmetric(horizontal: 23),
+                proxyDecorator: proxyDecorator,
+                onReorder: (int oldIndex, int newIndex) {
+                  setState(() {
+                    if (oldIndex < newIndex) {
+                      newIndex -= 1;
+                    }
+                    movingIndex = oldIndex;
+                    Map<String, dynamic> item = bufferArray.removeAt(oldIndex);
+                    bufferArray.insert(newIndex, item);
+                    firestore
+                        .collection('days')
+                        .doc(widget.day?.id)
+                        .set({"widgets": bufferArray});
+                  });
+                },
+                children: currentArray
+                    .map((con) {
+                      return DashboardWidget(
+                          key: Key(con!.hashCode.toString()),
+                          title: con!["title"] as String);
+                    })
+                    .toList()
+                    .cast(),
+              ),
+            );
+          } else {
+            return Container(
+              margin: const EdgeInsets.only(
+                  bottom: 65), // 65 because of the bottom navigation bar
+              child: ListView(
+                padding: const EdgeInsets.symmetric(horizontal: 23),
+                children: bufferArray
+                    .map((con) {
+                      return GestureDetector(
+                        onLongPress: () {
+                          setState(() {
+                            _editable = true;
+                          });
+                        },
+                        child: DashboardWidget(
+                            key: Key(con!.hashCode.toString()),
+                            title: con!["title"] as String),
+                      );
+                    })
+                    .toList()
+                    .cast(),
+              ),
+            );
+          }
         });
   }
 }
