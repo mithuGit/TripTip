@@ -31,7 +31,7 @@ class SelectTrip extends StatelessWidget {
                         children: [
                           MyButton(
                               onTap: () {
-                               context.go('/createtrip');
+                                context.go('/createtrip');
                               },
                               text: "Create Trip"),
                           MyButton(

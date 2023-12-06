@@ -56,7 +56,7 @@ class AuthWrapper extends StatelessWidget {
 
           // user logged in
           User? user = snapshot.data;
-
+          
           if (user != null && !user.emailVerified) {
             print(user.emailVerified);
             return const OTPForm();
