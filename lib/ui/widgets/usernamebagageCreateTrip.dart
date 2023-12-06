@@ -1,5 +1,6 @@
-import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 
 class User {
   String prename;
@@ -9,7 +10,10 @@ class User {
 }
 
 class UsernameBagageCreateTrip extends StatefulWidget {
-  const UsernameBagageCreateTrip({super.key});
+  final FirebaseAuth auth;
+  final FirebaseFirestore firestore;
+  UsernameBagageCreateTrip(
+      {super.key, required this.firestore, required this.auth});
 
   @override
   State<UsernameBagageCreateTrip> createState() =>
@@ -17,19 +21,24 @@ class UsernameBagageCreateTrip extends StatefulWidget {
 }
 
 class _UsernameBagageCreateTripState extends State<UsernameBagageCreateTrip> {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
   Future<User> _getNames() async {
     Image pb = Image.asset('assets/Personavatar.png');
-    if (_auth.currentUser != null) {
-      String name = _auth.currentUser!.displayName!;
-      if (RegExp(r'.\ .').hasMatch(name)) {
-        List<String> names = name.split(' ');
-        List<String> firsts = names.sublist(0, names.length - 1);
+    String prename = 'Not';
+    String lastname = 'Registered';
 
-        return User(firsts.join(' '), names[names.length - 1], pb);
-      } else {
-        return User(name, '', pb);
+    if (widget.auth.currentUser != null) {
+      final ref = await widget.firestore
+          .collection('users')
+          .where('uid', isEqualTo: widget.auth.currentUser!.uid)
+          .get();
+      if (ref.docs.isNotEmpty) {
+        final data = ref.docs.first.data();
+        prename = data['prename'];
+        lastname = data['lastname'];
+        if(data['profilePicture'] != null) pb = Image.network(data['profilePicture']);
       }
+
+      return User(prename, lastname, pb);
     } else {
       return User('Not', 'Registered', pb);
     }
@@ -59,7 +68,7 @@ class _UsernameBagageCreateTripState extends State<UsernameBagageCreateTrip> {
                       TextSpan(
                         children: [
                           TextSpan(
-                            text: user.prename + '\n',
+                            text: '${user.prename}\n',
                             style: const TextStyle(
                               color: Colors.black,
                               fontSize: 20,

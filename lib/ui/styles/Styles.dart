@@ -11,6 +11,11 @@ class Styles {
       fontSize: 14,
       fontWeight: FontWeight.w500,
       color: Color(0xFFA0A0A0));
+  static const datepicker = TextStyle(
+      fontFamily: 'Ubuntu',
+      fontSize: 14,
+      fontWeight: FontWeight.w500,
+      color: Colors.black);
   static const buttonFontStyle = TextStyle(
     color: Colors.white,
     fontSize: 14,
@@ -29,4 +34,9 @@ class Styles {
     fontFamily: 'Ubuntu',
     fontWeight: FontWeight.w500,
   );
+  static const title = TextStyle(
+      fontFamily: 'fonts/Ubuntu-Regular.ttf',
+      fontSize: 20,
+      fontWeight: FontWeight.w500,
+      color: Colors.black);
 }

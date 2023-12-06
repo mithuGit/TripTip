@@ -2,10 +2,21 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import '../styles/Styles.dart';
 
-class CupertinoDatePickerButton extends StatefulWidget {
-  final margin;
+//* Return Type for Tupel *//
+class DateStringTupel {
+  String dateString;
+  DateTime date;
+  DateStringTupel({required this.dateString, required this.date});
+}
 
-  const CupertinoDatePickerButton({super.key, this.margin});
+
+class CupertinoDatePickerButton extends StatefulWidget {
+  final EdgeInsets? margin;
+  final bool showFuture; // this field is set to true when the datepicker is used for the future Dates
+  final ValueChanged<DateStringTupel>? onDateSelected;
+
+  const CupertinoDatePickerButton(
+      {super.key, this.margin, this.onDateSelected, required this.showFuture});
 
   @override
   _CupertinoDatePickerButtonState createState() =>
@@ -14,6 +25,9 @@ class CupertinoDatePickerButton extends StatefulWidget {
 
 class _CupertinoDatePickerButtonState extends State<CupertinoDatePickerButton> {
   DateTime? selectedDate;
+
+  String f_String = "";
+  DateTime? boundingDate = DateTime.now(); // must be stored here otherwise getting errors
 
   Future<void> _selectDate(BuildContext context) async {
     DateTime currentDate = selectedDate ?? DateTime.now();
@@ -49,11 +63,17 @@ class _CupertinoDatePickerButtonState extends State<CupertinoDatePickerButton> {
                   color: Colors.white,
                 ),
                 child: CupertinoDatePicker(
-                    initialDateTime: DateTime.now(),
+                    initialDateTime: boundingDate,
                     mode: CupertinoDatePickerMode.date,
-                    maximumDate: DateTime.now(),
+                    maximumDate:  !widget.showFuture ? boundingDate : null,
+                    minimumDate: widget.showFuture ? boundingDate : null,
                     onDateTimeChanged: (DateTime newDate) {
                       currentDate = newDate;
+                      //formatieren des Strings
+                      f_String =
+                          '${newDate.day}.${newDate.month}.${newDate.year}';
+                      //pass to callback
+                      widget.onDateSelected?.call(DateStringTupel(dateString: f_String, date: currentDate));
                     }),
               ))
             ],
@@ -65,6 +85,9 @@ class _CupertinoDatePickerButtonState extends State<CupertinoDatePickerButton> {
     if (currentDate != selectedDate) {
       setState(() {
         selectedDate = currentDate;
+        f_String =
+            '${currentDate.day}.${currentDate.month}.${currentDate.year}';
+        widget.onDateSelected?.call(DateStringTupel(dateString: f_String, date: currentDate));
       });
     }
   }
@@ -88,12 +111,10 @@ class _CupertinoDatePickerButtonState extends State<CupertinoDatePickerButton> {
           alignment: Alignment.centerLeft,
           padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
           child: Text(
-            selectedDate != null
-                ? '${selectedDate!.day}.${selectedDate!.month}.${selectedDate!.year}'
-                : 'Select Date',
+            selectedDate != null ? f_String : 'Select Date',
             style: selectedDate != null
-                ? Styles.textfieldHintStyle
-                : Styles.textfieldHintStyle,
+                ? Styles.datepicker
+                : Styles.datepicker,
           ),
         ),
       ),

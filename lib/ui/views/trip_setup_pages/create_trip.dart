@@ -1,7 +1,7 @@
-import 'dart:ffi';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:internet_praktikum/core/services/placeApiProvider.dart';
+import 'package:internet_praktikum/ui/widgets/datepicker.dart';
 import 'package:internet_praktikum/ui/widgets/errorSnackbar.dart';
 import 'package:internet_praktikum/ui/widgets/inputfield_search_lookahead.dart';
 import 'package:internet_praktikum/ui/widgets/my_button.dart';
@@ -12,8 +12,9 @@ import '../../widgets/inputfield.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class CreateTrip extends StatefulWidget {
-  const CreateTrip({super.key});
-
+  final FirebaseFirestore firestore;
+  final FirebaseAuth auth;
+  CreateTrip({super.key, required this.firestore, required this.auth});
   @override
   State<CreateTrip> createState() => _TripCreateState();
 }
@@ -26,13 +27,14 @@ class User {
 }
 
 class _TripCreateState extends State<CreateTrip> {
-  FirebaseFirestore firestore = FirebaseFirestore.instance;
-  CollectionReference trips = FirebaseFirestore.instance.collection('trips');
-  final FirebaseAuth _auth = FirebaseAuth.instance;
 
+  CollectionReference trips = FirebaseFirestore.instance.collection('trips');
   final destinationText = TextEditingController();
   final starttime = TextEditingController();
   final endtime = TextEditingController();
+  PlaceDetails? destination;
+  DateTime? selectedStartDate;
+  DateTime? selectedEndDate;
 
   void connectPhotosAlbum() async {
     setState(() {
@@ -42,24 +44,26 @@ class _TripCreateState extends State<CreateTrip> {
 
   Future<void> create_trip() async {
     try {
-      final String dest = destinationText.value.text;
-      final String start = starttime.value.text;
-      final String end = endtime.value.text;
       final members = [];
-      if (dest == '') throw Exception("Destination is empty");
-      if (start == '') throw Exception("Destination is empty");
-      if (end == '') throw Exception("Destination is empty");
-      members.add(_auth.currentUser?.uid);
-      print("Create Trip: " + dest + " " + start + " " + end);
+      if (destination == null) throw Exception("Destination is empty");
+      if (selectedStartDate == null) throw Exception("You need to select a start date!");
+      if (selectedEndDate == null) throw Exception("You need to select a end date!");
+      if (selectedEndDate!.millisecondsSinceEpoch < selectedStartDate!.millisecondsSinceEpoch) throw Exception("End date must be after start date!");
+
+      members.add(widget.auth.currentUser?.uid);
+      print("Create Trip: $destination $selectedStartDate $selectedEndDate");
       await trips.add({
-        'destination': dest,
-        'starttime': start,
-        'endtime': end,
-        'createdBy': _auth.currentUser?.uid,
+        'city': destination?.cityName,
+        'placedetails' : destination?.placeDetails,
+        'startdate': selectedStartDate,
+        'enddate': selectedEndDate,
+        'createdBy': widget.auth.currentUser?.uid,
         'members': members
       });
     } catch (e) {
-      if (context.mounted) ErrorSnackbar.showErrorSnackbar(context, e.toString());
+      if (context.mounted) {
+        ErrorSnackbar.showErrorSnackbar(context, e.toString());
+      }
     }
   }
 
@@ -85,21 +89,63 @@ class _TripCreateState extends State<CreateTrip> {
                     child: CustomContainer(
                       title: "Start your next Adventure:",
                       children: [
-                        const Padding(
-                          padding: EdgeInsets.only(bottom: 25),
-                          child: AsyncAutocomplete(),
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 25),
+                          child: AsyncAutocomplete(
+                            onDestinationPick: (PlaceDetails details) {
+                              setState(() {
+                                destination = details;
+                              });
+                            },
+                          ),
                         ),
-                        InputField(
-                          controller: starttime,
-                          hintText: 'Start Time',
-                          obscureText: false,
-                          margin: const EdgeInsets.only(bottom: 25),
+                        const SizedBox(
+                          width: 148,
+                          height: 18,
+                          child: Text(
+                            'Start Date',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                              fontFamily: 'Ubuntu',
+                              fontWeight: FontWeight.w500,
+                              height: 0,
+                            ),
+                          ),
                         ),
-                        InputField(
-                          controller: endtime,
-                          hintText: 'End Time',
-                          obscureText: false,
+                        const SizedBox(height: 12.5),
+                        CupertinoDatePickerButton(
                           margin: const EdgeInsets.only(bottom: 25),
+                          showFuture: true,
+                          onDateSelected: (DateStringTupel formattedDate) {
+                            setState(() {
+                              selectedStartDate = formattedDate.date;
+                            });
+                          },
+                        ),
+                        const SizedBox(
+                          width: 148,
+                          height: 18,
+                          child: Text(
+                            'End Date',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                              fontFamily: 'Ubuntu',
+                              fontWeight: FontWeight.w500,
+                              height: 0,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 12.5),
+                        CupertinoDatePickerButton(
+                          margin: const EdgeInsets.only(bottom: 25),
+                          showFuture: true,
+                          onDateSelected: (DateStringTupel formattedDate) {
+                            setState(() {
+                              selectedEndDate = formattedDate.date;
+                            });
+                          },
                         ),
                         MyButton(
                             onTap: connectPhotosAlbum,
@@ -108,12 +154,16 @@ class _TripCreateState extends State<CreateTrip> {
                         MyButton(
                             margin: const EdgeInsets.only(top: 30),
                             onTap: create_trip,
-                            text: 'Create Trip')
+                            text: 'Create Trip'),
+                        MyButton(
+                            margin: const EdgeInsets.only(top: 30),
+                            onTap: Navigator.of(context).pop,
+                            text: 'Cancel')
                       ],
                     )),
               ),
             ),
-            const UsernameBagageCreateTrip()
+            UsernameBagageCreateTrip(firestore: widget.firestore, auth: widget.auth,)
           ]),
         ));
   }

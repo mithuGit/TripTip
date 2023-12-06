@@ -1,3 +1,4 @@
+import 'package:go_router/go_router.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:internet_praktikum/ui/widgets/my_button.dart';
@@ -15,6 +16,9 @@ class _HomePageState extends State<HomePage> {
 
   void signUserOut() async {
     await FirebaseAuth.instance.signOut();
+    if (context.mounted)  {
+      GoRouter.of(context).go('/loginorregister');
+    }  
   }
 
   void deleteUser() async {
