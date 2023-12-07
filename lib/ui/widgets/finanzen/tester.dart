@@ -34,7 +34,7 @@ class ResizableContainerState extends State<ResizableContainer> {
               child: Center(
                 child: Text(
                   'Container Height: ${containerHeight.toString()} px',
-                  style: TextStyle(color: Colors.white),
+                  style: const TextStyle(color: Colors.white),
                 ),
               ),
             ),
@@ -42,11 +42,11 @@ class ResizableContainerState extends State<ResizableContainer> {
               bottom: 0,
               left: 0,
               right: 0,
-              child: Container(
+              child: SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: increaseHeight,
-                  child: Text('Increase Height'),
+                  child: const Text('Increase Height'),
                 ),
               ),
             ),

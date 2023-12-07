@@ -4,7 +4,7 @@ import '../styles/Styles.dart';
 
 class InputField extends StatelessWidget {
   final String hintText;
-  final dynamic? controller;
+  final dynamic controller;
   final bool obscureText;
   final EdgeInsets? margin;
   final FocusNode? focusNode;

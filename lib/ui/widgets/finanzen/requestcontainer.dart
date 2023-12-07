@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../inputfield.dart';
 
-import '../../styles/Styles.dart';
 import '../addButton.dart';
 
 class RequestContainer extends StatefulWidget {
@@ -83,7 +82,7 @@ class _RequestContainerState extends State<RequestContainer> {
                   Align(
                     alignment: Alignment.centerRight,
                     child: Padding(
-                      padding: EdgeInsets.only(top: 5.0),
+                      padding: const EdgeInsets.only(top: 5.0),
                       child: AddButton(
                         color: Colors.white,
                         onPressed: () {
@@ -100,7 +99,7 @@ class _RequestContainerState extends State<RequestContainer> {
 
                             liste = [
                               ...liste,
-                              Row(
+                              const Row(
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
                                 children: [

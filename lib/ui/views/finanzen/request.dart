@@ -1,10 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:internet_praktikum/ui/styles/Styles.dart';
-import 'package:internet_praktikum/ui/widgets/addButton.dart';
-import 'package:internet_praktikum/ui/widgets/finanzen/extendablecontainer.dart';
 
-import '../../widgets/container.dart';
-import '../../widgets/datepicker.dart';
 import '../../widgets/finanzen/requestcontainer.dart';
 import '../../widgets/inputfield.dart';
 
