@@ -15,10 +15,8 @@ class WeatherService {
 
   Future<Weather?> fetchWeather() async {
     try {
-      String cityName = await getCityFromCoordinates(
-          double.parse(await getLatitude().toString()),
-          double.parse(await getLongitude().toString()));
-      //String cityName = await getCurrentCity();
+      //String cityName = await getCityFromCoordinates(double.parse(await getLatitude().toString()),double.parse(await getLongitude().toString()));
+      String cityName = await getCurrentCity();
       final weather = await getWeather(cityName);
       actualWeather = weather;
       return weather;

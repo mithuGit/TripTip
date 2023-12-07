@@ -1,7 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:internet_praktikum/ui/views/login_register_pages/home_page.dart';
+import 'package:go_router/go_router.dart';
+import 'package:internet_praktikum/ui/views/navigation/app_navigation.dart';
 import 'package:internet_praktikum/ui/widgets/my_button.dart';
 import '../../widgets/container.dart';
 import '../../widgets/inputfield.dart';
@@ -162,12 +163,8 @@ class _AccountState extends State<Account> {
                                     emailController.text != currentUser.email) {
                                   await updateUserEmail(emailController.text);
                                 }
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => HomePage(),
-                                  ),
-                                );
+                                // ignore: use_build_context_synchronously
+                                context.go("/");
                               },
                               text: 'Finish'),
                         ],

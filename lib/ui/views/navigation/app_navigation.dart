@@ -4,82 +4,31 @@ import 'package:flutter/material.dart';
 import 'package:internet_praktikum/ui/widgets/my_button.dart';
 import 'package:internet_praktikum/ui/widgets/topbar.dart';
 
-class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+class AppNavigation extends StatefulWidget {
+  const AppNavigation({super.key, required this.navigationShell});
+
+  final StatefulNavigationShell navigationShell;
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  State<AppNavigation> createState() => _AppNavigationState();
 }
 
-class _HomePageState extends State<HomePage> {
-  final user = FirebaseAuth.instance.currentUser!;
-
-  void signUserOut() async {
-    await FirebaseAuth.instance.signOut();
-    if (context.mounted)  {
-      GoRouter.of(context).go('/loginorregister');
-    }  
-  }
-
-  void deleteUser() async {
-    await FirebaseAuth.instance.currentUser!.delete();
-  }
-
-  /*void _onItemTapped(int index) {
-    setState(() {
-      this.index = index;
-    });
-  }*/
+class _AppNavigationState extends State<AppNavigation> {
   int index = 0;
+
+  void _gotoBranch(int index) {
+    widget.navigationShell.goBranch(
+      index,
+      initialLocation: index == widget.navigationShell.currentIndex,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         extendBody: true,
-        appBar: const TopBar(
-          isDash: true,
-          icon: Icons.add,
-          onTapForIconWidget: null,
-        ),
-        body: Stack(
-          children: [
-            Container(
-              decoration: const BoxDecoration(
-                image: DecorationImage(
-                  image: AssetImage(
-                      'assets/mainpage_pic/dashboard.png'), // assets/BackgroundCity.png
-                  fit: BoxFit.fill,
-                ),
-              ),
-              child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Text('Welcome ${user.displayName}'),
-                    const SizedBox(height: 20),
-                    Text('Your email is ${user.email}'),
-                    const SizedBox(height: 20),
-                    Text('Your uid is ${user.uid}'),
-                    const SizedBox(height: 20),
-                    Text('Your profile picture is ${user.photoURL}'),
-                    //Uri.file(user.photoURL!).isAbsolute
-                    //    ? Image.network(user.photoURL!)
-                    //    : Image.asset(user.photoURL!),
-                    MyButton(
-                      onTap: signUserOut,
-                      text: "Logout",
-                      colors: Colors.red,
-                    ),
-                    MyButton(
-                      onTap: deleteUser,
-                      text: "Delete Account",
-                      colors: Colors.red,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
+        body: SizedBox(
+          child: widget.navigationShell,
         ),
         bottomNavigationBar: NavigationBarTheme(
             data: const NavigationBarThemeData(
@@ -96,7 +45,12 @@ class _HomePageState extends State<HomePage> {
                   .alwaysHide, //=> damit geht Text unter Icon weg
               animationDuration: const Duration(milliseconds: 200),
               selectedIndex: index,
-              // onDestinationSelected:_onItemTapped,
+              onDestinationSelected: (index) {
+                setState(() {
+                  this.index = index;
+                });
+                _gotoBranch(this.index);
+              },
               destinations: const [
                 NavigationDestination(
                   icon: ImageIcon(
