@@ -14,48 +14,23 @@ class RequestContainer extends StatefulWidget {
   State<RequestContainer> createState() => _RequestContainerState();
 }
 
-double calculateMainHight(List<Widget> list, double screenHeight) {
-  if (list.length >= 4) {
-    return screenHeight * 0.33;
-  } else if (list.length == 3) {
-    return screenHeight * 0.39;
-  } else if (list.length == 2) {
-    return screenHeight * 0.3;
-  } else {
-    return screenHeight * 0.34;
-  }
-}
-
-double calculateSmallHight(List<Widget> list, double height) {
-  if (list.length >= 4) {
-    return height * 0.159 + 10;
-  } else if (list.length == 3) {
-    return height * 0.24 + 10;
-  } else if (list.length == 2) {
-    return height * 0.15 + 10;
-  } else {
-    return height * 0.038 + 10;
-  }
-}
-
 class _RequestContainerState extends State<RequestContainer> {
   late double mainHeight;
   late double minHeight;
-  late List<Widget> liste;
+  late List<Widget> liste = [];
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    mainHeight = MediaQuery.of(context).size.height * 0.36;
-    minHeight = MediaQuery.of(context).size.height * 0.24 + 10;
-    liste = List.from(widget.items);
+    // man ruft den Button immer mit zwei Widgets auf
+    mainHeight = MediaQuery.of(context).size.height * 0.27;
+    minHeight = MediaQuery.of(context).size.height * 0.17 + 10;
   }
 
   bool isExpanded = true;
 
   @override
   Widget build(BuildContext context) {
-    print("List length: ${liste.length}");
     return GestureDetector(
       onTap: () {
         setState(() {
@@ -112,8 +87,17 @@ class _RequestContainerState extends State<RequestContainer> {
                       child: AddButton(
                         color: Colors.white,
                         onPressed: () {
+                          print(
+                              "List length: ${(widget.items + liste).length}");
                           setState(() {
-                            mainHeight += 150;
+                            if ((widget.items + liste).length == 2) {
+                              mainHeight += mainHeight * 33 / 100;
+                              minHeight += minHeight * 30 / 100;
+                            } else if ((widget.items + liste).length == 3) {
+                              mainHeight += mainHeight * 20 / 100;
+                              minHeight += minHeight * 36 / 100;
+                            }
+
                             liste = [
                               ...liste,
                               Row(
@@ -162,30 +146,7 @@ class _RequestContainerState extends State<RequestContainer> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          // New Row with InputField widgets
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Expanded(
-                                child: InputField(
-                                  hintText: 'Aktivität',
-                                  obscureText: false,
-                                  margin: EdgeInsets.only(
-                                      bottom: 25, right: 5, left: 15),
-                                ),
-                              ),
-                              Expanded(
-                                child: InputField(
-                                  hintText: 'Preis',
-                                  obscureText: false,
-                                  margin: EdgeInsets.only(
-                                      bottom: 25, left: 5, right: 15),
-                                ),
-                              ),
-                            ],
-                          ),
-                          // Concatenate liste and widget.items
-                          ...(liste + widget.items),
+                          ...(widget.items + liste),
                         ],
                       ),
                     ),
