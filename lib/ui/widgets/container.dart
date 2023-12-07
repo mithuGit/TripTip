@@ -15,30 +15,31 @@ class CustomContainer extends StatelessWidget {
   ) {
     return LayoutBuilder(
       builder: (context, constraints) => Container(
-          height: constraints.biggest.height,
-          decoration: BoxDecoration(
-            color: const Color.fromARGB(255, 43, 43, 43).withOpacity(0.90),
-            borderRadius: BorderRadius.circular(34.5),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(22),
-            child: SingleChildScrollView(
-              child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Container(
-                      margin: const EdgeInsets.only(bottom: 30),
-                      height: 25,
-                      child: Text(
-                        title,
-                        style: Styles.overlayTitle,
-                        textAlign: TextAlign.left,
-                      ),
+        height: constraints.biggest.height,
+        decoration: BoxDecoration(
+          color: const Color.fromARGB(255, 43, 43, 43).withOpacity(0.90),
+          borderRadius: BorderRadius.circular(34.5),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(22),
+          child: SingleChildScrollView(
+            child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Container(
+                    margin: const EdgeInsets.only(bottom: 30),
+                    height: 25,
+                    child: Text(
+                      title,
+                      style: Styles.overlayTitle,
+                      textAlign: TextAlign.left,
                     ),
-                    ...children
-                  ]),
-            ),
-          )),
+                  ),
+                  ...children
+                ]),
+          ),
+        ),
+      ),
     );
   }
 }

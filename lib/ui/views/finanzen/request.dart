@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:internet_praktikum/ui/styles/Styles.dart';
 import 'package:internet_praktikum/ui/widgets/addButton.dart';
+import 'package:internet_praktikum/ui/widgets/finanzen/extendablecontainer.dart';
 
 import '../../widgets/container.dart';
 import '../../widgets/datepicker.dart';
+import '../../widgets/finanzen/requestcontainer.dart';
 import '../../widgets/inputfield.dart';
 
 class RequestMoney extends StatefulWidget {
@@ -51,31 +53,28 @@ class _RequestMoneyState extends State<RequestMoney> {
             ),
             const Padding(
               padding:
-                  EdgeInsets.only(top: 80, left: 15, right: 15, bottom: 45),
-              child: CustomContainer(
-                title: 'Request Money',
-                smallSize: true,
-                children: [
+                  EdgeInsets.only(top: 80, left: 15, right: 15, bottom: 245),
+              child: RequestContainer(
+                name: 'Title',
+                items: [
                   InputField(
-                    hintText: 'Name',
-                    obscureText: false,
-                    margin: EdgeInsets.only(bottom: 25),
-                  ),
+                      hintText: 'Name',
+                      obscureText: false,
+                      margin: EdgeInsets.only(bottom: 25, left: 15, right: 15)),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Expanded(
-                        child: InputField(
-                          hintText: 'Aktivität',
-                          obscureText: false,
-                          margin: EdgeInsets.only(bottom: 25, right: 5),
-                        ),
-                      ),
+                          child: InputField(
+                              hintText: 'Aktivität',
+                              obscureText: false,
+                              margin: EdgeInsets.only(
+                                  bottom: 25, right: 5, left: 15))),
                       Expanded(
                           child: InputField(
                         hintText: 'Preis',
                         obscureText: false,
-                        margin: EdgeInsets.only(bottom: 25, left: 5),
+                        margin: EdgeInsets.only(bottom: 25, left: 5, right: 15),
                       ))
                     ],
                   ),
@@ -83,40 +82,109 @@ class _RequestMoneyState extends State<RequestMoney> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Expanded(
-                        child: InputField(
-                          hintText: 'Aktivität',
-                          obscureText: false,
-                          margin: EdgeInsets.only(bottom: 25, right: 5),
-                        ),
-                      ),
+                          child: InputField(
+                              hintText: 'Aktivität',
+                              obscureText: false,
+                              margin: EdgeInsets.only(
+                                  bottom: 25, right: 5, left: 15))),
                       Expanded(
                           child: InputField(
                         hintText: 'Preis',
                         obscureText: false,
-                        margin: EdgeInsets.only(bottom: 25, left: 5),
-                      ))
-                    ],
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: InputField(
-                          hintText: 'Aktivität',
-                          obscureText: false,
-                          margin: EdgeInsets.only(bottom: 25, right: 5),
-                        ),
-                      ),
-                      Expanded(
-                          child: InputField(
-                        hintText: 'Preis',
-                        obscureText: false,
-                        margin: EdgeInsets.only(bottom: 25, left: 5),
+                        margin: EdgeInsets.only(bottom: 25, left: 5, right: 15),
                       ))
                     ],
                   ),
                 ],
               ),
+              /*ExpandableContainer(
+
+              ),*/
+
+              /*CustomContainer(
+                title: 'Request Money',
+                smallSize: true,
+                children: [
+                  const InputField(
+                    hintText: 'Name',
+                    obscureText: false,
+                    margin: EdgeInsets.only(bottom: 25),
+                  ),
+                  const Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: InputField(
+                          hintText: 'Aktivität',
+                          obscureText: false,
+                          margin: EdgeInsets.only(bottom: 25, right: 5),
+                        ),
+                      ),
+                      Expanded(
+                          child: InputField(
+                        hintText: 'Preis',
+                        obscureText: false,
+                        margin: EdgeInsets.only(bottom: 25, left: 5),
+                      ))
+                    ],
+                  ),
+                  const Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: InputField(
+                          hintText: 'Aktivität',
+                          obscureText: false,
+                          margin: EdgeInsets.only(bottom: 25, right: 5),
+                        ),
+                      ),
+                      Expanded(
+                          child: InputField(
+                        hintText: 'Preis',
+                        obscureText: false,
+                        margin: EdgeInsets.only(bottom: 25, left: 5),
+                      ))
+                    ],
+                  ),
+                  const Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: InputField(
+                          hintText: 'Aktivität',
+                          obscureText: false,
+                          margin: EdgeInsets.only(bottom: 25, right: 5),
+                        ),
+                      ),
+                      Expanded(
+                          child: InputField(
+                        hintText: 'Preis',
+                        obscureText: false,
+                        margin: EdgeInsets.only(bottom: 25, left: 5),
+                      ))
+                    ],
+                  ),
+                  const Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: InputField(
+                          hintText: 'Aktivität',
+                          obscureText: false,
+                          margin: EdgeInsets.only(bottom: 25, right: 5),
+                        ),
+                      ),
+                      Expanded(
+                        child: InputField(
+                          hintText: 'Preis',
+                          obscureText: false,
+                          margin: EdgeInsets.only(bottom: 25, left: 5),
+                        ),
+                      )
+                    ],
+                  ),
+                ],
+              ),*/
             ),
           ],
         ),
