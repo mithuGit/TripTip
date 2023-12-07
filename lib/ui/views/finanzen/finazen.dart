@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:internet_praktikum/ui/styles/Styles.dart';
+import 'package:internet_praktikum/ui/widgets/topbar.dart';
 
 import '../../widgets/finanzen/extendablecontainer.dart';
 import '../../widgets/finanzen/slidablebutton.dart';
@@ -15,54 +16,47 @@ class _FinanzenState extends State<Finanzen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBody: true,
       backgroundColor: const Color(0xFFFFFFFF),
-      appBar: AppBar(
-        title: const Text('Finanzübersicht', style: Styles.title),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        centerTitle: true,
-        actions: [
-          Padding(
-            padding: const EdgeInsets.all(5.0),
-            child: Image.asset('assets/ icon _credit card_.png'),
-          )
-        ],
-      ),
-      body: SafeArea(
-        child: Stack(
-          children: [
-            Align(
-              alignment: Alignment.bottomCenter,
-              child: FractionallySizedBox(
-                widthFactor: 1.0, // Take the whole width of the screen
-                heightFactor: 0.66, // 65% of the screen height
-                child: Container(
-                  decoration: const BoxDecoration(
-                    image: DecorationImage(
-                      image: AssetImage('assets/bg_finanzen.png'),
-                      fit: BoxFit.fill, // Maintain width, adjust height
-                    ),
-                  ),
-                  //child: ExpandableContainer(),
-                  /*const Center(
-                    child: //ExpandableContainer(),
-                        SlideButton(
-                      buttonText: 'Slide to Pay',
-                      margin: EdgeInsets.only(bottom: 25),
-                    ),
-                  ),*/
-                ),
-              ),
-            ),
-            const Padding(
-              padding:
-                  EdgeInsets.only(top: 80, left: 20, right: 20, bottom: 45),
-              child: ExpandableContainer(
-                name: "Felix",
-              ),
-            ),
-          ],
+      appBar: const TopBar(
+          isDash: false,
+          icon: Icons.payment,
+          onTapForIconWidget: null,
+          title: "Finanzübersicht",
         ),
+      body: Stack(
+        children: [
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: FractionallySizedBox(
+              widthFactor: 1.0, // Take the whole width of the screen
+              heightFactor: 0.66, // 65% of the screen height
+              child: Container(
+                decoration: const BoxDecoration(
+                  image: DecorationImage(
+                    image: AssetImage('assets/mainpage_pic/finazen.png'),
+                    fit: BoxFit.fill, // Maintain width, adjust height
+                  ),
+                ),
+                //child: ExpandableContainer(),
+                /*const Center(
+                  child: //ExpandableContainer(),
+                      SlideButton(
+                    buttonText: 'Slide to Pay',
+                    margin: EdgeInsets.only(bottom: 25),
+                  ),
+                ),*/
+              ),
+            ),
+          ),
+          const Padding(
+            padding:
+                EdgeInsets.only(top: 80, left: 20, right: 20, bottom: 45),
+            child: ExpandableContainer(
+              name: "Felix",
+            ),
+          ),
+        ],
       ),
     );
   }
