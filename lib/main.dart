@@ -19,7 +19,7 @@ class Main extends StatelessWidget {
     return MaterialApp.router(
       debugShowCheckedModeBanner: false,
       routerConfig: MyRouter.router,
-      title: 'Let\'s Travel Together. ',
+      title: 'Let\'s Travel Togethe. ',
     );
   }
 }
