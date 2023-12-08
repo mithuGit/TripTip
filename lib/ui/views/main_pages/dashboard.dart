@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:internet_praktikum/bottom_sheet.dart';
+import 'package:internet_praktikum/ui/views/dashboard/scrollview.dart';
 import 'package:internet_praktikum/ui/views/navigation/app_navigation.dart';
 import 'package:internet_praktikum/ui/widgets/my_button.dart';
 import 'package:internet_praktikum/ui/widgets/topbar.dart';
@@ -16,6 +17,7 @@ class DashBoard extends StatefulWidget {
 
 class _DashBoardState extends State<DashBoard> {
   final user = FirebaseAuth.instance.currentUser!;
+  DateTime? selectedDay = DateTime(2023, 10, 1);
 
   void signUserOut() async {
     await FirebaseAuth.instance.signOut();
@@ -31,6 +33,25 @@ class _DashBoardState extends State<DashBoard> {
     }
   }
 
+  Future<DocumentReference> getCurrentDay() async {
+    print('DateTime: $selectedDay');
+    final userCollection = FirebaseFirestore.instance.collection('users');
+    final userDoc = await userCollection.doc(user.uid).get();
+    final tripId = userDoc.data()?['selectedtrip'];
+    final currentTrip =
+        await FirebaseFirestore.instance.collection('trips').doc(tripId).get();
+    Map<String, dynamic>? currentTripdata = currentTrip.data();
+    List<dynamic> days = currentTripdata?['days'].toList();
+    Map<String, dynamic> day = days
+        .where((el) =>
+            (el['starttime'] as Timestamp).toDate().day == selectedDay!.day &&
+            (el['starttime'] as Timestamp).toDate().month ==
+                selectedDay!.month &&
+            (el['starttime'] as Timestamp).toDate().year == selectedDay!.year)
+        .first;
+    return day['ref'];
+  }
+
   late String prename; // Variable für den Vornamen
 
   @override
@@ -40,6 +61,7 @@ class _DashBoardState extends State<DashBoard> {
     //loadPrename();
   }
 
+  // Dafür benötigen wir ein Future, da die Datenbank-Abfrage asynchron ist
   void loadPrename() async {
     try {
       // Benutzer-ID (uid) aus dem aktuellen Benutzer abrufen
@@ -71,41 +93,27 @@ class _DashBoardState extends State<DashBoard> {
       body: Stack(
         children: [
           Container(
-            decoration: const BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage(
-                    'assets/mainpage_pic/dashboard.png'), // assets/BackgroundCity.png
-                fit: BoxFit.fill,
+              decoration: const BoxDecoration(
+                image: DecorationImage(
+                  image: AssetImage(
+                      'assets/mainpage_pic/dashboard.png'), // assets/BackgroundCity.png
+                  fit: BoxFit.fill,
+                ),
               ),
-            ),
-            child: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  //Text('Welcome ${prename}'),
-                  const SizedBox(height: 20),
-                  Text('Your email is ${user.email}'),
-                  const SizedBox(height: 20),
-                  Text('Your uid is ${user.uid}'),
-                  const SizedBox(height: 20),
-                  Text('Your profile picture is ${user.photoURL}'),
-                  //Uri.file(user.photoURL!).isAbsolute
-                  //    ? Image.network(user.photoURL!)
-                  //    : Image.asset(user.photoURL!),
-                  MyButton(
-                    onTap: signUserOut,
-                    text: "Logout",
-                    colors: Colors.red,
-                  ),
-                  MyButton(
-                    onTap: deleteUser,
-                    text: "Delete Account",
-                    colors: Colors.red,
-                  ),
-                ],
-              ),
-            ),
-          ),
+              child: Center(
+                  child: Center(
+                      child: FutureBuilder<DocumentReference>(
+                          future: getCurrentDay(),
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState ==
+                                ConnectionState.waiting) {
+                              return const CircularProgressIndicator(); // Show loading indicator while waiting for the Future
+                            } else if (snapshot.hasError) {
+                              return Text('Error: ${snapshot.error}');
+                            } else {
+                              return ScrollViewWidget(day: snapshot.data!);
+                            }
+                          })))),
         ],
       ),
     );
