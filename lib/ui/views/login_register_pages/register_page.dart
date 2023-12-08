@@ -62,7 +62,9 @@ class _RegisterPageState extends State<RegisterPage> {
             // Add other data fields as needed
           });
         }
-        FirebaseAuth.instance.currentUser!.reload();
+        if (context.mounted) {
+          GoRouter.of(context).go('/otp');
+        }
       } else {
         // show error message
         showErrorMessage('Passwords do not match!');
@@ -125,6 +127,7 @@ class _RegisterPageState extends State<RegisterPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       body: SafeArea(
         child: Stack(children: [
           Container(

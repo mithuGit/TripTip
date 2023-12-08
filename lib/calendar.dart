@@ -12,7 +12,10 @@ class Calendar extends StatefulWidget {
 
 Future<DateTime> getStartDate() async {
   final DocumentSnapshot<Map<String, dynamic>> documentSnapshot =
-      await FirebaseFirestore.instance.collection('trips').doc('BmGvil7kYHjvOiUGzjiR').get();
+      await FirebaseFirestore.instance
+          .collection('trips')
+          .doc('BmGvil7kYHjvOiUGzjiR')
+          .get();
   final DateTime startDate = documentSnapshot.data()!['startdate'].toDate();
   int day = startDate.day;
   int month = startDate.month;
@@ -23,7 +26,10 @@ Future<DateTime> getStartDate() async {
 
 Future<DateTime> getEndtDate() async {
   final DocumentSnapshot<Map<String, dynamic>> documentSnapshot =
-      await FirebaseFirestore.instance.collection('trips').doc('BmGvil7kYHjvOiUGzjiR').get();
+      await FirebaseFirestore.instance
+          .collection('trips')
+          .doc('BmGvil7kYHjvOiUGzjiR')
+          .get();
   final DateTime startDate = documentSnapshot.data()!['enddate'].toDate();
   int day = startDate.day;
   int month = startDate.month;
@@ -36,27 +42,27 @@ class _CalendarState extends State<Calendar> {
   // Erstelle DateTimeRange-Variable
 
   DateTimeRange _dateTimeRange = DateTimeRange(
-  start: DateTime.now(),
-   end: DateTime.now(),);
- 
-
- 
+    start: DateTime.now(),
+    end: DateTime.now(),
+  );
 
   Future<void> _showDateRangePicker() async {
     DateTime start = await getStartDate();
     DateTime end = await getEndtDate();
-    // ignore: use_build_context_synchronously
-    DateTimeRange? pickedRange = await showDateRangePicker(
-      context: context,
-      initialDateRange: DateTimeRange(start: start, end: end),
-      firstDate: DateTime(2023),
-      lastDate: DateTime(2060),
-      currentDate: DateTime.now(),
-    );
-    if (pickedRange != null) {
-      setState(() {
-        _dateTimeRange = pickedRange;
-      });
+    if (context.mounted) {
+      DateTimeRange? pickedRange = await showDateRangePicker(
+        context: context,
+        initialDateRange: DateTimeRange(start: start, end: end),
+        firstDate: DateTime(2023),
+        lastDate: DateTime(2060),
+        currentDate: DateTime.now(),
+      );
+
+      if (pickedRange != null) {
+        setState(() {
+          _dateTimeRange = pickedRange;
+        });
+      }
     }
   }
 
@@ -105,24 +111,30 @@ class _CalendarState extends State<Calendar> {
                       onTap: () {
                         setState(() {
                           _dateTimeRange = DateTimeRange(
-                            start: _dateTimeRange.start.subtract(const Duration(days: 1)),
-                            end: _dateTimeRange.end.subtract(const Duration(days: 1)),
+                            start: _dateTimeRange.start
+                                .subtract(const Duration(days: 1)),
+                            end: _dateTimeRange.end
+                                .subtract(const Duration(days: 1)),
                           );
                         });
                       },
-                      child: _buildDateText(_dateTimeRange.start.subtract(const Duration(days: 1))),
+                      child: _buildDateText(_dateTimeRange.start
+                          .subtract(const Duration(days: 1))),
                     ),
                     _buildDateText(_dateTimeRange.start, size: 15),
                     GestureDetector(
                       onTap: () {
                         setState(() {
                           _dateTimeRange = DateTimeRange(
-                            start: _dateTimeRange.start.add(const Duration(days: 1)),
-                            end: _dateTimeRange.end.add(const Duration(days: 1)),
+                            start: _dateTimeRange.start
+                                .add(const Duration(days: 1)),
+                            end:
+                                _dateTimeRange.end.add(const Duration(days: 1)),
                           );
                         });
                       },
-                      child: _buildDateText(_dateTimeRange.end.add(const Duration(days: 1))),
+                      child: _buildDateText(
+                          _dateTimeRange.end.add(const Duration(days: 1))),
                     ),
                   ],
                 ),

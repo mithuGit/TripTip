@@ -56,6 +56,9 @@ class _LoginPageState extends State<LoginPage> {
           // Add other data fields as needed
         });
       }
+      if (context.mounted) {
+          GoRouter.of(context).go('/');
+        }
     } on FirebaseAuthException catch (e) {
       print(e.code);
       // Wrong email | Wrong password
@@ -147,6 +150,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       body: SafeArea(
         child: Stack(children: [
           Container(
@@ -274,62 +278,67 @@ class _LoginPageState extends State<LoginPage> {
       GestureDetector(
         onTap: () {
           showModalBottomSheet(
+            isScrollControlled: true,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(20),
             ),
             context: context,
             builder: (BuildContext context) {
-              return Container(
-                decoration: const BoxDecoration(
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(100),
-                    topRight: Radius.circular(100),
+              return Padding(
+                padding: MediaQuery.of(context).viewInsets,
+                child: Container(
+                  //height: MediaQuery.of(context).size.height * 0.4,
+                  decoration: const BoxDecoration(
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(100),
+                      topRight: Radius.circular(100),
+                    ),
                   ),
-                ),
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    const Text(
-                      'Forgot Password?',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Text(
+                        'Forgot Password?',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 10),
-                    const Text(
-                      'Enter your email to reset your password:',
-                      style: TextStyle(
-                        fontSize: 16,
+                      const SizedBox(height: 10),
+                      const Text(
+                        'Enter your email to reset your password:',
+                        style: TextStyle(
+                          fontSize: 16,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 10),
-                    InputFieldPasswortOrIcon(
-                      controller: passwordforgotController,
-                      hintText: 'Email',
-                      obscureText: false,
-                      icon: Icons.email_outlined,
-                      eyeCheckerStatus: false,
-                      useSuffixIcon: false,
-                    ),
-                    const SizedBox(height: 20),
-                    MyButton(
-                      colors: Colors.black,
-                      text: 'Next',
-                      onTap: () {
-                        String emailToCheck = passwordforgotController.text;
-                        if (isValidEmail(emailToCheck)) {
-                          resetPassword(emailToCheck);
-                          Navigator.of(context).pop();
-                          showMessage(
-                              'A reset link has been sent to your email.');
-                        } else {
-                          showMessage('Please enter a valid email');
-                        }
-                      },
-                    ),
-                  ],
+                      const SizedBox(height: 10),
+                      InputFieldPasswortOrIcon(
+                        controller: passwordforgotController,
+                        hintText: 'Email',
+                        obscureText: false,
+                        icon: Icons.email_outlined,
+                        eyeCheckerStatus: false,
+                        useSuffixIcon: false,
+                      ),
+                      const SizedBox(height: 20),
+                      MyButton(
+                        colors: Colors.black,
+                        text: 'Next',
+                        onTap: () {
+                          String emailToCheck = passwordforgotController.text;
+                          if (isValidEmail(emailToCheck)) {
+                            resetPassword(emailToCheck);
+                            Navigator.of(context).pop();
+                            showMessage(
+                                'A reset link has been sent to your email.');
+                          } else {
+                            showMessage('Please enter a valid email');
+                          }
+                        },
+                      ),
+                    ],
+                  ),
                 ),
               );
             },

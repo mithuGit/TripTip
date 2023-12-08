@@ -164,7 +164,7 @@ class _AccountState extends State<Account> {
                                   await updateUserEmail(emailController.text);
                                 }
                                 // ignore: use_build_context_synchronously
-                                context.go("/");
+                                context.go("/createtrip");
                               },
                               text: 'Finish'),
                         ],
