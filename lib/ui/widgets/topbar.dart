@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:internet_praktikum/core/services/weather_service.dart';
 import 'package:internet_praktikum/ui/views/weather/weather.dart';
-import 'package:internet_praktikum/ui/views/weather/weather_page.dart';
 import 'package:internet_praktikum/ui/widgets/header_button.dart';
 
 class TopBar extends StatefulWidget implements PreferredSizeWidget {
@@ -15,7 +15,7 @@ class TopBar extends StatefulWidget implements PreferredSizeWidget {
       this.isDash,
       required this.icon,
       this.title,
-      required this.onTapForIconWidget});
+      required this.onTapForIconWidget,});
 
   @override
   State<TopBar> createState() => _TopBarState();
@@ -51,7 +51,7 @@ class _TopBarState extends State<TopBar> {
         centerTitle: true,
         title: widget.isDash! && widget.title == null
             ? const Text(
-                "Kiel", // TODO: Hier muss der Name der Stadt stehen, die der User ausgewählt hat
+                "Frankfurt am Main", // TODO: Hier muss der Name der Stadt stehen, die der User ausgewählt hat
                 style: TextStyle(fontSize: 20),
               )
             : Text(
@@ -62,11 +62,7 @@ class _TopBarState extends State<TopBar> {
         leading: widget.isDash!
             ? HeaderButton(
                 onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const WeatherPage()),
-                  );
+                  context.go('/weatherpage');
                 },
                 temperature:
                     '${WeatherService.actualWeather?.temperature.round()}°C',

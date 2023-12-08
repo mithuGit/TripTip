@@ -1,88 +1,34 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:go_router/go_router.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:internet_praktikum/ui/widgets/my_button.dart';
 import 'package:internet_praktikum/ui/widgets/topbar.dart';
-import 'package:internet_praktikum/ui/views/dashboard/scrollview.dart';
 
-class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+class AppNavigation extends StatefulWidget {
+  const AppNavigation({super.key, required this.navigationShell});
+
+  final StatefulNavigationShell navigationShell;
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  State<AppNavigation> createState() => _AppNavigationState();
 }
 
-class _HomePageState extends State<HomePage> {
-  final user = FirebaseAuth.instance.currentUser!;
-  //Todo: wir brauchen von euch Hunden den selected Day... dann können wir die Datenbank abfragen und die Daten anzeigen
-  DateTime? selectedDay = DateTime(2023, 10, 1);
-  void signUserOut() async {
-    await FirebaseAuth.instance.signOut();
-  }
-
-  void deleteUser() async {
-    await FirebaseAuth.instance.currentUser!.delete();
-  }
-
-  Future<DocumentReference> getCurrentDay() async {
-    print('DateTime: $selectedDay');
-    final userCollection = FirebaseFirestore.instance.collection('users');
-    final userDoc = await userCollection.doc(user.uid).get();
-    final tripId = userDoc.data()?['selectedtrip'];
-    final currentTrip =
-        await FirebaseFirestore.instance.collection('trips').doc(tripId).get();
-    Map<String, dynamic>? currentTripdata = currentTrip.data();
-    List<dynamic> days = currentTripdata?['days'].toList();
-    Map<String, dynamic> day = days
-        .where((el) =>
-            (el['starttime'] as Timestamp).toDate().day == selectedDay!.day &&
-            (el['starttime'] as Timestamp).toDate().month ==
-                selectedDay!.month &&
-            (el['starttime'] as Timestamp).toDate().year == selectedDay!.year)
-        .first;
-    return day['ref'];
-  }
-
-  /*void _onItemTapped(int index) {
-    setState(() {
-      this.index = index;
-    });
-  }*/
+class _AppNavigationState extends State<AppNavigation> {
   int index = 0;
+
+  void _gotoBranch(int index) {
+    widget.navigationShell.goBranch(
+      index,
+      initialLocation: index == widget.navigationShell.currentIndex,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         extendBody: true,
-        appBar: const TopBar(
-          isDash: true,
-          icon: Icons.add,
-          onTapForIconWidget: null,
-        ),
-        body: Stack(
-          children: [
-            Container(
-                decoration: const BoxDecoration(
-                  image: DecorationImage(
-                    image: AssetImage(
-                        'assets/mainpage_pic/dashboard.png'), // assets/BackgroundCity.png
-                    fit: BoxFit.fill,
-                  ),
-                ),
-                child: Center(
-                    child: FutureBuilder<DocumentReference>(
-                        future: getCurrentDay(),
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState ==
-                              ConnectionState.waiting) {
-                            return const CircularProgressIndicator(); // Show loading indicator while waiting for the Future
-                          } else if (snapshot.hasError) {
-                            return Text('Error: ${snapshot.error}');
-                          } else {
-                            return ScrollViewWidget(day: snapshot.data!);
-                          }
-                        }))) //ScrollView
-          ],
+        body: SizedBox(
+          child: widget.navigationShell,
         ),
         bottomNavigationBar: NavigationBarTheme(
             data: const NavigationBarThemeData(
@@ -99,7 +45,12 @@ class _HomePageState extends State<HomePage> {
                   .alwaysHide, //=> damit geht Text unter Icon weg
               animationDuration: const Duration(milliseconds: 200),
               selectedIndex: index,
-              // onDestinationSelected:_onItemTapped,
+              onDestinationSelected: (index) {
+                setState(() {
+                  this.index = index;
+                });
+                _gotoBranch(this.index);
+              },
               destinations: const [
                 NavigationDestination(
                   icon: ImageIcon(

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:internet_praktikum/ui/views/profile_pages/profile_page.dart';
+import 'package:internet_praktikum/ui/views/main_pages/profile.dart';
 import 'package:internet_praktikum/ui/widgets/inputfield_password_or_icon.dart';
 
 

@@ -3,46 +3,140 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:internet_praktikum/ui/views/account/account_details.dart';
-import 'package:internet_praktikum/ui/views/login_register_pages/home_page.dart';
+import 'package:internet_praktikum/ui/views/finanzen/finazen.dart';
+import 'package:internet_praktikum/ui/views/main_pages/dashboard.dart';
+import 'package:internet_praktikum/ui/views/main_pages/map.dart';
+import 'package:internet_praktikum/ui/views/main_pages/profile.dart';
+import 'package:internet_praktikum/ui/views/main_pages/ticket.dart';
+import 'package:internet_praktikum/ui/views/navigation/app_navigation.dart';
 import 'package:internet_praktikum/ui/views/login_register_pages/login_or_register_page.dart';
 import 'package:internet_praktikum/ui/views/trip_setup_pages/create_trip.dart';
 import 'package:internet_praktikum/ui/views/trip_setup_pages/join_trip.dart';
 import 'package:internet_praktikum/ui/views/trip_setup_pages/select_trip.dart';
 import 'package:internet_praktikum/ui/views/verification/OTP_form.dart';
+import 'package:internet_praktikum/ui/views/weather/weather_page.dart';
 
 class MyRouter {
+  MyRouter._();
+
+  // Private NavigatorKey
+  static final _rootNavigatorKey = GlobalKey<NavigatorState>();
+  static final _rootNavigatorDashboard =
+      GlobalKey<NavigatorState>(debugLabel: 'shellDashboard');
+  static final _rootNavigatorFinazen =
+      GlobalKey<NavigatorState>(debugLabel: 'shellFinazen');
+  static final _rootNavigatorMap =
+      GlobalKey<NavigatorState>(debugLabel: 'shellMap');
+  static final _rootNavigatorTicket =
+      GlobalKey<NavigatorState>(debugLabel: 'shellTicket');
+  static final _rootNavigatorProfile =
+      GlobalKey<NavigatorState>(debugLabel: 'shellProfile');
+
   static final router = GoRouter(
     initialLocation: '/',
-    routes: [
-      GoRoute(
-        name: 'home',
-        path: '/',
-        builder: (context, state) => HomePage(),
-        redirect: (BuildContext context, GoRouterState state) {
-          FirebaseAuth auth = FirebaseAuth.instance;
-          if (auth.currentUser == null) {
-            return '/loginorregister';
-          } else if (auth.currentUser != null &&
-              !auth.currentUser!.emailVerified) {
-            return '/otp';
-          } else {
-            return null; // return "null" to display the intended route without redirecting
-          }
+    navigatorKey: _rootNavigatorKey,
+    routes: <RouteBase>[
+      // HomePage Route
+      StatefulShellRoute.indexedStack(
+        builder: (context, state, navigationShell) {
+          return AppNavigation(
+            navigationShell: navigationShell,
+          );
         },
+        branches: <StatefulShellBranch>[
+          StatefulShellBranch(
+            navigatorKey: _rootNavigatorDashboard,
+            routes: [
+              GoRoute(
+                name: 'home',
+                path: '/',
+                builder: (context, state) => DashBoard(
+                  key: state.pageKey,
+                ),
+                redirect: (BuildContext context, GoRouterState state) {
+                  FirebaseAuth auth = FirebaseAuth.instance;
+                  if (auth.currentUser == null) {
+                    return '/loginorregister';
+                  } else if (auth.currentUser != null &&
+                      !auth.currentUser!.emailVerified) {
+                    print(!auth.currentUser!.emailVerified);
+                    return '/otp';
+                  } else {
+                    return null; // return "null" to display the intended route without redirecting
+                  }
+                },
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            navigatorKey: _rootNavigatorFinazen,
+            routes: [
+              GoRoute(
+                name: 'finazen',
+                path: '/finazen',
+                builder: (context, state) => Finanzen(
+                  key: state.pageKey,
+                ),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            navigatorKey: _rootNavigatorMap,
+            routes: [
+              GoRoute(
+                name: 'map',
+                path: '/map',
+                builder: (context, state) => MapPage(
+                  key: state.pageKey,
+                ),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            navigatorKey: _rootNavigatorTicket,
+            routes: [
+              GoRoute(
+                name: 'ticket',
+                path: '/ticket',
+                builder: (context, state) => Ticket(
+                  key: state.pageKey,
+                ),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            navigatorKey: _rootNavigatorProfile,
+            routes: [
+              GoRoute(
+                name: 'profile',
+                path: '/profile',
+                builder: (context, state) => ProfilePage(
+                  key: state.pageKey,
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
       GoRoute(
         name: 'loginOrRegister',
         path: '/loginorregister',
-        builder: (context, state) => const LoginOrRegisterPage(),
+        builder: (context, state) => LoginOrRegisterPage(
+          key: state.pageKey,
+        ),
       ),
       GoRoute(
           name: 'otp',
           path: '/otp',
-          builder: (context, state) => const OTPForm()),
+          builder: (context, state) => OTPForm(
+                key: state.pageKey,
+              )),
       GoRoute(
         name: 'accountdetails',
         path: '/accountdetails',
-        builder: (context, state) => const Account(),
+        builder: (context, state) => Account(
+          key: state.pageKey,
+        ),
       ),
       GoRoute(
         name: 'createtrip',
@@ -50,17 +144,29 @@ class MyRouter {
         builder: (context, state) => CreateTrip(
           auth: FirebaseAuth.instance,
           firestore: FirebaseFirestore.instance,
+          key: state.pageKey,
         ),
       ),
       GoRoute(
         name: 'selecttrip',
         path: '/selecttrip',
-        builder: (context, state) => const SelectTrip(),
+        builder: (context, state) => SelectTrip(
+          key: state.pageKey,
+        ),
       ),
       GoRoute(
         name: 'jointrip',
         path: '/jointrip',
-        builder: (context, state) => JoinTrip(),
+        builder: (context, state) => JoinTrip(
+          key: state.pageKey,
+        ),
+      ),
+      GoRoute(
+        name: 'weatherpage',
+        path: '/weatherpage',
+        builder: (context, state) => WeatherPage(
+          key: state.pageKey,
+        ),
       ),
     ],
   );

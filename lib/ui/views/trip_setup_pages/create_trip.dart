@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:internet_praktikum/core/services/placeApiProvider.dart';
 import 'package:internet_praktikum/ui/widgets/datepicker.dart';
 import 'package:internet_praktikum/ui/widgets/errorSnackbar.dart';
@@ -45,20 +46,17 @@ class _TripCreateState extends State<CreateTrip> {
     try {
       final members = [];
       if (destination == null) throw Exception("Destination is empty");
-      if (selectedStartDate == null) {
+      if (selectedStartDate == null)
         throw Exception("You need to select a start date!");
-      }
-      if (selectedEndDate == null) {
+      if (selectedEndDate == null)
         throw Exception("You need to select a end date!");
-      }
       if (selectedEndDate!.millisecondsSinceEpoch <
-          selectedStartDate!.millisecondsSinceEpoch) {
+          selectedStartDate!.millisecondsSinceEpoch)
         throw Exception("End date must be after start date!");
-      }
 
       members.add(widget.auth.currentUser?.uid);
       print("Create Trip: $destination $selectedStartDate $selectedEndDate");
-      DocumentReference docRef = await trips.add({
+      await trips.add({
         'city': destination?.cityName,
         'placedetails': destination?.placeDetails,
         'startdate': selectedStartDate,
@@ -66,10 +64,9 @@ class _TripCreateState extends State<CreateTrip> {
         'createdBy': widget.auth.currentUser?.uid,
         'members': members
       });
-      await widget.firestore
-          .collection("users")
-          .doc(widget.auth.currentUser?.uid)
-          .update({"selectedtrip": docRef.id});
+      if (context.mounted) {
+        context.go("/");
+      }
     } catch (e) {
       if (context.mounted) {
         ErrorSnackbar.showErrorSnackbar(context, e.toString());

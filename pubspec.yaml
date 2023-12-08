@@ -44,6 +44,7 @@ dependencies:
   flutter_svg_provider: ^1.0.6
   webview_flutter_plus: ^0.3.0+2
   flutter_facebook_auth: ^6.0.3
+  intl: ^0.19.0
 
   http: ^1.1.2
   uuid: ^4.2.1
@@ -52,9 +53,10 @@ dependencies:
   geolocator: ^10.1.0
   geocoding: ^2.1.1
   lottie: ^2.7.0
-  slide_to_act: ^2.0.2
-  go_router: ^12.1.1
   
+  go_router: ^12.1.1
+  slide_to_act: ^2.0.2
+>>>>>>>>> Temporary merge branch 2
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -67,11 +69,13 @@ dev_dependencies:
   # activated in the `analysis_options.yaml` file located at the root of your
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
-  flutter_lints: ^3.0.1
+  flutter_lints: ^2.0.0
   riverpod_generator: ^2.3.8
   build_runner: ^2.4.6
   custom_lint: ^0.5.7
   riverpod_lint: ^2.3.6
+  integration_test:
+    sdk: flutter
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

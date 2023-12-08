@@ -3,8 +3,8 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:internet_praktikum/ui/styles/Styles.dart';
-import 'package:internet_praktikum/ui/views/login_register_pages/home_page.dart';
 import 'package:internet_praktikum/ui/views/login_register_pages/login_page.dart';
 import 'package:internet_praktikum/ui/widgets/container.dart';
 import 'package:internet_praktikum/ui/widgets/inputfield.dart';
@@ -62,6 +62,9 @@ class _RegisterPageState extends State<RegisterPage> {
             'selectedtrip': null
             // Add other data fields as needed
           });
+        }
+        if (context.mounted) {
+          GoRouter.of(context).go('/otp');
         }
       } else {
         // show error message
@@ -125,6 +128,7 @@ class _RegisterPageState extends State<RegisterPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       body: SafeArea(
         child: Stack(children: [
           Container(
@@ -210,13 +214,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       //onTap: () => AuthService().signInWithGoogle(),
                       onTap: () {
                         signInWithGoogle().whenComplete(() {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) {
-                                return HomePage();
-                              },
-                            ),
-                          );
+                          context.go('/');
                         });
                       },
                       imagePath: 'assets/google_logo.png',
@@ -227,13 +225,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     MyButton(
                       onTap: () {
                         signInWithFacebook().whenComplete(() {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) {
-                                return HomePage();
-                              },
-                            ),
-                          );
+                          context.go('/');
                         });
                       },
                       imagePath: 'assets/facebook_logo.png',

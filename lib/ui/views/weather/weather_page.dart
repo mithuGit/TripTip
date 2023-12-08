@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:internet_praktikum/ui/views/weather/weather.dart';
 import 'package:internet_praktikum/core/services/weather_service.dart';
 
@@ -40,7 +41,7 @@ class _WeatherPageState extends State<WeatherPage> {
           leading: IconButton(
             icon: const Icon(Icons.arrow_back, color: Colors.white, size: 30),
             onPressed: () {
-              Navigator.pop(context);
+              context.goNamed('home');
             },
           ),
           backgroundColor: Colors.black,
