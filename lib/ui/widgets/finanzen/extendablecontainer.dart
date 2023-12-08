@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:internet_praktikum/ui/widgets/finanzen/slidablebutton.dart';
+
+import '../../styles/Styles.dart';
+import 'expandableitem.dart';
 
 class ExpandableContainer extends StatefulWidget {
   const ExpandableContainer({Key? key, required this.name}) : super(key: key);
@@ -143,11 +147,11 @@ class _ExpandableContainerState extends State<ExpandableContainer> {
                             children: [
                               Text(
                                 items[index].text,
-                                style: Styles.listView,
+                                style: Styles.textAutocomplete,
                               ),
                               Text(
                                 items[index].price,
-                                style: Styles.listView,
+                                style: Styles.textAutocomplete,
                               ),
                             ],
                           ),
