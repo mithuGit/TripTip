@@ -8,8 +8,9 @@ import 'package:uuid/uuid.dart';
 const Duration fakeAPIDuration = Duration(seconds: 1);
 
 class AsyncAutocomplete extends StatefulWidget {
-  const AsyncAutocomplete({super.key});
-
+  
+  final ValueChanged<PlaceDetails>? onDestinationPick;
+  const AsyncAutocomplete({super.key, this.onDestinationPick});
   @override
   State<AsyncAutocomplete> createState() => _AsyncAutocompleteState();
 }
@@ -18,6 +19,7 @@ class _AsyncAutocompleteState extends State<AsyncAutocomplete> {
   String? _searchingWithQuery;
   String? _lastsearching;
   late Iterable<String> _lastOptions = <String>[];
+  late Iterable<Suggestion> _lastSuggestions = <Suggestion>[];
 
   @override
   Widget build(BuildContext context) {
@@ -45,7 +47,7 @@ class _AsyncAutocompleteState extends State<AsyncAutocomplete> {
               color: Colors.white,
               child: Container(
                 width: constraints.biggest.width,
-                //height: constraints.biggest.height,
+                height: constraints.biggest.height,
                 padding: EdgeInsets.zero,
                 child: ListView.builder(
                   shrinkWrap: true,
@@ -73,12 +75,14 @@ class _AsyncAutocompleteState extends State<AsyncAutocomplete> {
           if (_searchingWithQuery != '' &&
               _searchingWithQuery != _lastsearching) {
             PlaceApiProvider placeApiProvider =
-                PlaceApiProvider(const Uuid().v4());
+            PlaceApiProvider(const Uuid().v4());
             Iterable<String> options;
             try {
-              options =
-                  await placeApiProvider.fetchSuggestions(_searchingWithQuery!);
+              Iterable<Suggestion> suggestions = await placeApiProvider.fetchSuggestions(_searchingWithQuery!);
+              options = suggestions.map((suggestion) => suggestion.toString()).toList();
               _lastsearching = _searchingWithQuery;
+              _lastSuggestions = suggestions;
+
               _lastOptions = options;
               if (_searchingWithQuery != textEditingValue.text) {
                 return _lastOptions;
@@ -94,10 +98,24 @@ class _AsyncAutocompleteState extends State<AsyncAutocomplete> {
             return _lastOptions;
           }
         },
-        onSelected: (String selection) {
+        onSelected: (String selection) async {
           debugPrint('You just selected $selection');
+          Suggestion selectedSuggestion = _lastSuggestions.firstWhere((suggestion) => suggestion.description == selection);
+          
+          PlaceApiProvider placeApiProvider =
+            PlaceApiProvider(const Uuid().v4());
+          try {
+            Map details = await placeApiProvider.fetchPlaceDetails(selectedSuggestion.placeId);
+            widget.onDestinationPick?.call(PlaceDetails(details['id'], details['displayName']['text'], details));
+          } catch (e) {
+            if (context.mounted) {
+              ErrorSnackbar.showErrorSnackbar(context, e.toString());
+            }
+          }  
+          
         },
       ),
     );
   }
 }
+

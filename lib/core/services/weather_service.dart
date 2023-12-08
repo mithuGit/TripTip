@@ -1,8 +1,11 @@
 import 'dart:convert';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:internet_praktikum/ui/views/weather/weather.dart';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 
 class WeatherService {
   static const BASE_URL = 'https://api.openweathermap.org/data/2.5/weather';
@@ -14,8 +17,9 @@ class WeatherService {
 
   Future<Weather?> fetchWeather() async {
     try {
-      String cityName = await getCurrentCity();
-      final weather = await getWeather(cityName);
+      //String cityName = await getCurrentCity(); // das ist aktuelle Standort vom Handy
+      //final weather = await getWeather(cityName);
+      final weather = await getWeatherData(); // das ist der Standort vom Trip
       actualWeather = weather;
       return weather;
     } catch (e) {
@@ -31,6 +35,8 @@ class WeatherService {
       case 'clouds':
         return 'assets/weather_button_pic/cloud.png';
       case 'rain':
+        return 'assets/weather_button_pic/rain.png';
+      case 'drizzle':
         return 'assets/weather_button_pic/rain.png';
       case 'snow':
         return 'assets/weather_button_pic/snow.png';
@@ -58,7 +64,7 @@ class WeatherService {
       case 'rain':
         return 'assets/weather_pic/rainy.json';
       case 'snow':
-        return 'assets/weather_pic/snowy.json';
+        return 'assets/weather_pic/snow.json';
       case 'clear':
         return 'assets/weather_pic/sunny.json'; // oder day_clear.json
       case 'mist':
@@ -106,5 +112,37 @@ class WeatherService {
     String? cityName = placemarks[0].locality;
 
     return cityName ?? "";
+  }
+
+  Future<String> getCity(double latitude, double longitude) async {
+    try {
+      const apiKey = '5a9d3eda46bcddc1662d351abc13c798';
+      final url =
+          'http://api.openweathermap.org/geo/1.0/reverse?lat=$latitude&lon=$longitude&limit=1&appid=$apiKey';
+
+      final response = await http.get(Uri.parse(url));
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final cityName = data[0]['name'];
+        return cityName;
+      } else {
+        throw Exception('Failed to get city name from coordinates');
+      }
+    } catch (e) {
+      print(e);
+      return ""; // oder eine Standardstadt, falls ein Fehler auftritt
+    }
+  }
+
+  Future<Weather> getWeatherData() async {
+    final DocumentSnapshot<Map<String, dynamic>> documentSnapshot =
+      await FirebaseFirestore.instance.collection('trips').doc('BmGvil7kYHjvOiUGzjiR').get();
+    final String lat = documentSnapshot.data()!['placedetails']["location"]["latitude"].toString();
+    final String long = documentSnapshot.data()!['placedetails']["location"]["longitude"].toString();
+    final String cityName = await getCity(double.parse(lat), double.parse(long));
+    final weather = await getWeather(cityName);
+    actualWeather = weather;
+    return weather;
   }
 }

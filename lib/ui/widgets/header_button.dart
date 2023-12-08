@@ -4,9 +4,10 @@ class HeaderButton extends StatelessWidget {
   final Function()? onTap;
   final String? temperature;
   final String? weatherImage;
+  final IconData? icon;
 
   const HeaderButton(
-      {super.key, required this.onTap, this.temperature, this.weatherImage});
+      {super.key, required this.onTap, this.temperature, this.weatherImage, this.icon});
 
   @override
   Widget build(BuildContext context) {
@@ -19,23 +20,19 @@ class HeaderButton extends StatelessWidget {
             child: Material(
               color: Colors.transparent, // button color
               child: InkWell(
-                // splash color
-                onTap: onTap, // button pressed
+                onTap: onTap,
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     if (temperature != null && weatherImage != null) ...[
                       Image.asset(
                         weatherImage!,
-                        width: 30,
+                        width: 35,
                         height: 30,
                       ),
-                      Text(temperature!, style: const TextStyle(fontSize: 13)),
+                      Text(temperature!, style: const TextStyle(fontSize: 14)),
                     ] else ...[
-                      const Icon(
-                        Icons.add,
-                        size: 45,
-                        )
+                      Icon(icon, size: 40)
                     ],
                   ],
                 ),

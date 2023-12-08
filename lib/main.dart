@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:internet_praktikum/ui/views/finanzen/finazen.dart';
+import 'package:internet_praktikum/ui/router.dart';
 import 'firebase_options.dart';
 
 void main() async {
@@ -9,61 +9,33 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  runApp(const ProviderScope(child: Main()));
+  runApp(ProviderScope(child: const Main()));
 }
 
 class Main extends StatelessWidget {
   const Main({super.key});
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp.router(
       debugShowCheckedModeBanner: false,
-      initialRoute: '/',
+      routerConfig: MyRouter.router,
       title: 'Let\'s Travel Together. ',
-      home: AuthWrapper(),
     );
   }
 }
 
-// Mit dieser Klasse wird überprüft, ob der User eingeloggt ist oder nicht
-// Wenn er eingeloggt ist, wird er auf die HomePage weitergeleitet
-// Wenn er nicht eingeloggt ist, wird er auf die LoginOrRegisterPage weitergeleitet
-class AuthWrapper extends StatelessWidget {
-  const AuthWrapper({super.key});
+/*class Main extends StatelessWidget {
+  const Main({super.key});
   @override
   Widget build(BuildContext context) {
-    return const Finanzen(); /*StreamBuilder<User?>(
-        stream: FirebaseAuth.instance.authStateChanges(),
-        builder: (context, snapshot) {
-          if (snapshot.data != null) {
-            return HomePage();
-          } else {
-            return const LoginOrRegisterPage();
-          }
-
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            // Wenn die Authentifizierung noch lädt, zeige einen Ladebildschirm oder Spinner
-            return const CircularProgressIndicator();
-          }
-
-          if (snapshot.hasError) {
-            // Wenn ein Fehler auftritt, zeige eine Fehlermeldung
-            return const Text("Fehler bei der Authentifizierung");
-          }
-
-          // user logged in
-          User? user = snapshot.data;
-
-          if (user != null && !user.emailVerified) {
-            print(user.emailVerified);
-            return const OTPForm();
-          } else if (user != null && user.emailVerified) {
-            return HomePage();
-          } else if (user == null) {
-            return const LoginOrRegisterPage();
-          }
-          return const CircularProgressIndicator();
-        }
-        );*/
+    return MaterialApp(//.router(
+      debugShowCheckedModeBanner: false,
+      home: const Calendar(),
+      theme: ThemeData(brightness:Brightness.dark,
+        primarySwatch:
+       Colors.deepPurple),
+      //routerConfig: MyRouter.router,
+      //title: 'Let's Travel Together. ',
+    );
   }
-}
+}*/

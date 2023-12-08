@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:internet_praktikum/ui/styles/Styles.dart';
 import 'package:internet_praktikum/ui/views/login_register_pages/login_or_register_page.dart';
 import 'package:internet_praktikum/ui/widgets/container.dart';
@@ -8,10 +11,7 @@ import 'package:internet_praktikum/ui/widgets/inputfield.dart';
 import 'package:internet_praktikum/ui/widgets/my_button.dart';
 import 'package:internet_praktikum/ui/widgets/inputfield_password_or_icon.dart';
 import '../../../core/services/auth_service.dart';
-import '../account/account_details.dart';
 import 'package:webview_flutter_plus/webview_flutter_plus.dart';
-
-import 'home_page.dart';
 
 class LoginPage extends StatefulWidget {
   final Function()? onTap;
@@ -32,17 +32,6 @@ class _LoginPageState extends State<LoginPage> {
 
   // sign user in method
   void signUserIn() async {
-    // show loading circle
-    /*showDialog(
-      context: context,
-      builder: (context) {
-        return const Center(
-          child: CircularProgressIndicator(),
-        );
-      },
-    );
-    */
-
     // try sign in
     try {
       UserCredential userCredential =
@@ -66,27 +55,60 @@ class _LoginPageState extends State<LoginPage> {
           'dateOfBirth': null,
           // Add other data fields as needed
         });
-        // Route to the Account page
-        // ignore: use_build_context_synchronously
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const Account(),
-          ),
-        );
+      }
+      if (context.mounted) {
+        GoRouter.of(context).go('/');
       }
     } on FirebaseAuthException catch (e) {
       print(e.code);
-      // Navigator.of(context).pop();
       // Wrong email | Wrong password
-      showErrorMessage(e.code);
+      if (e.code == 'user-not-found' || e.code == 'wrong-password') {
+        showMessage('Wrong email or password! Please try again.');
+      }
+      // User disabled
+      else if (e.code == 'user-disabled') {
+        showMessage('This user has been disabled.');
+      }
+      // Too many requests
+      else if (e.code == 'too-many-requests') {
+        showMessage('Too many requests. Try again later.');
+      }
+      // Operation not allowed
+      else if (e.code == 'operation-not-allowed') {
+        showMessage('Operation not allowed. Try again later.');
+      } else {
+        showMessage('Something went wrong. Try again later.');
+      }
     }
-
-    //route to account details page
   }
 
   //error messsage to user
-  void showErrorMessage(String message) {
+  void showMessage(String message) {
+    Completer<bool> dialogCompleter = Completer<bool>();
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return PopScope(
+          canPop: false,
+          child: AlertDialog(
+            backgroundColor: Colors.black,
+            title: Center(
+              child: Text(
+                message,
+                style: Styles.textfieldHintStyle,
+              ),
+            ),
+          ),
+        );
+      },
+    ).then((_) {
+      // Dialog wurde geschlossen, entweder durch Zurück-Taste oder automatisch nach 3 Sekunden
+      if (!dialogCompleter.isCompleted) {
+        dialogCompleter.complete(true);
+      }
+    });
+
     counter++;
     // Wenn Counter gleich 3 ist, wird eigentlich hier Capcha aufgerufen
     if (counter == 3) {
@@ -114,27 +136,21 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 )),
       );
+    } else {
+      // Verzögere das Ausblenden der Fehlermeldung nach 2 Sekunden
+      Future.delayed(const Duration(seconds: 2), () {
+        if (!dialogCompleter.isCompleted) {
+          Navigator.of(context).pop(); // Schließt den Dialog nach 2 Sekunden
+          dialogCompleter.complete(true);
+        }
+      });
     }
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          backgroundColor: Colors.black,
-          title: Center(
-            child: Text(
-              //'Wrong email or password! Please try again.',
-              message,
-              style: Styles.textfieldHintStyle,
-            ),
-          ),
-        );
-      },
-    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       body: SafeArea(
         child: Stack(children: [
           Container(
@@ -207,13 +223,7 @@ class _LoginPageState extends State<LoginPage> {
                     MyButton(
                       onTap: () {
                         signInWithGoogle().whenComplete(() {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) {
-                                return const HomePage();
-                              },
-                            ),
-                          );
+                          context.go('/');
                         });
                       },
                       imagePath: 'assets/google_logo.png',
@@ -223,13 +233,7 @@ class _LoginPageState extends State<LoginPage> {
                     MyButton(
                       onTap: () {
                         signInWithFacebook().whenComplete(() {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) {
-                                return const HomePage();
-                              },
-                            ),
-                          );
+                          context.go('/');
                         });
                       },
                       imagePath: 'assets/facebook_logo.png',
@@ -274,73 +278,67 @@ class _LoginPageState extends State<LoginPage> {
       GestureDetector(
         onTap: () {
           showModalBottomSheet(
+            isScrollControlled: true,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(20),
             ),
             context: context,
             builder: (BuildContext context) {
-              return Container(
-                decoration: const BoxDecoration(
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(100),
-                    topRight: Radius.circular(100),
+              return Padding(
+                padding: MediaQuery.of(context).viewInsets,
+                child: Container(
+                  //height: MediaQuery.of(context).size.height * 0.4,
+                  decoration: const BoxDecoration(
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(100),
+                      topRight: Radius.circular(100),
+                    ),
                   ),
-                ),
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    const Text(
-                      'Forgot Password?',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Text(
+                        'Forgot Password?',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 10),
-                    const Text(
-                      'Enter your email to reset your password:',
-                      style: TextStyle(
-                        fontSize: 16,
+                      const SizedBox(height: 10),
+                      const Text(
+                        'Enter your email to reset your password:',
+                        style: TextStyle(
+                          fontSize: 16,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 10),
-                    InputFieldPasswortOrIcon(
-                      controller: passwordforgotController,
-                      hintText: 'Email',
-                      obscureText: false,
-                      icon: Icons.email_outlined,
-                      eyeCheckerStatus: false,
-                      useSuffixIcon: false,
-                    ),
-                    const SizedBox(height: 20),
-                    MyButton(
-                      colors: Colors.black,
-                      text: 'Next',
-                      onTap: () {
-                        String emailToCheck = passwordforgotController.text;
-                        if (isValidEmail(emailToCheck)) {
-                          resetPassword(emailToCheck);
-                          Navigator.of(context).pop();
-                        } else {
-                          showDialog(
-                            context: context,
-                            builder: (context) {
-                              return const AlertDialog(
-                                backgroundColor: Colors.black,
-                                title: Center(
-                                  child: Text(
-                                    'Please enter a valid email',
-                                    style: Styles.textfieldHintStyle,
-                                  ),
-                                ),
-                              );
-                            },
-                          );
-                        }
-                      },
-                    ),
-                  ],
+                      const SizedBox(height: 10),
+                      InputFieldPasswortOrIcon(
+                        controller: passwordforgotController,
+                        hintText: 'Email',
+                        obscureText: false,
+                        icon: Icons.email_outlined,
+                        eyeCheckerStatus: false,
+                        useSuffixIcon: false,
+                      ),
+                      const SizedBox(height: 20),
+                      MyButton(
+                        colors: Colors.black,
+                        text: 'Next',
+                        onTap: () {
+                          String emailToCheck = passwordforgotController.text;
+                          if (isValidEmail(emailToCheck)) {
+                            resetPassword(emailToCheck);
+                            Navigator.of(context).pop();
+                            showMessage(
+                                'A reset link has been sent to your email.');
+                          } else {
+                            showMessage('Please enter a valid email');
+                          }
+                        },
+                      ),
+                    ],
+                  ),
                 ),
               );
             },

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:internet_praktikum/main.dart';
 import 'package:internet_praktikum/ui/views/trip_setup_pages/create_trip.dart';
 import 'package:internet_praktikum/ui/views/trip_setup_pages/join_trip.dart';
 import 'package:internet_praktikum/ui/widgets/container.dart';
@@ -29,19 +31,12 @@ class SelectTrip extends StatelessWidget {
                         children: [
                           MyButton(
                               onTap: () {
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) =>
-                                            const CreateTrip()));
+                                context.go('/createtrip');
                               },
                               text: "Create Trip"),
                           MyButton(
                               onTap: () {
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => JoinTrip()));
+                                context.go('/jointrip');
                               },
                               text: "Join Trip")
                         ])),

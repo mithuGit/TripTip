@@ -1,7 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:internet_praktikum/ui/widgets/finanzen/slidablebutton.dart';
-
-import '../../styles/Styles.dart';
 
 class ExpandableContainer extends StatefulWidget {
   const ExpandableContainer({Key? key, required this.name}) : super(key: key);
@@ -58,18 +55,18 @@ class _ExpandableContainerState extends State<ExpandableContainer> {
         });
       },
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 400),
+        duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
         height: isExpanded
             ? calculateMainHight(items, MediaQuery.of(context).size.height)
             : 65.0, // Adjust the height as needed
         decoration: BoxDecoration(
-          color: const Color(0xE51E1E1E), // Grey background color
-          border: Border.all(color: const Color(0xE51E1E1E)),
+          color: Color(0xE51E1E1E), // Grey background color
+          border: Border.all(color: Color(0xE51E1E1E)),
           borderRadius: BorderRadius.circular(34.5),
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Padding(
               padding: const EdgeInsets.only(
@@ -174,11 +171,4 @@ class _ExpandableContainerState extends State<ExpandableContainer> {
       ),
     );
   }
-}
-
-class ExpandableItem {
-  final String text;
-  final String price;
-
-  ExpandableItem({required this.text, required this.price});
 }
