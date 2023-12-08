@@ -36,7 +36,7 @@ dependencies:
   cupertino_icons: ^1.0.2
   firebase_core: ^2.21.0
   firebase_auth: ^4.12.1
-  cloud_firestore: ^4.12.2
+  cloud_firestore: ^4.13.5
   firebase_database: ^10.3.3
   flutter_otp_text_field: ^1.1.0+2
   google_sign_in: ^6.1.6
