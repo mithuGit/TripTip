@@ -50,9 +50,9 @@ class _TopBarState extends State<TopBar> {
         backgroundColor: Colors.white,
         centerTitle: true,
         title: widget.isDash! && widget.title == null
-            ? const Text(
-                "Frankfurt am Main", // TODO: Hier muss der Name der Stadt stehen, die der User ausgewählt hat
-                style: TextStyle(fontSize: 20),
+            ? Text(
+                actualWeather?.cityName ?? "Loading...",
+                style: const TextStyle(fontSize: 20),
               )
             : Text(
                 widget.title!,

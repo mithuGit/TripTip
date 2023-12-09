@@ -1,11 +1,10 @@
 import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_database/firebase_database.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:internet_praktikum/ui/views/weather/weather.dart';
 import 'package:http/http.dart' as http;
-import 'package:intl/intl.dart';
 
 class WeatherService {
   static const BASE_URL = 'https://api.openweathermap.org/data/2.5/weather';
@@ -62,7 +61,7 @@ class WeatherService {
       case 'clouds':
         return 'assets/weather_pic/cloudy.json';
       case 'rain':
-        return 'assets/weather_pic/rainy.json';
+        return 'assets/weather_pic/rainy_day.json';
       case 'snow':
         return 'assets/weather_pic/snow.json';
       case 'clear':
@@ -136,12 +135,35 @@ class WeatherService {
   }
 
   Future<Weather> getWeatherData() async {
+    final auth = FirebaseAuth.instance.currentUser;
+
+    if (auth == null) {
+      // Handle the case where the user is not authenticated
+      return Future.error('User not authenticated');
+    }
+
+    final QuerySnapshot<Map<String, dynamic>> querySnapshot =
+        await FirebaseFirestore.instance
+            .collection('users')
+            .where('uid', isEqualTo: auth.uid)
+            .get();
+
+    if (querySnapshot.docs.isEmpty) {
+      // Handle the case where no trip is found for the user
+      return Future.error('No trip found for the user');
+    }
+
     final DocumentSnapshot<Map<String, dynamic>> documentSnapshot =
-      await FirebaseFirestore.instance.collection('trips').doc('BmGvil7kYHjvOiUGzjiR').get();
-    final String lat = documentSnapshot.data()!['placedetails']["location"]["latitude"].toString();
-    final String long = documentSnapshot.data()!['placedetails']["location"]["longitude"].toString();
-    final String cityName = await getCity(double.parse(lat), double.parse(long));
-    final weather = await getWeather(cityName);
+        querySnapshot.docs.first;
+    final String lat = documentSnapshot
+        .data()!['placedetails']["location"]["latitude"]
+        .toString();
+    final String long = documentSnapshot
+        .data()!['placedetails']["location"]["longitude"]
+        .toString();
+    final String cityName =
+        await getCity(double.parse(lat), double.parse(long));
+    final Weather weather = await getWeather(cityName);
     actualWeather = weather;
     return weather;
   }
