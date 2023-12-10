@@ -31,6 +31,7 @@ class _ScrollViewWidget extends State<ScrollViewWidget> {
       newArray = event.get('widgets');
     });
     final StreamController<bool> _editableStream = StreamController<bool>();
+    _editableStream.add(false);
 
     final mergedStream = CombineLatestStream.combine2<bool,DocumentSnapshot, EditableStreamFirebaseDatastream>(
     _editableStream.stream,
@@ -41,8 +42,6 @@ class _ScrollViewWidget extends State<ScrollViewWidget> {
     final Color oddItemColor = Colors.lime.shade100;
     final Color evenItemColor = Colors.deepPurple.shade100;
     List<dynamic> bufferArray = List.empty();
-
-    bool _editable = false;
     int movingIndex = 0; // The index of the card that is currently moving
 
     Widget proxyDecorator(
@@ -71,6 +70,8 @@ class _ScrollViewWidget extends State<ScrollViewWidget> {
         stream: mergedStream,
         builder:
             (BuildContext context, AsyncSnapshot<EditableStreamFirebaseDatastream> snapshot) {
+          final bool _editable = snapshot.data?.boolValue ?? false;
+          final DocumentSnapshot? firestoreSnapshot = snapshot.data?.firestoreSnapshot;    
           if (snapshot.hasError) {
             return const Text('Something went wrong');
           }
@@ -91,7 +92,7 @@ class _ScrollViewWidget extends State<ScrollViewWidget> {
             );
           }
 
-          List<dynamic> currentArray = snapshot!.data!.get('widgets') ?? [];
+          List<dynamic> currentArray = firestoreSnapshot?.get('widgets') ?? [];
           bufferArray = currentArray;
 
           if (_editable) {
@@ -136,7 +137,7 @@ class _ScrollViewWidget extends State<ScrollViewWidget> {
                       return GestureDetector(
                         onLongPress: () {
                           setState(() {
-                            _editable = true;
+                            _editableStream.add(true);
                           });
                         },
                         child: DashboardWidget(
