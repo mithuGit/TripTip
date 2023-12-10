@@ -77,19 +77,9 @@ class _ScrollViewWidget extends State<ScrollViewWidget> {
           }
 
           if (snapshot.connectionState == ConnectionState.waiting) {
-            if (bufferArray.isEmpty) {
-              return const Text("Loading");
-            }
-            return ListView(
-              children: bufferArray
-                  .map((con) {
-                    return DashboardWidget(
-                        key: Key(con!.hashCode.toString()),
-                        title: con!["title"] as String);
-                  })
-                  .toList()
-                  .cast(),
-            );
+            
+            return const Text("Loading");  
+
           }
 
           List<dynamic> currentArray = firestoreSnapshot?.get('widgets') ?? [];
