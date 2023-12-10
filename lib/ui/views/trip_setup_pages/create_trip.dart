@@ -35,6 +35,7 @@ class _TripCreateState extends State<CreateTrip> {
   PlaceDetails? destination;
   DateTime? selectedStartDate;
   DateTime? selectedEndDate;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   void connectPhotosAlbum() async {
     setState(() {
@@ -56,7 +57,7 @@ class _TripCreateState extends State<CreateTrip> {
 
       members.add(widget.auth.currentUser?.uid);
       print("Create Trip: $destination $selectedStartDate $selectedEndDate");
-      await trips.add({
+      DocumentReference trip = await trips.add({
         'city': destination?.cityName,
         'placedetails': destination?.placeDetails,
         'startdate': selectedStartDate,
@@ -64,6 +65,10 @@ class _TripCreateState extends State<CreateTrip> {
         'createdBy': widget.auth.currentUser?.uid,
         'members': members
       });
+       FirebaseFirestore.instance
+        .collection("users")
+        .doc(_auth.currentUser?.uid)
+        .set({"selectedtrip": trip});
       if (context.mounted) {
         context.go("/");
       }
