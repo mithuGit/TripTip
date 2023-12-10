@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:internet_praktikum/ui/widgets/dashboardWidget.dart';
 import 'package:rxdart/rxdart.dart';
 
-
 class EditableStreamFirebaseDatastream {
   final bool boolValue;
   final DocumentSnapshot firestoreSnapshot;
@@ -22,22 +21,29 @@ class ScrollViewWidget extends StatefulWidget {
 
 class _ScrollViewWidget extends State<ScrollViewWidget> {
   List<dynamic> newArray = List.empty();
+  bool _justEdited = false;
+
   @override
   Widget build(BuildContext context) {
     FirebaseFirestore firestore = FirebaseFirestore.instance;
     final Stream<DocumentSnapshot> _dayStream =
         firestore.collection('days').doc(widget.day?.id).snapshots();
+
     _dayStream.listen((event) {
-      newArray = event.get('widgets');
+      if (_justEdited) {
+        _justEdited = false;
+        return;
+      }
     });
     final StreamController<bool> _editableStream = StreamController<bool>();
     _editableStream.add(false);
 
-    final mergedStream = CombineLatestStream.combine2<bool,DocumentSnapshot, EditableStreamFirebaseDatastream>(
-    _editableStream.stream,
-    _dayStream,
-    (boolValue, snapshot) => EditableStreamFirebaseDatastream(boolValue, snapshot)
-  );
+    final mergedStream = CombineLatestStream.combine2<bool, DocumentSnapshot,
+            EditableStreamFirebaseDatastream>(
+        _editableStream.stream,
+        _dayStream,
+        (boolValue, snapshot) =>
+            EditableStreamFirebaseDatastream(boolValue, snapshot));
 
     final Color oddItemColor = Colors.lime.shade100;
     final Color evenItemColor = Colors.deepPurple.shade100;
@@ -68,24 +74,24 @@ class _ScrollViewWidget extends State<ScrollViewWidget> {
 
     return StreamBuilder<EditableStreamFirebaseDatastream>(
         stream: mergedStream,
-        builder:
-            (BuildContext context, AsyncSnapshot<EditableStreamFirebaseDatastream> snapshot) {
+        builder: (BuildContext context,
+            AsyncSnapshot<EditableStreamFirebaseDatastream> snapshot) {
           final bool _editable = snapshot.data?.boolValue ?? false;
-          final DocumentSnapshot? firestoreSnapshot = snapshot.data?.firestoreSnapshot;    
+          final DocumentSnapshot? firestoreSnapshot =
+              snapshot.data?.firestoreSnapshot;
           if (snapshot.hasError) {
             return const Text('Something went wrong');
           }
 
           if (snapshot.connectionState == ConnectionState.waiting) {
-            
-            return const Text("Loading");  
-
+            return const Text("Loading");
           }
 
           List<dynamic> currentArray = firestoreSnapshot?.get('widgets') ?? [];
           bufferArray = currentArray;
 
           if (_editable) {
+            debugPrint("Container is editable");
             return Container(
               margin: const EdgeInsets.only(
                   bottom: 65), // 65 because of the bottom navigation bar
@@ -93,7 +99,8 @@ class _ScrollViewWidget extends State<ScrollViewWidget> {
                 padding: const EdgeInsets.symmetric(horizontal: 23),
                 proxyDecorator: proxyDecorator,
                 onReorder: (int oldIndex, int newIndex) {
-                  setState(() {
+                  try {
+                    _justEdited = true;
                     if (oldIndex < newIndex) {
                       newIndex -= 1;
                     }
@@ -104,7 +111,9 @@ class _ScrollViewWidget extends State<ScrollViewWidget> {
                         .collection('days')
                         .doc(widget.day?.id)
                         .set({"widgets": bufferArray});
-                  });
+                  } catch (e) {
+                    debugPrint(e.toString());
+                  }
                 },
                 children: bufferArray
                     .map((con) {
@@ -117,6 +126,7 @@ class _ScrollViewWidget extends State<ScrollViewWidget> {
               ),
             );
           } else {
+            debugPrint("Container is not editable");
             return Container(
               margin: const EdgeInsets.only(
                   bottom: 65), // 65 because of the bottom navigation bar
@@ -126,9 +136,7 @@ class _ScrollViewWidget extends State<ScrollViewWidget> {
                     .map((con) {
                       return GestureDetector(
                         onLongPress: () {
-                          setState(() {
-                            _editableStream.add(true);
-                          });
+                          _editableStream.add(true);
                         },
                         child: DashboardWidget(
                             key: Key(con!.hashCode.toString()),

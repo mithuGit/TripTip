@@ -18,7 +18,7 @@ class _DashboardWidgetState extends State<DashboardWidget>
 
   bool wiggel = false;
 
-  @override
+  /* @override
   void initState() {
     super.initState();
     _controller = AnimationController(
@@ -29,7 +29,7 @@ class _DashboardWidgetState extends State<DashboardWidget>
       ..addListener(() {
         setState(() {});
       });
-  }
+  } */
 
   @override
   Widget build(BuildContext context) {
