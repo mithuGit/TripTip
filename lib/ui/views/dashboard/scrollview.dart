@@ -1,7 +1,16 @@
+import 'dart:async';
 import 'dart:ui';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:internet_praktikum/ui/widgets/dashboardWidget.dart';
+import 'package:rxdart/rxdart.dart';
+
+
+class EditableStreamFirebaseDatastream {
+  final bool boolValue;
+  final DocumentSnapshot firestoreSnapshot;
+  EditableStreamFirebaseDatastream(this.boolValue, this.firestoreSnapshot);
+}
 
 class ScrollViewWidget extends StatefulWidget {
   final DocumentReference? day;
@@ -11,35 +20,30 @@ class ScrollViewWidget extends StatefulWidget {
   State<ScrollViewWidget> createState() => _ScrollViewWidget();
 }
 
-class _ScrollViewWidget extends State<ScrollViewWidget> with SingleTickerProviderStateMixin {
+class _ScrollViewWidget extends State<ScrollViewWidget> {
   List<dynamic> newArray = List.empty();
   @override
   Widget build(BuildContext context) {
     FirebaseFirestore firestore = FirebaseFirestore.instance;
     final Stream<DocumentSnapshot> _dayStream =
         firestore.collection('days').doc(widget.day?.id).snapshots();
+    _dayStream.listen((event) {
+      newArray = event.get('widgets');
+    });
+    final StreamController<bool> _editableStream = StreamController<bool>();
+
+    final mergedStream = CombineLatestStream.combine2<bool,DocumentSnapshot, EditableStreamFirebaseDatastream>(
+    _editableStream.stream,
+    _dayStream,
+    (boolValue, snapshot) => EditableStreamFirebaseDatastream(boolValue, snapshot)
+  );
+
     final Color oddItemColor = Colors.lime.shade100;
     final Color evenItemColor = Colors.deepPurple.shade100;
     List<dynamic> bufferArray = List.empty();
 
     bool _editable = false;
     int movingIndex = 0; // The index of the card that is currently moving
-
-    late AnimationController _controller;
-    late Animation<double> _animation;
-
-    @override
-    void initState() {
-      super.initState();
-      _controller = AnimationController(
-        vsync: this,
-        duration: Duration(milliseconds: 500),
-      )..repeat(reverse: true);
-      _animation = Tween(begin: -0.1, end: 0.1).animate(_controller)
-        ..addListener(() {
-          setState(() {});
-        });
-    }
 
     Widget proxyDecorator(
         Widget child, int index, Animation<double> animation) {
@@ -63,10 +67,10 @@ class _ScrollViewWidget extends State<ScrollViewWidget> with SingleTickerProvide
       );
     }
 
-    return StreamBuilder<DocumentSnapshot>(
-        stream: _dayStream,
+    return StreamBuilder<EditableStreamFirebaseDatastream>(
+        stream: mergedStream,
         builder:
-            (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+            (BuildContext context, AsyncSnapshot<EditableStreamFirebaseDatastream> snapshot) {
           if (snapshot.hasError) {
             return const Text('Something went wrong');
           }
@@ -111,7 +115,7 @@ class _ScrollViewWidget extends State<ScrollViewWidget> with SingleTickerProvide
                         .set({"widgets": bufferArray});
                   });
                 },
-                children: currentArray
+                children: bufferArray
                     .map((con) {
                       return DashboardWidget(
                           key: Key(con!.hashCode.toString()),

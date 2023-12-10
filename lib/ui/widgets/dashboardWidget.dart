@@ -5,6 +5,8 @@ class DashboardWidget extends StatefulWidget {
   double elevation = 0;
   final String title;
   DashboardWidget({super.key, double? elevation, required this.title});
+  
+
   @override
   _DashboardWidgetState createState() => _DashboardWidgetState();
 }
@@ -13,6 +15,8 @@ class _DashboardWidgetState extends State<DashboardWidget>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _animation;
+
+  bool wiggel = false;
 
   @override
   void initState() {

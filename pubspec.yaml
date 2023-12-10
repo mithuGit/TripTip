@@ -53,6 +53,7 @@ dependencies:
   
   go_router: ^12.1.1
   slide_to_act: ^2.0.2
+  rxdart: ^0.27.7
 dev_dependencies:
   flutter_test:
     sdk: flutter

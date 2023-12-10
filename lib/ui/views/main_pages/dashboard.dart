@@ -37,9 +37,19 @@ class _DashBoardState extends State<DashBoard> {
     print('DateTime: $selectedDay');
     final userCollection = FirebaseFirestore.instance.collection('users');
     final userDoc = await userCollection.doc(user.uid).get();
+    if(userDoc.data()?['selectedtrip'] == null) throw Exception('No trip selected');
+
     final tripId = userDoc.data()?['selectedtrip'];
+    try {
+       await FirebaseFirestore.instance.collection('trips').doc(tripId).get();
+    } catch (e) {
+      print('Trip does not exist anymore');
+      await userCollection.doc(user.uid).update({'selectedtrip': null});
+      throw Exception('Trip does not exist anymore');
+    }
+   
     final currentTrip =
-        await FirebaseFirestore.instance.collection('trips').doc(tripId).get();
+        await FirebaseFirestore.instance.collection('trips').doc(tripId).get();    
     Map<String, dynamic>? currentTripdata = currentTrip.data();
     List<dynamic> days = currentTripdata?['days'].toList();
     Map<String, dynamic> day = days
@@ -49,6 +59,7 @@ class _DashBoardState extends State<DashBoard> {
                 selectedDay!.month &&
             (el['starttime'] as Timestamp).toDate().year == selectedDay!.year)
         .first;
+    
     return day['ref'];
   }
 
@@ -109,7 +120,7 @@ class _DashBoardState extends State<DashBoard> {
                                 ConnectionState.waiting) {
                               return const CircularProgressIndicator(); // Show loading indicator while waiting for the Future
                             } else if (snapshot.hasError) {
-                              return Text('Error: ${snapshot.error}');
+                              return Text('EEEEE: ${snapshot.error}');
                             } else {
                               return ScrollViewWidget(day: snapshot.data!);
                             }
