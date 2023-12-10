@@ -5,6 +5,7 @@ import 'package:internet_praktikum/ui/styles/Styles.dart';
 class CustomBottomSheet {
   static void show(BuildContext context) {
     showModalBottomSheet(
+      useRootNavigator: true,
       context: context,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
