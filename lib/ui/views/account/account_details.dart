@@ -61,6 +61,8 @@ class _AccountState extends State<Account> {
     }
   }
 
+  void selectImage() {}
+
   @override
   void initState() {
     super.initState();
@@ -102,24 +104,29 @@ class _AccountState extends State<Account> {
                     child: CustomContainer(
                       title: "Account Details:",
                       children: [
-                        GestureDetector(
-                          onTap: () {},
-                          child: CircleAvatar(
-                            radius: 37.5,
-                            backgroundImage: currentUser.photoURL != null
-                                ? NetworkImage(currentUser.photoURL!)
-                                    as ImageProvider<Object>?
-                                : AssetImage('assets/Personavatar.png')
-                                    as ImageProvider<Object>?,
-                            child: currentUser.photoURL != null
-                                ? null
-                                : Image.asset(
-                                    'assets/Personavatar.png',
-                                    width: 75,
-                                    height: 75,
-                                    fit: BoxFit.cover,
-                                  ),
-                          ),
+                        Stack(
+                          alignment: Alignment.topCenter,
+                          children: [
+                            CircleAvatar(
+                              radius: 37.5,
+                              backgroundImage: currentUser.photoURL != null
+                                  ? NetworkImage(currentUser.photoURL!)
+                                      as ImageProvider<Object>?
+                                  : AssetImage('assets/Personavatar.png')
+                                      as ImageProvider<Object>?,
+                            ),
+                            Positioned(
+                              child: IconButton(
+                                onPressed: selectImage,
+                                icon: Icon(
+                                  Icons.add_a_photo,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              bottom: -15,
+                              left: 165,
+                            ),
+                          ],
                         ),
                         const SizedBox(
                           height: 25,
@@ -166,12 +173,6 @@ class _AccountState extends State<Account> {
                           obscureText: false,
                           margin: const EdgeInsets.only(bottom: 25),
                         ),
-                        InputFieldPasswortOrIcon(
-                            controller: passwordController,
-                            hintText: 'Password',
-                            obscureText: true,
-                            eyeCheckerStatus: true,
-                            useSuffixIcon: true),
                         MyButton(
                           onTap: () async {
                             updateUserData(
