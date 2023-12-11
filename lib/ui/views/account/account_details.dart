@@ -61,8 +61,6 @@ class _AccountState extends State<Account> {
     }
   }
 
-  void selectImage() {}
-
   @override
   void initState() {
     super.initState();
@@ -107,24 +105,16 @@ class _AccountState extends State<Account> {
                         Stack(
                           alignment: Alignment.topCenter,
                           children: [
-                            CircleAvatar(
-                              radius: 37.5,
-                              backgroundImage: currentUser.photoURL != null
-                                  ? NetworkImage(currentUser.photoURL!)
-                                      as ImageProvider<Object>?
-                                  : AssetImage('assets/Personavatar.png')
-                                      as ImageProvider<Object>?,
-                            ),
-                            Positioned(
-                              child: IconButton(
-                                onPressed: selectImage,
-                                icon: Icon(
-                                  Icons.add_a_photo,
-                                  color: Colors.white,
-                                ),
+                            GestureDetector(
+                              onTap: () {},
+                              child: CircleAvatar(
+                                radius: 37.5,
+                                backgroundImage: currentUser.photoURL != null
+                                    ? NetworkImage(currentUser.photoURL!)
+                                        as ImageProvider<Object>?
+                                    : AssetImage('assets/Personavatar.png')
+                                        as ImageProvider<Object>?,
                               ),
-                              bottom: -15,
-                              left: 165,
                             ),
                           ],
                         ),
