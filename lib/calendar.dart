@@ -56,6 +56,13 @@ class _CalendarState extends State<Calendar> {
         firstDate: DateTime(2023),
         lastDate: DateTime(2060),
         currentDate: DateTime.now(),
+        // DarkMode Calendar ????????  
+        builder: (BuildContext context, Widget? child) {
+          return Theme(
+            data: ThemeData.dark(),
+            child: child!,
+          );
+        },
       );
 
       if (pickedRange != null) {
@@ -67,33 +74,38 @@ class _CalendarState extends State<Calendar> {
   }
 
   void _goToLatestDate() {
+    // Gehe zum heutigen Datum oder 
+    DateTime today = DateTime.now();
     setState(() {
       _dateTimeRange = DateTimeRange(
-        start: DateTime.now(),
-        end: DateTime.now(),
+        start: today,
+        end: today,
       );
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return SizedBox(
+      height: 50,
+      width: 300,
+    child: Scaffold(
+      backgroundColor: Colors.transparent,
       body: Center(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             // Zeige ausgewähltes Datum oder Zeitintervall an
             Stack(
-              alignment: AlignmentDirectional.center,
+              alignment: AlignmentDirectional.centerStart ,
               children: [
                 GestureDetector(
                   onTap: _goToLatestDate,
                   child: const Padding(
                     padding: EdgeInsets.all(8.0),
                     child: Icon(
-                      Icons.arrow_left, // Verwende das gewünschte Icon
+                      Icons.start, // Verwende das gewünschte Icon
                       size: 30.0,
-                      color: Colors.blue, // Ändere die Farbe nach Bedarf
+                      color: Colors.black, // Ändere die Farbe nach Bedarf
                     ),
                   ),
                 ),
@@ -146,7 +158,7 @@ class _CalendarState extends State<Calendar> {
                     icon: const Icon(
                       Icons.calendar_today,
                       size: 30.0,
-                      color: Colors.grey,
+                      color: Colors.black,
                     ),
                     tooltip: 'Zeitintervall auswählen',
                   ),
@@ -156,33 +168,43 @@ class _CalendarState extends State<Calendar> {
           ],
         ),
       ),
-    );
+    ),
+     );
   }
 
   Widget _buildDateText(DateTime date, {String label = '', double size = 10}) {
-    return Column(
-      children: [
-        Container(
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            border: Border.all(
-              color: Colors.black,
-              width: 2.0,
+  return Column(
+    children: [
+      Stack(
+        alignment: Alignment.center,
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: Colors.black,
+                width: 2.0,
+              ),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(
+                DateFormat('dd.MM.yyyy').format(date),
+                style: TextStyle(fontSize: size),
+              ),
             ),
           ),
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
+          Positioned(
+            bottom: 40, // Passen Sie den Abstand nach Bedarf an
             child: Text(
-              DateFormat('dd.MM.yyyy').format(date),
-              style: TextStyle(fontSize: size),
+              label,
+              style: const TextStyle(fontSize: 8),
             ),
           ),
-        ),
-        Text(
-          label,
-          style: const TextStyle(fontSize: 8),
-        ),
-      ],
-    );
-  }
+        ],
+      ),
+    ],
+  );
 }
+}
+
