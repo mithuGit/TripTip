@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:internet_praktikum/ui/router.dart';
+import 'package:internet_praktikum/ui/views/main_pages/dashboard.dart';
 import 'firebase_options.dart';
 
 void main() async {
@@ -19,7 +20,7 @@ class Main extends StatelessWidget {
     return MaterialApp.router(
       debugShowCheckedModeBanner: false,
       routerConfig: MyRouter.router,
-      title: 'Let\'s Travel Togethe. ',
+      title: 'Let\'s Travel Together. ',
     );
   }
 }
@@ -28,12 +29,12 @@ class Main extends StatelessWidget {
   const Main({super.key});
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(//.router(
+    return MaterialApp(
+      //.router(
       debugShowCheckedModeBanner: false,
-      home: const Calendar(),
-      theme: ThemeData(brightness:Brightness.dark,
-        primarySwatch:
-       Colors.deepPurple),
+      home: const DashBoard(),
+      theme: ThemeData(
+          brightness: Brightness.dark, primarySwatch: Colors.deepPurple),
       //routerConfig: MyRouter.router,
       //title: 'Let's Travel Together. ',
     );

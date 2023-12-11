@@ -95,8 +95,8 @@ class _RegisterPageState extends State<RegisterPage> {
     showDialog(
       context: context,
       builder: (context) {
-        return PopScope(
-          canPop: false,
+        return WillPopScope(
+          onWillPop: null,
           child: AlertDialog(
             backgroundColor: Colors.black,
             title: Center(
