@@ -84,6 +84,7 @@ Widget build(BuildContext context) {
         Center(
           child: ListView(
             children: [
+              const SizedBox(height: 10),
               const Calendar(),
               const SizedBox(height: 20),
               Text('Your email is ${user.email}'),

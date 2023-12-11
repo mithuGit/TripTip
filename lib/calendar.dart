@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -30,21 +31,34 @@ Future<DateTime> getEndtDate() async {
           .collection('trips')
           .doc('BmGvil7kYHjvOiUGzjiR')
           .get();
-  final DateTime startDate = documentSnapshot.data()!['enddate'].toDate();
-  int day = startDate.day;
-  int month = startDate.month;
-  int year = startDate.year;
+  final DateTime endDate = documentSnapshot.data()!['enddate'].toDate();
+  int day = endDate.day;
+  int month = endDate.month;
+  int year = endDate.year;
   DateTime result = DateTime(year, month, day + 1);
   return result;
 }
 
 class _CalendarState extends State<Calendar> {
-  // Erstelle DateTimeRange-Variable
+  DateTime selectedDate = DateTime.now();
+  DateTime firstDate = DateTime.now().add(const Duration(days: 1));
+  DateTime lastDate = DateTime.now().subtract(const Duration(days: 1));
 
-  DateTimeRange _dateTimeRange = DateTimeRange(
-    start: DateTime.now(),
-    end: DateTime.now(),
-  );
+  /*void initState() {
+    super.initState();
+    fetchDateTime();
+  }
+
+  Future<void> fetchDateTime() async {
+    final select  = await getStartDate();
+    setState(() {
+      selectedDate = select;
+      firstDate = select.add(const Duration(days: 1));
+      lastDate = select.subtract(const Duration(days: 1));
+    });
+  }*/
+
+  // Erstelle DateTimeRange-Variable
 
   Future<void> _showDateRangePicker() async {
     DateTime start = await getStartDate();
@@ -56,7 +70,7 @@ class _CalendarState extends State<Calendar> {
         firstDate: DateTime(2023),
         lastDate: DateTime(2060),
         currentDate: DateTime.now(),
-        // DarkMode Calendar ????????  
+        // DarkMode Calendar ????????
         builder: (BuildContext context, Widget? child) {
           return Theme(
             data: ThemeData.dark(),
@@ -67,144 +81,131 @@ class _CalendarState extends State<Calendar> {
 
       if (pickedRange != null) {
         setState(() {
-          _dateTimeRange = pickedRange;
+          //_dateTimeRange = pickedRange;
         });
       }
     }
   }
 
   void _goToLatestDate() {
-    // Gehe zum heutigen Datum oder 
-    DateTime today = DateTime.now();
     setState(() {
-      _dateTimeRange = DateTimeRange(
-        start: today,
-        end: today,
-      );
+      selectedDate = DateTime.now();
+      firstDate = DateTime.now().add(const Duration(days: 1));
+      lastDate = DateTime.now().subtract(const Duration(days: 1));
+    });
+  }
+
+  void _goToNextDate() {
+    setState(() {
+      selectedDate = selectedDate.add(const Duration(days: 1));
+      firstDate = firstDate.add(const Duration(days: 1));
+      lastDate = lastDate.add(const Duration(days: 1));
+    });
+  }
+
+  void _goToPreviousDate() {
+    setState(() {
+      selectedDate = selectedDate.subtract(const Duration(days: 1));
+      firstDate = firstDate.subtract(const Duration(days: 1));
+      lastDate = lastDate.subtract(const Duration(days: 1));
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 50,
-      width: 300,
-    child: Scaffold(
-      backgroundColor: Colors.transparent,
-      body: Center(
-        child: Column(
-          children: [
-            // Zeige ausgewähltes Datum oder Zeitintervall an
-            Stack(
-              alignment: AlignmentDirectional.centerStart ,
-              children: [
-                GestureDetector(
-                  onTap: _goToLatestDate,
-                  child: const Padding(
-                    padding: EdgeInsets.all(8.0),
-                    child: Icon(
-                      Icons.start, // Verwende das gewünschte Icon
-                      size: 30.0,
-                      color: Colors.black, // Ändere die Farbe nach Bedarf
+      height: 76,
+      width: double.infinity,
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        body: Center(
+          child: Column(
+            children: [
+              // Zeige ausgewähltes Datum oder Zeitintervall an
+              Stack(
+                alignment: AlignmentDirectional.centerStart,
+                children: [
+                  Positioned(
+                    left: 10,
+                    bottom: 7,
+                    child: GestureDetector(
+                      onTap: _goToLatestDate,
+                      child: const Padding(
+                        padding: EdgeInsets.all(8.0),
+                        child: Icon(
+                          Icons.calendar_today, // Verwende das gewünschte Icon
+                          size: 30.0,
+                          color: Colors.black, // Ändere die Farbe nach Bedarf
+                        ),
+                      ),
                     ),
                   ),
-                ),
-                Positioned(
-                  top: -20,
-                  child: Text(
-                    '${DateFormat('dd.MM.yyyy').format(_dateTimeRange.start)} - ${DateFormat('dd.MM.yyyy').format(_dateTimeRange.end)}',
-                    style: const TextStyle(fontSize: 15),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      GestureDetector(
+                        onTap: () {
+                          _goToPreviousDate();
+                        },
+                        child: _buildDateText(lastDate),
+                      ),
+                      _buildDateText(selectedDate, size: 15, selected: true),
+                      GestureDetector(
+                        onTap: () {
+                          _goToNextDate();
+                        },
+                        child: _buildDateText(firstDate),
+                      ),
+                    ],
                   ),
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          _dateTimeRange = DateTimeRange(
-                            start: _dateTimeRange.start
-                                .subtract(const Duration(days: 1)),
-                            end: _dateTimeRange.end
-                                .subtract(const Duration(days: 1)),
-                          );
-                        });
-                      },
-                      child: _buildDateText(_dateTimeRange.start
-                          .subtract(const Duration(days: 1))),
+                  Positioned(
+                    right: 10,
+                    bottom: 7,
+                    child: IconButton(
+                      onPressed: _showDateRangePicker,
+                      icon: const Icon(
+                        Icons.edit_calendar,
+                        size: 30.0,
+                        color: Colors.black,
+                      ),
+                      tooltip: 'Zeitintervall auswählen',
                     ),
-                    _buildDateText(_dateTimeRange.start, size: 15),
-                    GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          _dateTimeRange = DateTimeRange(
-                            start: _dateTimeRange.start
-                                .add(const Duration(days: 1)),
-                            end:
-                                _dateTimeRange.end.add(const Duration(days: 1)),
-                          );
-                        });
-                      },
-                      child: _buildDateText(
-                          _dateTimeRange.end.add(const Duration(days: 1))),
-                    ),
-                  ],
-                ),
-                Positioned(
-                  right: 10,
-                  bottom: 7,
-                  child: IconButton(
-                    onPressed: _showDateRangePicker,
-                    icon: const Icon(
-                      Icons.calendar_today,
-                      size: 30.0,
-                      color: Colors.black,
-                    ),
-                    tooltip: 'Zeitintervall auswählen',
                   ),
-                ),
-              ],
-            ),
-          ],
+                ],
+              ),
+            ],
+          ),
         ),
       ),
-    ),
-     );
+    );
   }
 
-  Widget _buildDateText(DateTime date, {String label = '', double size = 10}) {
-  return Column(
-    children: [
-      Stack(
-        alignment: Alignment.center,
+  Widget _buildDateText(DateTime date,
+      {double size = 12, bool selected = false}) {
+    return Container(
+      //width: selected ? 220 : 160,  Hier ändern damit Container fest bleibt und bei Today nicht kleiner wird
+      //height: selected ? 200 : 140, Mit selected arbeiten, weil mitte Container größer ist als die anderen
+      padding: const EdgeInsets.all(10.0),
+      child: Column(
         children: [
+          Text(
+            DateFormat('dd.MM.yyyy').format(date),
+            style: TextStyle(
+                fontSize: size,
+                fontWeight: selected ? FontWeight.bold : FontWeight.normal),
+          ), // Spacer zwischen Text und Kreis
           Container(
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(
-                color: Colors.black,
-                width: 2.0,
-              ),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Text(
-                DateFormat('dd.MM.yyyy').format(date),
-                style: TextStyle(fontSize: size),
-              ),
-            ),
-          ),
-          Positioned(
-            bottom: 40, // Passen Sie den Abstand nach Bedarf an
-            child: Text(
-              label,
-              style: const TextStyle(fontSize: 8),
+            width: selected ? 35 : 22 + size, // Durchmesser des Kreises
+            height: selected ? 35 : 28,
+            decoration: const BoxDecoration(
+              shape:
+                  BoxShape.circle, // Farbe des Kreises ändern, falls gewünscht
+              border: Border.fromBorderSide(
+                  BorderSide(color: Colors.black, width: 2)),
             ),
           ),
         ],
       ),
-    ],
-  );
+    );
+  }
 }
-}
-
