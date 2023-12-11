@@ -1,6 +1,4 @@
 import 'dart:async';
-
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -34,28 +32,10 @@ class _LoginPageState extends State<LoginPage> {
   void signUserIn() async {
     // try sign in
     try {
-      UserCredential userCredential =
-          await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: emailController.text,
-        password: passwordController.text,
+        await FirebaseAuth.instance.signInWithEmailAndPassword(
+          email: emailController.text,
+          password: passwordController.text,
       );
-      // Navigator.of(context).pop();
-      if (userCredential.user != null) {
-        // Assuming 'users' is the collection name in Firestore
-        await FirebaseFirestore.instance
-            .collection('users')
-            .doc(userCredential.user!.uid)
-            .set({
-          'email': userCredential.user!.email,
-          'prename': userCredential.user!.displayName,
-          'lastname': userCredential.user!.displayName,
-          'uid': userCredential.user!.uid,
-          'trips': null,
-          'profilepicture': null,
-          'dateOfBirth': null,
-          // Add other data fields as needed
-        });
-      }
       if (context.mounted) {
           GoRouter.of(context).go('/');
         }

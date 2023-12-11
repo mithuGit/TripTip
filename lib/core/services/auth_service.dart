@@ -31,7 +31,7 @@ Future<UserCredential> signInWithGoogle() async {
         'lastname': userCredential.user!.displayName,
         'uid': userCredential.user!.uid,
         'trips': null,
-        'profilepicture': null,
+        'profilepicture': userCredential.user!.photoURL,
         'date of birth': null,
       });
     }
