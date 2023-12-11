@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:ui';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:internet_praktikum/ui/widgets/dashboardWidget.dart';
+import 'package:internet_praktikum/ui/widgets/dashboardWidgets/mainDasboardinitializer.dart';
 import 'package:rxdart/rxdart.dart';
 
 class EditableStreamFirebaseDatastream {
@@ -47,8 +47,7 @@ class _ScrollViewWidget extends State<ScrollViewWidget> {
 
     final Color oddItemColor = Colors.lime.shade100;
     final Color evenItemColor = Colors.deepPurple.shade100;
-    List<dynamic> bufferArray = List.empty();
-    int movingIndex = 0; // The index of the card that is currently moving
+    List<dynamic> bufferArray = List.empty();// The index of the card that is currently moving
 
     Widget proxyDecorator(
         Widget child, int index, Animation<double> animation) {
@@ -62,9 +61,10 @@ class _ScrollViewWidget extends State<ScrollViewWidget> {
             scale: scale,
             // Create a Card based on the color and the content of the dragged one
             // and set its elevation to the animated value.
-            child: DashboardWidget(
+            child: MainDasboardinitializer(
               title: bufferArray[index]["title"] as String,
-              key: Key('$index'),
+              key: Key('$index',),
+              data: bufferArray[index]
             ),
           );
         },
@@ -104,7 +104,6 @@ class _ScrollViewWidget extends State<ScrollViewWidget> {
                     if (oldIndex < newIndex) {
                       newIndex -= 1;
                     }
-                    movingIndex = oldIndex;
                     Map<String, dynamic> item = bufferArray.removeAt(oldIndex);
                     bufferArray.insert(newIndex, item);
                     firestore
@@ -117,9 +116,10 @@ class _ScrollViewWidget extends State<ScrollViewWidget> {
                 },
                 children: bufferArray
                     .map((con) {
-                      return DashboardWidget(
+                      return MainDasboardinitializer(
                           key: Key(con!.hashCode.toString()),
-                          title: con!["title"] as String);
+                          title: con!["title"] as String,
+                          data: con);
                     })
                     .toList()
                     .cast(),
@@ -138,8 +138,9 @@ class _ScrollViewWidget extends State<ScrollViewWidget> {
                         onLongPress: () {
                           _editableStream.add(true);
                         },
-                        child: DashboardWidget(
+                        child: MainDasboardinitializer(
                             key: Key(con!.hashCode.toString()),
+                            data: Stream.value(con),
                             title: con!["title"] as String),
                       );
                     })

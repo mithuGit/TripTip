@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:internet_praktikum/ui/widgets/dashboardWidgets/mainDasboardinitializer.dart';
 
 class Styles {
   static const overlayTitle = TextStyle(
@@ -39,7 +40,7 @@ class Styles {
       fontSize: 20,
       fontWeight: FontWeight.w500,
       color: Colors.black);
-  static const dashboardWidgetTitle = TextStyle(
+  static const mainDasboardinitializerTitle = TextStyle(
       fontFamily: 'fonts/Ubuntu-Regular.ttf',
       fontSize: 20,
       fontWeight: FontWeight.w500,
