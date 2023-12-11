@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:internet_praktikum/ui/views/account/account_details.dart';
 import 'package:internet_praktikum/ui/widgets/topbar.dart';
 
 import '../../widgets/profile_menu.dart';
@@ -36,12 +37,12 @@ class ProfilePage extends StatelessWidget {
         children: [
           Container(
               decoration: const BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage(
-                    'assets/mainpage_pic/profile.png'), // assets/BackgroundCity.png
-                fit: BoxFit.fill,
+                image: DecorationImage(
+                  image: AssetImage(
+                      'assets/mainpage_pic/profile.png'), // assets/BackgroundCity.png
+                  fit: BoxFit.fill,
+                ),
               ),
-            ),
               child: Column(
                 children: [
                   Positioned(
@@ -80,7 +81,7 @@ class ProfilePage extends StatelessWidget {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => const EditProfilePage(),
+                                builder: (context) => const Account(),
                               ),
                             );
                           },

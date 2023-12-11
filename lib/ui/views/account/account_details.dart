@@ -44,6 +44,7 @@ class _AccountState extends State<Account> {
   Future<void> updateUserEmail(String newEmail) async {
     try {
       await currentUser.updateEmail(newEmail);
+      print("Email has been updated");
     } catch (e) {
       // Handle the error, for example, show an error message to the user
       if (kDebugMode) {
@@ -58,12 +59,11 @@ class _AccountState extends State<Account> {
     emailController.text = currentUser.email!;
     if (currentUser.displayName != null &&
         currentUser.displayName!.isNotEmpty) {
-      List<String> displayNameParts = currentUser.displayName!.split(', ');
+      List<String> displayNameParts = currentUser.displayName!.split(' ');
       if (displayNameParts.length == 2) {
-        prenameController.text =
-            displayNameParts[1]; // Assuming Prename is the second part
-        lastnameController.text =
-            displayNameParts[0]; // Assuming LastName is the first part
+        prenameController.text = displayNameParts[0];
+
+        lastnameController.text = displayNameParts[1];
       }
     }
   }
@@ -110,7 +110,7 @@ class _AccountState extends State<Account> {
                           ),
                           InputField(
                             controller: prenameController,
-                            hintText: "Prename",
+                            hintText: currentUser.displayName.toString(),
                             obscureText: false,
                             margin: const EdgeInsets.only(bottom: 25),
                           ),
