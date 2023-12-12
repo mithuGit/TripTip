@@ -12,6 +12,7 @@ import '../../widgets/container.dart';
 import '../../widgets/inputfield.dart';
 import '../../widgets/datepicker.dart';
 import 'package:go_router/go_router.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
 class Account extends StatefulWidget {
   const Account({super.key});
@@ -23,6 +24,7 @@ class Account extends StatefulWidget {
 class _AccountState extends State<Account> {
   final currentUser = FirebaseAuth.instance.currentUser!;
   final userCollection = FirebaseFirestore.instance.collection('users');
+  final storage = FirebaseStorage.instance;
 
   final prenameController = TextEditingController();
   final lastnameController = TextEditingController();
@@ -31,6 +33,8 @@ class _AccountState extends State<Account> {
   final passwordController = TextEditingController();
   late String selectedDate;
   late ImageProvider<Object>? imageProvider;
+
+  String imageURL = '';
 
   void updateUserData(
       String prename, String lastname, String dateOfBirth, String email) async {
@@ -61,7 +65,9 @@ class _AccountState extends State<Account> {
     try {
       await currentUser.updateDisplayName("$prename $lastName");
     } catch (e) {
-      print("Error updating Displayname: $e");
+      if (kDebugMode) {
+        print("Error updating Displayname: $e");
+      }
     }
   }
 
@@ -115,10 +121,33 @@ class _AccountState extends State<Account> {
                           children: [
                             GestureDetector(
                               onTap: () async {
+                                // Pick image from gallery
                                 ImagePicker imagePicker = ImagePicker();
                                 XFile? pickedFile = await imagePicker.pickImage(
                                     source: ImageSource.gallery) as XFile?;
+
                                 // TODO: Upload the image to Firebase storage
+
+                                //get reference to storage root
+                                Reference referenceRoot =
+                                    FirebaseStorage.instance.ref();
+                                Reference referenceDirImages =
+                                    referenceRoot.child('profilePictures');
+
+                                // create a refernece for the image to be stored
+                                Reference referenceImageToUpload =
+                                    referenceDirImages
+                                        .child(currentUser.uid + 'profilePic');
+
+                                //Handle errors/succes
+                                try {
+                                  if (pickedFile != null) {
+                                    await referenceImageToUpload
+                                        .putFile(File(pickedFile.path));
+                                  }
+                                  imageURL = await referenceImageToUpload
+                                      .getDownloadURL();
+                                } catch (e) {}
 
                                 setState(() {
                                   imageProvider = (pickedFile != null
