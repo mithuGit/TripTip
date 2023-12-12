@@ -84,10 +84,10 @@ class ScrollViewWidget extends StatelessWidget {
             margin: const EdgeInsets.only(
                 bottom: 65), // 65 because of the bottom navigation bar
             child: ReorderableListView(
+              buildDefaultDragHandles: false,
               padding: const EdgeInsets.symmetric(horizontal: 23),
               proxyDecorator: proxyDecorator,
               onReorder: (int oldIndex, int newIndex) {
-                print(bufferArray);
                 try {
                   if (oldIndex < newIndex) {
                     newIndex -= 1;
@@ -112,10 +112,28 @@ class ScrollViewWidget extends StatelessWidget {
               },
               children: bufferArray!
                   .map((con) {
-                    return MainDasboardinitializer(
-                        key: Key(con!.hashCode.toString()),
-                        title: con!["title"],
-                        data: con);
+                    return Dismissible(
+                      key: Key(con!["key"].toString()),
+                      onDismissed: (direction) {
+                        bufferArray?.remove(con);
+                        Map<int, dynamic>? res = bufferArray?.asMap();
+                        res?.forEach((key, value) {
+                          value['index'] = key;
+                        });
+                        Map<String, dynamic>? res2 = res?.map((key, value) {
+                          return MapEntry(value["key"] as String, value);
+                        });
+                        //umschreibem
+                        firestore
+                            .collection('days')
+                            .doc(day?.id)
+                            .update({"widgets": res2});
+                      },
+                      child: MainDasboardinitializer(
+                          key: Key(con!.hashCode.toString()),
+                          title: con!["title"],
+                          data: con),
+                    );
                   })
                   .toList()
                   .cast(),
