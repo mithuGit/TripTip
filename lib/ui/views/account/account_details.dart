@@ -36,13 +36,14 @@ class _AccountState extends State<Account> {
 
   String imageURL = '';
 
-  void updateUserData(
-      String prename, String lastname, String dateOfBirth, String email) async {
+  void updateUserData(String prename, String lastname, String dateOfBirth,
+      String email, String image) async {
     await userCollection.doc(currentUser.uid).update({
       'prename': prename,
       'lastname': lastname,
       'dateOfBirth': dateOfBirth,
       'email': email,
+      'profilepicture': image,
     });
   }
 
@@ -136,8 +137,7 @@ class _AccountState extends State<Account> {
 
                                 // create a refernece for the image to be stored
                                 Reference referenceImageToUpload =
-                                    referenceDirImages
-                                        .child(currentUser.uid + 'profilePic');
+                                    referenceDirImages.child(currentUser.uid);
 
                                 //Handle errors/succes
                                 try {
@@ -147,7 +147,9 @@ class _AccountState extends State<Account> {
                                   }
                                   imageURL = await referenceImageToUpload
                                       .getDownloadURL();
-                                } catch (e) {}
+                                } catch (e) {
+                                  print(e);
+                                }
 
                                 setState(() {
                                   imageProvider = (pickedFile != null
@@ -211,14 +213,17 @@ class _AccountState extends State<Account> {
                         ),
                         MyButton(
                           onTap: () async {
+                            //store information of item in cloud firestore
+
+                            currentUser.updatePhotoURL(imageURL);
                             updateUserData(
-                              prenameController.value.text,
-                              lastnameController.value.text,
-                              selectedDate,
-                              emailController.value.text.isEmpty
-                                  ? userData['email']
-                                  : emailController.value.text,
-                            );
+                                prenameController.value.text,
+                                lastnameController.value.text,
+                                selectedDate,
+                                emailController.value.text.isEmpty
+                                    ? userData['email']
+                                    : emailController.value.text,
+                                imageURL);
                             if (emailController.text.isNotEmpty &&
                                 emailController.text != currentUser.email) {
                               print("UPDATED EMAIL");
@@ -229,6 +234,7 @@ class _AccountState extends State<Account> {
                             }
                             updateDisplayName(prenameController.text,
                                 lastnameController.text);
+
                             context.go("/createtrip");
                           },
                           text: 'Finish',
