@@ -117,10 +117,10 @@ class ScrollViewWidget extends StatelessWidget {
                         Map<String, dynamic> archive = firestoreSnapshot!
                             .get('archive') as Map<String, dynamic>;
                         archive[con["key"]] = con;
-
                         Map<String, dynamic> item = con;
-                        bufferArray?.remove(con);
-                        Map<int, dynamic>? res = bufferArray?.asMap();
+                        List<dynamic>? tempArray = bufferArray;
+                        tempArray?.remove(con);
+                        Map<int, dynamic>? res = tempArray?.asMap();
                         res?.forEach((key, value) {
                           value['index'] = key;
                         });

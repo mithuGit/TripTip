@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:internet_praktikum/bottom_sheet.dart';
+import 'package:internet_praktikum/ui/widgets/bottom_sheet.dart';
 import 'package:internet_praktikum/ui/views/dashboard/scrollview.dart';
 import 'package:internet_praktikum/ui/views/navigation/app_navigation.dart';
 import 'package:internet_praktikum/ui/widgets/my_button.dart';
@@ -100,7 +100,9 @@ class _DashBoardState extends State<DashBoard> {
           isDash: true,
           icon: Icons.add,
           onTapForIconWidget: () {
-            CustomBottomSheet.show(context);
+            CustomBottomSheet.show(context, title: 'Add new Note', content: [
+              Text("data"),
+            ]);
           }),
       body: Stack(
         children: [
