@@ -3,7 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:internet_praktikum/bottom_sheet.dart';
-import 'package:internet_praktikum/ui/views/dashboard/scrollview.dart';
+import 'package:internet_praktikum/calendar.dart';
 import 'package:internet_praktikum/ui/views/navigation/app_navigation.dart';
 import 'package:internet_praktikum/ui/widgets/my_button.dart';
 import 'package:internet_praktikum/ui/widgets/topbar.dart';
@@ -17,7 +17,6 @@ class DashBoard extends StatefulWidget {
 
 class _DashBoardState extends State<DashBoard> {
   final user = FirebaseAuth.instance.currentUser!;
-  DateTime? selectedDay = DateTime(2023, 10, 1);
 
   void signUserOut() async {
     await FirebaseAuth.instance.signOut();
@@ -33,36 +32,6 @@ class _DashBoardState extends State<DashBoard> {
     }
   }
 
-  Future<DocumentReference> getCurrentDay() async {
-    print('DateTime: $selectedDay');
-    final userCollection = FirebaseFirestore.instance.collection('users');
-    final userDoc = await userCollection.doc(user.uid).get();
-    if(userDoc.data()?['selectedtrip'] == null) throw Exception('No trip selected');
-
-    final tripId = userDoc.data()?['selectedtrip'];
-    try {
-       await FirebaseFirestore.instance.collection('trips').doc(tripId).get();
-    } catch (e) {
-      print('Trip does not exist anymore');
-      await userCollection.doc(user.uid).update({'selectedtrip': null});
-      throw Exception('Trip does not exist anymore');
-    }
-   
-    final currentTrip =
-        await FirebaseFirestore.instance.collection('trips').doc(tripId).get();    
-    Map<String, dynamic>? currentTripdata = currentTrip.data();
-    List<dynamic> days = currentTripdata?['days'].toList();
-    Map<String, dynamic> day = days
-        .where((el) =>
-            (el['starttime'] as Timestamp).toDate().day == selectedDay!.day &&
-            (el['starttime'] as Timestamp).toDate().month ==
-                selectedDay!.month &&
-            (el['starttime'] as Timestamp).toDate().year == selectedDay!.year)
-        .first;
-    
-    return day['ref'];
-  }
-
   late String prename; // Variable für den Vornamen
 
   @override
@@ -72,7 +41,6 @@ class _DashBoardState extends State<DashBoard> {
     //loadPrename();
   }
 
-  // Dafür benötigen wir ein Future, da die Datenbank-Abfrage asynchron ist
   void loadPrename() async {
     try {
       // Benutzer-ID (uid) aus dem aktuellen Benutzer abrufen

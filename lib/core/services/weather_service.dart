@@ -144,8 +144,8 @@ class WeatherService {
 
     final QuerySnapshot<Map<String, dynamic>> querySnapshot =
         await FirebaseFirestore.instance
-            .collection('users')
-            .where('uid', isEqualTo: auth.uid)
+            .collection('trips')
+            .where('createdBy', isEqualTo: auth.uid)
             .get();
 
     if (querySnapshot.docs.isEmpty) {

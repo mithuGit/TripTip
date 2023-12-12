@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:internet_praktikum/ui/widgets/topbar.dart';
 
 import '../../widgets/profile_menu.dart';
@@ -15,8 +16,16 @@ class ProfilePage extends StatelessWidget {
 
   signOut(BuildContext context) async {
     await auth.signOut();
-    Navigator.pushReplacement(context,
-        MaterialPageRoute(builder: (context) => const LoginOrRegisterPage()));
+    if (context.mounted) {
+      GoRouter.of(context).go('/loginorregister');
+    }
+  }
+
+  deleteUser(BuildContext context) async {
+    await FirebaseAuth.instance.currentUser!.delete();
+    if (context.mounted) {
+      GoRouter.of(context).go('/loginorregister');
+    }
   }
 
   @override
@@ -36,12 +45,12 @@ class ProfilePage extends StatelessWidget {
         children: [
           Container(
               decoration: const BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage(
-                    'assets/mainpage_pic/profile.png'), // assets/BackgroundCity.png
-                fit: BoxFit.fill,
+                image: DecorationImage(
+                  image: AssetImage(
+                      'assets/mainpage_pic/profile.png'), // assets/BackgroundCity.png
+                  fit: BoxFit.fill,
+                ),
               ),
-            ),
               child: Column(
                 children: [
                   Positioned(
@@ -135,6 +144,14 @@ class ProfilePage extends StatelessWidget {
                   ProfileMenuWidget(
                       title: "Logout",
                       icon: Icons.logout,
+                      textColor: false,
+                      onPress: () {
+                        signOut(context);
+                      },
+                      endIcon: false),
+                  ProfileMenuWidget(
+                      title: "Delete Account",
+                      icon: Icons.delete,
                       textColor: false,
                       onPress: () {
                         signOut(context);

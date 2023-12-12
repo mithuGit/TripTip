@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -214,7 +213,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       //onTap: () => AuthService().signInWithGoogle(),
                       onTap: () {
                         signInWithGoogle().whenComplete(() {
-                          context.go('/');
+                          context.go('/accountdetails');
                         });
                       },
                       imagePath: 'assets/google_logo.png',
@@ -225,7 +224,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     MyButton(
                       onTap: () {
                         signInWithFacebook().whenComplete(() {
-                          context.go('/');
+                          context.go('/accountdetails');
                         });
                       },
                       imagePath: 'assets/facebook_logo.png',
