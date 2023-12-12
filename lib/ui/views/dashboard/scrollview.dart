@@ -45,10 +45,12 @@ class ScrollViewWidget extends StatelessWidget {
             scale: scale,
             // Create a Card based on the color and the content of the dragged one
             // and set its elevation to the animated value.
-            child: MainDasboardinitializer(
-              title: bufferArray![index]["title"] as String,
+            child: Dismissible(
               key: Key('$index'),
-              data: bufferArray![index],
+              child: MainDasboardinitializer(
+                title: bufferArray![index]["title"] as String,
+                data: bufferArray![index],
+              ),
             ), // or any other fallback widget
           );
         },
@@ -70,7 +72,7 @@ class ScrollViewWidget extends StatelessWidget {
             return const Text("Loading");
           }
           bufferArray =
-              (firestoreSnapshot?.get('widgets') as Map<String, dynamic>)
+              (firestoreSnapshot?.get('active') as Map<String, dynamic>)
                   .entries
                   ?.map((entry) => entry.value)
                   ?.toList();
@@ -84,37 +86,39 @@ class ScrollViewWidget extends StatelessWidget {
             margin: const EdgeInsets.only(
                 bottom: 65), // 65 because of the bottom navigation bar
             child: ReorderableListView(
-              buildDefaultDragHandles: false,
+              buildDefaultDragHandles: true,
               padding: const EdgeInsets.symmetric(horizontal: 23),
               proxyDecorator: proxyDecorator,
               onReorder: (int oldIndex, int newIndex) {
-                try {
-                  if (oldIndex < newIndex) {
-                    newIndex -= 1;
-                  }
-                  Map<String, dynamic> item = bufferArray?.removeAt(oldIndex);
-                  bufferArray?.insert(newIndex, item);
-                  Map<int, dynamic>? res = bufferArray?.asMap();
-                  res?.forEach((key, value) {
-                    value['index'] = key;
-                  });
-                  Map<String, dynamic>? res2 = res?.map((key, value) {
-                    return MapEntry(value["key"] as String, value);
-                  });
-                  //umschreibem
-                  firestore
-                      .collection('days')
-                      .doc(day?.id)
-                      .update({"widgets": res2});
-                } catch (e) {
-                  debugPrint(e.toString());
+                if (oldIndex < newIndex) {
+                  newIndex -= 1;
                 }
+                Map<String, dynamic> item = bufferArray?.removeAt(oldIndex);
+                bufferArray?.insert(newIndex, item);
+                Map<int, dynamic>? res = bufferArray?.asMap();
+                res?.forEach((key, value) {
+                  value['index'] = key;
+                });
+                Map<String, dynamic>? res2 = res?.map((key, value) {
+                  return MapEntry(value["key"] as String, value);
+                });
+                //umschreibem
+                firestore
+                    .collection('days')
+                    .doc(day?.id)
+                    .update({"active": res2});
               },
               children: bufferArray!
                   .map((con) {
                     return Dismissible(
-                      key: Key(con!["key"].toString()),
+                      direction: DismissDirection.horizontal,
+                      key: Key(con.hashCode.toString()),
                       onDismissed: (direction) {
+                        Map<String, dynamic> archive = firestoreSnapshot!
+                            .get('archive') as Map<String, dynamic>;
+                        archive[con["key"]] = con;
+
+                        Map<String, dynamic> item = con;
                         bufferArray?.remove(con);
                         Map<int, dynamic>? res = bufferArray?.asMap();
                         res?.forEach((key, value) {
@@ -127,12 +131,10 @@ class ScrollViewWidget extends StatelessWidget {
                         firestore
                             .collection('days')
                             .doc(day?.id)
-                            .update({"widgets": res2});
+                            .update({"active": res2, "archive": archive});
                       },
                       child: MainDasboardinitializer(
-                          key: Key(con!.hashCode.toString()),
-                          title: con!["title"],
-                          data: con),
+                          title: con!["title"], data: con),
                     );
                   })
                   .toList()
