@@ -101,20 +101,12 @@ class _DashBoardState extends State<DashBoard> {
           isDash: true,
           icon: Icons.add,
           onTapForIconWidget: () {
-            CustomBottomSheet.show(context, title: 'Create new Widget:',
-                builder: (p0) {
-              return Column(children: [
-                showSomething
-                    ? Text('Nsdfsdfs')
-                    : TextButton(
-                        onPressed: () => {
-                              setState(() => {
-                                    showSomething = true,
-                                  })
-                            },
-                        child: Text('Note'))
-              ]);
-            });
+            CustomBottomSheet.show(context,
+                title: "Add new Widget to your Dashboard",
+                content: [
+                  MyButton(text: "Note", colors: Colors.black, onTap: () {}),
+                  MyButton(text: "Appointment", colors: Colors.black, onTap: () {}),
+                ]);
           }),
       body: Stack(
         children: [
@@ -135,7 +127,8 @@ class _DashBoardState extends State<DashBoard> {
                                 ConnectionState.waiting) {
                               return const CircularProgressIndicator(); // Show loading indicator while waiting for the Future
                             } else if (snapshot.hasError) {
-                              return Text('EEEEE: ${snapshot.error}');
+                              return Text(
+                                  'Resolve Data Error: ${snapshot.error}');
                             } else {
                               return ScrollViewWidget(day: snapshot.data!);
                             }
