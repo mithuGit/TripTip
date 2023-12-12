@@ -11,30 +11,16 @@ class EditableStreamFirebaseDatastream {
   EditableStreamFirebaseDatastream(this.boolValue, this.firestoreSnapshot);
 }
 
-class ScrollViewWidget extends StatefulWidget {
+class ScrollViewWidget extends StatelessWidget {
   final DocumentReference? day;
-  const ScrollViewWidget({super.key, required this.day});
-
-  @override
-  State<ScrollViewWidget> createState() => _ScrollViewWidget();
-}
-
-class _ScrollViewWidget extends State<ScrollViewWidget> {
-  List<dynamic> newArray = List.empty();
-  bool _justEdited = false;
+  ScrollViewWidget({super.key, required this.day});
+  List<dynamic>? bufferArray = List.empty();
 
   @override
   Widget build(BuildContext context) {
     FirebaseFirestore firestore = FirebaseFirestore.instance;
     final Stream<DocumentSnapshot> _dayStream =
-        firestore.collection('days').doc(widget.day?.id).snapshots();
-
-    _dayStream.listen((event) {
-      if (_justEdited) {
-        _justEdited = false;
-        return;
-      }
-    });
+        firestore.collection('days').doc(day?.id).snapshots();
     final StreamController<bool> _editableStream = StreamController<bool>();
     _editableStream.add(false);
 
@@ -47,7 +33,6 @@ class _ScrollViewWidget extends State<ScrollViewWidget> {
 
     final Color oddItemColor = Colors.lime.shade100;
     final Color evenItemColor = Colors.deepPurple.shade100;
-    List<dynamic> bufferArray = List.empty();// The index of the card that is currently moving
 
     Widget proxyDecorator(
         Widget child, int index, Animation<double> animation) {
@@ -55,17 +40,16 @@ class _ScrollViewWidget extends State<ScrollViewWidget> {
         animation: animation,
         builder: (BuildContext context, Widget? child) {
           final double animValue = Curves.easeInOut.transform(animation.value);
-          final double elevation = lerpDouble(1, 6, animValue)!;
           final double scale = lerpDouble(1, 1.02, animValue)!;
           return Transform.scale(
             scale: scale,
             // Create a Card based on the color and the content of the dragged one
             // and set its elevation to the animated value.
             child: MainDasboardinitializer(
-              title: bufferArray[index]["title"] as String,
-              key: Key('$index',),
-              data: bufferArray[index]
-            ),
+              title: bufferArray![index]["title"] as String,
+              key: Key('$index'),
+              data: bufferArray![index],
+            ), // or any other fallback widget
           );
         },
         child: child,
@@ -76,7 +60,6 @@ class _ScrollViewWidget extends State<ScrollViewWidget> {
         stream: mergedStream,
         builder: (BuildContext context,
             AsyncSnapshot<EditableStreamFirebaseDatastream> snapshot) {
-          final bool _editable = snapshot.data?.boolValue ?? false;
           final DocumentSnapshot? firestoreSnapshot =
               snapshot.data?.firestoreSnapshot;
           if (snapshot.hasError) {
@@ -86,69 +69,58 @@ class _ScrollViewWidget extends State<ScrollViewWidget> {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Text("Loading");
           }
+          bufferArray =
+              (firestoreSnapshot?.get('widgets') as Map<String, dynamic>)
+                  .entries
+                  ?.map((entry) => entry.value)
+                  ?.toList();
 
-          List<dynamic> currentArray = firestoreSnapshot?.get('widgets') ?? [];
-          bufferArray = currentArray;
-
-          if (_editable) {
-            debugPrint("Container is editable");
-            return Container(
-              margin: const EdgeInsets.only(
-                  bottom: 65), // 65 because of the bottom navigation bar
-              child: ReorderableListView(
-                padding: const EdgeInsets.symmetric(horizontal: 23),
-                proxyDecorator: proxyDecorator,
-                onReorder: (int oldIndex, int newIndex) {
-                  try {
-                    _justEdited = true;
-                    if (oldIndex < newIndex) {
-                      newIndex -= 1;
-                    }
-                    Map<String, dynamic> item = bufferArray.removeAt(oldIndex);
-                    bufferArray.insert(newIndex, item);
-                    firestore
-                        .collection('days')
-                        .doc(widget.day?.id)
-                        .set({"widgets": bufferArray});
-                  } catch (e) {
-                    debugPrint(e.toString());
-                  }
-                },
-                children: bufferArray
-                    .map((con) {
-                      return MainDasboardinitializer(
-                          key: Key(con!.hashCode.toString()),
-                          title: con!["title"] as String,
-                          data: con);
-                    })
-                    .toList()
-                    .cast(),
-              ),
-            );
-          } else {
-            debugPrint("Container is not editable");
-            return Container(
-              margin: const EdgeInsets.only(
-                  bottom: 65), // 65 because of the bottom navigation bar
-              child: ListView(
-                padding: const EdgeInsets.symmetric(horizontal: 23),
-                children: bufferArray
-                    .map((con) {
-                      return GestureDetector(
-                        onLongPress: () {
-                          _editableStream.add(true);
-                        },
-                        child: MainDasboardinitializer(
-                            key: Key(con!.hashCode.toString()),
-                            data: Stream.value(con),
-                            title: con!["title"] as String),
-                      );
-                    })
-                    .toList()
-                    .cast(),
-              ),
-            );
+          if (bufferArray != null) {
+            bufferArray?.sort(
+                (a, b) => (a['index'] as int).compareTo(b['index'] as int));
           }
+          debugPrint("Container is editable");
+          return Container(
+            margin: const EdgeInsets.only(
+                bottom: 65), // 65 because of the bottom navigation bar
+            child: ReorderableListView(
+              padding: const EdgeInsets.symmetric(horizontal: 23),
+              proxyDecorator: proxyDecorator,
+              onReorder: (int oldIndex, int newIndex) {
+                print(bufferArray);
+                try {
+                  if (oldIndex < newIndex) {
+                    newIndex -= 1;
+                  }
+                  Map<String, dynamic> item = bufferArray?.removeAt(oldIndex);
+                  bufferArray?.insert(newIndex, item);
+                  Map<int, dynamic>? res = bufferArray?.asMap();
+                  res?.forEach((key, value) {
+                    value['index'] = key;
+                  });
+                  Map<String, dynamic>? res2 = res?.map((key, value) {
+                    return MapEntry(value["key"] as String, value);
+                  });
+                  //umschreibem
+                  firestore
+                      .collection('days')
+                      .doc(day?.id)
+                      .update({"widgets": res2});
+                } catch (e) {
+                  debugPrint(e.toString());
+                }
+              },
+              children: bufferArray!
+                  .map((con) {
+                    return MainDasboardinitializer(
+                        key: Key(con!.hashCode.toString()),
+                        title: con!["title"],
+                        data: con);
+                  })
+                  .toList()
+                  .cast(),
+            ),
+          );
         });
   }
 }
