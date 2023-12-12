@@ -2,10 +2,23 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:internet_praktikum/ui/styles/Styles.dart';
 
-class CustomBottomSheet {
-  static void show(BuildContext context,
-      {required String title, required List<Widget> content}) {
-    showModalBottomSheet(
+
+
+class CustomBottomSheet extends StatefulWidget {
+  final String title;
+  final Function(BuildContext) builder;
+
+  const CustomBottomSheet({required this.title, required this.builder});
+
+  @override
+  _CustomBottomSheetState createState() => _CustomBottomSheetState();
+}
+
+class _CustomBottomSheetState extends State<CustomBottomSheet> {
+  @override
+  Widget build(BuildContext context) {
+   return  
+   showModalBottomSheet(
       useRootNavigator: true,
       context: context,
       isScrollControlled: true,
@@ -49,11 +62,11 @@ class CustomBottomSheet {
                       ],
                     ),
                     Text(
-                      title,
+                      widget.title,
                       style: Styles
                           .title, // Hier wird die title-Methode aus der Styles-Klasse verwendet
                     ),
-                    ...content,
+                    Builder(builder: (context) => widget.builder(context))
                   ],
                 ),
               ),

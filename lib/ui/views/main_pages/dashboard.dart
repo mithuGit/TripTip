@@ -18,6 +18,7 @@ class DashBoard extends StatefulWidget {
 class _DashBoardState extends State<DashBoard> {
   final user = FirebaseAuth.instance.currentUser!;
   DateTime? selectedDay = DateTime(2023, 10, 1);
+  bool showSomething = false;
 
   void signUserOut() async {
     await FirebaseAuth.instance.signOut();
@@ -100,9 +101,20 @@ class _DashBoardState extends State<DashBoard> {
           isDash: true,
           icon: Icons.add,
           onTapForIconWidget: () {
-            CustomBottomSheet.show(context, title: 'Add new Note', content: [
-              Text("data"),
-            ]);
+            CustomBottomSheet.show(context, title: 'Create new Widget:',
+                builder: (p0) {
+              return Column(children: [
+                showSomething
+                    ? Text('Nsdfsdfs')
+                    : TextButton(
+                        onPressed: () => {
+                              setState(() => {
+                                    showSomething = true,
+                                  })
+                            },
+                        child: Text('Note'))
+              ]);
+            });
           }),
       body: Stack(
         children: [
