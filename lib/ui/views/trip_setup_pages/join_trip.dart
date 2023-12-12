@@ -14,7 +14,8 @@ class JoinTrip extends StatelessWidget {
 
   final groupController = TextEditingController();
 
-  void join_trip() async {
+  Future<void> join_trip() async {
+
     final dir = groupController.text;
     final self = [
       FirebaseFirestore.instance.collection("users").doc(_auth.currentUser?.uid)

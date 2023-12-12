@@ -25,8 +25,8 @@ class _ExpandableContainerState extends State<ExpandableContainer> {
         curve: Curves.easeInOut,
         height: isExpanded ? 100.0 : 60.0, // Adjust the height as needed
         decoration: BoxDecoration(
-          color: Color(0xE51E1E1E), // Grey background color
-          border: Border.all(color: Color(0xE51E1E1E)),
+          color: const Color(0xE51E1E1E), // Grey background color
+          border: Border.all(color: const Color(0xE51E1E1E)),
           borderRadius: BorderRadius.circular(34.5),
         ),
         child: Row(
@@ -36,7 +36,7 @@ class _ExpandableContainerState extends State<ExpandableContainer> {
               padding: const EdgeInsets.only(top: 8.0, bottom: 8.0, left: 25),
               child: Text(
                 widget.name,
-                style: TextStyle(
+                style: const TextStyle(
                     fontSize: 14.0,
                     fontWeight: FontWeight.bold,
                     color: Colors.white),
