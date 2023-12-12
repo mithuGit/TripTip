@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:internet_praktikum/ui/widgets/bottom_sheet.dart';
 import 'package:internet_praktikum/ui/views/dashboard/scrollview.dart';
 import 'package:internet_praktikum/ui/views/navigation/app_navigation.dart';
+import 'package:internet_praktikum/ui/widgets/dashboardWidgets/createNewWidgetOnDashboard.dart';
 import 'package:internet_praktikum/ui/widgets/my_button.dart';
 import 'package:internet_praktikum/ui/widgets/topbar.dart';
 
@@ -104,8 +105,19 @@ class _DashBoardState extends State<DashBoard> {
             CustomBottomSheet.show(context,
                 title: "Add new Widget to your Dashboard",
                 content: [
-                  MyButton(text: "Note", colors: Colors.black, onTap: () {}),
-                  MyButton(text: "Appointment", colors: Colors.black, onTap: () {}),
+                  FutureBuilder<DocumentReference>(
+                          future: getCurrentDay(),
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState ==
+                                ConnectionState.waiting) {
+                              return const CircularProgressIndicator(); // Show loading indicator while waiting for the Future
+                            } else if (snapshot.hasError) {
+                              return Text(
+                                  'Resolve Data Error: ${snapshot.error}');
+                            } else {
+                              return CreateNewWidgetOnDashboard(day: snapshot.data!);
+                            }
+                          }),
                 ]);
           }),
       body: Stack(
