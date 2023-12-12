@@ -1,7 +1,10 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:internet_praktikum/ui/views/navigation/app_navigation.dart';
 import 'package:internet_praktikum/ui/widgets/inputfield_password_or_icon.dart';
 import 'package:internet_praktikum/ui/widgets/my_button.dart';
@@ -27,6 +30,7 @@ class _AccountState extends State<Account> {
   final dateOfBirthController = TextEditingController();
   final passwordController = TextEditingController();
   late String selectedDate;
+  late ImageProvider<Object>? imageProvider;
 
   void updateUserData(
       String prename, String lastname, String dateOfBirth, String email) async {
@@ -73,6 +77,10 @@ class _AccountState extends State<Account> {
         lastnameController.text = displayNameParts[1];
       }
     }
+
+    currentUser.photoURL != null
+        ? imageProvider = NetworkImage(currentUser.photoURL!)
+        : imageProvider = const AssetImage('assets/Personavatar.png');
   }
 
   @override
@@ -106,14 +114,23 @@ class _AccountState extends State<Account> {
                           alignment: Alignment.topCenter,
                           children: [
                             GestureDetector(
-                              onTap: () {},
+                              onTap: () async {
+                                ImagePicker imagePicker = ImagePicker();
+                                XFile? pickedFile = await imagePicker.pickImage(
+                                    source: ImageSource.gallery) as XFile?;
+                                // TODO: Upload the image to Firebase storage
+
+                                setState(() {
+                                  imageProvider = (pickedFile != null
+                                          ? FileImage(File(pickedFile.path))
+                                          : AssetImage(
+                                              'assets/Personavatar.png'))
+                                      as ImageProvider<Object>?;
+                                });
+                              },
                               child: CircleAvatar(
                                 radius: 37.5,
-                                backgroundImage: currentUser.photoURL != null
-                                    ? NetworkImage(currentUser.photoURL!)
-                                        as ImageProvider<Object>?
-                                    : AssetImage('assets/Personavatar.png')
-                                        as ImageProvider<Object>?,
+                                backgroundImage: imageProvider,
                               ),
                             ),
                           ],
