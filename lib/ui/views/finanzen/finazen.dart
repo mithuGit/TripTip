@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:internet_praktikum/ui/styles/Styles.dart';
 import 'package:internet_praktikum/ui/views/finanzen/request.dart';
@@ -8,13 +9,15 @@ import '../../widgets/finanzen/extendablecontainer.dart';
 import '../../widgets/finanzen/slidablebutton.dart';
 
 class Finanzen extends StatefulWidget {
-  const Finanzen({Key? key}) : super(key: key);
+  Finanzen({Key? key}) : super(key: key);
 
   @override
   State<Finanzen> createState() => _FinanzenState();
 }
 
 class _FinanzenState extends State<Finanzen> {
+  User? currentUser;
+
   /* Future<void> initPaymentSheet() async {
     try {
       // 1. create payment intent on the server
@@ -89,6 +92,16 @@ class _FinanzenState extends State<Finanzen> {
       rethrow;
     }
   }*/
+  @override
+  void initState() {
+    super.initState();
+    // Listen to changes in the user authentication state
+    FirebaseAuth.instance.authStateChanges().listen((User? user) {
+      setState(() {
+        currentUser = user;
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -123,6 +136,13 @@ class _FinanzenState extends State<Finanzen> {
             child: ExpandableContainer(
               name: "Felix",
             ),
+          ),
+          CircleAvatar(
+            radius: 37.5,
+            backgroundImage: currentUser?.photoURL != null
+                ? NetworkImage(currentUser!.photoURL!)
+                : AssetImage('assets/Personavatar.png')
+                    as ImageProvider<Object>,
           ),
         ],
       ),

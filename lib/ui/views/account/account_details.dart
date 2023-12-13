@@ -126,9 +126,6 @@ class _AccountState extends State<Account> {
                                 ImagePicker imagePicker = ImagePicker();
                                 XFile? pickedFile = await imagePicker.pickImage(
                                     source: ImageSource.gallery) as XFile?;
-
-                                // TODO: Upload the image to Firebase storage
-
                                 //get reference to storage root
                                 Reference referenceRoot =
                                     FirebaseStorage.instance.ref();
