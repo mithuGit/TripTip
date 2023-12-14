@@ -3,8 +3,9 @@ import 'dart:ui';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:internet_praktikum/ui/widgets/inputfield.dart';
+import 'package:internet_praktikum/ui/widgets/my_button.dart';
 import '../../widgets/profile_menu.dart';
-import '../login_register_pages/login_or_register_page.dart';
 import '../profile_pages/edit_profile_page.dart';
 import '../../widgets/topbar.dart';
 
@@ -33,6 +34,7 @@ class ProfilePage extends StatelessWidget {
     var isDark = MediaQuery.of(context).platformBrightness == Brightness.dark;
 
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       appBar: const TopBar(
         icon: Icons.settings,
         isDash: false,
@@ -168,72 +170,85 @@ void deleteaccount(BuildContext context) {
   showModalBottomSheet(
     useRootNavigator: true,
     isScrollControlled: true,
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(20),
-    ),
+    shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(20.0),
+          topRight: Radius.circular(20.0),
+        ),
+      ),
     context: context,
     builder: (BuildContext context) {
-      return Container(
-        height: MediaQuery.of(context).size.height * 0.6,
-        decoration: const BoxDecoration(
-          color: Colors.transparent,
-        ),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
-          child: Container(
-            width: MediaQuery.of(context).size.width,
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(20.0),
-                topRight: Radius.circular(20.0),
+      return Padding(
+        padding: MediaQuery.of(context).viewInsets,
+        child: Container(
+          height: MediaQuery.of(context).size.height * 0.5,
+          decoration: const BoxDecoration(
+            color: Colors.transparent,
+          ),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
+            child: Container(
+              width: MediaQuery.of(context).size.width,
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(20.0),
+                  topRight: Radius.circular(20.0),
+                ),
               ),
-            ),
-            
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Text(
-                  'Your email is ${user.email}. Please enter to delete your account',
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
+              
+              padding: const EdgeInsets.all(16.0),
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    const Icon(
+                      Icons.keyboard_arrow_down,
+                      size: 40.0, // Die Größe nach Bedarf anpassen
+                      color: Colors.grey, // Die Farbe nach Bedarf anpassen
+                    ),
+                    const Text(
+                      'Please enter your email to delete your account',
+                      style:  TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    InputField(
+                      borderColor: Colors.black,
+                      obscureText: true,
+                      controller: emailController,
+                      hintText: 'Your Email',
+                    ),
+                    const SizedBox(height: 20),
+                    InputField(
+                      borderColor: Colors.black,
+                      controller: emailController,
+                      hintText: 'Confirm Your Email',
+                      obscureText: true,
+                    ),
+                    const SizedBox(height: 20),
+                    MyButton(
+                      onTap: () {
+                        if (emailController.text == user.email &&
+                            confirmemailController.text == user.email) {
+                          deleteUser(context);
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Emails do not match'),
+                            ),
+                          );
+                        }
+                      },
+                      text: 'Delete Account',
+                      colors: Colors.black,
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 20),
-                TextField(
-                  controller: emailController,
-                  decoration: const InputDecoration(
-                    labelText: 'Your Email',
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                TextField(
-                  controller: confirmemailController,
-                  decoration: const InputDecoration(
-                    labelText: 'Confirm Email',
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: () {
-                    if (emailController.text == user.email &&
-                        confirmemailController.text == user.email) {
-                      deleteUser(context);
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Emails do not match'),
-                        ),
-                      );
-                    }
-                  },
-                  child: const Text('Delete Account'),
-                ),
-              ],
+              ),
             ),
           ),
         ),
