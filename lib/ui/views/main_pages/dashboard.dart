@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:internet_praktikum/calendar.dart';
 import 'package:internet_praktikum/ui/widgets/bottom_sheet.dart';
 import 'package:internet_praktikum/ui/views/dashboard/scrollview.dart';
 import 'package:internet_praktikum/ui/views/navigation/app_navigation.dart';
@@ -18,7 +19,7 @@ class DashBoard extends StatefulWidget {
 
 class _DashBoardState extends State<DashBoard> {
   final user = FirebaseAuth.instance.currentUser!;
-  DateTime? selectedDay = DateTime(2023, 10, 1);
+  DateTime? selectedDay;
   bool showSomething = false;
 
   void signUserOut() async {
@@ -106,18 +107,18 @@ class _DashBoardState extends State<DashBoard> {
                 title: "Add new Widget to your Dashboard",
                 content: [
                   FutureBuilder<DocumentReference>(
-                          future: getCurrentDay(),
-                          builder: (context, snapshot) {
-                            if (snapshot.connectionState ==
-                                ConnectionState.waiting) {
-                              return const CircularProgressIndicator(); // Show loading indicator while waiting for the Future
-                            } else if (snapshot.hasError) {
-                              return Text(
+                      future: getCurrentDay(),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const CircularProgressIndicator(); // Show loading indicator while waiting for the Future
+                        } else if (snapshot.hasError) {
+                          return Text(
                                   'Resolve Data Error: ${snapshot.error}');
-                            } else {
-                              return CreateNewWidgetOnDashboard(day: snapshot.data!);
-                            }
-                          }),
+                        } else {
+                          return CreateNewWidgetOnDashboard(day: snapshot.data!);
+                        }
+                      }),
                 ]);
           }),
       body: Stack(
@@ -131,20 +132,29 @@ class _DashBoardState extends State<DashBoard> {
                 ),
               ),
               child: Center(
-                  child: Center(
-                      child: FutureBuilder<DocumentReference>(
-                          future: getCurrentDay(),
-                          builder: (context, snapshot) {
-                            if (snapshot.connectionState ==
-                                ConnectionState.waiting) {
-                              return const CircularProgressIndicator(); // Show loading indicator while waiting for the Future
-                            } else if (snapshot.hasError) {
-                              return Text(
-                                  'Resolve Data Error: ${snapshot.error}');
-                            } else {
-                              return ScrollViewWidget(day: snapshot.data!);
-                            }
-                          })))),
+                  child: ListView(children: [
+                      Calendar(
+                  onDateSelected: (DateTime selectedDate) {
+                    setState(() {
+                      selectedDay = selectedDate;
+                    });
+                  },
+                ),
+                Center(
+                    child: FutureBuilder<DocumentReference>(
+                        future: getCurrentDay(),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return const CircularProgressIndicator(); // Show loading indicator while waiting for the Future
+                          } else if (snapshot.hasError) {
+                            return Text(
+                                'Resolve Data Error: ${snapshot.error}');
+                          } else {
+                            return ScrollViewWidget(day: snapshot.data!);
+                          }
+                        })),
+              ]))),
         ],
       ),
     );

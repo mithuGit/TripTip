@@ -65,9 +65,9 @@ class _TopBarState extends State<TopBar> {
                   context.go('/weatherpage');
                 },
                 temperature:
-                    '${WeatherService.actualWeather?.temperature.round()}°C',
+                    '${actualWeather?.temperature.round()}°C',
                 weatherImage: WeatherService.getWeatherIcon(
-                    WeatherService.actualWeather?.mainCondition),
+                    actualWeather?.mainCondition),
               )
             : null,
         actions: [

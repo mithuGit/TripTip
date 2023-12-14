@@ -86,12 +86,7 @@ class ProfilePage extends StatelessWidget {
                       width: 200,
                       child: ElevatedButton(
                           onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const EditProfilePage(),
-                              ),
-                            );
+                            context.go('/accountdetails');
                           },
                           style: ElevatedButton.styleFrom(
                               backgroundColor: isDark
