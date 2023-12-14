@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:internet_praktikum/ui/widgets/finanzen/slidablebutton.dart';
 
@@ -5,9 +6,13 @@ import '../../styles/Styles.dart';
 import 'expandableitem.dart';
 
 class ExpandableContainer extends StatefulWidget {
-  const ExpandableContainer({Key? key, required this.name}) : super(key: key);
+  const ExpandableContainer(
+      {Key? key, required this.name, required this.items, required this.sum})
+      : super(key: key);
 
   final String name;
+  final List<String> items;
+  final double sum;
 
   @override
   State<ExpandableContainer> createState() => _ExpandableContainerState();
@@ -15,39 +20,28 @@ class ExpandableContainer extends StatefulWidget {
 
 class _ExpandableContainerState extends State<ExpandableContainer> {
   bool isExpanded = false;
+  User? currentUser;
 
-  // TesterList
-  List<ExpandableItem> items = [
-    ExpandableItem(text: 'Test1', price: '10 €'),
-    ExpandableItem(text: 'Test2', price: '20 €'),
-    ExpandableItem(text: 'Test3', price: '30 €'),
-    ExpandableItem(text: 'Test4', price: '40 €'),
-    ExpandableItem(text: 'Test5', price: '50 €'),
-    ExpandableItem(text: 'Test6', price: '60 €'),
-  ];
-
-  double calculateMainHight(List<ExpandableItem> list, double screenHeight) {
-    if (list.length >= 4) {
-      return screenHeight * 0.33;
-    } else if (list.length == 3) {
-      return screenHeight * 0.295;
-    } else if (list.length == 2) {
-      return screenHeight * 0.25;
-    } else {
-      return screenHeight * 0.21;
-    }
+  @override
+  void initState() {
+    super.initState();
+    // Listen to changes in the user authentication state
+    FirebaseAuth.instance.authStateChanges().listen((User? user) {
+      setState(() {
+        currentUser = user;
+      });
+    });
   }
 
-  double calculateSmallHight(List<ExpandableItem> list, double height) {
-    if (list.length >= 4) {
-      return height * 0.159 + 13;
-    } else if (list.length == 3) {
-      return height * 0.126 + 13;
-    } else if (list.length == 2) {
-      return height * 0.08 + 13;
-    } else {
-      return height * 0.038 + 13;
+  double calculateHeight(double height) {
+    if (widget.items.length >= 4) {
+      return height * 0.38;
+    } else if (widget.items.length == 3) {
+      return height * 0.37;
+    } else if (widget.items.length == 2) {
+      return height * 0.31;
     }
+    return height * 0.28;
   }
 
   @override
@@ -62,15 +56,14 @@ class _ExpandableContainerState extends State<ExpandableContainer> {
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
         height: isExpanded
-            ? calculateMainHight(items, MediaQuery.of(context).size.height)
-            : 65.0, // Adjust the height as needed
+            ? calculateHeight(MediaQuery.of(context).size.height)
+            : 66.0, // Adjust the height as needed
         decoration: BoxDecoration(
           color: Color(0xE51E1E1E), // Grey background color
           border: Border.all(color: Color(0xE51E1E1E)),
           borderRadius: BorderRadius.circular(34.5),
         ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        child: Column(
           children: [
             Padding(
               padding: const EdgeInsets.only(
@@ -85,14 +78,15 @@ class _ExpandableContainerState extends State<ExpandableContainer> {
                   Align(
                     alignment: Alignment.centerLeft,
                     child: Padding(
-                      padding: const EdgeInsets.only(top: 5.0),
+                      padding: const EdgeInsets.only(top: 2.0, bottom: 2.0),
                       child: Row(
                         children: [
-                          Container(
-                            width: 44,
-                            height: 44,
-                            decoration: const BoxDecoration(
-                                shape: BoxShape.circle, color: Colors.grey),
+                          CircleAvatar(
+                            radius: 25,
+                            backgroundImage: currentUser?.photoURL != null
+                                ? NetworkImage(currentUser!.photoURL!)
+                                : AssetImage('assets/Personavatar.png')
+                                    as ImageProvider<Object>,
                           ),
                           Padding(
                             padding: const EdgeInsets.only(left: 10.0),
@@ -109,12 +103,12 @@ class _ExpandableContainerState extends State<ExpandableContainer> {
                       ),
                     ),
                   ),
-                  const Align(
+                  Align(
                     alignment: Alignment.centerRight,
                     child: Padding(
-                      padding: EdgeInsets.only(top: 5.0),
+                      padding: EdgeInsets.only(top: 5.0, left: 140, right: 5),
                       child: Text(
-                        '0 €',
+                        widget.sum.toString() + ' €',
                         style: TextStyle(
                           fontSize: 20.0,
                           fontWeight: FontWeight.bold,
@@ -127,43 +121,53 @@ class _ExpandableContainerState extends State<ExpandableContainer> {
               ),
             ),
             if (isExpanded) ...[
-              Padding(
-                padding: const EdgeInsets.only(top: 8.0),
-                child: SizedBox(
-                  height: calculateSmallHight(
-                      items, MediaQuery.of(context).size.height),
-                  child: Padding(
-                    padding:
-                        const EdgeInsets.only(left: 5, right: 5, bottom: 10),
-                    child: ListView.builder(
-                      shrinkWrap: true,
-                      itemCount: items.length,
-                      itemBuilder: (context, index) {
-                        return Container(
-                          margin: const EdgeInsets.only(
-                              left: 20, right: 20, top: 10),
-                          child: Row(
+              Expanded(
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: widget.items.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    List<String> itemParts = widget.items[index].split(':');
+                    String activity = itemParts[0];
+                    String price = itemParts[1];
+                    return Padding(
+                        padding: const EdgeInsets.only(bottom: 0, right: 5),
+                        child: ListTile(
+                          title: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                items[index].text,
-                                style: Styles.textAutocomplete,
+                                activity,
+                                style: const TextStyle(
+                                  fontSize: 20.0,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
                               ),
                               Text(
-                                items[index].price,
-                                style: Styles.textAutocomplete,
+                                price + '€',
+                                style: const TextStyle(
+                                  fontSize: 20.0,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
                               ),
                             ],
                           ),
-                        );
-                      },
-                    ),
-                  ),
+                          /* title: Text(
+                            widget.items[index],
+                            style: const TextStyle(
+                              fontSize: 20.0,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),*/
+                        ));
+                  },
                 ),
               ),
               const Padding(
                 padding:
-                    EdgeInsets.only(top: 5, left: 20, right: 20, bottom: 5),
+                    EdgeInsets.only(top: 7, left: 15, right: 15, bottom: 5),
                 child: SlideButton(
                   buttonText: 'Slide to Pay',
                   margin: EdgeInsets.only(bottom: 8),

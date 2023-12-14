@@ -16,8 +16,6 @@ class Finanzen extends StatefulWidget {
 }
 
 class _FinanzenState extends State<Finanzen> {
-  User? currentUser;
-
   /* Future<void> initPaymentSheet() async {
     try {
       // 1. create payment intent on the server
@@ -92,16 +90,6 @@ class _FinanzenState extends State<Finanzen> {
       rethrow;
     }
   }*/
-  @override
-  void initState() {
-    super.initState();
-    // Listen to changes in the user authentication state
-    FirebaseAuth.instance.authStateChanges().listen((User? user) {
-      setState(() {
-        currentUser = user;
-      });
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -131,28 +119,119 @@ class _FinanzenState extends State<Finanzen> {
               ),
             ),
           ),
-          const Padding(
-            padding: EdgeInsets.only(top: 80, left: 20, right: 20, bottom: 45),
-            child: ExpandableContainer(
-              name: "Felix",
+          Padding(
+            padding: const EdgeInsets.only(bottom: 50),
+            child: Container(
+              child: Padding(
+                padding: const EdgeInsets.only(
+                    top: 80, left: 20, right: 20, bottom: 45),
+                child: SingleChildScrollView(
+                  physics: BouncingScrollPhysics(),
+                  child: Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 25),
+                        child: ExpandableContainer(
+                          name: 'Felix',
+                          items: [
+                            'Activity 1: 10.00 ',
+                            'Activity 2: 20.00 ',
+                            'Activity 3: 15.00 ',
+                          ],
+                          sum: 45,
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 25),
+                        child: ExpandableContainer(
+                          name: 'Uwe',
+                          items: [
+                            'Activity 1: 10.00 ',
+                            'Activity 2: 20.00 ',
+                            'Activity 3: 15.00 ',
+                          ],
+                          sum: 45,
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 25),
+                        child: ExpandableContainer(
+                          name: 'Uwe',
+                          items: [
+                            'Activity 1: 10.00 ',
+                            'Activity 2: 20.00 ',
+                            'Activity 3: 15.00 ',
+                          ],
+                          sum: 45,
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 25),
+                        child: ExpandableContainer(
+                          name: 'Uwe',
+                          items: [
+                            'Activity 1: 10.00 ',
+                            'Activity 2: 20.00 ',
+                            'Activity 3: 15.00 ',
+                          ],
+                          sum: 45,
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 25),
+                        child: ExpandableContainer(
+                          name: 'Uwe',
+                          items: [
+                            'Activity 1: 10.00 ',
+                            'Activity 2: 20.00 ',
+                            'Activity 3: 15.00 ',
+                          ],
+                          sum: 45,
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 25),
+                        child: ExpandableContainer(
+                          name: 'Uwe',
+                          items: [
+                            'Activity 1: 10.00 ',
+                            'Activity 2: 20.00 ',
+                            'Activity 3: 15.00 ',
+                          ],
+                          sum: 45,
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 25),
+                        child: ExpandableContainer(
+                          name: 'Uwe',
+                          items: [
+                            'Activity 1: 10.00 ',
+                            'Activity 2: 20.00 ',
+                            'Activity 3: 15.00 ',
+                          ],
+                          sum: 45,
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 25),
+                        child: ExpandableContainer(
+                          name: 'Uwe',
+                          items: [
+                            'Activity 1: 10.00 ',
+                            'Activity 2: 20.00 ',
+                            'Activity 3: 15.00 ',
+                          ],
+                          sum: 45,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             ),
           ),
-          CircleAvatar(
-            radius: 37.5,
-            backgroundImage: currentUser?.photoURL != null
-                ? NetworkImage(currentUser!.photoURL!)
-                : AssetImage('assets/Personavatar.png')
-                    as ImageProvider<Object>,
-          ),
         ],
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.startTop,
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // initPaymentSheet();
-        },
-        child: const Icon(Icons.add),
-        backgroundColor: Theme.of(context).primaryColor,
       ),
     );
   }

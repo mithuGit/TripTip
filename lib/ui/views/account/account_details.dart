@@ -35,7 +35,7 @@ class _AccountState extends State<Account> {
   late ImageProvider<Object>? imageProvider;
 
   String imageURL = '';
-
+  //set and updates Userdata in the FirebaseCollestion users
   void updateUserData(String prename, String lastname, String dateOfBirth,
       String email, String image) async {
     await userCollection.doc(currentUser.uid).update({
@@ -47,22 +47,21 @@ class _AccountState extends State<Account> {
     });
   }
 
-  Future<void> updateUserEmail(
+  //Update the email in Auth
+  Future<void> updateAuthEmail(
       String newEmail, String oldMail, String password) async {
-    try {
-      AuthCredential credential =
-          EmailAuthProvider.credential(email: oldMail, password: password);
-      await currentUser.reauthenticateWithCredential(credential);
-      await currentUser.verifyBeforeUpdateEmail(newEmail);
-      print("Email has been updated");
-    } catch (e) {
-      if (kDebugMode) {
-        print("Error updating email: $e");
-      }
-    }
+    AuthCredential credential =
+        EmailAuthProvider.credential(email: oldMail, password: password);
+
+    await currentUser.reauthenticateWithCredential(credential).then((value) {
+      currentUser.updateEmail(newEmail);
+    }).catchError((e) {
+      print(e.toString());
+    });
   }
 
-  Future<void> updateDisplayName(String prename, String lastName) async {
+  //Updates displayName in Auth
+  Future<void> updateAuthDisplayName(String prename, String lastName) async {
     try {
       await currentUser.updateDisplayName("$prename $lastName");
     } catch (e) {
@@ -168,13 +167,13 @@ class _AccountState extends State<Account> {
                         ),
                         InputField(
                           controller: prenameController,
-                          hintText: currentUser.displayName.toString(),
+                          hintText: 'First Name',
                           obscureText: false,
                           margin: const EdgeInsets.only(bottom: 25),
                         ),
                         InputField(
                           controller: lastnameController,
-                          hintText: 'LastName',
+                          hintText: 'Last Name',
                           obscureText: false,
                           margin: const EdgeInsets.only(bottom: 12.5),
                         ),
@@ -224,12 +223,10 @@ class _AccountState extends State<Account> {
                             if (emailController.text.isNotEmpty &&
                                 emailController.text != currentUser.email) {
                               print("UPDATED EMAIL");
-                              await updateUserEmail(
-                                  emailController.text,
-                                  'felixbauer320@gmail.com',
-                                  passwordController.text);
+                              await updateAuthEmail(emailController.text,
+                                  'felixtest87@gmail.com', 'test123');
                             }
-                            updateDisplayName(prenameController.text,
+                            updateAuthDisplayName(prenameController.text,
                                 lastnameController.text);
 
                             context.go("/createtrip");
