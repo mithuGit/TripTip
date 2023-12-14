@@ -45,4 +45,9 @@ class Styles {
       fontSize: 20,
       fontWeight: FontWeight.w500,
       color: Colors.white);
+  static const creatorofwidget = TextStyle(
+      fontFamily: 'Ubuntu',
+      fontSize: 13,
+      fontWeight: FontWeight.w400,
+      color: Color(0xFFAFAFAF));   
 }
