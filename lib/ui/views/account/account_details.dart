@@ -31,7 +31,9 @@ class _AccountState extends State<Account> {
   final emailController = TextEditingController();
   final dateOfBirthController = TextEditingController();
   final passwordController = TextEditingController();
-  late String selectedDate;
+
+  //sonst late inizalisiert fehler
+  String selectedDate = '';
   late ImageProvider<Object>? imageProvider;
 
   String imageURL = '';
@@ -74,6 +76,9 @@ class _AccountState extends State<Account> {
   @override
   void initState() {
     super.initState();
+    currentUser.photoURL != null
+        ? imageProvider = NetworkImage(currentUser.photoURL!)
+        : imageProvider = const AssetImage('assets/Personavatar.png');
     emailController.text = currentUser.email!;
     if (currentUser.displayName != null &&
         currentUser.displayName!.isNotEmpty) {
@@ -83,10 +88,17 @@ class _AccountState extends State<Account> {
         lastnameController.text = displayNameParts[1];
       }
     }
-
-    currentUser.photoURL != null
-        ? imageProvider = NetworkImage(currentUser.photoURL!)
-        : imageProvider = const AssetImage('assets/Personavatar.png');
+    userCollection.doc(currentUser.uid).get().then((snapshot) {
+      if (snapshot.exists) {
+        Map<String, dynamic> userData = snapshot.data() as Map<String, dynamic>;
+        if (userData.containsKey('dateOfBirth') &&
+            userData['dateOfBirth'] != null) {
+          setState(() {
+            selectedDate = userData['dateOfBirth'];
+          });
+        }
+      }
+    });
   }
 
   @override
@@ -193,6 +205,7 @@ class _AccountState extends State<Account> {
                         ),
                         const SizedBox(height: 12.5),
                         CupertinoDatePickerButton(
+                          presetDate: selectedDate,
                           margin: const EdgeInsets.only(bottom: 25),
                           onDateSelected: (DateStringTupel dateStringTupel) {
                             setState(() {
@@ -222,7 +235,6 @@ class _AccountState extends State<Account> {
                                 imageURL);
                             if (emailController.text.isNotEmpty &&
                                 emailController.text != currentUser.email) {
-                              print("UPDATED EMAIL");
                               await updateAuthEmail(emailController.text,
                                   'felixtest87@gmail.com', 'test123');
                             }
