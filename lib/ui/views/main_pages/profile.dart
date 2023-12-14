@@ -66,91 +66,6 @@ class ProfilePage extends StatelessWidget {
                       size: 20,
                     ),
                   ),
-
-                  const SizedBox(height: 10),
-
-                  Text('Welcome ${user.displayName}',
-                      style: const TextStyle(
-                          fontSize: 20, fontWeight: FontWeight.bold)),
-
-                  Text('Your email is ${user.email}',
-                      style: const TextStyle(
-                          fontSize: 20, fontWeight: FontWeight.bold)),
-
-                  const SizedBox(height: 20),
-
-                  SizedBox(
-                      width: 200,
-                      child: ElevatedButton(
-                          onPressed: () {
-                            context.go('/accountdetails');
-                          },
-                          style: ElevatedButton.styleFrom(
-                              backgroundColor: isDark
-                                  ? Colors.grey[700]
-                                  : Colors.grey[
-                                      300], // maybe hier eine eindeutige Farbe wählen, wie Lila oder gelb.
-                              side: BorderSide.none,
-                              shape: const StadiumBorder()),
-                          child: const Text('Edit Profile',
-                              style: TextStyle(
-                                  color: Colors
-                                      .black)))), // primary nochmal angucken und verändern
-
-                  const SizedBox(height: 30),
-                  const Divider(
-                      color: Colors
-                          .grey), // damit machen wir alles in den Center // color ändern
-                  const SizedBox(height: 10),
-
-                  ProfileMenuWidget(
-                      title: "Settings",
-                      icon: Icons.settings,
-                      textColor: true,
-                      onPress: () {},
-                      endIcon: true),
-                  ProfileMenuWidget(
-                      title: "Billing Details",
-                      icon: Icons.wallet,
-                      textColor: true,
-                      onPress: () {},
-                      endIcon: true),
-                  ProfileMenuWidget(
-                      title: "User Managment",
-                      icon: Icons.verified_user,
-                      textColor: true,
-                      onPress: () {},
-                      endIcon: true),
-
-                  const Divider(
-                      color: Colors
-                          .grey), // damit machen wir alles in den Center // color ändern
-                  const SizedBox(height: 10),
-
-                  ProfileMenuWidget(
-                      title: "Information",
-                      icon: Icons.info,
-                      textColor: true,
-                      onPress: () {},
-                      endIcon: true),
-                  ProfileMenuWidget(
-                      title: "Logout",
-                      icon: Icons.logout,
-                      textColor: false,
-                      onPress: () {
-                        signOut(context);
-                      },
-                      endIcon: false),
-                  ProfileMenuWidget(
-                      title: "Delete Account",
-                      icon: Icons.delete,
-                      textColor: false,
-                      onPress: () {
-                        signOut(context);
-                      },
-                      endIcon: false),
-                ],
-              )),
                 ),
                 const SizedBox(height: 10),
                 Text(
@@ -241,7 +156,6 @@ class ProfilePage extends StatelessWidget {
               ],
             ),
           ),
-
         ],
       ),
     );
