@@ -1,14 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:internet_praktikum/ui/styles/Styles.dart';
 import 'package:internet_praktikum/ui/widgets/bottom_sheet.dart';
+import 'package:intl/intl.dart';
 
 class WidgetContainer extends StatefulWidget {
   final String title;
   final List<Widget>? children;
   final IconData? icon;
+  final bool isSurvey;
+  final String? description;
+  final TimeOfDay? time;
 
   const WidgetContainer(
-      {super.key, required this.title, this.children, this.icon});
+      {super.key,
+      required this.title,
+      this.children,
+      this.icon,
+      required this.isSurvey,
+      this.description, this.time});
 
   @override
   State<WidgetContainer> createState() => _WidgetContainerState();
@@ -17,6 +26,13 @@ class WidgetContainer extends StatefulWidget {
 class _WidgetContainerState extends State<WidgetContainer> {
   @override
   Widget build(BuildContext context) {
+    String formattedTime = '';
+
+    if (widget.time != null) {
+      final dateTime = DateTime(2023, 1, 1, widget.time!.hour, widget.time!.minute);
+      formattedTime = DateFormat('HH:mm').format(dateTime);
+    }
+
     return LayoutBuilder(
       builder: (context, constraints) => Container(
           decoration: BoxDecoration(
@@ -34,37 +50,64 @@ class _WidgetContainerState extends State<WidgetContainer> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         SizedBox(
-                          height: 25, // kurz entfernen 
+                          height: 25, // kurz entfernen
                           child: Text(
                             widget.title,
                             style: Styles.overlayTitle,
                             textAlign: TextAlign.left,
                           ),
                         ),
-                        GestureDetector(
-                            onTap: () {
-                              CustomBottomSheet.show(context,
-                                  title: "Add New Recommendation",
-                                  content: [
-                                    // HIER SOLLTE MAN NEUE VORSCHLÄGE HINZUFÜGEN KÖNNEN
-                                  ]);
-                            },
-                            child: const Icon(
-                              Icons.add,
-                              color: Colors.white,
-                              size: 35,
-                            ))
+                        if (widget.isSurvey)
+                          GestureDetector(
+                              onTap: () {
+                                CustomBottomSheet.show(context,
+                                    title: "Add New Recommendation",
+                                    content: [
+                                      // HIER SOLLTE MAN NEUE VORSCHLÄGE HINZUFÜGEN KÖNNEN
+                                    ]);
+                              },
+                              child: const Icon(
+                                Icons.add,
+                                color: Colors.white,
+                                size: 35,
+                              ))
                       ],
                     ),
                     const SizedBox(
-                      height: 20,
+                      height: 10,
                     ),
-
-                    if(widget.children != null)
+                    if (widget.children != null)
                       for (var child in widget.children!) child,
-                    
+                    if (widget.description != null && widget.time != null)
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          SizedBox(
+                            width: 250,
+                            child: Text(
+                              widget.description!,
+                              style: Styles.descriptionofwidget,
+                            ),
+                          ),
+                          Column(
+                            children: [
+                              Icon(
+                                widget.icon,
+                                color: Colors.white,
+                                size: 35,
+                              ),
+                              Text(
+                                formattedTime,
+                                style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold)),
+                            ],/////DateFormat('dd.MM.yyyy').format(date),
+                          )
+                        ],
+                      ),
                     const SizedBox(
-                      height: 20,
+                      height: 10,
                     ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.start,
@@ -75,8 +118,8 @@ class _WidgetContainerState extends State<WidgetContainer> {
                           clipBehavior: Clip.antiAlias,
                           decoration: BoxDecoration(
                             image: const DecorationImage(
-                              image: AssetImage(
-                                  'assets/mainpage_pic/profile.png'),
+                              image:
+                                  AssetImage('assets/mainpage_pic/profile.png'),
                               fit: BoxFit.cover,
                             ),
                             color: Colors.white,

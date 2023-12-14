@@ -50,4 +50,9 @@ class Styles {
       fontSize: 13,
       fontWeight: FontWeight.w400,
       color: Color(0xFFAFAFAF));   
+  static const descriptionofwidget = TextStyle(
+      fontFamily: 'Ubuntu',
+      fontSize: 16,
+      fontWeight: FontWeight.w400,
+      color: Color(0xFFAFAFAF));   
 }

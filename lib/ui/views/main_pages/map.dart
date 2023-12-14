@@ -29,16 +29,14 @@ class _MapPageState extends State<MapPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-          backgroundColor: Colors.transparent,
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.search, color: Colors.black, size: 30),
-              onPressed: () {
-                //fetchWeather();
-              },
-            ),
-          ]),
+      appBar: AppBar(backgroundColor: Colors.transparent, actions: [
+        IconButton(
+          icon: const Icon(Icons.search, color: Colors.black, size: 30),
+          onPressed: () {
+            //search in map
+          },
+        ),
+      ]),
       body: Stack(
         children: [
           Container(
@@ -50,58 +48,73 @@ class _MapPageState extends State<MapPage> {
               ),
             ),
             child: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Text('Welcome ${user.displayName}'),
-                  const SizedBox(height: 20),
-                  Text('Your email is ${user.email}'),
-                  const SizedBox(height: 20),
-                  Text('Your uid is ${user.uid}'),
-                  const SizedBox(height: 20),
-                  Text('Your profile picture is ${user.photoURL}'),
-                  //Uri.file(user.photoURL!).isAbsolute
-                  //    ? Image.network(user.photoURL!)
-                  //    : Image.asset(user.photoURL!),
-                  MyButton(
-                    onTap: signUserOut,
-                    text: "Logout",
-                    colors: Colors.red,
-                  ),
-                  MyButton(
-                    onTap: deleteUser,
-                    text: "Delete Account",
-                    colors: Colors.red,
-                  ),
-
-                  const Padding(
-                    padding: EdgeInsets.only(
-                      left: 18, right: 18,),
-                    child: WidgetContainer
-                    (title: "Voting for Food", 
-                      children: [
+              child: ListView(children: const[
+                 Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.only(
+                        left: 18,
+                        right: 18,
+                      ),
+                      child:
+                          WidgetContainer(
+                            isSurvey: true,
+                            title: "Voting for Food", 
+                            children: [
                         InputField(
                           hintText: 'Burger',
                           obscureText: false,
-                      ),
-                      InputField(
+                        ),
+                        InputField(
                           hintText: 'Pizza',
                           obscureText: false,
+                        ),
+                      ]),
+                    ),
+                    SizedBox(height: 10,),
+                    Padding(
+                      padding: EdgeInsets.only(
+                        left: 18,
+                        right: 18,
                       ),
-                      ]
+                      child: WidgetContainer(
+                        isSurvey: false,
+                        time: TimeOfDay(hour: 18, minute: 0),
+                        description: "We eat at 18:00",
+                        title: "Go to Restaurant",
+                        icon: Icons.group,
+                      ),
                     ),
-                  ),
-                  const Padding(
-                    padding: EdgeInsets.only(
-                      left: 18, right: 18,),
-                    child: WidgetContainer
-                    (title: "Go to Restaurant",
-                      icon: Icons.group,
-                    
+                    SizedBox(height: 10,),
+                    Padding(
+                      padding: EdgeInsets.only(
+                        left: 18,
+                        right: 18,
+                      ),
+                      child: WidgetContainer(
+                        isSurvey: false,
+                        time: TimeOfDay(hour: 7, minute: 3),
+                        description: "We eat at 18:00 in the Restaurant near the University",
+                        title: "Go to Restaurant",
+                        icon: Icons.map_outlined,
+                      ),
                     ),
-                  )
-                ],
-              ),
+                    SizedBox(height: 10,),
+                    Padding(
+                      padding: EdgeInsets.only(
+                        left: 18,
+                        right: 18,
+                      ),
+                      child: WidgetContainer(
+                        isSurvey: false,
+                        title: "Go to Restaurant",
+                        icon: Icons.group,
+                      ),
+                    )
+                  ],
+                ),
+              ]),
             ),
           ),
         ],
