@@ -1,11 +1,7 @@
-import 'dart:async';
 import 'dart:ui';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:internet_praktikum/ui/styles/Styles.dart';
-import 'package:internet_praktikum/ui/views/login_register_pages/login_page.dart';
 import 'package:internet_praktikum/ui/widgets/errorSnackbar.dart';
 import 'package:internet_praktikum/ui/widgets/inputfield.dart';
 import 'package:internet_praktikum/ui/widgets/my_button.dart';
@@ -18,8 +14,6 @@ class ProfilePage extends StatelessWidget {
 
   final auth = FirebaseAuth.instance;
   final user = FirebaseAuth.instance.currentUser!;
-
-  int counter = 0;
 
   signOut(BuildContext context) async {
     await auth.signOut();
@@ -172,6 +166,7 @@ class ProfilePage extends StatelessWidget {
   }
 
   void deleteaccount(BuildContext context) {
+    int counter = 0;
     final TextEditingController emailController = TextEditingController();
     final TextEditingController confirmemailController =
         TextEditingController();
