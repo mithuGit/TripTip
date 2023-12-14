@@ -1,8 +1,12 @@
+import 'dart:async';
 import 'dart:ui';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:internet_praktikum/ui/styles/Styles.dart';
+import 'package:internet_praktikum/ui/views/login_register_pages/login_page.dart';
+import 'package:internet_praktikum/ui/widgets/errorSnackbar.dart';
 import 'package:internet_praktikum/ui/widgets/inputfield.dart';
 import 'package:internet_praktikum/ui/widgets/my_button.dart';
 import '../../widgets/profile_menu.dart';
@@ -14,6 +18,8 @@ class ProfilePage extends StatelessWidget {
 
   final auth = FirebaseAuth.instance;
   final user = FirebaseAuth.instance.currentUser!;
+
+  int counter = 0;
 
   signOut(BuildContext context) async {
     await auth.signOut();
@@ -97,11 +103,13 @@ class ProfilePage extends StatelessWidget {
                       );
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: isDark ? Colors.grey[700] : Colors.grey[300],
+                      backgroundColor:
+                          isDark ? Colors.grey[700] : Colors.grey[300],
                       side: BorderSide.none,
                       shape: const StadiumBorder(),
                     ),
-                    child: const Text('Edit Profile', style: TextStyle(color: Colors.black)),
+                    child: const Text('Edit Profile',
+                        style: TextStyle(color: Colors.black)),
                   ),
                 ),
                 const SizedBox(height: 30),
@@ -163,97 +171,96 @@ class ProfilePage extends StatelessWidget {
     );
   }
 
-void deleteaccount(BuildContext context) {
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController confirmemailController = TextEditingController();
+  void deleteaccount(BuildContext context) {
+    final TextEditingController emailController = TextEditingController();
+    final TextEditingController confirmemailController =
+        TextEditingController();
 
-  showModalBottomSheet(
-    useRootNavigator: true,
-    isScrollControlled: true,
-    shape: const RoundedRectangleBorder(
+    showModalBottomSheet(
+      useRootNavigator: true,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(20.0),
           topRight: Radius.circular(20.0),
         ),
       ),
-    context: context,
-    builder: (BuildContext context) {
-      return Padding(
-        padding: MediaQuery.of(context).viewInsets,
-        child: Container(
-          height: MediaQuery.of(context).size.height * 0.5,
-          decoration: const BoxDecoration(
-            color: Colors.transparent,
-          ),
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
-            child: Container(
-              width: MediaQuery.of(context).size.width,
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(20.0),
-                  topRight: Radius.circular(20.0),
+      context: context,
+      builder: (BuildContext context) {
+        return Padding(
+          padding: MediaQuery.of(context).viewInsets,
+          child: Container(
+            height: MediaQuery.of(context).size.height * 0.5,
+            decoration: const BoxDecoration(
+              color: Colors.transparent,
+            ),
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
+              child: Container(
+                width: MediaQuery.of(context).size.width,
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(20.0),
+                    topRight: Radius.circular(20.0),
+                  ),
                 ),
-              ),
-              
-              padding: const EdgeInsets.all(16.0),
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    const Icon(
-                      Icons.keyboard_arrow_down,
-                      size: 40.0, // Die Größe nach Bedarf anpassen
-                      color: Colors.grey, // Die Farbe nach Bedarf anpassen
-                    ),
-                    const Text(
-                      'Please enter your email to delete your account',
-                      style:  TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
+                padding: const EdgeInsets.all(16.0),
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      const Icon(
+                        Icons.keyboard_arrow_down,
+                        size: 40.0, // Die Größe nach Bedarf anpassen
+                        color: Colors.grey, // Die Farbe nach Bedarf anpassen
                       ),
-                    ),
-                    const SizedBox(height: 20),
-                    InputField(
-                      borderColor: Colors.black,
-                      obscureText: true,
-                      controller: emailController,
-                      hintText: 'Your Email',
-                    ),
-                    const SizedBox(height: 20),
-                    InputField(
-                      borderColor: Colors.black,
-                      controller: emailController,
-                      hintText: 'Confirm Your Email',
-                      obscureText: true,
-                    ),
-                    const SizedBox(height: 20),
-                    MyButton(
-                      onTap: () {
-                        if (emailController.text == user.email &&
-                            confirmemailController.text == user.email) {
-                          deleteUser(context);
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Emails do not match'),
-                            ),
-                          );
-                        }
-                      },
-                      text: 'Delete Account',
-                      colors: Colors.black,
-                    ),
-                  ],
+                      const Text(
+                        'Please enter your email to delete your account',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      InputField(
+                        borderColor: Colors.black,
+                        obscureText: false,
+                        controller: emailController,
+                        hintText: 'Your Email',
+                      ),
+                      const SizedBox(height: 20),
+                      InputField(
+                        borderColor: Colors.black,
+                        controller: confirmemailController,
+                        hintText: 'Confirm Your Email',
+                        obscureText: false,
+                      ),
+                      const SizedBox(height: 20),
+                      MyButton(
+                        onTap: () {
+                          if (emailController.text == user.email &&
+                              confirmemailController.text == user.email) {
+                            deleteUser(context);
+                          } else {
+                            if(context.mounted){
+                              ErrorSnackbar.showMessage('Emails do not match', context, counter, forDeleteButton: true);
+                              counter++;
+                            }
+                          }
+                        },
+                        text: 'Delete Account',
+                        colors: Colors.black,
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
           ),
-        ),
-      );
-    },
-  );
-}
+        );
+      },
+    );
+  }
 }

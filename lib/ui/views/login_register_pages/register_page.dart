@@ -1,11 +1,10 @@
-import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:internet_praktikum/ui/styles/Styles.dart';
 import 'package:internet_praktikum/ui/views/login_register_pages/login_page.dart';
 import 'package:internet_praktikum/ui/widgets/container.dart';
+import 'package:internet_praktikum/ui/widgets/errorSnackbar.dart';
 import 'package:internet_praktikum/ui/widgets/inputfield.dart';
 import '../../../core/services/auth_service.dart';
 import '../../widgets/my_button.dart';
@@ -67,61 +66,43 @@ class _RegisterPageState extends State<RegisterPage> {
         }
       } else {
         // show error message
-        showErrorMessage('Passwords do not match!');
+        if (context.mounted) {
+          ErrorSnackbar.showMessage('Passwords do not match!', context, 0);
+        }
       }
     } on FirebaseAuthException catch (e) {
       print(e.code);
       // Wrong email | Wrong password
       if (e.code == 'weak-password') {
-        showErrorMessage('The password provided is too weak.');
+        if (context.mounted) {
+          ErrorSnackbar.showMessage(
+              'The password provided is too weak.', context, 0);
+        }
       } else if (e.code == 'email-already-in-use') {
-        showErrorMessage('The account already exists for that email.');
+        if (context.mounted) {
+          ErrorSnackbar.showMessage(
+              'The account already exists for that email.', context, 0);
+        }
       } else if (e.code == 'invalid-email') {
-        showErrorMessage('The email address is not valid.');
+        if (context.mounted) {
+          ErrorSnackbar.showMessage(
+              'The email address is not valid.', context, 0);
+        }
       } else if (e.code == 'operation-not-allowed') {
-        showErrorMessage('Error during sign up.');
+        if (context.mounted) {
+          ErrorSnackbar.showMessage('Error during sign up.', context, 0);
+        }
       } else if (e.code == 'user-disabled') {
-        showErrorMessage('The user account has been disabled.');
+        if (context.mounted) {
+          ErrorSnackbar.showMessage(
+              'The user account has been disabled.', context, 0);
+        }
       } else {
-        showErrorMessage('An undefined Error happened.');
+        if (context.mounted) {
+          ErrorSnackbar.showMessage('An undefined Error happened.', context, 0);
+        }
       }
     }
-  }
-
-  //error messsage to user
-  void showErrorMessage(String message) {
-    Completer<bool> dialogCompleter = Completer<bool>();
-
-    showDialog(
-      context: context,
-      builder: (context) {
-        return PopScope(
-          canPop: false,
-          child: AlertDialog(
-            backgroundColor: Colors.black,
-            title: Center(
-              child: Text(
-                message,
-                style: Styles.textfieldHintStyle,
-              ),
-            ),
-          ),
-        );
-      },
-    ).then((_) {
-      // Dialog wurde geschlossen, entweder durch Zurück-Taste oder automatisch nach 3 Sekunden
-      if (!dialogCompleter.isCompleted) {
-        dialogCompleter.complete(true);
-      }
-    });
-
-    // Verzögere das Ausblenden der Fehlermeldung nach 2 Sekunden
-    Future.delayed(const Duration(seconds: 2), () {
-      if (!dialogCompleter.isCompleted) {
-        Navigator.of(context).pop(); // Schließt den Dialog nach 2 Sekunden
-        dialogCompleter.complete(true);
-      }
-    });
   }
 
   @override
