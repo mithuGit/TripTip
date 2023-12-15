@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:internet_praktikum/ui/views/main_pages/dashboard.dart';
 import 'package:internet_praktikum/ui/widgets/dashboardWidgets/mainDasboardinitializer.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -17,8 +18,8 @@ class ScrollViewWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     FirebaseFirestore firestore = FirebaseFirestore.instance;
     DocumentReference<Object?>? day = context.watch<ProviderDay?>()?.day;
-     if(day == null){
-        return const CircularProgressIndicator();
+    if (day == null) {
+      return const CircularProgressIndicator();
     }
     final Stream<DocumentSnapshot> _dayStream =
         firestore.collection('days').doc(day?.id).snapshots();
@@ -74,6 +75,18 @@ class ScrollViewWidget extends StatelessWidget {
             bufferArray?.sort(
                 (a, b) => (a['index'] as int).compareTo(b['index'] as int));
           }
+          // in this part we catch userInformation an the profilePicture
+          for (int i = 0; i < bufferArray!.length; i++) {
+                bufferArray![i]["createdBy"].get().then((value) {
+                  bufferArray![i]["profilePicture"] = value.data()!["profilePicture"];
+                  bufferArray![i]["prename"] = value.data()!["prename"];
+                  bufferArray![i]["lastname"] = value.data()!["lastname"];
+               //   String createdAt = DateFormat('hh:mm').format(bufferArray![i]["createdAt"].toDate());
+                 // bufferArray![i]["createdAtNice"] = createdAt;
+              });
+            
+          }
+
           debugPrint("Container is editable");
           return Container(
             margin: const EdgeInsets.only(

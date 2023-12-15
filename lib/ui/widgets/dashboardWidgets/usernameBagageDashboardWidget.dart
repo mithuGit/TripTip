@@ -19,49 +19,36 @@ class UsernameBagageDashboardWidget extends StatelessWidget {
       print('Document data: ${userdata.data()}');
       Map<String, dynamic> _userData = userdata.data()! as Map<String, dynamic>;
       _userData["createdAt"] =
-          DateFormat('hh:mm').format(data?["createdAt"].toDate());    
+          DateFormat('hh:mm').format(data?["createdAt"].toDate());
 
       return _userData;
     }
 
-    return FutureBuilder(
-        future: getUserData(),
-        builder: (builder, snapshot) {
-          if (snapshot.hasError) {
-            return Text("Error: ${snapshot.error}",
-                style: const TextStyle(color: Colors.red));
-          }
-          if (snapshot.hasData) {
-            return Container(
-              margin: const EdgeInsets.only(top: 8),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  ClipOval(
-                  
-                    child: Image.network(
-                      snapshot.data!["profilePicture"],
-                      width: 22,
-                      height: 22,
-                    ),
-                  ),
-                  Container(
-                    margin: const EdgeInsets.only(left: 7),
-                    child: Text(
-                        'created by ' +
-                            snapshot.data!["prename"] +
-                            ' ' +
-                            snapshot.data!["lastname"] +
-                            ' at ' +
-                            snapshot.data!["createdAt"],
-                        style: Styles.usernameBagageWidget),
-                  ),
-                ],
-              ),
-            );
-          } else {
-            return const CircularProgressIndicator();
-          }
-        });
+    return Container(
+      margin: const EdgeInsets.only(top: 8),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          ClipOval(
+            child: Image.network(
+              data!["profilePicture"],
+              width: 22,
+              height: 22,
+            ),
+          ),
+          Container(
+            margin: const EdgeInsets.only(left: 7),
+            child: Text(
+                'created by ' +
+                    data!["prename"] +
+                    ' ' +
+                    data!["lastname"] +
+                    ' at ' +
+                    DateFormat('hh:mm').format((data!["createdAt"] as Timestamp).toDate()),
+                style: Styles.usernameBagageWidget),
+          ),
+        ],
+      ),
+    );
   }
 }
