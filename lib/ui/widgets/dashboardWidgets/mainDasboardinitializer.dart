@@ -46,7 +46,7 @@ class _MainDasboardinitializerState extends State<MainDasboardinitializer> {
                   } else if (widget.data?["type"] == "list") {
                     return SimpleNoteWidget(data: widget.data);
                   } else {
-                    return Text("no type is s");
+                    return Text("no type is specified");
                   }
                 }
               }),

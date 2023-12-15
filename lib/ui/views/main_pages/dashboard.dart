@@ -2,17 +2,24 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:internet_praktikum/ui/widgets/bottom_sheet.dart';
 import 'package:internet_praktikum/ui/views/dashboard/scrollview.dart';
-import 'package:internet_praktikum/ui/views/navigation/app_navigation.dart';
 import 'package:internet_praktikum/ui/widgets/dashboardWidgets/createNewWidgetOnDashboard.dart';
-import 'package:internet_praktikum/ui/widgets/my_button.dart';
 import 'package:internet_praktikum/ui/widgets/topbar.dart';
+import 'package:provider/provider.dart';
+
+class ProviderUserdata {
+  Map<String, dynamic> userdata = {};
+  ProviderUserdata(this.userdata);
+}
+
+class ProviderDay {
+  DocumentReference day;
+  ProviderDay(this.day);
+}
 
 class DashBoard extends StatefulWidget {
   const DashBoard({super.key});
-
   @override
   State<DashBoard> createState() => _DashBoardState();
 }
@@ -23,19 +30,18 @@ class _DashBoardState extends State<DashBoard> {
   bool showSomething = false;
   DocumentReference? currentDay;
 
-  Future<Map<String, dynamic>> getUserData() async {
+  // A function that automatecly loads the data from the user and fetches the profilepicture
+  Future<ProviderUserdata> getUserData() async {
+    print("getUserData");
     final userCollection = FirebaseFirestore.instance.collection('users');
     final userDoc = await userCollection.doc(user.uid).get();
-    Map<String, dynamic> userData = userDoc.data()!;
-    if(userData['profilepicture'] != null) {
-      userData['profilepicture'] = await FirebaseStorage.instance.ref(userData['profilepicture']).getDownloadURL();
-    }
-    
-    return userDoc.data()!;
+    Map<String, dynamic> _userData = userDoc.data()!;
+    return ProviderUserdata(_userData);
   }
 
-  Future<DocumentReference> getCurrentDay() async {
-    if (currentDay != null) return currentDay!;
+  // A function that returns the current day for the Widget list and also saves it in the currentDay variable for later use
+  Future<ProviderDay> getCurrentDay() async {
+    if (currentDay != null) return ProviderDay(currentDay!);
     print('DateTime: $selectedDay');
     final userCollection = FirebaseFirestore.instance.collection('users');
     final userDoc = await userCollection.doc(user.uid).get();
@@ -63,7 +69,7 @@ class _DashBoardState extends State<DashBoard> {
             (el['starttime'] as Timestamp).toDate().year == selectedDay!.year)
         .first;
     currentDay = day['ref'];
-    return day['ref'];
+    return ProviderDay(currentDay!);
   }
 
   late String prename; // Variable für den Vornamen
@@ -105,19 +111,19 @@ class _DashBoardState extends State<DashBoard> {
             CustomBottomSheet.show(context,
                 title: "Add new Widget to your Dashboard",
                 content: [
-                  FutureBuilder<DocumentReference>(
-                      future: getCurrentDay(),
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return const CircularProgressIndicator(); // Show loading indicator while waiting for the Future
-                        } else if (snapshot.hasError) {
-                          return Text('Resolve Data Error: ${snapshot.error}');
-                        } else {
-                          return CreateNewWidgetOnDashboard(
-                              day: snapshot.data!);
-                        }
-                      }),
+                  MultiProvider(
+                      providers: [
+                        FutureProvider(
+                          create: (context) => getUserData(),
+                          initialData: null,
+                        ),
+                        FutureProvider(
+                          create: (context) => getCurrentDay(),
+                          initialData: null,
+                        ),
+                      ],
+                      child:
+                          CreateNewWidgetOnDashboard()) // get the secound element of list since the first is the Userdata
                 ]);
           }),
       body: Stack(
@@ -130,21 +136,16 @@ class _DashBoardState extends State<DashBoard> {
                   fit: BoxFit.cover,
                 ),
               ),
-              child: Center(
-                  child: Center(
-                      child: FutureBuilder<DocumentReference>(
-                          future: getCurrentDay(),
-                          builder: (context, snapshot) {
-                            if (snapshot.connectionState ==
-                                ConnectionState.waiting) {
-                              return const CircularProgressIndicator(); // Show loading indicator while waiting for the Future
-                            } else if (snapshot.hasError) {
-                              return Text(
-                                  'Resolve Data Error: ${snapshot.error}');
-                            } else {
-                              return ScrollViewWidget(day: snapshot.data!);
-                            }
-                          })))),
+              child: MultiProvider(providers: [
+                FutureProvider(
+                  create: (context) => getUserData(),
+                  initialData: null,
+                ),
+                FutureProvider(
+                  create: (context) => getCurrentDay(),
+                  initialData: null,
+                ),
+              ], child: Center(child: Center(child: ScrollViewWidget())))),
         ],
       ),
     );

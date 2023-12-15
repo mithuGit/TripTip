@@ -1,12 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:internet_praktikum/core/services/addWidget.dart';
+import 'package:internet_praktikum/ui/views/main_pages/dashboard.dart';
 import 'package:internet_praktikum/ui/widgets/errorSnackbar.dart';
 import 'package:internet_praktikum/ui/widgets/inputfield.dart';
 import 'package:internet_praktikum/ui/widgets/my_button.dart';
+import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
-
-
 
 class AddNoteWidgetToDashboard extends StatefulWidget {
   @override
@@ -22,17 +22,25 @@ class _AddNoteWidgetToDashboardState extends State<AddNoteWidgetToDashboard> {
   final note = TextEditingController();
   var uuid = Uuid();
 
-  Future<void> createNote() async {
-    Map<String, dynamic> data = {
-      "type": "note",
-      "content": note.text,
-      "title": nameOfNote.text
-    };
-    await AddWidget().addWidget(widget.day, widget.day, data);
-  }
-
   @override
   Widget build(BuildContext context) {
+    final userdata = context.watch<ProviderUserdata?>();
+    if (userdata == null) {
+      return Text("no userdata");
+    }
+
+    Future<void> createNote() async {
+      print(userdata);
+      Map<String, dynamic> data = {
+        "type": "note",
+        "content": note.text,
+        "title": nameOfNote.text,
+        "createdBy": FirebaseFirestore.instance.collection('users').doc(userdata.userdata!["uid"]),
+      };
+
+       await AddWidget().addWidget(widget.day, data);
+    }
+
     return Column(children: [
       Text("Title of Note"),
       InputField(

@@ -45,4 +45,9 @@ class Styles {
       fontSize: 20,
       fontWeight: FontWeight.w500,
       color: Colors.white);
+  static const noteTextstyle = TextStyle(
+      fontFamily: 'fonts/Ubuntu-Regular.ttf',
+      fontSize: 14,
+      fontWeight: FontWeight.w500,
+      color: Colors.white);    
 }

@@ -3,18 +3,23 @@ import 'dart:math';
 import 'dart:ui';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:internet_praktikum/ui/views/main_pages/dashboard.dart';
 import 'package:internet_praktikum/ui/widgets/dashboardWidgets/mainDasboardinitializer.dart';
+import 'package:provider/provider.dart';
 import 'package:rxdart/rxdart.dart';
 
 class ScrollViewWidget extends StatelessWidget {
-  final DocumentReference? day;
-  ScrollViewWidget({super.key, required this.day});
+  ScrollViewWidget({super.key});
   List<dynamic>? bufferArray = List.empty();
   bool justChangged = false;
 
   @override
   Widget build(BuildContext context) {
     FirebaseFirestore firestore = FirebaseFirestore.instance;
+    DocumentReference<Object?>? day = context.watch<ProviderDay?>()?.day;
+     if(day == null){
+        return const CircularProgressIndicator();
+    }
     final Stream<DocumentSnapshot> _dayStream =
         firestore.collection('days').doc(day?.id).snapshots();
 

@@ -3,7 +3,7 @@ import 'package:uuid/uuid.dart';
 
 class AddWidget {
   var uuid = const Uuid();
-  Future<void> addWidget(DocumentReference day, DocumentReference editor,
+  Future<void> addWidget(DocumentReference day,
       Map<String, dynamic> data) async {
     Map<String, dynamic> dayData =
         (await day.get()).data() as Map<String, dynamic>;
@@ -12,7 +12,6 @@ class AddWidget {
     int length = widgets.length;
     data['key'] = uuid.v4();
     data['index'] = length;
-    data['editor'] = editor;
     widgets.add(data);
     Map<int, dynamic>? res = widgets?.asMap();
     res?.forEach((key, value) {

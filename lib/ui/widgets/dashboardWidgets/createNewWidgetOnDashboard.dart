@@ -1,11 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:internet_praktikum/ui/views/main_pages/dashboard.dart';
 import 'package:internet_praktikum/ui/widgets/dashboardWidgets/addNoteWidgetToDashboard.dart';
 import 'package:internet_praktikum/ui/widgets/my_button.dart';
+import 'package:provider/provider.dart';
 
 class CreateNewWidgetOnDashboard extends StatefulWidget {
-  DocumentReference<Object?> day;
-  CreateNewWidgetOnDashboard({super.key, required this.day});
+  CreateNewWidgetOnDashboard({super.key});
 
   @override
   _CreateNewWidgetOnDashboardState createState() =>
@@ -17,6 +18,10 @@ class _CreateNewWidgetOnDashboardState
   String show = 'init';
   @override
   Widget build(BuildContext context) {
+    DocumentReference<Object?>? day = context.watch<ProviderDay?>()?.day;
+     if(day == null){
+        return const CircularProgressIndicator();
+    }
     switch (show) {
       case 'init':
         return Column(children: [
@@ -38,7 +43,7 @@ class _CreateNewWidgetOnDashboardState
               text: "Add Appointment")
         ]);
       case 'note':
-        return AddNoteWidgetToDashboard(day: widget.day,);
+        return AddNoteWidgetToDashboard(day: day!);
       case 'appointment':
         return Container(
           child: Text('list'),
