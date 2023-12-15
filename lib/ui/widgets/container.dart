@@ -10,7 +10,9 @@ class CustomContainer extends StatelessWidget {
       {super.key, required this.title, this.smallSize, required this.children});
 
   @override
-  Widget build(BuildContext context, ) {
+  Widget build(
+    BuildContext context,
+  ) {
     return LayoutBuilder(
       builder: (context, constraints) => Container(
           height: constraints.biggest.height,
@@ -20,21 +22,22 @@ class CustomContainer extends StatelessWidget {
           ),
           child: Padding(
             padding: const EdgeInsets.all(22),
-            child:
-                SingleChildScrollView(
-                  child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-                            Container(
-                  margin: const EdgeInsets.only(bottom: 30),
-                  height: 25,
-                  child: Text(
-                    title,
-                    style: Styles.overlayTitle,
-                    textAlign: TextAlign.left,
-                  ),
-                            ),
-                            ...children
-                          ]),
-                ),
+            child: SingleChildScrollView(
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Container(
+                      margin: const EdgeInsets.only(bottom: 30),
+                      height: 25,
+                      child: Text(
+                        title,
+                        style: Styles.overlayTitle,
+                        textAlign: TextAlign.left,
+                      ),
+                    ),
+                    ...children
+                  ]),
+            ),
           )),
     );
   }

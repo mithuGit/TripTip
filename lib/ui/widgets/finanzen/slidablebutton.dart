@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:internet_praktikum/ui/styles/Styles.dart';
+import 'package:internet_praktikum/ui/widgets/finanzen/payment.dart';
 import 'package:slide_to_act/slide_to_act.dart';
 
 class SlideButton extends StatelessWidget {
@@ -14,25 +15,30 @@ class SlideButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       margin: margin,
-      child: Padding(
-        padding: const EdgeInsets.all(40.0),
-        child: SlideAction(
-          borderRadius: 40,
-          elevation: 0,
-          innerColor: const Color(0xFFD9D9D9),
-          outerColor: Colors.white,
-          textColor: Colors.black,
-          sliderButtonIcon: const Icon(Icons.double_arrow_outlined),
-          text: buttonText, // Use the provided buttonText property
-          textStyle: Styles.title,
-          // Icon dreht sich wenn true
-          sliderRotate: true,
-          onSubmit: () {
-            return null;
-          
-            // do something
-          },
+      child: SlideAction(
+        borderRadius: 40, // Adjust the border radius as needed
+        elevation: 0,
+        innerColor: const Color(0xFFD9D9D9),
+        outerColor: Colors.white,
+        textColor: Colors.black,
+        sliderButtonIcon: Transform.scale(
+          scale: 2.33, // Adjust the scale factor as needed
+          child: const Icon(
+            Icons.arrow_forward,
+            size: 12,
+          ),
         ),
+        text: buttonText, // Use the provided buttonText property
+        textStyle: Styles.title,
+        // Icon dreht sich wenn true
+        sliderRotate: true,
+        height: 50,
+        onSubmit: () {
+          return Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const Payment()),
+          );
+        },
       ),
     );
   }

@@ -1,8 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
-import 'package:internet_praktikum/ui/styles/Styles.dart';
 import 'package:internet_praktikum/ui/widgets/container.dart';
 import 'package:internet_praktikum/ui/widgets/inputfield.dart';
 import 'package:internet_praktikum/ui/widgets/my_button.dart';
@@ -14,17 +12,12 @@ class JoinTrip extends StatelessWidget {
 
   final groupController = TextEditingController();
 
-  Future<void> join_trip() async {
-
-    final dir = groupController.text;
+  void join_trip() async {
     final self = [
       FirebaseFirestore.instance.collection("users").doc(_auth.currentUser?.uid)
     ];
-    FirebaseFirestore.instance
-        .collection("users")
-        .doc(_auth.currentUser?.uid)
-        .set({"selectedtrip": dir});
-    trips.doc(dir).update({"members": FieldValue.arrayUnion(self)!});
+    final dir = groupController.text;
+    trips.doc(dir).update({"members": FieldValue.arrayUnion(self)});
   }
 
   @override

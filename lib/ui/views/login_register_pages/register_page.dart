@@ -56,7 +56,7 @@ class _RegisterPageState extends State<RegisterPage> {
             'lastname': userCredential.user!.displayName,
             'uid': userCredential.user!.uid,
             'trips': null,
-            'profilepicture': null,
+            //'profilepicture': null,
             'dateOfBirth': null,
             'selectedtrip': null
             // Add other data fields as needed
@@ -95,8 +95,8 @@ class _RegisterPageState extends State<RegisterPage> {
     showDialog(
       context: context,
       builder: (context) {
-        return PopScope(
-          canPop: false,
+        return WillPopScope(
+          onWillPop: null,
           child: AlertDialog(
             backgroundColor: Colors.black,
             title: Center(

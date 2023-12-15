@@ -7,7 +7,6 @@ import 'package:internet_praktikum/ui/widgets/errorSnackbar.dart';
 import 'package:internet_praktikum/ui/widgets/inputfield_search_lookahead.dart';
 import 'package:internet_praktikum/ui/widgets/my_button.dart';
 import 'package:internet_praktikum/ui/widgets/usernamebagageCreateTrip.dart';
-import '../../styles/Styles.dart';
 import '../../widgets/container.dart';
 import '../../widgets/inputfield.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';

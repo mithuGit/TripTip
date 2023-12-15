@@ -37,8 +37,8 @@ class _LoginPageState extends State<LoginPage> {
           password: passwordController.text,
       );
       if (context.mounted) {
-          GoRouter.of(context).go('/');
-        }
+        GoRouter.of(context).go('/');
+      }
     } on FirebaseAuthException catch (e) {
       print(e.code);
       // Wrong email | Wrong password
@@ -69,8 +69,8 @@ class _LoginPageState extends State<LoginPage> {
     showDialog(
       context: context,
       builder: (context) {
-        return PopScope(
-          canPop: false,
+        return WillPopScope(
+          onWillPop: null,
           child: AlertDialog(
             backgroundColor: Colors.black,
             title: Center(

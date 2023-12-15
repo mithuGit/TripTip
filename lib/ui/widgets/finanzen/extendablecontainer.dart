@@ -1,9 +1,18 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:internet_praktikum/ui/widgets/finanzen/slidablebutton.dart';
+
+import '../../styles/Styles.dart';
+import 'expandableitem.dart';
 
 class ExpandableContainer extends StatefulWidget {
-  const ExpandableContainer({Key? key, required this.name}) : super(key: key);
+  const ExpandableContainer(
+      {Key? key, required this.name, required this.items, required this.sum})
+      : super(key: key);
 
   final String name;
+  final List<String> items;
+  final double sum;
 
   @override
   State<ExpandableContainer> createState() => _ExpandableContainerState();
@@ -11,6 +20,29 @@ class ExpandableContainer extends StatefulWidget {
 
 class _ExpandableContainerState extends State<ExpandableContainer> {
   bool isExpanded = false;
+  User? currentUser;
+
+  @override
+  void initState() {
+    super.initState();
+    // Listen to changes in the user authentication state
+    FirebaseAuth.instance.authStateChanges().listen((User? user) {
+      setState(() {
+        currentUser = user;
+      });
+    });
+  }
+
+  double calculateHeight(double height) {
+    if (widget.items.length >= 4) {
+      return height * 0.38;
+    } else if (widget.items.length == 3) {
+      return height * 0.37;
+    } else if (widget.items.length == 2) {
+      return height * 0.31;
+    }
+    return height * 0.28;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -23,40 +55,124 @@ class _ExpandableContainerState extends State<ExpandableContainer> {
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
-        height: isExpanded ? 100.0 : 60.0, // Adjust the height as needed
+        height: isExpanded
+            ? calculateHeight(MediaQuery.of(context).size.height)
+            : 66.0, // Adjust the height as needed
         decoration: BoxDecoration(
-          color: const Color(0xE51E1E1E), // Grey background color
-          border: Border.all(color: const Color(0xE51E1E1E)),
+          color: Color(0xE51E1E1E), // Grey background color
+          border: Border.all(color: Color(0xE51E1E1E)),
           borderRadius: BorderRadius.circular(34.5),
         ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        child: Column(
           children: [
             Padding(
-              padding: const EdgeInsets.only(top: 8.0, bottom: 8.0, left: 25),
-              child: Text(
-                widget.name,
-                style: const TextStyle(
-                    fontSize: 14.0,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white),
+              padding: const EdgeInsets.only(
+                top: 5.0,
+                left: 10,
+                right: 25,
+                bottom: 5.0,
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(right: 25),
-              child: Icon(
-                isExpanded ? Icons.remove : Icons.add,
-                size: 18.0,
-                color: Colors.white,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 2.0, bottom: 2.0),
+                      child: Row(
+                        children: [
+                          CircleAvatar(
+                            radius: 25,
+                            backgroundImage: currentUser?.photoURL != null
+                                ? NetworkImage(currentUser!.photoURL!)
+                                : AssetImage('assets/Personavatar.png')
+                                    as ImageProvider<Object>,
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(left: 10.0),
+                            child: Text(
+                              widget.name,
+                              style: const TextStyle(
+                                fontSize: 20.0,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: Padding(
+                      padding: EdgeInsets.only(top: 5.0, left: 140, right: 5),
+                      child: Text(
+                        widget.sum.toString() + ' €',
+                        style: TextStyle(
+                          fontSize: 20.0,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
             if (isExpanded) ...[
-              const SizedBox(height: 6.0),
-              const Text(
-                'Additional Text',
-                style: TextStyle(fontSize: 12.0),
+              Expanded(
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: widget.items.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    List<String> itemParts = widget.items[index].split(':');
+                    String activity = itemParts[0];
+                    String price = itemParts[1];
+                    return Padding(
+                        padding: const EdgeInsets.only(bottom: 0, right: 5),
+                        child: ListTile(
+                          title: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                activity,
+                                style: const TextStyle(
+                                  fontSize: 20.0,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              Text(
+                                price + '€',
+                                style: const TextStyle(
+                                  fontSize: 20.0,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ],
+                          ),
+                          /* title: Text(
+                            widget.items[index],
+                            style: const TextStyle(
+                              fontSize: 20.0,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),*/
+                        ));
+                  },
+                ),
               ),
-              // You can add more text or widgets here based on your requirements
+              const Padding(
+                padding:
+                    EdgeInsets.only(top: 7, left: 15, right: 15, bottom: 5),
+                child: SlideButton(
+                  buttonText: 'Slide to Pay',
+                  margin: EdgeInsets.only(bottom: 8),
+                ),
+              ),
             ],
           ],
         ),
