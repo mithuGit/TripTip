@@ -92,6 +92,7 @@ class _WidgetContainerState extends State<WidgetContainer> {
                           Column(
                             children: [
                               Icon(
+                                //formattedTime.compareTo(TimeOfDay.now().format(context)) < 0 ? Icons.check : widget.icon,
                                 widget.icon,
                                 color: Colors.white,
                                 size: 35,

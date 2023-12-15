@@ -1,8 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:internet_praktikum/ui/widgets/inputfield.dart';
-import 'package:internet_praktikum/ui/widgets/widgetContainer.dart';
+import 'package:internet_praktikum/ui/widgets/dashboard_widget/voting_poll.dart';
+import 'package:internet_praktikum/ui/widgets/dashboard_widget/widgetContainer.dart';
 
 class MapPage extends StatefulWidget {
   const MapPage({super.key});
@@ -61,14 +61,11 @@ class _MapPageState extends State<MapPage> {
                             isSurvey: true,
                             title: "Voting for Food", 
                             children: [
-                        InputField(
-                          hintText: 'Burger',
-                          obscureText: false,
-                        ),
-                        InputField(
-                          hintText: 'Pizza',
-                          obscureText: false,
-                        ),
+                        VotingPoll(title: "Burger"),
+                        SizedBox(height: 2,),
+                        VotingPoll(title: "Pasta"),
+                        SizedBox(height: 2,),
+                        VotingPoll(title: "Pizza"),
                       ]),
                     ),
                     SizedBox(height: 10,),

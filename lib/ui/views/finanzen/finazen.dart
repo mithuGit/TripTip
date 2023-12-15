@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:internet_praktikum/ui/styles/Styles.dart';
-import 'package:internet_praktikum/ui/widgets/topbar.dart';
-
+import 'package:internet_praktikum/ui/widgets/header/topbar.dart';
 import '../../widgets/finanzen/extendablecontainer.dart';
 import '../../widgets/finanzen/slidablebutton.dart';
 

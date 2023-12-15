@@ -8,7 +8,7 @@ import 'package:internet_praktikum/ui/views/dashboard/scrollview.dart';
 import 'package:internet_praktikum/ui/views/navigation/app_navigation.dart';
 import 'package:internet_praktikum/ui/widgets/dashboardWidgets/createNewWidgetOnDashboard.dart';
 import 'package:internet_praktikum/ui/widgets/my_button.dart';
-import 'package:internet_praktikum/ui/widgets/topbar.dart';
+import 'package:internet_praktikum/ui/widgets/header/topbar.dart';
 
 class DashBoard extends StatefulWidget {
   const DashBoard({super.key});

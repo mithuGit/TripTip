@@ -7,7 +7,7 @@ import 'package:internet_praktikum/ui/widgets/inputfield.dart';
 import 'package:internet_praktikum/ui/widgets/my_button.dart';
 import '../../widgets/profile_menu.dart';
 import '../profile_pages/edit_profile_page.dart';
-import '../../widgets/topbar.dart';
+import '../../widgets/header/topbar.dart';
 
 class ProfilePage extends StatelessWidget {
   ProfilePage({Key? key}) : super(key: key);
