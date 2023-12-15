@@ -1,35 +1,32 @@
 import 'dart:async';
+import 'dart:math';
 import 'dart:ui';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:internet_praktikum/ui/widgets/dashboardWidgets/mainDasboardinitializer.dart';
 import 'package:rxdart/rxdart.dart';
 
-class EditableStreamFirebaseDatastream {
-  final bool boolValue;
-  final DocumentSnapshot firestoreSnapshot;
-  EditableStreamFirebaseDatastream(this.boolValue, this.firestoreSnapshot);
-}
-
 class ScrollViewWidget extends StatelessWidget {
   final DocumentReference? day;
   ScrollViewWidget({super.key, required this.day});
   List<dynamic>? bufferArray = List.empty();
+  bool justChangged = false;
 
   @override
   Widget build(BuildContext context) {
     FirebaseFirestore firestore = FirebaseFirestore.instance;
     final Stream<DocumentSnapshot> _dayStream =
         firestore.collection('days').doc(day?.id).snapshots();
-    final StreamController<bool> _editableStream = StreamController<bool>();
-    _editableStream.add(false);
 
-    final mergedStream = CombineLatestStream.combine2<bool, DocumentSnapshot,
-            EditableStreamFirebaseDatastream>(
-        _editableStream.stream,
-        _dayStream,
-        (boolValue, snapshot) =>
-            EditableStreamFirebaseDatastream(boolValue, snapshot));
+    final StreamController<Map> _dayStreamFiltered = StreamController<Map>();
+    _dayStream.listen((event) {
+      debugPrint("Stream is listening");
+      if (justChangged) {
+        justChangged = false;
+      } else {
+        _dayStreamFiltered.add(event.get('active') as Map);
+      }
+    });
 
     final Color oddItemColor = Colors.lime.shade100;
     final Color evenItemColor = Colors.deepPurple.shade100;
@@ -58,12 +55,10 @@ class ScrollViewWidget extends StatelessWidget {
       );
     }
 
-    return StreamBuilder<EditableStreamFirebaseDatastream>(
-        stream: mergedStream,
-        builder: (BuildContext context,
-            AsyncSnapshot<EditableStreamFirebaseDatastream> snapshot) {
-          final DocumentSnapshot? firestoreSnapshot =
-              snapshot.data?.firestoreSnapshot;
+    return StreamBuilder<Map>(
+        stream: _dayStreamFiltered.stream,
+        builder: (BuildContext context, AsyncSnapshot<Map> snapshot) {
+          final Map? firestoreSnapshot = snapshot.data;
           if (snapshot.hasError) {
             return const Text('Something went wrong');
           }
@@ -72,10 +67,7 @@ class ScrollViewWidget extends StatelessWidget {
             return const Text("Loading");
           }
           bufferArray =
-              (firestoreSnapshot?.get('active') as Map<String, dynamic>)
-                  .entries
-                  ?.map((entry) => entry.value)
-                  ?.toList();
+              firestoreSnapshot?.entries?.map((entry) => entry.value)?.toList();
 
           if (bufferArray != null) {
             bufferArray?.sort(
@@ -90,6 +82,7 @@ class ScrollViewWidget extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 23),
               proxyDecorator: proxyDecorator,
               onReorder: (int oldIndex, int newIndex) {
+                debugPrint("Reorder");
                 if (oldIndex < newIndex) {
                   newIndex -= 1;
                 }
@@ -102,6 +95,8 @@ class ScrollViewWidget extends StatelessWidget {
                 Map<String, dynamic>? res2 = res?.map((key, value) {
                   return MapEntry(value["key"] as String, value);
                 });
+                justChangged = true;
+                _dayStreamFiltered.add(res2!);
                 //umschreibem
                 firestore
                     .collection('days')
@@ -113,9 +108,13 @@ class ScrollViewWidget extends StatelessWidget {
                     return Dismissible(
                       direction: DismissDirection.horizontal,
                       key: Key(con.hashCode.toString()),
-                      onDismissed: (direction) {
-                        Map<String, dynamic> archive = firestoreSnapshot!
-                            .get('archive') as Map<String, dynamic>;
+                      onDismissed: (direction) async {
+                        DocumentSnapshot archiveColl = await firestore
+                            .collection('days')
+                            .doc(day?.id)
+                            .get();
+                        Map<String, dynamic> archive =
+                            archiveColl.get('archive') as Map<String, dynamic>;
                         archive[con["key"]] = con;
                         Map<String, dynamic> item = con;
                         List<dynamic>? tempArray = bufferArray;
@@ -132,6 +131,7 @@ class ScrollViewWidget extends StatelessWidget {
                             .collection('days')
                             .doc(day?.id)
                             .update({"active": res2, "archive": archive});
+                        justChangged = true;
                       },
                       child: MainDasboardinitializer(
                           title: con!["title"], data: con),
