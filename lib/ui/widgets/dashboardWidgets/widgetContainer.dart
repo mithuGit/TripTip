@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:internet_praktikum/ui/styles/Styles.dart';
 import 'package:internet_praktikum/ui/widgets/bottom_sheet.dart';
@@ -17,7 +18,8 @@ class WidgetContainer extends StatefulWidget {
       this.children,
       this.icon,
       required this.isSurvey,
-      this.description, this.time});
+      this.description,
+      this.time});
 
   @override
   State<WidgetContainer> createState() => _WidgetContainerState();
@@ -29,7 +31,8 @@ class _WidgetContainerState extends State<WidgetContainer> {
     String formattedTime = '';
 
     if (widget.time != null) {
-      final dateTime = DateTime(2023, 1, 1, widget.time!.hour, widget.time!.minute);
+      final dateTime =
+          DateTime(2023, 1, 1, widget.time!.hour, widget.time!.minute);
       formattedTime = DateFormat('HH:mm').format(dateTime);
     }
 
@@ -78,17 +81,21 @@ class _WidgetContainerState extends State<WidgetContainer> {
                     ),
                     if (widget.children != null)
                       for (var child in widget.children!) child,
-                    if (widget.description != null && widget.time != null)
+                    if (widget.description != null || widget.time != null)
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        mainAxisAlignment: widget.description != null
+                            ? MainAxisAlignment.spaceBetween
+                            : MainAxisAlignment.center,
                         children: [
-                          SizedBox(
-                            width: 250,
-                            child: Text(
-                              widget.description!,
-                              style: Styles.descriptionofwidget,
-                            ),
-                          ),
+                          widget.description != null
+                              ? SizedBox(
+                                  width: 250,
+                                  child: Text(
+                                    widget.description!,
+                                    style: Styles.descriptionofwidget,
+                                  ),
+                                )
+                              : Container(),
                           Column(
                             children: [
                               Icon(
@@ -97,13 +104,33 @@ class _WidgetContainerState extends State<WidgetContainer> {
                                 color: Colors.white,
                                 size: 35,
                               ),
-                              Text(
-                                formattedTime,
-                                style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold)),
-                            ],/////DateFormat('dd.MM.yyyy').format(date),
+                              GestureDetector(
+                                onTap: () {
+                                  showCupertinoModalPopup(
+                                      context: context,
+                                      builder: (BuildContext context) {
+                                        return CupertinoTimerPicker(
+                                          alignment: Alignment.center,
+                                          mode: CupertinoTimerPickerMode.hm,
+                                          backgroundColor: Colors.white,
+                                          onTimerDurationChanged: (value) {
+                                            setState(() {
+                                              formattedTime = value
+                                                  .toString()
+                                                  .substring(0, 5);
+                                              print(formattedTime);
+                                            });
+                                          },
+                                        );
+                                      });
+                                },
+                                child: Text(formattedTime,
+                                    style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold)),
+                              ),
+                            ], /////DateFormat('dd.MM.yyyy').format(date),
                           )
                         ],
                       ),
