@@ -49,5 +49,10 @@ class Styles {
       fontFamily: 'fonts/Ubuntu-Regular.ttf',
       fontSize: 14,
       fontWeight: FontWeight.w500,
-      color: Colors.white);    
+      color: Color(0xFFAFAFAF));    
+  static const usernameBagageWidget = TextStyle(
+      fontFamily: 'fonts/Ubuntu-Regular.ttf',
+      fontSize: 10,
+      fontWeight: FontWeight.w400,
+      color: Color(0xFFAFAFAF));    
 }

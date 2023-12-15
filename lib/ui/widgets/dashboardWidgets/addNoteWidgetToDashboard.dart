@@ -35,10 +35,9 @@ class _AddNoteWidgetToDashboardState extends State<AddNoteWidgetToDashboard> {
         "type": "note",
         "content": note.text,
         "title": nameOfNote.text,
-        "createdBy": FirebaseFirestore.instance.collection('users').doc(userdata.userdata!["uid"]),
       };
-
-       await AddWidget().addWidget(widget.day, data);
+      DocumentReference by = FirebaseFirestore.instance.collection('users').doc(userdata.userdata!["uid"]);
+      await AddWidget().addWidget(widget.day, by, data);
     }
 
     return Column(children: [

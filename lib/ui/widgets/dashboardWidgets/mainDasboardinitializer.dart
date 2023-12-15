@@ -24,7 +24,7 @@ class _MainDasboardinitializerState extends State<MainDasboardinitializer> {
         color: const Color(0xE51E1E1E),
         child: Padding(
           padding:
-              const EdgeInsets.only(top: 8, bottom: 8, left: 20, right: 20),
+              const EdgeInsets.only(top: 22, bottom: 12, left: 20, right: 20),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
