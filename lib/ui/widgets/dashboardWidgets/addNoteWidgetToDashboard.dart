@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:internet_praktikum/core/services/addWidget.dart';
 import 'package:internet_praktikum/ui/widgets/errorSnackbar.dart';
 import 'package:internet_praktikum/ui/widgets/inputfield.dart';
 import 'package:internet_praktikum/ui/widgets/my_button.dart';
@@ -22,27 +23,12 @@ class _AddNoteWidgetToDashboardState extends State<AddNoteWidgetToDashboard> {
   var uuid = Uuid();
 
   Future<void> createNote() async {
-    Map<String, dynamic> dayData =
-        (await widget.day.get()).data() as Map<String, dynamic>;
-    List<dynamic> widgets =
-        dayData['active'].entries?.map((entry) => entry.value)?.toList();
-    int length = widgets.length;    
-    widgets.add({
-      'type': 'note',
-      'key': uuid.v4(),
-      'index': length,
-      'title': nameOfNote.text,
-      'content': note.text,
-    });
-    Map<int, dynamic>? res = widgets?.asMap();
-    res?.forEach((key, value) {
-      value['index'] = key;
-    });
-    Map<String, dynamic>? res2 = res?.map((key, value) {
-      return MapEntry(value["key"] as String, value);
-    });
-
-    await widget.day.update({'active': res2});
+    Map<String, dynamic> data = {
+      "type": "note",
+      "content": note.text,
+      "title": nameOfNote.text
+    };
+    await AddWidget().addWidget(widget.day, widget.day, data);
   }
 
   @override

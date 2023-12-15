@@ -20,17 +20,13 @@ class ScrollViewWidget extends StatelessWidget {
 
     final StreamController<Map> _dayStreamFiltered = StreamController<Map>();
     _dayStream.listen((event) {
-      debugPrint("Stream is listening");
+      debugPrint("Stream got Data");
       if (justChangged) {
         justChangged = false;
       } else {
         _dayStreamFiltered.add(event.get('active') as Map);
       }
     });
-
-    final Color oddItemColor = Colors.lime.shade100;
-    final Color evenItemColor = Colors.deepPurple.shade100;
-
     Widget proxyDecorator(
         Widget child, int index, Animation<double> animation) {
       return AnimatedBuilder(

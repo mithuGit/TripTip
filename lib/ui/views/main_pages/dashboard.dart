@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -20,22 +21,21 @@ class _DashBoardState extends State<DashBoard> {
   final user = FirebaseAuth.instance.currentUser!;
   DateTime? selectedDay = DateTime(2023, 10, 1);
   bool showSomething = false;
+  DocumentReference? currentDay;
 
-  void signUserOut() async {
-    await FirebaseAuth.instance.signOut();
-    if (context.mounted) {
-      GoRouter.of(context).go('/loginorregister');
+  Future<Map<String, dynamic>> getUserData() async {
+    final userCollection = FirebaseFirestore.instance.collection('users');
+    final userDoc = await userCollection.doc(user.uid).get();
+    Map<String, dynamic> userData = userDoc.data()!;
+    if(userData['profilepicture'] != null) {
+      userData['profilepicture'] = await FirebaseStorage.instance.ref(userData['profilepicture']).getDownloadURL();
     }
-  }
-
-  void deleteUser() async {
-    await FirebaseAuth.instance.currentUser!.delete();
-    if (context.mounted) {
-      GoRouter.of(context).go('/loginorregister');
-    }
+    
+    return userDoc.data()!;
   }
 
   Future<DocumentReference> getCurrentDay() async {
+    if (currentDay != null) return currentDay!;
     print('DateTime: $selectedDay');
     final userCollection = FirebaseFirestore.instance.collection('users');
     final userDoc = await userCollection.doc(user.uid).get();
@@ -62,7 +62,7 @@ class _DashBoardState extends State<DashBoard> {
                 selectedDay!.month &&
             (el['starttime'] as Timestamp).toDate().year == selectedDay!.year)
         .first;
-
+    currentDay = day['ref'];
     return day['ref'];
   }
 
@@ -106,18 +106,18 @@ class _DashBoardState extends State<DashBoard> {
                 title: "Add new Widget to your Dashboard",
                 content: [
                   FutureBuilder<DocumentReference>(
-                          future: getCurrentDay(),
-                          builder: (context, snapshot) {
-                            if (snapshot.connectionState ==
-                                ConnectionState.waiting) {
-                              return const CircularProgressIndicator(); // Show loading indicator while waiting for the Future
-                            } else if (snapshot.hasError) {
-                              return Text(
-                                  'Resolve Data Error: ${snapshot.error}');
-                            } else {
-                              return CreateNewWidgetOnDashboard(day: snapshot.data!);
-                            }
-                          }),
+                      future: getCurrentDay(),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const CircularProgressIndicator(); // Show loading indicator while waiting for the Future
+                        } else if (snapshot.hasError) {
+                          return Text('Resolve Data Error: ${snapshot.error}');
+                        } else {
+                          return CreateNewWidgetOnDashboard(
+                              day: snapshot.data!);
+                        }
+                      }),
                 ]);
           }),
       body: Stack(
@@ -127,7 +127,7 @@ class _DashBoardState extends State<DashBoard> {
                 image: DecorationImage(
                   image: AssetImage(
                       'assets/mainpage_pic/dashboard.png'), // assets/BackgroundCity.png
-                  fit: BoxFit.fill,
+                  fit: BoxFit.cover,
                 ),
               ),
               child: Center(
