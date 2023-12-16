@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:internet_praktikum/calendar.dart';
 import 'package:internet_praktikum/ui/widgets/bottom_sheet.dart';
 import 'package:internet_praktikum/ui/views/dashboard/scrollview.dart';
 import 'package:internet_praktikum/ui/widgets/dashboardWidgets/createNewWidgetOnDashboard.dart';
@@ -30,6 +31,8 @@ class _DashBoardState extends State<DashBoard> {
   bool showSomething = false;
   DocumentReference? currentDay;
 
+  ProviderDay? providerDay;
+
   // A function that automatecly loads the data from the user and fetches the profilepicture
   Future<ProviderUserdata> getUserData() async {
     print("getUserData");
@@ -39,9 +42,19 @@ class _DashBoardState extends State<DashBoard> {
     return ProviderUserdata(_userData);
   }
 
+  @override
+  void initState() {
+    super.initState();
+    getCurrentDay().then((value) => {
+          setState(() {
+            providerDay = value;
+          })
+        });
+  }
+
   // A function that returns the current day for the Widget list and also saves it in the currentDay variable for later use
   Future<ProviderDay> getCurrentDay() async {
-    if (currentDay != null) return ProviderDay(currentDay!);
+    //if (currentDay != null) return ProviderDay(currentDay!);
     print('DateTime: $selectedDay');
     final userCollection = FirebaseFirestore.instance.collection('users');
     final userDoc = await userCollection.doc(user.uid).get();
@@ -68,18 +81,12 @@ class _DashBoardState extends State<DashBoard> {
                 selectedDay!.month &&
             (el['starttime'] as Timestamp).toDate().year == selectedDay!.year)
         .first;
+    if (day['ref'] == null) throw Exception('Day does not exist anymore');
     currentDay = day['ref'];
     return ProviderDay(currentDay!);
   }
 
   late String prename; // Variable für den Vornamen
-
-  @override
-  void initState() {
-    super.initState();
-    // Bei der Initialisierung den Vornamen aus der Datenbank laden
-    //loadPrename();
-  }
 
   // Dafür benötigen wir ein Future, da die Datenbank-Abfrage asynchron ist
   void loadPrename() async {
@@ -128,7 +135,14 @@ class _DashBoardState extends State<DashBoard> {
           }),
       body: Stack(
         children: [
-          Container(
+          MultiProvider(
+            providers: [
+              FutureProvider(
+                create: (context) => getUserData(),
+                initialData: null,
+              ),
+            ],
+            child: Container(
               decoration: const BoxDecoration(
                 image: DecorationImage(
                   image: AssetImage(
@@ -136,16 +150,28 @@ class _DashBoardState extends State<DashBoard> {
                   fit: BoxFit.cover,
                 ),
               ),
-              child: MultiProvider(providers: [
-                FutureProvider(
-                  create: (context) => getUserData(),
-                  initialData: null,
-                ),
-                FutureProvider(
-                  create: (context) => getCurrentDay(),
-                  initialData: null,
-                ),
-              ], child: Center(child: Center(child: ScrollViewWidget())))),
+              child: Column(children: [
+                Calendar(onDateSelected: (date) {
+                  print("onDateSelected");
+                  selectedDay = date;
+                  getCurrentDay().then((value) => {
+                        setState(() {
+                          providerDay = value;
+                        })
+                      });
+                }),
+                Builder(builder: (context) {
+                  if (providerDay == null) {
+                    return const Text("Loading");
+                  } else {
+                    return ScrollViewWidget(
+                      dayP: providerDay,
+                    );
+                  }
+                })
+              ]),
+            ),
+          )
         ],
       ),
     );

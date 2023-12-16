@@ -11,14 +11,15 @@ import 'package:rxdart/rxdart.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 
 class ScrollViewWidget extends StatelessWidget {
-  ScrollViewWidget({super.key});
+  ProviderDay? dayP;
+  ScrollViewWidget({super.key, this.dayP});
   List<dynamic>? bufferArray = List.empty();
   bool justChangged = false;
 
   @override
   Widget build(BuildContext context) {
     FirebaseFirestore firestore = FirebaseFirestore.instance;
-    DocumentReference<Object?>? day = context.watch<ProviderDay?>()?.day;
+    DocumentReference<Object?>? day = dayP?.day;
     if (day == null) {
       return const CircularProgressIndicator();
     }
@@ -97,6 +98,8 @@ class ScrollViewWidget extends StatelessWidget {
                 bottom: 65), // 65 because of the bottom navigation bar
             child: ReorderableListView(
               buildDefaultDragHandles: true,
+              scrollDirection: Axis.vertical,
+              shrinkWrap: true,
               padding: const EdgeInsets.symmetric(horizontal: 23),
               proxyDecorator: proxyDecorator,
               onReorder: (int oldIndex, int newIndex) {

@@ -43,7 +43,7 @@ class Styles {
   static const mainDasboardinitializerTitle = TextStyle(
       fontFamily: 'fonts/Ubuntu-Regular.ttf',
       fontSize: 20,
-      fontWeight: FontWeight.w500,
+      fontWeight: FontWeight.w400,
       color: Colors.white);
   static const creatorofwidget = TextStyle(
       fontFamily: 'Ubuntu',

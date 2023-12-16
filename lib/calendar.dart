@@ -137,7 +137,7 @@ class _CalendarState extends State<Calendar> {
         throw Exception('Could not update date range');
       }
     }
-    if(selectedDate != null){
+    if (selectedDate != null) {
       widget.onDateSelected(selectedDate!);
     }
   }
@@ -179,76 +179,76 @@ class _CalendarState extends State<Calendar> {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
+    return Container(
       height: 76,
       width: double.infinity,
-      child: Scaffold(
-        backgroundColor: Colors.transparent,
-        body: Center(
-          child: Column(
+      child: Column(
+        children: [
+          // Zeige ausgewähltes Datum oder Zeitintervall an
+          Stack(
+            alignment: AlignmentDirectional.centerStart,
             children: [
-              // Zeige ausgewähltes Datum oder Zeitintervall an
-              Stack(
-                alignment: AlignmentDirectional.centerStart,
+              Positioned(
+                left: 10,
+                bottom: 7,
+                child: GestureDetector(
+                  onTap: _goToLatestDate,
+                  child: const Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Icon(
+                      Icons.calendar_today, // Verwende das gewünschte Icon
+                      size: 30.0,
+                      color: Colors.black, // Ändere die Farbe nach Bedarf
+                    ),
+                  ),
+                ),
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Positioned(
-                    left: 10,
-                    bottom: 7,
-                    child: GestureDetector(
-                      onTap: _goToLatestDate,
-                      child: const Padding(
-                        padding: EdgeInsets.all(8.0),
-                        child: Icon(
-                          Icons.calendar_today, // Verwende das gewünschte Icon
-                          size: 30.0,
-                          color: Colors.black, // Ändere die Farbe nach Bedarf
-                        ),
-                      ),
-                    ),
+                  GestureDetector(
+                    onTap: () {
+                      _goToPreviousDate();
+                    },
+                    child: lastDate != null
+                        ? _buildDateText(lastDate!)
+                        : _loadingContainer(),
                   ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      GestureDetector(
-                        onTap: () {
-                          _goToPreviousDate();
-                        },
-                        child: lastDate != null ? _buildDateText(lastDate!) : _loadingContainer(),
-                      ),
-                      selectedDate != null ? _buildDateText(selectedDate!, size: 15, selected: true) : _loadingContainer(),
-                      GestureDetector(
-                        onTap: () {
-                          _goToNextDate();
-                        },
-                        child:firstDate != null ?  _buildDateText(firstDate!) : _loadingContainer(),
-                      ),
-                    ],
-                  ),
-                  Positioned(
-                    right: 10,
-                    bottom: 7,
-                    child: IconButton(
-                      onPressed: _showDateRangePicker,
-                      icon: const Icon(
-                        Icons.edit_calendar,
-                        size: 30.0,
-                        color: Colors.black,
-                      ),
-                      tooltip: 'Zeitintervall auswählen',
-                    ),
+                  selectedDate != null
+                      ? _buildDateText(selectedDate!, size: 15, selected: true)
+                      : _loadingContainer(),
+                  GestureDetector(
+                    onTap: () {
+                      _goToNextDate();
+                    },
+                    child: firstDate != null
+                        ? _buildDateText(firstDate!)
+                        : _loadingContainer(),
                   ),
                 ],
               ),
+              Positioned(
+                right: 10,
+                bottom: 7,
+                child: IconButton(
+                  onPressed: _showDateRangePicker,
+                  icon: const Icon(
+                    Icons.edit_calendar,
+                    size: 30.0,
+                    color: Colors.black,
+                  ),
+                  tooltip: 'Zeitintervall auswählen',
+                ),
+              ),
             ],
           ),
-        ),
+        ],
       ),
     );
   }
 
   Widget _buildDateText(DateTime date,
       {double size = 12, bool selected = false}) {
-
     DateTime today = DateTime.now();
     DateTime tomorrow = DateTime.now().add(const Duration(days: 1));
     DateTime yesterday = DateTime.now().subtract(const Duration(days: 1));
@@ -260,10 +260,15 @@ class _CalendarState extends State<Calendar> {
       child: Column(
         children: [
           Text(
-            date.isAtSameMomentAs(DateTime(today.year, today.month, today.day)) ? "Today" 
-            : date.isAtSameMomentAs(DateTime(tomorrow.year, tomorrow.month, tomorrow.day)) ? "Tomorrow" 
-            : date.isAtSameMomentAs(DateTime(yesterday.year, yesterday.month, yesterday.day)) ? "Yesterday" 
-            : DateFormat('dd.MM.yyyy').format(date),
+            date.isAtSameMomentAs(DateTime(today.year, today.month, today.day))
+                ? "Today"
+                : date.isAtSameMomentAs(
+                        DateTime(tomorrow.year, tomorrow.month, tomorrow.day))
+                    ? "Tomorrow"
+                    : date.isAtSameMomentAs(DateTime(
+                            yesterday.year, yesterday.month, yesterday.day))
+                        ? "Yesterday"
+                        : DateFormat('dd.MM.yyyy').format(date),
             style: TextStyle(
                 fontSize: size,
                 fontWeight: selected ? FontWeight.bold : FontWeight.normal),
@@ -285,7 +290,7 @@ class _CalendarState extends State<Calendar> {
 
   Widget _loadingContainer({double size = 12, bool selected = false}) {
     return Container(
-      width: selected ? 101 : 92.8, 
+      width: selected ? 101 : 92.8,
       height: selected ? 76 : 66,
       padding: const EdgeInsets.all(10.0),
       child: Column(
