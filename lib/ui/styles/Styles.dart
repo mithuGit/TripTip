@@ -65,4 +65,9 @@ class Styles {
       fontSize: 10,
       fontWeight: FontWeight.w400,
       color: Color(0xFFAFAFAF));
+  static const listviewNoContente = TextStyle(
+      fontFamily: 'fonts/Ubuntu-Regular.ttf',
+      fontSize: 12,
+      fontWeight: FontWeight.w400,
+      color: Colors.black);
 }

@@ -44,6 +44,7 @@ class _DashBoardState extends State<DashBoard> {
   @override
   void initState() {
     super.initState();
+    
     getCurrentDay().then((value) => {
           setState(() {
             providerDay = value;
@@ -73,15 +74,33 @@ class _DashBoardState extends State<DashBoard> {
         await FirebaseFirestore.instance.collection('trips').doc(tripId).get();
     Map<String, dynamic>? currentTripdata = currentTrip.data();
     List<dynamic> days = currentTripdata?['days'].toList();
-    Map<String, dynamic> day = days
+    if(days.isEmpty) throw Exception('No days in trip');
+    Iterable<dynamic> filtered = days
         .where((el) =>
             (el['starttime'] as Timestamp).toDate().day == selectedDay!.day &&
             (el['starttime'] as Timestamp).toDate().month ==
                 selectedDay!.month &&
-            (el['starttime'] as Timestamp).toDate().year == selectedDay!.year)
-        .first;
-    if (day['ref'] == null) throw Exception('Day does not exist anymore');
-    currentDay = day['ref'];
+            (el['starttime'] as Timestamp).toDate().year == selectedDay!.year);
+    // TODO wenn kein Tag gefunden wird, dann einen neuen Tag erstellen... Dies muss bei leeren Colection sirgendwann aufgeräumt werden.        
+    if(filtered.isEmpty) {
+      print('No day found');
+      DocumentReference day = await FirebaseFirestore.instance.collection('days').add({
+        'starttime': Timestamp.fromDate(selectedDay!),
+        'active': {},
+        'archive': {},
+      });
+      await FirebaseFirestore.instance.collection('trips').doc(tripId).update({
+        'days': FieldValue.arrayUnion([
+          {
+            'starttime': Timestamp.fromDate(selectedDay!),
+            'ref': day
+          }
+        ])
+      });
+      return ProviderDay(day);
+    }
+    Map<String, dynamic>? day = filtered.first;        
+    currentDay = day!['ref'];
     return ProviderDay(currentDay!);
   }
 

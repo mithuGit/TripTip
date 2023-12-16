@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:internet_praktikum/ui/styles/Styles.dart';
+import 'package:internet_praktikum/ui/views/dashboard/scrollview.dart';
 import 'package:internet_praktikum/ui/widgets/dashboardWidgets/usernameBagageDashboardWidget.dart';
+import 'package:provider/provider.dart';
 
 class SimpleNoteWidget extends StatelessWidget {
   final Map<String, dynamic>? data;
@@ -9,6 +11,10 @@ class SimpleNoteWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    PressdEditButton pressedEditButton = context.watch<PressdEditButton>();
+    if(pressedEditButton.pressed) {
+      print("pressed edit button....");
+    }
     return 
     Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,

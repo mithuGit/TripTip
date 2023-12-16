@@ -97,6 +97,7 @@ class _CalendarState extends State<Calendar> {
         lastDate = DateTime.now().subtract(const Duration(days: 1));
       });
     }
+    widget.onDateSelected(selectedDate!);
   }
 
   //DateTime getSelectedDate() {

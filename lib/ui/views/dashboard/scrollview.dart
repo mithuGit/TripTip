@@ -1,14 +1,24 @@
 import 'dart:async';
-import 'dart:math';
 import 'dart:ui';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:internet_praktikum/ui/styles/Styles.dart';
 import 'package:internet_praktikum/ui/views/main_pages/dashboard.dart';
 import 'package:internet_praktikum/ui/widgets/dashboardWidgets/mainDasboardinitializer.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'package:rxdart/rxdart.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+
+class PressdEditButton extends ChangeNotifier {
+  bool pressed = false;
+  void changePressed() {
+    pressed = !pressed;
+    notifyListeners();
+  }
+  @override
+  String toString() {
+    return '';
+  }
+}
 
 class ScrollViewWidget extends StatelessWidget {
   ProviderDay? dayP;
@@ -20,9 +30,12 @@ class ScrollViewWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     FirebaseFirestore firestore = FirebaseFirestore.instance;
     DocumentReference<Object?>? day = dayP?.day;
+
+    
     if (day == null) {
       return const CircularProgressIndicator();
     }
+    Map<String,PressdEditButton> pressedEditButton = {};
     final Stream<DocumentSnapshot> _dayStream =
         firestore.collection('days').doc(day?.id).snapshots();
 
@@ -51,6 +64,9 @@ class ScrollViewWidget extends StatelessWidget {
             localbufferArray![i]["profilePicture"] = userdata["profilePicture"];
             localbufferArray![i]["prename"] = userdata["prename"];
             localbufferArray![i]["lastname"] = userdata["lastname"];
+
+            //Add for every widget a PressdEditButton that it can listen on changes
+            pressedEditButton[localbufferArray![i]["key"]] = PressdEditButton();
           }
           dayStreamFiltered.add(localbufferArray);
         }
@@ -90,7 +106,13 @@ class ScrollViewWidget extends StatelessWidget {
           }
 
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Text("Loading");
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (snapshot.data!.isEmpty) {
+            return const Text(
+              "No Widgets yet, press + to add one!",
+              style: Styles.listviewNoContente,
+            );
           }
           debugPrint("Container is editable");
           return Container(
@@ -136,6 +158,15 @@ class ScrollViewWidget extends StatelessWidget {
                         //    dismissible: DismissiblePane(onDismissed: () {}),
                         children: [
                           SlidableAction(
+                            onPressed: (sdf) {
+                              pressedEditButton[con["key"]]?.changePressed();
+                            },
+                            backgroundColor: Colors.transparent,
+                            foregroundColor: Colors.blue,
+                            icon: Icons.edit,
+                            label: 'Edit',
+                          ),
+                          SlidableAction(
                             onPressed: (s) async {
                               debugPrint("Delete");
                               DocumentSnapshot archiveColl = await firestore
@@ -169,17 +200,13 @@ class ScrollViewWidget extends StatelessWidget {
                             icon: Icons.delete,
                             label: 'Delete',
                           ),
-                          SlidableAction(
-                            onPressed: (sdf) {},
-                            backgroundColor: Colors.transparent,
-                            foregroundColor: Colors.blue,
-                            icon: Icons.edit,
-                            label: 'Edit',
-                          ),
                         ],
                       ),
-                      child: MainDasboardinitializer(
-                          title: con!["title"], data: con),
+                      child: ChangeNotifierProvider<PressdEditButton>(
+                        create: (_) => pressedEditButton[con["key"]]!,
+                        child: MainDasboardinitializer(
+                            title: con!["title"], data: con),
+                      ),
                     );
                   })
                   .toList()
