@@ -25,7 +25,7 @@ class ScrollViewWidget extends StatelessWidget {
     final Stream<DocumentSnapshot> _dayStream =
         firestore.collection('days').doc(day?.id).snapshots();
 
-    final StreamController<List<dynamic>> _dayStreamFiltered =
+    final StreamController<List<dynamic>> dayStreamFiltered =
         StreamController<List<dynamic>>();
     _dayStream.listen((event) async {
       try {
@@ -35,24 +35,27 @@ class ScrollViewWidget extends StatelessWidget {
         } else {
           Map<String, dynamic> buffer =
               await event.get('active') as Map<String, dynamic>;
-          List<dynamic> localbufferArray = buffer.entries.map((entry) => entry.value).toList();
+          List<dynamic> localbufferArray =
+              buffer.entries.map((entry) => entry.value).toList();
 
           if (localbufferArray != null) {
             localbufferArray?.sort(
                 (a, b) => (a['index'] as int).compareTo(b['index'] as int));
           }
           for (var i = 0; i < localbufferArray!.length; i++) {
-            DocumentSnapshot userdoc = await localbufferArray![i]["createdBy"].get();
-            Map<String, dynamic> userdata = userdoc.data() as Map<String, dynamic>;
+            DocumentSnapshot userdoc =
+                await localbufferArray![i]["createdBy"].get();
+            Map<String, dynamic> userdata =
+                userdoc.data() as Map<String, dynamic>;
             localbufferArray![i]["profilePicture"] = userdata["profilePicture"];
             localbufferArray![i]["prename"] = userdata["prename"];
             localbufferArray![i]["lastname"] = userdata["lastname"];
           }
-          _dayStreamFiltered.add(localbufferArray);
+          dayStreamFiltered.add(localbufferArray);
         }
       } catch (e) {
         debugPrint(e.toString());
-        _dayStreamFiltered.addError(e);
+        dayStreamFiltered.addError(e);
       }
     });
     Widget proxyDecorator(
@@ -78,7 +81,7 @@ class ScrollViewWidget extends StatelessWidget {
     }
 
     return StreamBuilder<List<dynamic>>(
-        stream: _dayStreamFiltered.stream,
+        stream: dayStreamFiltered.stream,
         builder: (BuildContext context, AsyncSnapshot<List<dynamic>> snapshot) {
           bufferArray = snapshot.data;
           if (snapshot.hasError) {
@@ -103,7 +106,7 @@ class ScrollViewWidget extends StatelessWidget {
                 }
                 Map<String, dynamic> item = bufferArray?.removeAt(oldIndex);
                 bufferArray?.insert(newIndex, item);
-                _dayStreamFiltered.add(bufferArray!);
+                dayStreamFiltered.add(bufferArray!);
 
                 Map<int, dynamic>? res = bufferArray?.asMap();
                 res?.forEach((key, value) {
@@ -130,7 +133,34 @@ class ScrollViewWidget extends StatelessWidget {
                         //    dismissible: DismissiblePane(onDismissed: () {}),
                         children: [
                           SlidableAction(
-                            onPressed: (s) {},
+                            onPressed: (s) async {
+                              debugPrint("Delete");
+                              DocumentSnapshot archiveColl = await firestore
+                                  .collection('days')
+                                  .doc(day?.id)
+                                  .get();
+                              Map<String, dynamic> archive = archiveColl
+                                  .get('archive') as Map<String, dynamic>;
+                              archive[con["key"]] = con;
+                              Map<String, dynamic> item = con;
+                              List<dynamic>? tempArray = bufferArray;
+                              tempArray?.remove(con);
+                              dayStreamFiltered.add(tempArray!);
+                              Map<int, dynamic>? res = tempArray?.asMap();
+                              res?.forEach((key, value) {
+                                value['index'] = key;
+                              });
+                              Map<String, dynamic>? res2 =
+                                  res?.map((key, value) {
+                                return MapEntry(value["key"] as String, value);
+                              });
+                              //umschreibem
+                              firestore
+                                  .collection('days')
+                                  .doc(day?.id)
+                                  .update({"active": res2, "archive": archive});
+                              justChangged = true;
+                            },
                             backgroundColor: Colors.transparent,
                             foregroundColor: Colors.red,
                             icon: Icons.delete,
