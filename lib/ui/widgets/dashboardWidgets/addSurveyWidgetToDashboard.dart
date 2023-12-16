@@ -20,7 +20,8 @@ class AddSurveyWidgetToDashboard extends StatefulWidget {
       _AddSurveyWidgetToDashboardState();
 }
 
-class _AddSurveyWidgetToDashboardState extends State<AddSurveyWidgetToDashboard> {
+class _AddSurveyWidgetToDashboardState
+    extends State<AddSurveyWidgetToDashboard> {
   final nameofSurvey = TextEditingController();
   final survey = TextEditingController();
   final option1 = TextEditingController();
@@ -47,8 +48,9 @@ class _AddSurveyWidgetToDashboardState extends State<AddSurveyWidgetToDashboard>
         // und in Options soll die Anzahl an Stimmen gespeichert werden
         "options": [option1.text, options2.text, options3.text, options4.text],
       };
-      DocumentReference by = FirebaseFirestore.instance.collection('users')
-      .doc(userdata.userdata["uid"]);
+      DocumentReference by = FirebaseFirestore.instance
+          .collection('users')
+          .doc(userdata.userdata["uid"]);
       await AddWidget().addWidget(widget.day, by, data);
     }
 
@@ -59,10 +61,14 @@ class _AddSurveyWidgetToDashboardState extends State<AddSurveyWidgetToDashboard>
           hintText: "Title of Survey",
           obscureText: false),
       InputField(controller: survey, hintText: "Survey", obscureText: false),
-      InputField(controller: option1, hintText: "First Options", obscureText: false),
-      InputField(controller: options2, hintText: "Second Option", obscureText: false),
-      InputField(controller: options3, hintText: "Third Option", obscureText: false),
-      InputField(controller: options4, hintText: "Fourht Option", obscureText: false),
+      InputField(
+          controller: option1, hintText: "First Options", obscureText: false),
+      InputField(
+          controller: options2, hintText: "Second Option", obscureText: false),
+      InputField(
+          controller: options3, hintText: "Third Option", obscureText: false),
+      InputField(
+          controller: options4, hintText: "Fourth Option", obscureText: false),
       MyButton(
           colors: Colors.blue,
           onTap: () => createNote().onError((error, stackTrace) => {
