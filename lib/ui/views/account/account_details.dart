@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -26,6 +24,7 @@ class _AccountState extends State<Account> {
   final userCollection = FirebaseFirestore.instance.collection('users');
   final storage = FirebaseStorage.instance;
 
+  //Controller for text
   final prenameController = TextEditingController();
   final lastnameController = TextEditingController();
   final emailController = TextEditingController();

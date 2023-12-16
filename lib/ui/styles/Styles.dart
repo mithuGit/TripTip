@@ -45,14 +45,24 @@ class Styles {
       fontSize: 20,
       fontWeight: FontWeight.w500,
       color: Colors.white);
+  static const creatorofwidget = TextStyle(
+      fontFamily: 'Ubuntu',
+      fontSize: 13,
+      fontWeight: FontWeight.w400,
+      color: Color(0xFFAFAFAF));
+  static const descriptionofwidget = TextStyle(
+      fontFamily: 'Ubuntu',
+      fontSize: 16,
+      fontWeight: FontWeight.w400,
+      color: Color(0xFFAFAFAF));
   static const noteTextstyle = TextStyle(
       fontFamily: 'fonts/Ubuntu-Regular.ttf',
       fontSize: 14,
       fontWeight: FontWeight.w500,
-      color: Color(0xFFAFAFAF));    
+      color: Color(0xFFAFAFAF));
   static const usernameBagageWidget = TextStyle(
       fontFamily: 'fonts/Ubuntu-Regular.ttf',
       fontSize: 10,
       fontWeight: FontWeight.w400,
-      color: Color(0xFFAFAFAF));    
+      color: Color(0xFFAFAFAF));
 }

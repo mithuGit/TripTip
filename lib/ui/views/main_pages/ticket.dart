@@ -2,7 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:internet_praktikum/ui/widgets/my_button.dart';
-import 'package:internet_praktikum/ui/widgets/topbar.dart';
+import 'package:internet_praktikum/ui/widgets/header/topbar.dart';
 
 class Ticket extends StatefulWidget {
   const Ticket({super.key});

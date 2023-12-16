@@ -1,11 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_database/firebase_database.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 class Calendar extends StatefulWidget {
-  const Calendar({Key? key}) : super(key: key);
+  final Function(DateTime) onDateSelected;
+  const Calendar({Key? key, required this.onDateSelected}) : super(key: key);
 
   @override
   State<Calendar> createState() => _CalendarState();
@@ -15,50 +14,77 @@ Future<DateTime> getStartDate() async {
   final DocumentSnapshot<Map<String, dynamic>> documentSnapshot =
       await FirebaseFirestore.instance
           .collection('trips')
-          .doc('BmGvil7kYHjvOiUGzjiR')
+          .doc('OYcU9dTsakHTtYs5k5uw')
           .get();
-  final DateTime startDate = documentSnapshot.data()!['startdate'].toDate();
-  int day = startDate.day;
-  int month = startDate.month;
-  int year = startDate.year;
-  DateTime result = DateTime(year, month, day + 1);
-  return result;
+  if (documentSnapshot.exists) {
+    final DateTime startDate = documentSnapshot.data()!['startdate'].toDate();
+    int day = startDate.day;
+    int month = startDate.month;
+    int year = startDate.year;
+    DateTime result = DateTime(year, month,
+        day); // Testen ob hier manchmal ein Fehler auftriit und bei day + 1 muss
+    return result;
+  } else {
+    throw Exception('No trips selected');
+  }
 }
 
 Future<DateTime> getEndtDate() async {
   final DocumentSnapshot<Map<String, dynamic>> documentSnapshot =
       await FirebaseFirestore.instance
           .collection('trips')
-          .doc('BmGvil7kYHjvOiUGzjiR')
+          .doc('OYcU9dTsakHTtYs5k5uw')
           .get();
-  final DateTime endDate = documentSnapshot.data()!['enddate'].toDate();
-  int day = endDate.day;
-  int month = endDate.month;
-  int year = endDate.year;
-  DateTime result = DateTime(year, month, day + 1);
-  return result;
+  if (documentSnapshot.exists) {
+    final DateTime endDate = documentSnapshot.data()!['enddate'].toDate();
+    int day = endDate.day;
+    int month = endDate.month;
+    int year = endDate.year;
+    DateTime result = DateTime(year, month,
+        day); // Testen ob hier manchmal ein Fehler auftriit und bei day + 1 muss
+    return result;
+  } else {
+    throw Exception('No trips selected');
+  }
 }
 
 class _CalendarState extends State<Calendar> {
-  DateTime selectedDate = DateTime.now();
-  DateTime firstDate = DateTime.now().add(const Duration(days: 1));
-  DateTime lastDate = DateTime.now().subtract(const Duration(days: 1));
+  DateTime? selectedDate; // Ausgewähltes Datum
+  DateTime? firstDate;
+  DateTime? lastDate;
 
-  /*void initState() {
+  DateTime? newStart; // Neues Startdatum
+  DateTime? newEnd; // Neues Enddatum
+
+  @override
+  void initState() {
     super.initState();
-    fetchDateTime();
+    // Hole Startdatum aus Firebase und initialisiere selectedDate, firstDate und lastDate
+    fetchDate();
   }
 
-  Future<void> fetchDateTime() async {
-    final select  = await getStartDate();
-    setState(() {
-      selectedDate = select;
-      firstDate = select.add(const Duration(days: 1));
-      lastDate = select.subtract(const Duration(days: 1));
-    });
-  }*/
+  void fetchDate() async {
+    DateTime startDate = await getStartDate();
+    if (DateTime.now().isBefore(startDate)) {
+      // Hole Startdatum aus Firebase und initialisiere selectedDate, firstDate und lastDate
+      setState(() {
+        selectedDate = startDate;
+        firstDate = startDate.add(const Duration(days: 1));
+        lastDate = startDate.subtract(const Duration(days: 1));
+      });
+    } else {
+      // Hole aktuelles Datum und initialisiere selectedDate, firstDate und lastDate
+      setState(() {
+        selectedDate = DateTime.now();
+        firstDate = DateTime.now().add(const Duration(days: 1));
+        lastDate = DateTime.now().subtract(const Duration(days: 1));
+      });
+    }
+  }
 
-  // Erstelle DateTimeRange-Variable
+  //DateTime getSelectedDate() {
+  //  return selectedDate!;
+  //}
 
   Future<void> _showDateRangePicker() async {
     DateTime start = await getStartDate();
@@ -70,10 +96,11 @@ class _CalendarState extends State<Calendar> {
         firstDate: DateTime(2023),
         lastDate: DateTime(2060),
         currentDate: DateTime.now(),
-        // DarkMode Calendar ????????
+        //Currently DarkMode Calendar
         builder: (BuildContext context, Widget? child) {
           return Theme(
-            data: ThemeData.dark(),
+            data: ThemeData
+                .dark(), // Hier DarkMode aktivieren Dark und Light Mode noch vlt einbauen
             child: child!,
           );
         },
@@ -81,34 +108,73 @@ class _CalendarState extends State<Calendar> {
 
       if (pickedRange != null) {
         setState(() {
-          //_dateTimeRange = pickedRange;
+          newStart = pickedRange.start;
+          newEnd = pickedRange.end;
+          _setNewDateRange(newStart, newEnd);
         });
       }
     }
   }
 
-  void _goToLatestDate() {
+  void _setNewDateRange(DateTime? newStart, DateTime? newEnd) async {
+    if (newStart != null && newEnd != null) {
+      final DocumentReference<Map<String, dynamic>> documentReference =
+          FirebaseFirestore.instance
+              .collection('trips')
+              .doc('OYcU9dTsakHTtYs5k5uw');
+      try {
+        await documentReference.update({
+          'startdate': newStart,
+          'enddate': newEnd,
+        });
+        setState(() {
+          selectedDate = newStart;
+          firstDate = newStart.add(const Duration(days: 1));
+          lastDate = newStart.subtract(const Duration(days: 1));
+        });
+      } catch (e) {
+        print(e);
+        throw Exception('Could not update date range');
+      }
+    }
+    if(selectedDate != null){
+      widget.onDateSelected(selectedDate!);
+    }
+  }
+
+  void _goToLatestDate() async {
+    DateTime startTrip = await getStartDate();
     setState(() {
-      selectedDate = DateTime.now();
-      firstDate = DateTime.now().add(const Duration(days: 1));
-      lastDate = DateTime.now().subtract(const Duration(days: 1));
+      if (selectedDate!.isBefore(startTrip)) {
+        selectedDate = startTrip;
+        firstDate = startTrip.add(const Duration(days: 1));
+        lastDate = startTrip.subtract(const Duration(days: 1));
+      }
+      if (selectedDate!.isAfter(startTrip)) {
+        selectedDate = DateTime.now();
+        firstDate = DateTime.now().add(const Duration(days: 1));
+        lastDate = DateTime.now().subtract(const Duration(days: 1));
+      }
     });
+    widget.onDateSelected(selectedDate!);
   }
 
   void _goToNextDate() {
     setState(() {
-      selectedDate = selectedDate.add(const Duration(days: 1));
-      firstDate = firstDate.add(const Duration(days: 1));
-      lastDate = lastDate.add(const Duration(days: 1));
+      selectedDate = selectedDate!.add(const Duration(days: 1));
+      firstDate = firstDate!.add(const Duration(days: 1));
+      lastDate = lastDate!.add(const Duration(days: 1));
     });
+    widget.onDateSelected(selectedDate!);
   }
 
   void _goToPreviousDate() {
     setState(() {
-      selectedDate = selectedDate.subtract(const Duration(days: 1));
-      firstDate = firstDate.subtract(const Duration(days: 1));
-      lastDate = lastDate.subtract(const Duration(days: 1));
+      selectedDate = selectedDate!.subtract(const Duration(days: 1));
+      firstDate = firstDate!.subtract(const Duration(days: 1));
+      lastDate = lastDate!.subtract(const Duration(days: 1));
     });
+    widget.onDateSelected(selectedDate!);
   }
 
   @override
@@ -147,14 +213,14 @@ class _CalendarState extends State<Calendar> {
                         onTap: () {
                           _goToPreviousDate();
                         },
-                        child: _buildDateText(lastDate),
+                        child: lastDate != null ? _buildDateText(lastDate!) : _loadingContainer(),
                       ),
-                      _buildDateText(selectedDate, size: 15, selected: true),
+                      selectedDate != null ? _buildDateText(selectedDate!, size: 15, selected: true) : _loadingContainer(),
                       GestureDetector(
                         onTap: () {
                           _goToNextDate();
                         },
-                        child: _buildDateText(firstDate),
+                        child:firstDate != null ?  _buildDateText(firstDate!) : _loadingContainer(),
                       ),
                     ],
                   ),
@@ -182,14 +248,50 @@ class _CalendarState extends State<Calendar> {
 
   Widget _buildDateText(DateTime date,
       {double size = 12, bool selected = false}) {
+
+    DateTime today = DateTime.now();
+    DateTime tomorrow = DateTime.now().add(const Duration(days: 1));
+    DateTime yesterday = DateTime.now().subtract(const Duration(days: 1));
+
     return Container(
-      //width: selected ? 220 : 160,  Hier ändern damit Container fest bleibt und bei Today nicht kleiner wird
-      //height: selected ? 200 : 140, Mit selected arbeiten, weil mitte Container größer ist als die anderen
+      width: selected ? 101 : 92.8,
+      height: selected ? 76 : 66,
       padding: const EdgeInsets.all(10.0),
       child: Column(
         children: [
           Text(
-            DateFormat('dd.MM.yyyy').format(date),
+            date.isAtSameMomentAs(DateTime(today.year, today.month, today.day)) ? "Today" 
+            : date.isAtSameMomentAs(DateTime(tomorrow.year, tomorrow.month, tomorrow.day)) ? "Tomorrow" 
+            : date.isAtSameMomentAs(DateTime(yesterday.year, yesterday.month, yesterday.day)) ? "Yesterday" 
+            : DateFormat('dd.MM.yyyy').format(date),
+            style: TextStyle(
+                fontSize: size,
+                fontWeight: selected ? FontWeight.bold : FontWeight.normal),
+          ), // Spacer zwischen Text und Kreis
+          Container(
+            width: selected ? 35 : 22 + size, // Durchmesser des Kreises
+            height: selected ? 35 : 28,
+            decoration: const BoxDecoration(
+              shape:
+                  BoxShape.circle, // Farbe des Kreises ändern, falls gewünscht
+              border: Border.fromBorderSide(
+                  BorderSide(color: Colors.black, width: 2)),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _loadingContainer({double size = 12, bool selected = false}) {
+    return Container(
+      width: selected ? 101 : 92.8, 
+      height: selected ? 76 : 66,
+      padding: const EdgeInsets.all(10.0),
+      child: Column(
+        children: [
+          Text(
+            "Loading",
             style: TextStyle(
                 fontSize: size,
                 fontWeight: selected ? FontWeight.bold : FontWeight.normal),

@@ -2,14 +2,12 @@ import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:internet_praktikum/ui/styles/Styles.dart';
-import 'package:internet_praktikum/ui/views/login_register_pages/login_or_register_page.dart';
 import 'package:internet_praktikum/ui/widgets/container.dart';
+import 'package:internet_praktikum/ui/widgets/errorSnackbar.dart';
 import 'package:internet_praktikum/ui/widgets/inputfield.dart';
 import 'package:internet_praktikum/ui/widgets/my_button.dart';
 import 'package:internet_praktikum/ui/widgets/inputfield_password_or_icon.dart';
 import '../../../core/services/auth_service.dart';
-import 'package:webview_flutter_plus/webview_flutter_plus.dart';
 
 class LoginPage extends StatefulWidget {
   final Function()? onTap;
@@ -32,9 +30,9 @@ class _LoginPageState extends State<LoginPage> {
   void signUserIn() async {
     // try sign in
     try {
-        await FirebaseAuth.instance.signInWithEmailAndPassword(
-          email: emailController.text,
-          password: passwordController.text,
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: emailController.text,
+        password: passwordController.text,
       );
       if (context.mounted) {
         GoRouter.of(context).go('/');
@@ -43,89 +41,46 @@ class _LoginPageState extends State<LoginPage> {
       print(e.code);
       // Wrong email | Wrong password
       if (e.code == 'user-not-found' || e.code == 'wrong-password') {
-        showMessage('Wrong email or password! Please try again.');
+        if (context.mounted) {
+          ErrorSnackbar.showMessage(
+              'Wrong email or password! Please try again.', context, counter);
+          counter++;
+        }
       }
       // User disabled
       else if (e.code == 'user-disabled') {
-        showMessage('This user has been disabled.');
+        if (context.mounted) {
+          ErrorSnackbar.showMessage(
+              'This user has been disabled.', context, counter);
+          counter++;
+        }
       }
       // Too many requests
       else if (e.code == 'too-many-requests') {
-        showMessage('Too many requests. Try again later.');
+        if (context.mounted) {
+          ErrorSnackbar.showMessage(
+              'Too many requests. Try again later.', context, counter);
+          counter++;
+        }
       }
       // Operation not allowed
       else if (e.code == 'operation-not-allowed') {
-        showMessage('Operation not allowed. Try again later.');
+        if (context.mounted) {
+          ErrorSnackbar.showMessage(
+              'Operation not allowed. Try again later.', context, counter);
+          counter++;
+        }
       } else {
-        showMessage('Something went wrong. Try again later.');
+        if (context.mounted) {
+          ErrorSnackbar.showMessage(
+              'Something went wrong. Try again later.', context, counter);
+          counter++;
+        }
       }
     }
   }
 
   //error messsage to user
-  void showMessage(String message) {
-    Completer<bool> dialogCompleter = Completer<bool>();
-
-    showDialog(
-      context: context,
-      builder: (context) {
-        return WillPopScope(
-          onWillPop: null,
-          child: AlertDialog(
-            backgroundColor: Colors.black,
-            title: Center(
-              child: Text(
-                message,
-                style: Styles.textfieldHintStyle,
-              ),
-            ),
-          ),
-        );
-      },
-    ).then((_) {
-      // Dialog wurde geschlossen, entweder durch Zurück-Taste oder automatisch nach 3 Sekunden
-      if (!dialogCompleter.isCompleted) {
-        dialogCompleter.complete(true);
-      }
-    });
-
-    counter++;
-    // Wenn Counter gleich 3 ist, wird eigentlich hier Capcha aufgerufen
-    if (counter == 3) {
-      counter = 0;
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (context) => Scaffold(
-                  body: WebViewPlus(
-                    javascriptMode: JavascriptMode.unrestricted,
-                    onWebViewCreated: (controller) {
-                      controller.loadUrl("assets/capcha.html");
-                    },
-                    javascriptChannels: {
-                      JavascriptChannel(
-                          name: 'Captcha',
-                          onMessageReceived: (JavascriptMessage message) {
-                            Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) =>
-                                        const LoginOrRegisterPage()));
-                          })
-                    },
-                  ),
-                )),
-      );
-    } else {
-      // Verzögere das Ausblenden der Fehlermeldung nach 2 Sekunden
-      Future.delayed(const Duration(seconds: 2), () {
-        if (!dialogCompleter.isCompleted) {
-          Navigator.of(context).pop(); // Schließt den Dialog nach 2 Sekunden
-          dialogCompleter.complete(true);
-        }
-      });
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -310,10 +265,21 @@ class _LoginPageState extends State<LoginPage> {
                           if (isValidEmail(emailToCheck)) {
                             resetPassword(emailToCheck);
                             Navigator.of(context).pop();
-                            showMessage(
-                                'A reset link has been sent to your email.');
+                            if (context.mounted) {
+                              ErrorSnackbar.showMessage(
+                                  'A reset link has been sent to your email.',
+                                  context,
+                                  counter);
+                              counter++;
+                            }
                           } else {
-                            showMessage('Please enter a valid email');
+                            if (context.mounted) {
+                              ErrorSnackbar.showMessage(
+                                  'Please enter a valid email',
+                                  context,
+                                  counter);
+                              counter++;
+                            }
                           }
                         },
                       ),
