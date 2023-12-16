@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -10,11 +11,26 @@ class Calendar extends StatefulWidget {
   State<Calendar> createState() => _CalendarState();
 }
 
+Future<String> getSelectedTripId() async {
+  final auth = FirebaseAuth.instance.currentUser;
+  if (auth == null) {
+    // Handle the case where the user is not authenticated
+    return Future.error('User not authenticated');
+  }
+  final DocumentSnapshot<Map<String, dynamic>> userDoc =
+      await FirebaseFirestore.instance.collection('users').doc(auth.uid).get();
+
+  final String tripId = userDoc.data()!['selectedtrip'].toString();
+
+  return tripId;
+}
+
 Future<DateTime> getStartDate() async {
+  final String selectedTripDoc = await getSelectedTripId();
   final DocumentSnapshot<Map<String, dynamic>> documentSnapshot =
       await FirebaseFirestore.instance
           .collection('trips')
-          .doc('OYcU9dTsakHTtYs5k5uw')
+          .doc(selectedTripDoc)
           .get();
   if (documentSnapshot.exists) {
     final DateTime startDate = documentSnapshot.data()!['startdate'].toDate();
@@ -30,10 +46,11 @@ Future<DateTime> getStartDate() async {
 }
 
 Future<DateTime> getEndtDate() async {
+  final String selectedTripDoc = await getSelectedTripId();
   final DocumentSnapshot<Map<String, dynamic>> documentSnapshot =
       await FirebaseFirestore.instance
           .collection('trips')
-          .doc('OYcU9dTsakHTtYs5k5uw')
+          .doc(selectedTripDoc)
           .get();
   if (documentSnapshot.exists) {
     final DateTime endDate = documentSnapshot.data()!['enddate'].toDate();
@@ -118,10 +135,9 @@ class _CalendarState extends State<Calendar> {
 
   void _setNewDateRange(DateTime? newStart, DateTime? newEnd) async {
     if (newStart != null && newEnd != null) {
+      final String selectedTripDoc = await getSelectedTripId();
       final DocumentReference<Map<String, dynamic>> documentReference =
-          FirebaseFirestore.instance
-              .collection('trips')
-              .doc('OYcU9dTsakHTtYs5k5uw');
+          FirebaseFirestore.instance.collection('trips').doc(selectedTripDoc);
       try {
         await documentReference.update({
           'startdate': newStart,
@@ -179,7 +195,7 @@ class _CalendarState extends State<Calendar> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SizedBox(
       height: 76,
       width: double.infinity,
       child: Column(

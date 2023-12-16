@@ -142,23 +142,27 @@ class WeatherService {
       return Future.error('User not authenticated');
     }
 
-    final QuerySnapshot<Map<String, dynamic>> querySnapshot =
+    final DocumentSnapshot<Map<String, dynamic>> userDoc =
+      await FirebaseFirestore.instance.collection('users')
+      .doc(auth.uid).get(); 
+    
+    final String tripId = userDoc.data()!['selectedtrip'].toString();
+
+    final DocumentSnapshot<Map<String, dynamic>> selectedTripDoc =
         await FirebaseFirestore.instance
             .collection('trips')
-            .where('createdBy', isEqualTo: auth.uid)
+            .doc(tripId)
             .get();
 
-    if (querySnapshot.docs.isEmpty) {
+    if (selectedTripDoc.exists == false) {
       // Handle the case where no trip is found for the user
       return Future.error('No trip found for the user');
     }
 
-    final DocumentSnapshot<Map<String, dynamic>> documentSnapshot =
-        querySnapshot.docs.first;
-    final String lat = documentSnapshot
+    final String lat = selectedTripDoc
         .data()!['placedetails']["location"]["latitude"]
         .toString();
-    final String long = documentSnapshot
+    final String long = selectedTripDoc
         .data()!['placedetails']["location"]["longitude"]
         .toString();
     final String cityName =
