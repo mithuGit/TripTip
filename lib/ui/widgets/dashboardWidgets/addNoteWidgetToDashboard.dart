@@ -10,8 +10,7 @@ import 'package:uuid/uuid.dart';
 
 class AddNoteWidgetToDashboard extends StatefulWidget {
   @override
-  DocumentReference<Object?> day;
-  AddNoteWidgetToDashboard({super.key, required this.day});
+  AddNoteWidgetToDashboard({super.key});
 
   _AddNoteWidgetToDashboardState createState() =>
       _AddNoteWidgetToDashboardState();
@@ -25,6 +24,7 @@ class _AddNoteWidgetToDashboardState extends State<AddNoteWidgetToDashboard> {
   @override
   Widget build(BuildContext context) {
     final userdata = context.watch<ProviderUserdata?>();
+    DocumentReference? day = context.watch<ProviderDay>().day;
     if (userdata == null) {
       return Text("no userdata");
     }
@@ -37,11 +37,10 @@ class _AddNoteWidgetToDashboardState extends State<AddNoteWidgetToDashboard> {
         "title": nameOfNote.text,
       };
       DocumentReference by = FirebaseFirestore.instance.collection('users').doc(userdata.userdata!["uid"]);
-      await AddWidget().addWidget(widget.day, by, data);
+      await AddWidget().addWidget(day!, by, data);
     }
 
     return Column(children: [
-      Text("Title of Note"),
       InputField(
           controller: nameOfNote,
           hintText: "Title of Note",

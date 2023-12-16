@@ -8,14 +8,23 @@ import 'package:internet_praktikum/ui/widgets/dashboardWidgets/createNewWidgetOn
 import 'package:internet_praktikum/ui/widgets/header/topbar.dart';
 import 'package:provider/provider.dart';
 
-class ProviderUserdata {
-  Map<String, dynamic> userdata = {};
-  ProviderUserdata(this.userdata);
+class ProviderUserdata extends ChangeNotifier {
+  Map<String, dynamic> _userdata = {};
+  get userdata => _userdata;
+  ProviderUserdata({Map<String, dynamic>? userdata});
+  void changeUserdata(Map<String, dynamic> newUserData) {
+    _userdata = newUserData;
+    notifyListeners();
+  }
 }
 
-class ProviderDay {
-  DocumentReference day;
-  ProviderDay(this.day);
+class ProviderDay extends ChangeNotifier {
+  DocumentReference? day;
+  ProviderDay({this.day});
+  void changeDay(DocumentReference newDay) {
+    day = newDay;
+    notifyListeners();
+  }
 }
 
 class DashBoard extends StatefulWidget {
@@ -30,30 +39,32 @@ class _DashBoardState extends State<DashBoard> {
   bool showSomething = false;
   DocumentReference? currentDay;
 
-  ProviderDay? providerDay;
+  ProviderDay providerDay = ProviderDay();
+  ProviderUserdata providerUserdata = ProviderUserdata();
 
   // A function that automatecly loads the data from the user and fetches the profilepicture
-  Future<ProviderUserdata> getUserData() async {
+  Future<Map<String, dynamic>> getUserData() async {
     print("getUserData");
     final userCollection = FirebaseFirestore.instance.collection('users');
     final userDoc = await userCollection.doc(user.uid).get();
     Map<String, dynamic> _userData = userDoc.data()!;
-    return ProviderUserdata(_userData);
+    return _userData;
   }
 
   @override
   void initState() {
     super.initState();
-    
-    getCurrentDay().then((value) => {
-          setState(() {
-            providerDay = value;
-          })
-        });
+
+    getCurrentDay().then((value) {
+      providerDay.changeDay(value);
+    });
+    getUserData().then((value) {
+      providerUserdata.changeUserdata(value);
+    });
   }
 
   // A function that returns the current day for the Widget list and also saves it in the currentDay variable for later use
-  Future<ProviderDay> getCurrentDay() async {
+  Future<DocumentReference> getCurrentDay() async {
     //if (currentDay != null) return ProviderDay(currentDay!);
     print('DateTime: $selectedDay');
     final userCollection = FirebaseFirestore.instance.collection('users');
@@ -74,34 +85,30 @@ class _DashBoardState extends State<DashBoard> {
         await FirebaseFirestore.instance.collection('trips').doc(tripId).get();
     Map<String, dynamic>? currentTripdata = currentTrip.data();
     List<dynamic> days = currentTripdata?['days'].toList();
-    if(days.isEmpty) throw Exception('No days in trip');
-    Iterable<dynamic> filtered = days
-        .where((el) =>
-            (el['starttime'] as Timestamp).toDate().day == selectedDay!.day &&
-            (el['starttime'] as Timestamp).toDate().month ==
-                selectedDay!.month &&
-            (el['starttime'] as Timestamp).toDate().year == selectedDay!.year);
-    // TODO wenn kein Tag gefunden wird, dann einen neuen Tag erstellen... Dies muss bei leeren Colection sirgendwann aufgeräumt werden.        
-    if(filtered.isEmpty) {
+    if (days.isEmpty) throw Exception('No days in trip');
+    Iterable<dynamic> filtered = days.where((el) =>
+        (el['starttime'] as Timestamp).toDate().day == selectedDay!.day &&
+        (el['starttime'] as Timestamp).toDate().month == selectedDay!.month &&
+        (el['starttime'] as Timestamp).toDate().year == selectedDay!.year);
+    // TODO wenn kein Tag gefunden wird, dann einen neuen Tag erstellen... Dies muss bei leeren Colection sirgendwann aufgeräumt werden.
+    if (filtered.isEmpty) {
       print('No day found');
-      DocumentReference day = await FirebaseFirestore.instance.collection('days').add({
+      DocumentReference day =
+          await FirebaseFirestore.instance.collection('days').add({
         'starttime': Timestamp.fromDate(selectedDay!),
         'active': {},
         'archive': {},
       });
       await FirebaseFirestore.instance.collection('trips').doc(tripId).update({
         'days': FieldValue.arrayUnion([
-          {
-            'starttime': Timestamp.fromDate(selectedDay!),
-            'ref': day
-          }
+          {'starttime': Timestamp.fromDate(selectedDay!), 'ref': day}
         ])
       });
-      return ProviderDay(day);
+      return day;
     }
-    Map<String, dynamic>? day = filtered.first;        
+    Map<String, dynamic>? day = filtered.first;
     currentDay = day!['ref'];
-    return ProviderDay(currentDay!);
+    return currentDay!;
   }
 
   late String prename; // Variable für den Vornamen
@@ -138,14 +145,8 @@ class _DashBoardState extends State<DashBoard> {
                 content: [
                   MultiProvider(
                       providers: [
-                        FutureProvider(
-                          create: (context) => getUserData(),
-                          initialData: null,
-                        ),
-                        FutureProvider(
-                          create: (context) => getCurrentDay(),
-                          initialData: null,
-                        ),
+                        ChangeNotifierProvider(create: (_) => ProviderDay(day: providerDay.day!)),
+                        ChangeNotifierProvider(create: (_) => ProviderUserdata(userdata: providerUserdata.userdata!))
                       ],
                       child:
                           CreateNewWidgetOnDashboard()) // get the secound element of list since the first is the Userdata
@@ -172,21 +173,13 @@ class _DashBoardState extends State<DashBoard> {
                 Calendar(onDateSelected: (date) {
                   print("onDateSelected");
                   selectedDay = date;
-                  getCurrentDay().then((value) => {
-                        setState(() {
-                          providerDay = value;
-                        })
-                      });
+                  getCurrentDay().then((value) =>
+                      {providerDay.changeDay(value), setState(() {})});
                 }),
-                Builder(builder: (context) {
-                  if (providerDay == null) {
-                    return const Text("Loading");
-                  } else {
-                    return ScrollViewWidget(
-                      dayP: providerDay,
-                    );
-                  }
-                })
+                MultiProvider(providers: [
+                  ChangeNotifierProvider(create: (_) => providerDay),
+                  ChangeNotifierProvider(create: (_) => providerUserdata)
+                ], child: ScrollViewWidget())
               ]),
             ),
           )

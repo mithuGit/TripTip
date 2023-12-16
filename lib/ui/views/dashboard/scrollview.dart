@@ -21,15 +21,14 @@ class PressdEditButton extends ChangeNotifier {
 }
 
 class ScrollViewWidget extends StatelessWidget {
-  ProviderDay? dayP;
-  ScrollViewWidget({super.key, this.dayP});
+  ScrollViewWidget({super.key});
   List<dynamic>? bufferArray = List.empty();
   bool justChangged = false;
 
   @override
   Widget build(BuildContext context) {
     FirebaseFirestore firestore = FirebaseFirestore.instance;
-    DocumentReference<Object?>? day = dayP?.day;
+    DocumentReference<Object?>? day = context.watch<ProviderDay>().day;
 
     
     if (day == null) {

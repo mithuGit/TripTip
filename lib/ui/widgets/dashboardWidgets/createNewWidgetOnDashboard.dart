@@ -53,7 +53,7 @@ class _CreateNewWidgetOnDashboardState
               text: "Add Survey"),
         ]);
       case 'note':
-        return AddNoteWidgetToDashboard(day: day);
+        return AddNoteWidgetToDashboard();
       case 'appointment':
         return AddAppointmentWidgetToDashboard(day: day);
       case 'survey':
