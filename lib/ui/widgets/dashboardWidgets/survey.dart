@@ -14,15 +14,6 @@ class SurveyWidget extends StatefulWidget {
 class _SurveyWidgetState extends State<SurveyWidget> {
   @override
   Widget build(BuildContext context) {
-    /*return WidgetContainer(
-      title: widget.title,
-      isSurvey: true,
-      children: [
-        for (var child in widget.children!) 
-          child,
-          const SizedBox(height: 2,),  
-      ],
-    );*/
     return Center(
         child: SingleChildScrollView(
       child: Padding(

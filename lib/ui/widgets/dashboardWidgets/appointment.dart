@@ -24,14 +24,6 @@ void setNewTimeForAppointment(Map<String, dynamic> data, String time) {
 class _AppointmentWidgetState extends State<AppointmentWidget> {
   @override
   Widget build(BuildContext context) {
-    /*return WidgetContainer(
-      isSurvey: false,
-      time: widget.time,
-      description: widget.description,
-      title: widget.title,
-      icon: widget.icon,
-    );*/
-
     String formattedTime = widget.data!["time"] != null
         ? DateFormat('HH:mm')
             .format((widget.data!["time"] as Timestamp).toDate())
