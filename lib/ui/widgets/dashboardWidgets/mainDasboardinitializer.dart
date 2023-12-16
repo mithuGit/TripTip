@@ -39,14 +39,14 @@ class _MainDasboardinitializerState extends State<MainDasboardinitializer> {
               ),
               Builder(builder: (context) {
                 if (widget.data?["type"] == null) {
-                  return Text("no data");
+                  return const Text("No type is specified");
                 } else {
                   if (widget.data?["type"] == "note") {
                     return SimpleNoteWidget(data: widget.data);
                   } else if (widget.data?["type"] == "list") {
                     return SimpleNoteWidget(data: widget.data);
                   } else {
-                    return Text("no type is specified");
+                    return const Text("No type is specified");
                   }
                 }
               }),

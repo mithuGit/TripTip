@@ -8,6 +8,7 @@ import 'package:internet_praktikum/ui/widgets/dashboardWidgets/mainDasboardiniti
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 
 class ScrollViewWidget extends StatelessWidget {
   ScrollViewWidget({super.key});
@@ -24,13 +25,34 @@ class ScrollViewWidget extends StatelessWidget {
     final Stream<DocumentSnapshot> _dayStream =
         firestore.collection('days').doc(day?.id).snapshots();
 
-    final StreamController<Map> _dayStreamFiltered = StreamController<Map>();
-    _dayStream.listen((event) {
-      debugPrint("Stream got Data");
-      if (justChangged) {
-        justChangged = false;
-      } else {
-        _dayStreamFiltered.add(event.get('active') as Map);
+    final StreamController<List<dynamic>> _dayStreamFiltered =
+        StreamController<List<dynamic>>();
+    _dayStream.listen((event) async {
+      try {
+        debugPrint("Stream got Data");
+        if (justChangged) {
+          justChangged = false;
+        } else {
+          Map<String, dynamic> buffer =
+              await event.get('active') as Map<String, dynamic>;
+          List<dynamic> localbufferArray = buffer.entries.map((entry) => entry.value).toList();
+
+          if (localbufferArray != null) {
+            localbufferArray?.sort(
+                (a, b) => (a['index'] as int).compareTo(b['index'] as int));
+          }
+          for (var i = 0; i < localbufferArray!.length; i++) {
+            DocumentSnapshot userdoc = await localbufferArray![i]["createdBy"].get();
+            Map<String, dynamic> userdata = userdoc.data() as Map<String, dynamic>;
+            localbufferArray![i]["profilePicture"] = userdata["profilePicture"];
+            localbufferArray![i]["prename"] = userdata["prename"];
+            localbufferArray![i]["lastname"] = userdata["lastname"];
+          }
+          _dayStreamFiltered.add(localbufferArray);
+        }
+      } catch (e) {
+        debugPrint(e.toString());
+        _dayStreamFiltered.addError(e);
       }
     });
     Widget proxyDecorator(
@@ -44,12 +66,10 @@ class ScrollViewWidget extends StatelessWidget {
             scale: scale,
             // Create a Card based on the color and the content of the dragged one
             // and set its elevation to the animated value.
-            child: Dismissible(
+            child: MainDasboardinitializer(
               key: Key('$index'),
-              child: MainDasboardinitializer(
-                title: bufferArray![index]["title"] as String,
-                data: bufferArray![index],
-              ),
+              title: bufferArray![index]["title"] as String,
+              data: bufferArray![index],
             ), // or any other fallback widget
           );
         },
@@ -57,10 +77,10 @@ class ScrollViewWidget extends StatelessWidget {
       );
     }
 
-    return StreamBuilder<Map>(
+    return StreamBuilder<List<dynamic>>(
         stream: _dayStreamFiltered.stream,
-        builder: (BuildContext context, AsyncSnapshot<Map> snapshot) {
-          final Map? firestoreSnapshot = snapshot.data;
+        builder: (BuildContext context, AsyncSnapshot<List<dynamic>> snapshot) {
+          bufferArray = snapshot.data;
           if (snapshot.hasError) {
             return const Text('Something went wrong');
           }
@@ -68,25 +88,6 @@ class ScrollViewWidget extends StatelessWidget {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Text("Loading");
           }
-          bufferArray =
-              firestoreSnapshot?.entries?.map((entry) => entry.value)?.toList();
-
-          if (bufferArray != null) {
-            bufferArray?.sort(
-                (a, b) => (a['index'] as int).compareTo(b['index'] as int));
-          }
-          // in this part we catch userInformation an the profilePicture
-          for (int i = 0; i < bufferArray!.length; i++) {
-                bufferArray![i]["createdBy"].get().then((value) {
-                  bufferArray![i]["profilePicture"] = value.data()!["profilePicture"];
-                  bufferArray![i]["prename"] = value.data()!["prename"];
-                  bufferArray![i]["lastname"] = value.data()!["lastname"];
-               //   String createdAt = DateFormat('hh:mm').format(bufferArray![i]["createdAt"].toDate());
-                 // bufferArray![i]["createdAtNice"] = createdAt;
-              });
-            
-          }
-
           debugPrint("Container is editable");
           return Container(
             margin: const EdgeInsets.only(
@@ -102,6 +103,8 @@ class ScrollViewWidget extends StatelessWidget {
                 }
                 Map<String, dynamic> item = bufferArray?.removeAt(oldIndex);
                 bufferArray?.insert(newIndex, item);
+                _dayStreamFiltered.add(bufferArray!);
+
                 Map<int, dynamic>? res = bufferArray?.asMap();
                 res?.forEach((key, value) {
                   value['index'] = key;
@@ -110,7 +113,7 @@ class ScrollViewWidget extends StatelessWidget {
                   return MapEntry(value["key"] as String, value);
                 });
                 justChangged = true;
-                _dayStreamFiltered.add(res2!);
+
                 //umschreibem
                 firestore
                     .collection('days')
@@ -119,34 +122,29 @@ class ScrollViewWidget extends StatelessWidget {
               },
               children: bufferArray!
                   .map((con) {
-                    return Dismissible(
-                      direction: DismissDirection.horizontal,
+                    return Slidable(
                       key: Key(con.hashCode.toString()),
-                      onDismissed: (direction) async {
-                        DocumentSnapshot archiveColl = await firestore
-                            .collection('days')
-                            .doc(day?.id)
-                            .get();
-                        Map<String, dynamic> archive =
-                            archiveColl.get('archive') as Map<String, dynamic>;
-                        archive[con["key"]] = con;
-                        Map<String, dynamic> item = con;
-                        List<dynamic>? tempArray = bufferArray;
-                        tempArray?.remove(con);
-                        Map<int, dynamic>? res = tempArray?.asMap();
-                        res?.forEach((key, value) {
-                          value['index'] = key;
-                        });
-                        Map<String, dynamic>? res2 = res?.map((key, value) {
-                          return MapEntry(value["key"] as String, value);
-                        });
-                        //umschreibem
-                        firestore
-                            .collection('days')
-                            .doc(day?.id)
-                            .update({"active": res2, "archive": archive});
-                        justChangged = true;
-                      },
+                      endActionPane: ActionPane(
+                        motion: const ScrollMotion(),
+                        // if you shhoud use a left pane, use this:
+                        //    dismissible: DismissiblePane(onDismissed: () {}),
+                        children: [
+                          SlidableAction(
+                            onPressed: (s) {},
+                            backgroundColor: Colors.transparent,
+                            foregroundColor: Colors.red,
+                            icon: Icons.delete,
+                            label: 'Delete',
+                          ),
+                          SlidableAction(
+                            onPressed: (sdf) {},
+                            backgroundColor: Colors.transparent,
+                            foregroundColor: Colors.blue,
+                            icon: Icons.edit,
+                            label: 'Edit',
+                          ),
+                        ],
+                      ),
                       child: MainDasboardinitializer(
                           title: con!["title"], data: con),
                     );
