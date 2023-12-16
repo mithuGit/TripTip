@@ -53,7 +53,7 @@ class _MapPageState extends State<MapPage> {
                 Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    SurveyWidget(title: "Voting for Food", children: [
+                    /*SurveyWidget( children: [
                       VotingPoll(title: "Pizza"),
                       VotingPoll(title: "Burger"),
                       VotingPoll(title: "Pasta"),
@@ -63,7 +63,6 @@ class _MapPageState extends State<MapPage> {
                     ),
                     Appointment(
                         icon: Icons.group,
-                        title: "Go to Restaurant",
                         description: "We eat at 18:00",
                         time: TimeOfDay(hour: 18, minute: 0)),
                     SizedBox(
@@ -71,7 +70,6 @@ class _MapPageState extends State<MapPage> {
                     ),
                     Appointment(
                         icon: Icons.map_outlined,
-                        title: "Go to Restaurant",
                         description:
                             "We eat at 18:00 in the Restaurant near the University",
                         time: TimeOfDay(hour: 7, minute: 3)),
@@ -80,9 +78,8 @@ class _MapPageState extends State<MapPage> {
                     ),
                     Appointment(
                       icon: Icons.map_outlined,
-                      title: "Go to a Bar ",
                       time: TimeOfDay(hour: 12, minute: 32),
-                    ),
+                    ),*/
                   ],
                 ),
               ]),

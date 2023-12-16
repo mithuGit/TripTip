@@ -1,7 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:internet_praktikum/ui/views/main_pages/dashboard.dart';
+import 'package:internet_praktikum/ui/widgets/dashboardWidgets/addAppointmentWidgetToDashboard.dart';
 import 'package:internet_praktikum/ui/widgets/dashboardWidgets/addNoteWidgetToDashboard.dart';
+import 'package:internet_praktikum/ui/widgets/dashboardWidgets/addSurveyWidgetToDashboard.dart';
 import 'package:internet_praktikum/ui/widgets/my_button.dart';
 import 'package:provider/provider.dart';
 
@@ -40,18 +42,24 @@ class _CreateNewWidgetOnDashboardState
                       show = 'appointment';
                     })
                   },
-              text: "Add Appointment")
+              text: "Add Appointment"),
+          MyButton(
+              colors: Colors.blue,
+              onTap: () => {
+                    setState(() {
+                      show = 'survey';
+                    })
+                  },
+              text: "Add Survey"),
         ]);
       case 'note':
-        return AddNoteWidgetToDashboard(day: day!);
+        return AddNoteWidgetToDashboard(day: day);
       case 'appointment':
-        return Container(
-          child: Text('list'),
-        );
+        return AddAppointmentWidgetToDashboard(day: day);
+      case 'survey':
+        return AddSurveyWidgetToDashboard(day: day);
       default:
-        return Container(
-          child: Text('default'),
-        );
+        return const Text('default');
     }
   }
 }

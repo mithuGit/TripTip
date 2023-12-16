@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:internet_praktikum/ui/styles/Styles.dart';
+import 'package:internet_praktikum/ui/widgets/dashboardWidgets/appointment.dart';
 import 'package:internet_praktikum/ui/widgets/dashboardWidgets/simpleNoteWidget.dart';
+import 'package:internet_praktikum/ui/widgets/dashboardWidgets/survey.dart';
 import 'package:provider/provider.dart';
 
 class AddButton extends ChangeNotifier {
@@ -38,7 +40,7 @@ class _MainDasboardinitializerState extends State<MainDasboardinitializer> {
           ],
           child: Container(
             padding:
-                const EdgeInsets.only(top: 12, bottom: 12, left: 20, right: 12),
+                const EdgeInsets.only(top: 20, bottom: 20, left: 20, right: 20),
             child: Column(
               
               children: [
@@ -46,7 +48,7 @@ class _MainDasboardinitializerState extends State<MainDasboardinitializer> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     SizedBox(
-                      height: 25,
+                      width: 300,
                       child: Text(
                         super.widget.title,
                         textAlign: TextAlign.left,
@@ -74,9 +76,11 @@ class _MainDasboardinitializerState extends State<MainDasboardinitializer> {
                       return SimpleNoteWidget(data: widget.data);
                     } else if (widget.data?["type"] == "list") {
                       return SimpleNoteWidget(data: widget.data);
-                    } else if(widget.data?["type" == "poll"]) {
-                      return SimpleNoteWidget(data: widget.data);
-                    } 
+                    } else if(widget.data?["type"] == "appointment"){
+                      return AppointmentWidget(data: widget.data);
+                    } else if(widget.data?["type"] == "survey"){
+                      return SurveyWidget(data: widget.data);
+                    }
                     else {
                       return const Text("No type is specified");
                     }

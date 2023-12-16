@@ -1,38 +1,110 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:internet_praktikum/ui/widgets/dashboardWidgets/widgetContainer.dart';
+import 'package:internet_praktikum/ui/styles/Styles.dart';
+import 'package:internet_praktikum/ui/widgets/dashboardWidgets/usernameBagageDashboardWidget.dart';
+import 'package:intl/intl.dart';
 
-class Appointment extends StatefulWidget {
-  final IconData icon;
-  final String title;
-  final String? description;
-  final TimeOfDay time;
-  const Appointment({
+class AppointmentWidget extends StatefulWidget {
+  final Map<String, dynamic>? data;
+
+  const AppointmentWidget({
     super.key,
-    required this.icon,
-    required this.title,
-    this.description,
-    required this.time,
+    this.data,
   });
 
   @override
-  State<Appointment> createState() => _AppointmentState();
+  State<AppointmentWidget> createState() => _AppointmentWidgetState();
 }
 
-class _AppointmentState extends State<Appointment> {
+void setNewTimeForAppointment(Map<String, dynamic> data, String time) {
+  data["time"] = Timestamp.fromDate(DateTime.parse(time));
+}
+
+class _AppointmentWidgetState extends State<AppointmentWidget> {
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(
-        left: 18,
-        right: 18,
+    /*return WidgetContainer(
+      isSurvey: false,
+      time: widget.time,
+      description: widget.description,
+      title: widget.title,
+      icon: widget.icon,
+    );*/
+
+    String formattedTime = widget.data!["time"] != null
+        ? DateFormat('HH:mm')
+            .format((widget.data!["time"] as Timestamp).toDate())
+        : '';
+
+    return Center(
+        child: SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: <Widget>[
+          Row(
+            mainAxisAlignment: widget.data!["content"] != ""
+                ? MainAxisAlignment.spaceBetween
+                : MainAxisAlignment.center,
+            children: [
+              widget.data!["content"] != ""
+                  ? SizedBox(
+                      width: 250,
+                      child: Text(
+                        widget.data!["content"]!,
+                        style: Styles.descriptionofwidget,
+                      ),
+                    )
+                  : Container(),
+              Column(
+                children: [
+                  GestureDetector(
+                    onTap: () {},
+                    child: const Icon(
+                      //Hier muss entschieden werden, ob Icons Group oder Icon Map ist
+                      //formattedTime.compareTo(TimeOfDay.now().format(context)) < 0 ? Icons.check : widget.icon,
+                      Icons.map_outlined,
+                      color: Colors.white,
+                      size: 35,
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      showCupertinoModalPopup(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return CupertinoTimerPicker(
+                              alignment: Alignment.center,
+                              mode: CupertinoTimerPickerMode.hm,
+                              backgroundColor: Colors.white,
+                              onTimerDurationChanged: (value) {
+                                setState(() {
+                                  formattedTime =
+                                      value.toString().substring(0, 5);
+                                  print(formattedTime);
+                                  setNewTimeForAppointment(
+                                      widget.data!, formattedTime);
+                                });
+                              },
+                            );
+                          });
+                    },
+                    child: formattedTime != ""
+                        ? Text(formattedTime,
+                            style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold))
+                        : Container(),
+                  ),
+                ], /////DateFormat('dd.MM.yyyy').format(date),
+              )
+            ],
+          ),
+          UsernameBagageDashboardWidget(data: widget.data),
+        ],
       ),
-      child: WidgetContainer(
-        isSurvey: false,
-        time: widget.time,
-        description: widget.description,
-        title: widget.title,
-        icon: widget.icon,
-      ),
-    );
+    ));
   }
 }

@@ -19,7 +19,7 @@ class UsernameBagageDashboardWidget extends StatelessWidget {
       print('Document data: ${userdata.data()}');
       Map<String, dynamic> _userData = userdata.data()! as Map<String, dynamic>;
       _userData["createdAt"] =
-          DateFormat('hh:mm').format(data?["createdAt"].toDate());
+          DateFormat('HH:mm').format(data?["createdAt"].toDate());
 
       return _userData;
     }
@@ -29,9 +29,15 @@ class UsernameBagageDashboardWidget extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          ClipOval(
+          data!["profilePicture"] != null ? ClipOval(
             child: Image.network(
               data!["profilePicture"],
+              width: 22,
+              height: 22,
+            ),
+          ) : ClipOval(
+            child: Image.asset(
+              "assets/Personavatar.png",
               width: 22,
               height: 22,
             ),
@@ -39,12 +45,13 @@ class UsernameBagageDashboardWidget extends StatelessWidget {
           Container(
             margin: const EdgeInsets.only(left: 7),
             child: Text(
+                // ignore: prefer_interpolation_to_compose_strings
                 'created by ' +
                     data!["prename"] +
                     ' ' +
                     data!["lastname"] +
                     ' at ' +
-                    DateFormat('hh:mm').format((data!["createdAt"] as Timestamp).toDate()),
+                    DateFormat('HH:mm').format((data!["createdAt"] as Timestamp).toDate()),
                 style: Styles.usernameBagageWidget),
           ),
         ],
