@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:internet_praktikum/ui/widgets/dashboardWidgets/usernameBagageDashboardWidget.dart';
 import 'package:internet_praktikum/ui/widgets/dashboardWidgets/voting_poll.dart';
 
 class SurveyWidget extends StatefulWidget {
@@ -22,24 +23,26 @@ class _SurveyWidgetState extends State<SurveyWidget> {
           const SizedBox(height: 2,),  
       ],
     );*/
-    return Container(
-      decoration: const BoxDecoration(
-        color: Color(0xE51E1E1E),
-      ),
-      child: Center(
-          child: SingleChildScrollView(
+    return Center(
+        child: SingleChildScrollView(
+      child: Padding(
+        padding: const EdgeInsets.only(top: 10),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             if (widget.data!["options"] != null)
-              for (var child in widget.data!["options"]) child,
-              const SizedBox(
-                height: 2,
-              ),
+              for (var child in widget.data!["options"]) 
+                if (child != "")
+                  VotingPoll(title: child),
+                  const SizedBox(
+                    height: 2,
+                  ),
+            
+            UsernameBagageDashboardWidget(data: widget.data)
           ],
         ),
-      )),
-    );
+      ),
+    ));
   }
 }

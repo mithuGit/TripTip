@@ -1,10 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:internet_praktikum/ui/widgets/dashboardWidgets/appointment.dart';
-import 'package:internet_praktikum/ui/widgets/dashboardWidgets/survey.dart';
-import 'package:internet_praktikum/ui/widgets/dashboardWidgets/voting_poll.dart';
-import 'package:internet_praktikum/ui/widgets/dashboardWidgets/widgetContainer.dart';
 
 class MapPage extends StatefulWidget {
   const MapPage({super.key});
@@ -53,33 +49,7 @@ class _MapPageState extends State<MapPage> {
                 Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    /*SurveyWidget( children: [
-                      VotingPoll(title: "Pizza"),
-                      VotingPoll(title: "Burger"),
-                      VotingPoll(title: "Pasta"),
-                    ]),
-                    SizedBox(
-                      height: 10,
-                    ),
-                    Appointment(
-                        icon: Icons.group,
-                        description: "We eat at 18:00",
-                        time: TimeOfDay(hour: 18, minute: 0)),
-                    SizedBox(
-                      height: 10,
-                    ),
-                    Appointment(
-                        icon: Icons.map_outlined,
-                        description:
-                            "We eat at 18:00 in the Restaurant near the University",
-                        time: TimeOfDay(hour: 7, minute: 3)),
-                    SizedBox(
-                      height: 10,
-                    ),
-                    Appointment(
-                      icon: Icons.map_outlined,
-                      time: TimeOfDay(hour: 12, minute: 32),
-                    ),*/
+                    
                   ],
                 ),
               ]),

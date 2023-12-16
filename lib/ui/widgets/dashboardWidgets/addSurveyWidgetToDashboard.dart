@@ -43,6 +43,8 @@ class _AddSurveyWidgetToDashboardState extends State<AddSurveyWidgetToDashboard>
         "type": "survey",
         "content": survey.text,
         "title": nameofSurvey.text,
+        // hier muss noch die Anzahl an Member gespeichert werden
+        // und in Options soll die Anzahl an Stimmen gespeichert werden
         "options": [option1.text, options2.text, options3.text, options4.text],
       };
       DocumentReference by = FirebaseFirestore.instance.collection('users')

@@ -50,10 +50,15 @@ class _TopBarState extends State<TopBar> {
         backgroundColor: Colors.white,
         centerTitle: true,
         title: widget.isDash! && widget.title == null
-            ? Text(
-                actualWeather?.cityName ?? "Loading...",
-                style: const TextStyle(fontSize: 20),
-              )
+            ? GestureDetector(
+                onTap: () {
+                  context.go('/changeTrip');
+                },
+              child: Text(
+                  actualWeather?.cityName ?? "Loading...",
+                  style: const TextStyle(fontSize: 20),
+                ),
+            )
             : Text(
                 widget.title!,
                 style: const TextStyle(fontSize: 20),

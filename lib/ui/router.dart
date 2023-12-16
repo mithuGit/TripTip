@@ -10,6 +10,7 @@ import 'package:internet_praktikum/ui/views/main_pages/profile.dart';
 import 'package:internet_praktikum/ui/views/main_pages/ticket.dart';
 import 'package:internet_praktikum/ui/views/navigation/app_navigation.dart';
 import 'package:internet_praktikum/ui/views/login_register_pages/login_or_register_page.dart';
+import 'package:internet_praktikum/ui/views/trip_setup_pages/change_trip.dart';
 import 'package:internet_praktikum/ui/views/trip_setup_pages/create_trip.dart';
 import 'package:internet_praktikum/ui/views/trip_setup_pages/join_trip.dart';
 import 'package:internet_praktikum/ui/views/trip_setup_pages/select_trip.dart';
@@ -165,6 +166,13 @@ class MyRouter {
         name: 'weatherpage',
         path: '/weatherpage',
         builder: (context, state) => WeatherPage(
+          key: state.pageKey,
+        ),
+      ),
+      GoRoute(
+        name: 'changeTrip',
+        path: '/changeTrip',
+        builder: (context, state) => ChangeTrip(
           key: state.pageKey,
         ),
       ),

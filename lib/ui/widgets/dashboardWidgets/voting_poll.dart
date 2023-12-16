@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 class VotingPoll extends StatefulWidget {
@@ -16,18 +15,6 @@ class _VotingPollState extends State<VotingPoll> {
   @override
   void initState() {
     super.initState();
-    getNumberOfVoters();
-  }
-
-  Future<void> getNumberOfVoters() async {
-    final member = await FirebaseFirestore.instance
-        .collection("trips")
-        .doc('OYcU9dTsakHTtYs5k5uw')
-        .get()
-        .then((value) => value.data()!["members"].length);
-    setState(() {
-      numberOfVoters = member;
-    });
   }
 
   @override
