@@ -158,7 +158,6 @@ class _AccountState extends State<Account> {
                                 } catch (e) {
                                   print(e);
                                 }
-
                                 setState(() {
                                   imageProvider = (pickedFile != null
                                           ? FileImage(File(pickedFile.path))
