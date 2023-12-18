@@ -2,9 +2,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:internet_praktikum/ui/widgets/finanzen/slidablebutton.dart';
 
-import '../../styles/Styles.dart';
-import 'expandableitem.dart';
-
 class ExpandableContainer extends StatefulWidget {
   const ExpandableContainer({
     Key? key,
@@ -36,14 +33,21 @@ class _ExpandableContainerState extends State<ExpandableContainer> {
   }
 
   double calculateHeight(double height) {
-    if (widget.items.length >= 4) {
+    if (widget.items.length >= 4 || widget.items.length == 3) {
       return height * 0.38;
-    } else if (widget.items.length == 3) {
-      return height * 0.37;
     } else if (widget.items.length == 2) {
-      return height * 0.31;
+      return height * 0.30;
     }
-    return height * 0.28;
+    return height * 0.24;
+  }
+
+  double calculateHeightSmallList(double containerWidth) {
+    if (widget.items.length >= 4 || widget.items.length == 3) {
+      return containerWidth * 0.58;
+    } else if (widget.items.length == 2) {
+      return containerWidth * 0.40;
+    }
+    return containerWidth * 0.24;
   }
 
   @override
@@ -61,8 +65,8 @@ class _ExpandableContainerState extends State<ExpandableContainer> {
             ? calculateHeight(MediaQuery.of(context).size.height)
             : 66.0,
         decoration: BoxDecoration(
-          color: Color(0xE51E1E1E),
-          border: Border.all(color: Color(0xE51E1E1E)),
+          color: const Color(0xE51E1E1E),
+          border: Border.all(color: const Color(0xE51E1E1E)),
           borderRadius: BorderRadius.circular(34.5),
         ),
         child: Stack(
@@ -91,7 +95,8 @@ class _ExpandableContainerState extends State<ExpandableContainer> {
                                   radius: 25,
                                   backgroundImage: currentUser?.photoURL != null
                                       ? NetworkImage(currentUser!.photoURL!)
-                                      : AssetImage('assets/Personavatar.png')
+                                      : const AssetImage(
+                                              'assets/Personavatar.png')
                                           as ImageProvider<Object>,
                                 ),
                                 Padding(
@@ -112,11 +117,11 @@ class _ExpandableContainerState extends State<ExpandableContainer> {
                         Align(
                           alignment: Alignment.centerRight,
                           child: Padding(
-                            padding:
-                                EdgeInsets.only(top: 5.0, left: 140, right: 5),
+                            padding: const EdgeInsets.only(
+                                top: 5.0, left: 140, right: 5),
                             child: Text(
-                              widget.sum.toString() + ' €',
-                              style: TextStyle(
+                              '${widget.sum} €',
+                              style: const TextStyle(
                                 fontSize: 20.0,
                                 fontWeight: FontWeight.bold,
                                 color: Colors.white,
@@ -128,47 +133,54 @@ class _ExpandableContainerState extends State<ExpandableContainer> {
                     ),
                   ),
                   if (isExpanded) ...[
-                    ListView.builder(
-                      shrinkWrap: true,
-                      itemCount: widget.items.length,
-                      itemBuilder: (BuildContext context, int index) {
-                        List<String> itemParts = widget.items[index].split(':');
-                        String activity = itemParts[0];
-                        String price = itemParts[1];
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 0, right: 5),
-                          child: ListTile(
-                            title: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  activity,
-                                  style: const TextStyle(
-                                    fontSize: 20.0,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white,
+                    Container(
+                      width: double.infinity,
+                      height: calculateHeightSmallList(
+                          calculateHeight(MediaQuery.of(context).size.height)),
+                      child: ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: widget.items.length,
+                        itemBuilder: (BuildContext context, int index) {
+                          List<String> itemParts =
+                              widget.items[index].split(':');
+                          String activity = itemParts[0];
+                          String price = itemParts[1];
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 0, right: 5),
+                            child: ListTile(
+                              title: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    activity,
+                                    style: const TextStyle(
+                                      fontSize: 20.0,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                    ),
                                   ),
-                                ),
-                                Text(
-                                  price + '€',
-                                  style: const TextStyle(
-                                    fontSize: 20.0,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white,
+                                  Text(
+                                    '$price€',
+                                    style: const TextStyle(
+                                      fontSize: 20.0,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                    ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
-                          ),
-                        );
-                      },
+                          );
+                        },
+                      ),
                     ),
                   ],
                 ],
               ),
             ),
             if (isExpanded)
-              Positioned(
+              const Positioned(
                 left: 15,
                 right: 15,
                 bottom: 5,

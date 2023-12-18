@@ -166,9 +166,10 @@ class _FinanzenState extends State<Finanzen> {
                       Padding(
                         padding: EdgeInsets.only(bottom: 25),
                         child: ExpandableContainer(
-                          name: 'Felix',
+                          name: 'Test0',
                           items: [
                             'Activity 1: 10.00 ',
+                            'Activity 2: 10.00 ',
                           ],
                           sum: 45,
                         ),
@@ -176,27 +177,17 @@ class _FinanzenState extends State<Finanzen> {
                       Padding(
                         padding: EdgeInsets.only(bottom: 25),
                         child: ExpandableContainer(
-                          name: 'Uwe',
-                          items: [
-                            'Activity 1: 10.00 ',
-                            'Activity 2: 20.00 ',
-                            'Activity 3: 15.00 ',
-                            'Activity 3: 15.00 ',
-                            'Activity 3: 15.00 ',
-                            'Activity 3: 15.00 ',
-                            'Activity 3: 15.00 ',
-                          ],
-                          sum: 45,
-                        ),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.only(bottom: 25),
-                        child: ExpandableContainer(
-                          name: 'Uwe',
+                          name: 'Test1',
                           items: [
                             'Activity 1: 10.00 ',
                             'Activity 2: 20.00 ',
                             'Activity 3: 15.00 ',
+                            'Activity 4: 15.00 ',
+                            'Activity 5: 15.00 ',
+                            'Activity 6: 15.00 ',
+                            'Activity 7: 15.00 ',
+                            'Activity 8: 15.00 ',
+                            'Activity 9: 15.00 ',
                           ],
                           sum: 45,
                         ),
@@ -204,55 +195,7 @@ class _FinanzenState extends State<Finanzen> {
                       Padding(
                         padding: EdgeInsets.only(bottom: 25),
                         child: ExpandableContainer(
-                          name: 'Uwe',
-                          items: [
-                            'Activity 1: 10.00 ',
-                            'Activity 2: 20.00 ',
-                            'Activity 3: 15.00 ',
-                          ],
-                          sum: 45,
-                        ),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.only(bottom: 25),
-                        child: ExpandableContainer(
-                          name: 'Uwe',
-                          items: [
-                            'Activity 1: 10.00 ',
-                            'Activity 2: 20.00 ',
-                            'Activity 3: 15.00 ',
-                          ],
-                          sum: 45,
-                        ),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.only(bottom: 25),
-                        child: ExpandableContainer(
-                          name: 'Uwe',
-                          items: [
-                            'Activity 1: 10.00 ',
-                            'Activity 2: 20.00 ',
-                            'Activity 3: 15.00 ',
-                          ],
-                          sum: 45,
-                        ),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.only(bottom: 25),
-                        child: ExpandableContainer(
-                          name: 'Uwe',
-                          items: [
-                            'Activity 1: 10.00 ',
-                            'Activity 2: 20.00 ',
-                            'Activity 3: 15.00 ',
-                          ],
-                          sum: 45,
-                        ),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.only(bottom: 25),
-                        child: ExpandableContainer(
-                          name: 'Uwe',
+                          name: 'Test2',
                           items: [
                             'Activity 1: 10.00 ',
                             'Activity 2: 20.00 ',
