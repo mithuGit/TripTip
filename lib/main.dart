@@ -8,7 +8,7 @@ import 'package:internet_praktikum/ui/router.dart';
 import 'firebase_options.dart';
 import '.env';
 
-void main() async {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   //Stripe pub-key
   Stripe.publishableKey = stripePublishableKey;
