@@ -133,7 +133,7 @@ class _ExpandableContainerState extends State<ExpandableContainer> {
                     ),
                   ),
                   if (isExpanded) ...[
-                    Container(
+                    SizedBox(
                       width: double.infinity,
                       height: calculateHeightSmallList(
                           calculateHeight(MediaQuery.of(context).size.height)),

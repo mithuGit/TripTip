@@ -5,8 +5,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:internet_praktikum/ui/views/navigation/app_navigation.dart';
-import 'package:internet_praktikum/ui/widgets/inputfield_password_or_icon.dart';
 import 'package:internet_praktikum/ui/widgets/my_button.dart';
 import '../../widgets/container.dart';
 import '../../widgets/inputfield.dart';
@@ -136,7 +134,7 @@ class _AccountState extends State<Account> {
                                 // Pick image from gallery
                                 ImagePicker imagePicker = ImagePicker();
                                 XFile? pickedFile = await imagePicker.pickImage(
-                                    source: ImageSource.gallery) as XFile?;
+                                    source: ImageSource.gallery);
                                 //get reference to storage root
                                 Reference referenceRoot =
                                     FirebaseStorage.instance.ref();
@@ -161,7 +159,7 @@ class _AccountState extends State<Account> {
                                 setState(() {
                                   imageProvider = (pickedFile != null
                                           ? FileImage(File(pickedFile.path))
-                                          : AssetImage(
+                                          : const AssetImage(
                                               'assets/Personavatar.png'))
                                       as ImageProvider<Object>?;
                                 });

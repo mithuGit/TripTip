@@ -12,7 +12,7 @@ class User {
 class UsernameBagageCreateTrip extends StatefulWidget {
   final FirebaseAuth auth;
   final FirebaseFirestore firestore;
-  UsernameBagageCreateTrip(
+  const UsernameBagageCreateTrip(
       {super.key, required this.firestore, required this.auth});
 
   @override

@@ -5,7 +5,6 @@ import 'package:internet_praktikum/ui/widgets/topbar.dart';
 
 import '../../widgets/profile_menu.dart';
 import '../login_register_pages/login_or_register_page.dart';
-import '../profile_pages/edit_profile_page.dart';
 //import 'package:modern_login/components/my_button.dart';
 
 class ProfilePage extends StatelessWidget {

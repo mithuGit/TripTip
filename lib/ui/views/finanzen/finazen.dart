@@ -1,16 +1,10 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:internet_praktikum/ui/styles/Styles.dart';
-import 'package:internet_praktikum/ui/views/finanzen/request.dart';
-import 'package:internet_praktikum/ui/widgets/topbar.dart';
-import 'package:flutter_stripe/flutter_stripe.dart';
 
 import '../../widgets/finanzen/extendablecontainer.dart';
-import '../../widgets/finanzen/slidablebutton.dart';
 import 'creditcard.dart';
 
 class Finanzen extends StatefulWidget {
-  Finanzen({Key? key}) : super(key: key);
+  const Finanzen({Key? key}) : super(key: key);
 
   @override
   State<Finanzen> createState() => _FinanzenState();
@@ -100,7 +94,7 @@ class _FinanzenState extends State<Finanzen> {
       appBar: AppBar(
         centerTitle: true,
         backgroundColor: const Color(0xFFFFFFFF),
-        title: Row(
+        title: const Row(
           children: [
             Text(
               "Finanzübersicht",
@@ -116,14 +110,14 @@ class _FinanzenState extends State<Finanzen> {
             padding: const EdgeInsets.only(right: 10),
             child: GestureDetector(
               child: IconButton(
-                icon: Icon(
+                icon: const Icon(
                   Icons.payment,
                   color: Colors.black,
                 ),
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => CardFormScreen()),
+                    MaterialPageRoute(builder: (context) => const CardFormScreen()),
                   );
                 },
               ),

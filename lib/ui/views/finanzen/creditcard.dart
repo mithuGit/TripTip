@@ -26,9 +26,9 @@ class CardFormScreen extends StatelessWidget {
                 children: [
                   Text(
                     'Card Form',
-                    style: Theme.of(context).textTheme.headline5,
+                    style: Theme.of(context).textTheme.headlineSmall,
                   ),
-                  Padding(padding: EdgeInsets.only(top: 20, bottom: 20)),
+                  const Padding(padding: EdgeInsets.only(top: 20, bottom: 20)),
                   CardFormField(
                     controller: controller,
                   ),

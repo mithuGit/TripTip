@@ -5,7 +5,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:internet_praktikum/blocs/payment/payment_bloc.dart';
 import 'package:internet_praktikum/ui/router.dart';
-import 'package:internet_praktikum/ui/views/main_pages/dashboard.dart';
 import 'firebase_options.dart';
 import '.env';
 
@@ -17,7 +16,7 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  runApp(ProviderScope(child: const Main()));
+  runApp(const ProviderScope(child: Main()));
 }
 
 class Main extends StatelessWidget {

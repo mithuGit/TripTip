@@ -1,11 +1,9 @@
 import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_database/firebase_database.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:internet_praktikum/ui/views/weather/weather.dart';
 import 'package:http/http.dart' as http;
-import 'package:intl/intl.dart';
 
 class WeatherService {
   static const BASE_URL = 'https://api.openweathermap.org/data/2.5/weather';
