@@ -46,8 +46,8 @@ class _DashBoardState extends State<DashBoard> {
   Future<Map<String, dynamic>> getUserData() async {
     print("getUserData");
     final userCollection = FirebaseFirestore.instance.collection('users');
-    final userDoc = await userCollection.doc(user.uid).get();
-    Map<String, dynamic> _userData = userDoc.data()!;
+    final userDoc = await userCollection.where('uid', isEqualTo: user.uid).get();
+    Map<String, dynamic> _userData = userDoc.docs.first.data();
     return _userData;
   }
 

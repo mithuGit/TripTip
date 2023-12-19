@@ -13,7 +13,7 @@ class PressdEditButton extends ChangeNotifier {
   get stream => pressedStream.stream;
   void emmitPress() {
     pressedStream.add(true);
-   // notifyListeners();
+    // notifyListeners();
   }
 }
 
@@ -27,11 +27,10 @@ class ScrollViewWidget extends StatelessWidget {
     FirebaseFirestore firestore = FirebaseFirestore.instance;
     DocumentReference<Object?>? day = context.watch<ProviderDay>().day;
 
-    
     if (day == null) {
       return const CircularProgressIndicator();
     }
-    Map<String,PressdEditButton> pressedEditButton = {};
+    Map<String, PressdEditButton> pressedEditButton = {};
     final Stream<DocumentSnapshot> _dayStream =
         firestore.collection('days').doc(day?.id).snapshots();
 
@@ -55,11 +54,14 @@ class ScrollViewWidget extends StatelessWidget {
           for (var i = 0; i < localbufferArray!.length; i++) {
             DocumentSnapshot userdoc =
                 await localbufferArray![i]["createdBy"].get();
-            Map<String, dynamic> userdata =
-                userdoc.data() as Map<String, dynamic>;
-            localbufferArray![i]["profilePicture"] = userdata["profilePicture"];
-            localbufferArray![i]["prename"] = userdata["prename"];
-            localbufferArray![i]["lastname"] = userdata["lastname"];
+            if (userdoc.exists) {
+              Map<String, dynamic> userdata =
+                  userdoc.data() as Map<String, dynamic>;
+              localbufferArray![i]["profilePicture"] =
+                  userdata["profilePicture"];
+              localbufferArray![i]["prename"] = userdata["prename"];
+              localbufferArray![i]["lastname"] = userdata["lastname"];
+            }
 
             //Add for every widget a PressdEditButton that it can listen on changes
             pressedEditButton[localbufferArray![i]["key"]] = PressdEditButton();
