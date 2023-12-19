@@ -10,7 +10,8 @@ import 'package:uuid/uuid.dart';
 class AddSurveyWidgetToDashboard extends StatefulWidget {
   DocumentReference day;
   Map<String, dynamic> userdata;
-  AddSurveyWidgetToDashboard({super.key, required this.day, required this.userdata});
+  Map<String, dynamic>? data;
+  AddSurveyWidgetToDashboard({super.key, required this.day, required this.userdata, this.data});
 
   // ignore: library_private_types_in_public_api
   _AddSurveyWidgetToDashboardState createState() =>
@@ -30,8 +31,15 @@ class _AddSurveyWidgetToDashboardState
 
   @override
   Widget build(BuildContext context) {
-
-    Future<void> createNote() async {
+    if(widget.data != null){
+      nameofSurvey.text = widget.data!["title"];
+      survey.text = widget.data!["content"];
+      option1.text = widget.data!["options"][0];
+      options2.text = widget.data!["options"][1];
+      options3.text = widget.data!["options"][2];
+      options4.text = widget.data!["options"][3];
+    }
+    Future<void> createorUpdateSurvey() async {
       print(widget.userdata);
       Map<String, dynamic> data = {
         "type": "survey",
@@ -44,9 +52,13 @@ class _AddSurveyWidgetToDashboardState
       DocumentReference by = FirebaseFirestore.instance
           .collection('users')
           .doc(widget.userdata["uid"]);
+      if(widget.data == null){
+        await ManageDashboardWidged().addWidget(widget.day, by, data);
+      } else {
+        await ManageDashboardWidged().updateWidget(widget.day, by, data, widget.data!["key"]);
+      }      
       await ManageDashboardWidged().addWidget(widget.day, by, data);
     }
-
     return Column(children: [
       const Text("Title of Survey"),
       InputField(
@@ -64,13 +76,13 @@ class _AddSurveyWidgetToDashboardState
           controller: options4, hintText: "Fourth Option", obscureText: false),
       MyButton(
           colors: Colors.blue,
-          onTap: () => createNote().onError((error, stackTrace) => {
+          onTap: () => createorUpdateSurvey().onError((error, stackTrace) => {
                 print(error.toString()),
                 print(stackTrace.toString()),
                 print("error"),
                 ErrorSnackbar.showErrorSnackbar(context, error.toString())
               }),
-          text: "Create Survey")
+          text: widget.data == null ? "Create Survey" : "Update Survey")
     ]);
   }
 }

@@ -1,7 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:internet_praktikum/ui/widgets/bottom_sheet.dart';
+import 'package:internet_praktikum/ui/widgets/dashboardWidgets/addAppointmentWidgetToDashboard.dart';
 import 'package:internet_praktikum/ui/widgets/dashboardWidgets/addNoteWidgetToDashboard.dart';
+import 'package:internet_praktikum/ui/widgets/dashboardWidgets/addSurveyWidgetToDashboard.dart';
 
 class UpdateWidgetData {
   final Map<String, dynamic> data;
@@ -21,6 +23,21 @@ class UpdateWidgetListeners {
           )
         ]);
     } else if (data["type"] == "appointment") {
+       CustomBottomSheet.show(context, title: "Edit Appointment", content: [
+         AddAppointmentWidgetToDashboard(
+           day: day,
+           userdata: userdata,
+           data: data,
+         )
+       ]);
+    } else if (data["type"] == "survey") {
+      CustomBottomSheet.show(context, title: "Edit Survey", content: [
+        AddSurveyWidgetToDashboard(
+           day: day,
+           userdata: userdata,
+           data: data,
+         )
+       ]);
     }
   }
 }

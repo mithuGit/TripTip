@@ -10,9 +10,10 @@ import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
 
 class AddAppointmentWidgetToDashboard extends StatefulWidget {
-  DocumentReference day;
   Map<String, dynamic> userdata;
-  AddAppointmentWidgetToDashboard({super.key, required this.day, required this.userdata});
+  DocumentReference day;
+  Map<String, dynamic>? data;
+  AddAppointmentWidgetToDashboard({super.key, required this.day, required this.userdata, this.data});
 
   _AddAppointmentWidgetToDashboardState createState() =>
       _AddAppointmentWidgetToDashboardState();
@@ -25,8 +26,11 @@ class _AddAppointmentWidgetToDashboardState extends State<AddAppointmentWidgetTo
 
   @override
   Widget build(BuildContext context) {
-
-    Future<void> createNote() async {
+    if(widget.data != null){
+      nameOfAppointment.text = widget.data!["title"];
+      appointment.text = widget.data!["content"];
+    }
+    Future<void> createOrAddAppointment() async {
       Map<String, dynamic> data = {
         "type": "appointment",
         "content": appointment.text,
@@ -34,11 +38,14 @@ class _AddAppointmentWidgetToDashboardState extends State<AddAppointmentWidgetTo
       };
       DocumentReference by = FirebaseFirestore.instance.collection('users')
       .doc(widget.userdata["uid"]);
-      await ManageDashboardWidged().addWidget(widget.day, by, data);
+      if(widget.data == null){
+        await ManageDashboardWidged().addWidget(widget.day, by, data);
+      } else {
+        await ManageDashboardWidged().updateWidget(widget.day, by, data, widget.data!["key"]);
+      }
     }
 
     return Column(children: [
-      const Text("Title of Appointment"),
       InputField(
           controller: nameOfAppointment,
           hintText: "Title of Appointment",
@@ -46,13 +53,15 @@ class _AddAppointmentWidgetToDashboardState extends State<AddAppointmentWidgetTo
       InputField(controller: appointment, hintText: "Appointment", obscureText: false),
       MyButton(
           colors: Colors.blue,
-          onTap: () => createNote().onError((error, stackTrace) => {
+          onTap: () => createOrAddAppointment().onError((error, stackTrace) => {
+
                 print(error.toString()),
                 print(stackTrace.toString()),
                 print("error"),
                 ErrorSnackbar.showErrorSnackbar(context, error.toString())
               }),
-          text: "Create Appointment")
+          text: widget.data == null ? "Add Appointment to Dashboard" : "Update Appointment")
+    
     ]);
   }
 }

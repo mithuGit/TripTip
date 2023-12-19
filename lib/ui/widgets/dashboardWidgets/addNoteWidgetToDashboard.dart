@@ -26,9 +26,10 @@ class _AddNoteWidgetToDashboardState extends State<AddNoteWidgetToDashboard> {
   final nameOfNote = TextEditingController();
   final note = TextEditingController();
   var uuid = Uuid();
-  @override void initState() {
+  @override
+  void initState() {
     super.initState();
-    if(widget.data != null){
+    if (widget.data != null) {
       nameOfNote.text = widget.data!["title"];
       note.text = widget.data!["content"];
     }
@@ -36,7 +37,7 @@ class _AddNoteWidgetToDashboardState extends State<AddNoteWidgetToDashboard> {
 
   @override
   Widget build(BuildContext context) {
-    Future<void> createNote() async {
+    Future<void> createOrUpdateNote() async {
       print(widget.userdata);
       Map<String, dynamic> data = {
         "type": "note",
@@ -46,46 +47,31 @@ class _AddNoteWidgetToDashboardState extends State<AddNoteWidgetToDashboard> {
       DocumentReference by = FirebaseFirestore.instance
           .collection('users')
           .doc(widget.userdata!["uid"]);
-      await ManageDashboardWidged().addWidget(widget.day!, by, data);
+      if (widget.data == null) {
+        await ManageDashboardWidged().addWidget(widget.day!, by, data);
+      } else {
+        await ManageDashboardWidged()
+            .updateWidget(widget.day!, by, data, widget.data!["key"]);
+      }
     }
-    Future<void> updateNote() async {
-      print(widget.userdata);
-      Map<String, dynamic> data = {
-        "content": note.text,
-        "title": nameOfNote.text,
-      };
-      DocumentReference by = FirebaseFirestore.instance
-          .collection('users')
-          .doc(widget.userdata!["uid"]);
-      await ManageDashboardWidged().updateWidget(widget.day!,by, data, widget.data!["key"]);
-    }
-
     return Column(children: [
       InputField(
           controller: nameOfNote,
           hintText: "Title of Note",
           obscureText: false),
-      InputField(controller: note, hintText: "Note", obscureText: false),
-      if (widget.data == null) // creating mode when no data is passed
-        MyButton(
-            colors: Colors.blue,
-            onTap: () => createNote().onError((error, stackTrace) => {
-                  print(error.toString()),
-                  print(stackTrace.toString()),
-                  print("error"),
-                  ErrorSnackbar.showErrorSnackbar(context, error.toString())
-                }),
-            text: "Create Note")
-      else // editing mode when data is passed
-        MyButton(
-            colors: Colors.blue,
-            onTap: () => updateNote().onError((error, stackTrace) => {
-                  print(error.toString()),
-                  print(stackTrace.toString()),
-                  print("error"),
-                  ErrorSnackbar.showErrorSnackbar(context, error.toString())
-                }),
-            text: "Update Note")
+      InputField(
+          controller: note,
+          hintText: "Note",
+          obscureText: false), // creating mode when no data is passed
+      MyButton(
+          colors: Colors.blue,
+          onTap: () => createOrUpdateNote().onError((error, stackTrace) => {
+                print(error.toString()),
+                print(stackTrace.toString()),
+                print("error"),
+                ErrorSnackbar.showErrorSnackbar(context, error.toString())
+              }),
+          text: widget.data == null ? "Create Note" : "Update Note")
     ]);
   }
 }
