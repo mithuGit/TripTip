@@ -187,10 +187,13 @@ class _DashBoardState extends State<DashBoard> {
                   getCurrentDay().then((value) =>
                       {providerDay.changeDay(value), setState(() {})});
                 }),
-                MultiProvider(providers: [
-                  ChangeNotifierProvider(create: (_) => providerDay),
-                  ChangeNotifierProvider(create: (_) => providerUserdata)
-                ], child: ScrollViewWidget())
+                 Builder(builder: (context) {
+                    if(providerDay.day != null && providerUserdata.userdata != null) {
+                      return ScrollViewWidget(day: providerDay.day!, userdata: providerUserdata.userdata);
+                    } else {
+                      return const Text("no userdata and no day data");
+                    }
+                  })
               ]),
             ),
           )

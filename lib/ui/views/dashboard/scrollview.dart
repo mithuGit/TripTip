@@ -3,34 +3,26 @@ import 'dart:ui';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:internet_praktikum/ui/styles/Styles.dart';
-import 'package:internet_praktikum/ui/views/main_pages/dashboard.dart';
 import 'package:internet_praktikum/ui/widgets/dashboardWidgets/mainDasboardinitializer.dart';
-import 'package:provider/provider.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 
-class PressdEditButton extends ChangeNotifier {
-  StreamController<bool> pressedStream = StreamController<bool>();
-  get stream => pressedStream.stream;
-  void emmitPress() {
-    pressedStream.add(true);
-    // notifyListeners();
-  }
-}
 
 class ScrollViewWidget extends StatelessWidget {
-  ScrollViewWidget({super.key});
+  DocumentReference? day;
+  Map<String, dynamic>? userdata;
+  ScrollViewWidget({super.key, required this.day, required this.userdata});
   List<dynamic>? bufferArray = List.empty();
   bool justChangged = false;
+  
 
   @override
   Widget build(BuildContext context) {
     FirebaseFirestore firestore = FirebaseFirestore.instance;
-    DocumentReference<Object?>? day = context.watch<ProviderDay>().day;
 
     if (day == null) {
       return const CircularProgressIndicator();
     }
-    Map<String, PressdEditButton> pressedEditButton = {};
+    Map<String, StreamController<bool>> pressedEditButton = {};
     final Stream<DocumentSnapshot> _dayStream =
         firestore.collection('days').doc(day?.id).snapshots();
 
@@ -64,7 +56,8 @@ class ScrollViewWidget extends StatelessWidget {
             }
 
             //Add for every widget a PressdEditButton that it can listen on changes
-            pressedEditButton[localbufferArray![i]["key"]] = PressdEditButton();
+            pressedEditButton[localbufferArray![i]["key"]] =
+                StreamController<bool>();
           }
           dayStreamFiltered.add(localbufferArray);
         }
@@ -85,10 +78,10 @@ class ScrollViewWidget extends StatelessWidget {
             // Create a Card based on the color and the content of the dragged one
             // and set its elevation to the animated value.
             child: MainDasboardinitializer(
-              key: Key('$index'),
-              title: bufferArray![index]["title"] as String,
-              data: bufferArray![index],
-            ), // or any other fallback widget
+                key: Key('$index'),
+                title: bufferArray![index]["title"] as String,
+                data: bufferArray![index],
+                updateStream: pressedEditButton[bufferArray![index]["key"]]!.stream), // or any other fallback widget
           );
         },
         child: child,
@@ -114,6 +107,7 @@ class ScrollViewWidget extends StatelessWidget {
           }
           debugPrint("Container is editable");
           return Container(
+            height: MediaQuery.of(context).size.height * 0.7,
             margin: const EdgeInsets.only(
                 bottom: 65), // 65 because of the bottom navigation bar
             child: ReorderableListView(
@@ -157,7 +151,7 @@ class ScrollViewWidget extends StatelessWidget {
                         children: [
                           SlidableAction(
                             onPressed: (sdf) {
-                              pressedEditButton[con["key"]]?.emmitPress();
+                              pressedEditButton[con["key"]]?.add(true);
                             },
                             backgroundColor: Colors.transparent,
                             foregroundColor: Colors.blue,
@@ -200,11 +194,10 @@ class ScrollViewWidget extends StatelessWidget {
                           ),
                         ],
                       ),
-                      child: ChangeNotifierProvider<PressdEditButton>(
-                        create: (_) => pressedEditButton[con["key"]]!,
-                        child: MainDasboardinitializer(
-                            title: con!["title"], data: con),
-                      ),
+                      child: MainDasboardinitializer(
+                          title: con!["title"],
+                          data: con,
+                          updateStream: pressedEditButton[con["key"]]!.stream),
                     );
                   })
                   .toList()

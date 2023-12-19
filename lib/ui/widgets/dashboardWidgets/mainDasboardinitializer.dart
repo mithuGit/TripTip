@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:internet_praktikum/ui/styles/Styles.dart';
 import 'package:internet_praktikum/ui/widgets/dashboardWidgets/appointment.dart';
@@ -18,8 +21,17 @@ class MainDasboardinitializer extends StatefulWidget {
   double elevation = 0;
   final String title;
   Map<String, dynamic>? data;
+  Stream<bool> updateStream;
+  Map<String, dynamic>? userdata;
+  DocumentReference? day;
   MainDasboardinitializer(
-      {super.key, double? elevation, required this.title, required this.data});
+      {super.key,
+      double? elevation,
+      required this.title,
+      required this.data,
+      required this.updateStream,
+      this.userdata, 
+      this.day});
   @override
   State<MainDasboardinitializer> createState() =>
       _MainDasboardinitializerState();
@@ -27,7 +39,7 @@ class MainDasboardinitializer extends StatefulWidget {
 
 class _MainDasboardinitializerState extends State<MainDasboardinitializer> {
   @override
- Widget build(BuildContext context) {
+  Widget build(BuildContext context) {
     return Card(
         elevation: widget.elevation,
         shape: RoundedRectangleBorder(
@@ -42,7 +54,6 @@ class _MainDasboardinitializerState extends State<MainDasboardinitializer> {
             padding:
                 const EdgeInsets.only(top: 20, bottom: 20, left: 20, right: 20),
             child: Column(
-              
               children: [
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -55,17 +66,16 @@ class _MainDasboardinitializerState extends State<MainDasboardinitializer> {
                         style: Styles.mainDasboardinitializerTitle,
                       ),
                     ),
-                    if(widget.data?["addAble"] != null && widget.data?["addAble"] == true)
-                    GestureDetector(
-                      onTap: () {
-
-                      },
-                      child: const Icon(
-                        Icons.add,
-                        color: Colors.white,
-                        size: 40, 
+                    if (widget.data?["addAble"] != null &&
+                        widget.data?["addAble"] == true)
+                      GestureDetector(
+                        onTap: () {},
+                        child: const Icon(
+                          Icons.add,
+                          color: Colors.white,
+                          size: 40,
+                        ),
                       ),
-                    ),
                   ],
                 ),
                 LayoutBuilder(builder: (context, constraints) {
@@ -73,15 +83,22 @@ class _MainDasboardinitializerState extends State<MainDasboardinitializer> {
                     return const Text("No type is specified");
                   } else {
                     if (widget.data?["type"] == "note") {
-                      return SimpleNoteWidget(data: widget.data);
+                      return SimpleNoteWidget(
+                          data: widget.data,
+                          userdata: widget.userdata,
+                          day: widget.day,
+                          pressedStream: widget.updateStream);
                     } else if (widget.data?["type"] == "list") {
-                      return SimpleNoteWidget(data: widget.data);
-                    } else if(widget.data?["type"] == "appointment"){
+                      return SimpleNoteWidget(
+                          data: widget.data,
+                          userdata: widget.userdata,
+                          day: widget.day,
+                          pressedStream: widget.updateStream);
+                    } else if (widget.data?["type"] == "appointment") {
                       return AppointmentWidget(data: widget.data);
-                    } else if(widget.data?["type"] == "survey"){
+                    } else if (widget.data?["type"] == "survey") {
                       return SurveyWidget(data: widget.data);
-                    }
-                    else {
+                    } else {
                       return const Text("No type is specified");
                     }
                   }
