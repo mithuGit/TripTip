@@ -15,7 +15,7 @@ class _ChangeTripState extends State<ChangeTrip> {
       appBar: AppBar(
         leading: IconButton(
           onPressed: () {
-            context.pushReplacement("/");
+            context.goNamed('home');
           },
           icon: const Icon(Icons.arrow_back_ios),
         ),
