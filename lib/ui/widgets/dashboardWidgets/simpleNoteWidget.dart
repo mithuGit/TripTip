@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
@@ -11,8 +13,10 @@ import 'package:provider/provider.dart';
 
 class SimpleNoteWidget extends StatefulWidget {
   final Map<String, dynamic>? data;
-
-  const SimpleNoteWidget({required this.data});
+  Stream<bool> pressedStream;
+  Map<String, dynamic>? userdata;
+  DocumentReference? day;
+  SimpleNoteWidget({required this.data, required this.pressedStream, this.userdata, this.day});
 
   @override
   _SimpleNoteWidgetState createState() => _SimpleNoteWidgetState();
@@ -21,20 +25,20 @@ class SimpleNoteWidget extends StatefulWidget {
 class _SimpleNoteWidgetState extends State<SimpleNoteWidget> {
   @override
   Widget build(BuildContext context) {
-    Stream<bool> pressedEditButton = context.read<PressdEditButton>().stream;
-    DocumentReference<Object?>? day = context.watch<ProviderDay>().day;
-    Map<String, dynamic>? userData = context.watch<ProviderUserdata>().userdata;
-
-    pressedEditButton.listen((event) { 
-      if(event){
+   /*  widget.pressedStream.listen((event) {
+      if (event) {
         print("pressedEditButton");
         SchedulerBinding.instance.addPostFrameCallback((_) {
-          CustomBottomSheet.show(context, title: "Edit Note", content: [ 
-            AddNoteWidgetToDashboard(day: day!, userdata: userData!, data: widget.data,)]);
+          CustomBottomSheet.show(context, title: "Edit Note", content: [
+            AddNoteWidgetToDashboard(
+              day: widget.day!,
+              userdata: widget.userdata!,
+              data: widget.data,
+            )
+          ]);
         });
       }
-      
-    });
+    }); */
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
