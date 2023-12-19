@@ -53,6 +53,7 @@ class _AddNoteWidgetToDashboardState extends State<AddNoteWidgetToDashboard> {
         await ManageDashboardWidged()
             .updateWidget(widget.day!, by, data, widget.data!["key"]);
       }
+      if(context.mounted) Navigator.pop(context);
     }
     return Column(children: [
       InputField(

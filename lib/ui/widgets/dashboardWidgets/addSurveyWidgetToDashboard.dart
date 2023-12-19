@@ -57,7 +57,7 @@ class _AddSurveyWidgetToDashboardState
       } else {
         await ManageDashboardWidged().updateWidget(widget.day, by, data, widget.data!["key"]);
       }      
-      await ManageDashboardWidged().addWidget(widget.day, by, data);
+      if(context.mounted) Navigator.pop(context);
     }
     return Column(children: [
       const Text("Title of Survey"),

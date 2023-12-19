@@ -4,6 +4,7 @@ import 'package:internet_praktikum/ui/views/main_pages/dashboard.dart';
 import 'package:internet_praktikum/ui/widgets/dashboardWidgets/addAppointmentWidgetToDashboard.dart';
 import 'package:internet_praktikum/ui/widgets/dashboardWidgets/addNoteWidgetToDashboard.dart';
 import 'package:internet_praktikum/ui/widgets/dashboardWidgets/addSurveyWidgetToDashboard.dart';
+import 'package:internet_praktikum/ui/widgets/modalButton.dart';
 import 'package:internet_praktikum/ui/widgets/my_button.dart';
 import 'package:provider/provider.dart';
 
@@ -25,8 +26,7 @@ class _CreateNewWidgetOnDashboardState
     switch (show) {
       case 'init':
         return Column(children: [
-          MyButton(
-              colors: Colors.blue,
+          ModalButton(
               onTap: () => {
                     setState(() {
                       show = 'note';
