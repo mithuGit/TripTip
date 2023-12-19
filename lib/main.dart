@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:internet_praktikum/blocs/payment/payment_bloc.dart';
 import 'package:internet_praktikum/ui/router.dart';
+import 'package:internet_praktikum/ui/views/main_pages/dashboard.dart';
 import 'firebase_options.dart';
 import '.env';
 
@@ -23,13 +24,10 @@ class Main extends StatelessWidget {
   const Main({super.key});
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => PaymentBloc(),
-      child: MaterialApp.router(
-        debugShowCheckedModeBanner: false,
-        routerConfig: MyRouter.router,
-        title: 'Let\'s Travel Together. ',
-      ),
+    return MaterialApp.router(
+      debugShowCheckedModeBanner: false,
+      routerConfig: MyRouter.router,
+      title: 'Let\'s Travel Together. ',
     );
   }
 }
