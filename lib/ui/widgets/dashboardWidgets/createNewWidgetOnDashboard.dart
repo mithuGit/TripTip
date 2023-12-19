@@ -8,7 +8,9 @@ import 'package:internet_praktikum/ui/widgets/my_button.dart';
 import 'package:provider/provider.dart';
 
 class CreateNewWidgetOnDashboard extends StatefulWidget {
-  CreateNewWidgetOnDashboard({super.key});
+  Map<String, dynamic> userdata;
+  DocumentReference day;
+  CreateNewWidgetOnDashboard({super.key, required this.day, required this.userdata});
 
   @override
   _CreateNewWidgetOnDashboardState createState() =>
@@ -20,10 +22,6 @@ class _CreateNewWidgetOnDashboardState
   String show = 'init';
   @override
   Widget build(BuildContext context) {
-    DocumentReference<Object?>? day = context.watch<ProviderDay?>()?.day;
-     if(day == null){
-        return const CircularProgressIndicator();
-    }
     switch (show) {
       case 'init':
         return Column(children: [
@@ -53,11 +51,11 @@ class _CreateNewWidgetOnDashboardState
               text: "Add Survey"),
         ]);
       case 'note':
-        return AddNoteWidgetToDashboard();
+        return AddNoteWidgetToDashboard(userdata: widget.userdata, day: widget.day);
       case 'appointment':
-        return AddAppointmentWidgetToDashboard(day: day);
+        return AddAppointmentWidgetToDashboard(userdata: widget.userdata, day: widget.day);
       case 'survey':
-        return AddSurveyWidgetToDashboard(day: day);
+        return AddSurveyWidgetToDashboard(userdata: widget.userdata, day: widget.day);
       default:
         return const Text('default');
     }

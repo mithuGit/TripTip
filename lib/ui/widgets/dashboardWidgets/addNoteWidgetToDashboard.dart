@@ -9,8 +9,10 @@ import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
 
 class AddNoteWidgetToDashboard extends StatefulWidget {
+  Map<String, dynamic> userdata;
+  DocumentReference day;
   @override
-  AddNoteWidgetToDashboard({super.key});
+  AddNoteWidgetToDashboard({super.key, required this.day, required this.userdata});
 
   _AddNoteWidgetToDashboardState createState() =>
       _AddNoteWidgetToDashboardState();
@@ -23,21 +25,19 @@ class _AddNoteWidgetToDashboardState extends State<AddNoteWidgetToDashboard> {
 
   @override
   Widget build(BuildContext context) {
-    final userdata = context.watch<ProviderUserdata?>();
-    DocumentReference? day = context.watch<ProviderDay>().day;
-    if (userdata == null) {
+    if (widget.day == null) {
       return Text("no userdata");
     }
 
     Future<void> createNote() async {
-      print(userdata);
+      print(widget.userdata);
       Map<String, dynamic> data = {
         "type": "note",
         "content": note.text,
         "title": nameOfNote.text,
       };
-      DocumentReference by = FirebaseFirestore.instance.collection('users').doc(userdata.userdata!["uid"]);
-      await AddWidget().addWidget(day!, by, data);
+      DocumentReference by = FirebaseFirestore.instance.collection('users').doc(widget.userdata!["uid"]);
+      await AddWidget().addWidget(widget.day!, by, data);
     }
 
     return Column(children: [
