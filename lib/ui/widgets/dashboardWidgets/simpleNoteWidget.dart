@@ -13,10 +13,7 @@ import 'package:provider/provider.dart';
 
 class SimpleNoteWidget extends StatefulWidget {
   final Map<String, dynamic>? data;
-  Stream<bool> pressedStream;
-  Map<String, dynamic>? userdata;
-  DocumentReference? day;
-  SimpleNoteWidget({required this.data, required this.pressedStream, this.userdata, this.day});
+  SimpleNoteWidget({required this.data});
 
   @override
   _SimpleNoteWidgetState createState() => _SimpleNoteWidgetState();
@@ -25,21 +22,6 @@ class SimpleNoteWidget extends StatefulWidget {
 class _SimpleNoteWidgetState extends State<SimpleNoteWidget> {
   @override
   Widget build(BuildContext context) {
-   /*  widget.pressedStream.listen((event) {
-      if (event) {
-        print("pressedEditButton");
-        SchedulerBinding.instance.addPostFrameCallback((_) {
-          CustomBottomSheet.show(context, title: "Edit Note", content: [
-            AddNoteWidgetToDashboard(
-              day: widget.day!,
-              userdata: widget.userdata!,
-              data: widget.data,
-            )
-          ]);
-        });
-      }
-    }); */
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       mainAxisAlignment: MainAxisAlignment.start,
