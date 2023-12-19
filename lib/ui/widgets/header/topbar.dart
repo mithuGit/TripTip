@@ -55,13 +55,13 @@ class _TopBarState extends State<TopBar> {
                   context.go('/changeTrip');
                 },
               child: Text(
-                  actualWeather?.cityName ?? "Loading...",
-                  style: const TextStyle(fontSize: 20),
+                  actualWeather?.cityName ?? "",
+                  style: const TextStyle(fontSize: 20, color: Colors.black),
                 ),
             )
             : Text(
                 widget.title!,
-                style: const TextStyle(fontSize: 20),
+                style: const TextStyle(fontSize: 20, color: Colors.black),
               ),
         leadingWidth: widget.isDash! ? 66 : 0, // defaul 56 + 10
         leading: widget.isDash!
