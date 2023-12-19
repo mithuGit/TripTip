@@ -67,10 +67,10 @@ class _TripCreateState extends State<CreateTrip> {
         'createdBy': widget.auth.currentUser?.uid,
         'members': members
       });
-       FirebaseFirestore.instance
-        .collection("users")
-        .doc(_auth.currentUser?.uid)
-        .set({"selectedtrip": trip.id});
+      FirebaseFirestore.instance
+          .collection("users")
+          .doc(_auth.currentUser?.uid)
+          .update({"selectedtrip": trip.id});
       if (context.mounted) {
         context.go("/");
       }
@@ -131,7 +131,10 @@ class _TripCreateState extends State<CreateTrip> {
                         CupertinoDatePickerButton(
                           margin: const EdgeInsets.only(bottom: 25),
                           showFuture: true,
-                          presetDate: DateFormat('dd-MM-yyyy').format(selectedStartDate ?? DateTime.now()),
+                          presetDate: selectedStartDate != null
+                              ? DateFormat('dd-MM-yyyy')
+                                  .format(selectedStartDate ?? DateTime.now())
+                              : 'select start Date',
                           onDateSelected: (DateStringTupel formattedDate) {
                             setState(() {
                               selectedStartDate = formattedDate.date;
@@ -156,14 +159,17 @@ class _TripCreateState extends State<CreateTrip> {
                         CupertinoDatePickerButton(
                           margin: const EdgeInsets.only(bottom: 25),
                           showFuture: true,
-                          presetDate: DateFormat('dd-MM-yyyy').format(selectedEndDate ?? DateTime.now()),
+                          presetDate: selectedEndDate != null
+                              ? DateFormat('dd-MM-yyyy')
+                                  .format(selectedEndDate ?? DateTime.now())
+                              : 'select end Date',
                           onDateSelected: (DateStringTupel formattedDate) {
                             setState(() {
                               selectedEndDate = formattedDate.date;
                             });
                           },
                         ),
-                       /*  MyButton(
+                        /*  MyButton(
                             onTap: connectPhotosAlbum,
                             imagePath: 'assets/googlephotos.png',
                             text: 'Create Photos Album'), */
@@ -171,15 +177,15 @@ class _TripCreateState extends State<CreateTrip> {
                             margin: const EdgeInsets.only(top: 30),
                             onTap: create_trip,
                             text: 'Create Trip'),
-                        if(context.canPop())    
-                        MyButton(
-                            margin: const EdgeInsets.only(top: 30),
-                            onTap: () {
-                              if(context.canPop()) {
-                                context.pop();
-                              }
-                            },
-                            text: 'Cancel')
+                        if (context.canPop())
+                          MyButton(
+                              margin: const EdgeInsets.only(top: 30),
+                              onTap: () {
+                                if (context.canPop()) {
+                                  context.pop();
+                                }
+                              },
+                              text: 'Cancel')
                       ],
                     )),
               ),

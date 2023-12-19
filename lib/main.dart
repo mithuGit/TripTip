@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
-import 'package:internet_praktikum/blocs/payment/payment_bloc.dart';
 import 'package:internet_praktikum/ui/router.dart';
 import 'package:internet_praktikum/ui/views/main_pages/dashboard.dart';
 import 'firebase_options.dart';

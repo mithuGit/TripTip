@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:internet_praktikum/ui/views/account/account_details.dart';
-import 'package:internet_praktikum/ui/widgets/topbar.dart';
+import 'package:internet_praktikum/ui/widgets/header/topbar.dart';
 
 import '../../widgets/profile_menu.dart';
 import '../login_register_pages/login_or_register_page.dart';
