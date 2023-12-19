@@ -54,7 +54,6 @@ class _RegisterPageState extends State<RegisterPage> {
             'prename': userCredential.user!.displayName,
             'lastname': userCredential.user!.displayName,
             'uid': userCredential.user!.uid,
-            'trips': null,
             'profilepicture': null,
             'dateOfBirth': null,
             'selectedtrip': null
