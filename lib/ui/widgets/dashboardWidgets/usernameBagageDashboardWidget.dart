@@ -42,6 +42,7 @@ class UsernameBagageDashboardWidget extends StatelessWidget {
               height: 22,
             ),
           ),
+          if(data!["prename"] != null && data!["lastname"] != null)
           Container(
             margin: const EdgeInsets.only(left: 7),
             child: Text(

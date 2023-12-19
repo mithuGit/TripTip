@@ -9,14 +9,11 @@ import 'package:provider/provider.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 
 class PressdEditButton extends ChangeNotifier {
-  bool pressed = false;
-  void changePressed() {
-    pressed = !pressed;
-    notifyListeners();
-  }
-  @override
-  String toString() {
-    return '';
+  StreamController<bool> pressedStream = StreamController<bool>();
+  get stream => pressedStream.stream;
+  void emmitPress() {
+    pressedStream.add(true);
+    // notifyListeners();
   }
 }
 
@@ -30,11 +27,10 @@ class ScrollViewWidget extends StatelessWidget {
     FirebaseFirestore firestore = FirebaseFirestore.instance;
     DocumentReference<Object?>? day = context.watch<ProviderDay>().day;
 
-    
     if (day == null) {
       return const CircularProgressIndicator();
     }
-    Map<String,PressdEditButton> pressedEditButton = {};
+    Map<String, PressdEditButton> pressedEditButton = {};
     final Stream<DocumentSnapshot> _dayStream =
         firestore.collection('days').doc(day?.id).snapshots();
 
@@ -58,11 +54,14 @@ class ScrollViewWidget extends StatelessWidget {
           for (var i = 0; i < localbufferArray!.length; i++) {
             DocumentSnapshot userdoc =
                 await localbufferArray![i]["createdBy"].get();
-            Map<String, dynamic> userdata =
-                userdoc.data() as Map<String, dynamic>;
-            localbufferArray![i]["profilePicture"] = userdata["profilePicture"];
-            localbufferArray![i]["prename"] = userdata["prename"];
-            localbufferArray![i]["lastname"] = userdata["lastname"];
+            if (userdoc.exists) {
+              Map<String, dynamic> userdata =
+                  userdoc.data() as Map<String, dynamic>;
+              localbufferArray![i]["profilePicture"] =
+                  userdata["profilePicture"];
+              localbufferArray![i]["prename"] = userdata["prename"];
+              localbufferArray![i]["lastname"] = userdata["lastname"];
+            }
 
             //Add for every widget a PressdEditButton that it can listen on changes
             pressedEditButton[localbufferArray![i]["key"]] = PressdEditButton();
@@ -158,7 +157,7 @@ class ScrollViewWidget extends StatelessWidget {
                         children: [
                           SlidableAction(
                             onPressed: (sdf) {
-                              pressedEditButton[con["key"]]?.changePressed();
+                              pressedEditButton[con["key"]]?.emmitPress();
                             },
                             backgroundColor: Colors.transparent,
                             foregroundColor: Colors.blue,

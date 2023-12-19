@@ -46,18 +46,14 @@ class _DashBoardState extends State<DashBoard> {
   Future<Map<String, dynamic>> getUserData() async {
     print("getUserData");
     final userCollection = FirebaseFirestore.instance.collection('users');
-    final userDoc = await userCollection.doc(user.uid).get();
-    Map<String, dynamic> _userData = userDoc.data()!;
+    final userDoc = await userCollection.where('uid', isEqualTo: user.uid).get();
+    Map<String, dynamic> _userData = userDoc.docs.first.data();
     return _userData;
   }
 
   @override
   void initState() {
     super.initState();
-
-    getCurrentDay().then((value) {
-      providerDay.changeDay(value);
-    });
     getUserData().then((value) {
       providerUserdata.changeUserdata(value);
     });
@@ -84,8 +80,22 @@ class _DashBoardState extends State<DashBoard> {
     final currentTrip =
         await FirebaseFirestore.instance.collection('trips').doc(tripId).get();
     Map<String, dynamic>? currentTripdata = currentTrip.data();
+    if (currentTripdata!['days'] == null) {
+      print('The Days Parameter in the Document is null');
+      DocumentReference day =
+          await FirebaseFirestore.instance.collection('days').add({
+        'starttime': Timestamp.fromDate(selectedDay!),
+        'active': {},
+        'archive': {},
+      });
+      await FirebaseFirestore.instance.collection('trips').doc(tripId).update({
+        'days': FieldValue.arrayUnion([
+          {'starttime': Timestamp.fromDate(selectedDay!), 'ref': day}
+        ])
+      });
+      return day;
+    }
     List<dynamic> days = currentTripdata?['days'].toList();
-    if (days.isEmpty) throw Exception('No days in trip');
     Iterable<dynamic> filtered = days.where((el) =>
         (el['starttime'] as Timestamp).toDate().day == selectedDay!.day &&
         (el['starttime'] as Timestamp).toDate().month == selectedDay!.month &&
@@ -143,13 +153,14 @@ class _DashBoardState extends State<DashBoard> {
             CustomBottomSheet.show(context,
                 title: "Add new Widget to your Dashboard",
                 content: [
-                  MultiProvider(
-                      providers: [
-                        ChangeNotifierProvider(create: (_) => ProviderDay(day: providerDay.day!)),
-                        ChangeNotifierProvider(create: (_) => ProviderUserdata(userdata: providerUserdata.userdata!))
-                      ],
-                      child:
-                          CreateNewWidgetOnDashboard()) // get the secound element of list since the first is the Userdata
+                  Builder(builder: (context) {
+                    if(providerDay.day != null && providerUserdata.userdata != null) {
+                      return CreateNewWidgetOnDashboard(day: providerDay.day!, userdata: providerUserdata.userdata);
+                    } else {
+                      return const Text("no userdata and no day data");
+                    }
+                       
+                  }), // get the secound element of list since the first is the Userdata
                 ]);
           }),
       body: Stack(

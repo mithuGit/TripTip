@@ -21,22 +21,20 @@ class SimpleNoteWidget extends StatefulWidget {
 class _SimpleNoteWidgetState extends State<SimpleNoteWidget> {
   @override
   Widget build(BuildContext context) {
-    PressdEditButton pressedEditButton = context.watch<PressdEditButton>();
+    Stream<bool> pressedEditButton = context.read<PressdEditButton>().stream;
     DocumentReference<Object?>? day = context.watch<ProviderDay>().day;
-    Map<String, dynamic> userData = context.watch<ProviderUserdata>().userdata;
+    Map<String, dynamic>? userData = context.watch<ProviderUserdata>().userdata;
 
-    if (pressedEditButton.pressed) {
-     // pressedEditButton.changePressed();
-      SchedulerBinding.instance.addPostFrameCallback((_) {
-        CustomBottomSheet.show(context, title: "Edit Note", content: [
-          MultiProvider(providers: [
-            ChangeNotifierProvider(create: (_) => ProviderDay(day: day)),
-            ChangeNotifierProvider(create: (_) => ProviderUserdata(userdata: userData)),
-          ], child: AddNoteWidgetToDashboard()),
-        ]);
-      });
+    pressedEditButton.listen((event) { 
+      if(event){
+        print("pressedEditButton");
+        SchedulerBinding.instance.addPostFrameCallback((_) {
+          CustomBottomSheet.show(context, title: "Edit Note", content: [ 
+            AddNoteWidgetToDashboard(day: day!, userdata: userData!, data: widget.data,)]);
+        });
+      }
       
-    }
+    });
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
