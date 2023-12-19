@@ -9,14 +9,11 @@ import 'package:provider/provider.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 
 class PressdEditButton extends ChangeNotifier {
-  bool pressed = false;
-  void changePressed() {
-    pressed = !pressed;
-    notifyListeners();
-  }
-  @override
-  String toString() {
-    return '';
+  StreamController<bool> pressedStream = StreamController<bool>();
+  get stream => pressedStream.stream;
+  void emmitPress() {
+    pressedStream.add(true);
+   // notifyListeners();
   }
 }
 
@@ -158,7 +155,7 @@ class ScrollViewWidget extends StatelessWidget {
                         children: [
                           SlidableAction(
                             onPressed: (sdf) {
-                              pressedEditButton[con["key"]]?.changePressed();
+                              pressedEditButton[con["key"]]?.emmitPress();
                             },
                             backgroundColor: Colors.transparent,
                             foregroundColor: Colors.blue,

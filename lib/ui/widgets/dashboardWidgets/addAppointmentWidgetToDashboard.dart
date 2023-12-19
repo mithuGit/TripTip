@@ -1,7 +1,7 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:internet_praktikum/core/services/addWidget.dart';
+import 'package:internet_praktikum/core/services/manageDashboardWidget.dart';
 import 'package:internet_praktikum/ui/views/main_pages/dashboard.dart';
 import 'package:internet_praktikum/ui/widgets/errorSnackbar.dart';
 import 'package:internet_praktikum/ui/widgets/inputfield.dart';
@@ -34,7 +34,7 @@ class _AddAppointmentWidgetToDashboardState extends State<AddAppointmentWidgetTo
       };
       DocumentReference by = FirebaseFirestore.instance.collection('users')
       .doc(widget.userdata["uid"]);
-      await AddWidget().addWidget(widget.day, by, data);
+      await ManageDashboardWidged().addWidget(widget.day, by, data);
     }
 
     return Column(children: [

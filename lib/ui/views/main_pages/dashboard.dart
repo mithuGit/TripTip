@@ -157,7 +157,7 @@ class _DashBoardState extends State<DashBoard> {
                     if(providerDay.day != null && providerUserdata.userdata != null) {
                       return CreateNewWidgetOnDashboard(day: providerDay.day!, userdata: providerUserdata.userdata);
                     } else {
-                      return const Text("Loading");
+                      return const Text("no userdata and no day data");
                     }
                        
                   }), // get the secound element of list since the first is the Userdata
