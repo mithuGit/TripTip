@@ -1,3 +1,4 @@
+import 'dart:ffi';
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -13,7 +14,8 @@ import 'package:go_router/go_router.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 
 class Account extends StatefulWidget {
-  const Account({super.key});
+  final bool? isEditProfile;
+  const Account({super.key, this.isEditProfile});
 
   @override
   State<Account> createState() => _AccountState();
@@ -239,7 +241,11 @@ class _AccountState extends State<Account> {
                             updateAuthDisplayName(prenameController.text,
                                 lastnameController.text);
 
-                            context.go("/createtrip");
+                            if (widget.isEditProfile!) {
+                              Navigator.of(context).pop();
+                            } else {
+                              context.go("/createtrip");
+                            }
                           },
                           text: 'Finish',
                         ),
