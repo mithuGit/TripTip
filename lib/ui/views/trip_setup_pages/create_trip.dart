@@ -7,8 +7,8 @@ import 'package:internet_praktikum/ui/widgets/errorSnackbar.dart';
 import 'package:internet_praktikum/ui/widgets/inputfield_search_lookahead.dart';
 import 'package:internet_praktikum/ui/widgets/my_button.dart';
 import 'package:internet_praktikum/ui/widgets/usernamebagageCreateTrip.dart';
+import 'package:intl/intl.dart';
 import '../../widgets/container.dart';
-import '../../widgets/inputfield.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class CreateTrip extends StatefulWidget {
@@ -67,7 +67,7 @@ class _TripCreateState extends State<CreateTrip> {
        FirebaseFirestore.instance
         .collection("users")
         .doc(_auth.currentUser?.uid)
-        .set({"selectedtrip": trip});
+        .set({"selectedtrip": trip.id});
       if (context.mounted) {
         context.go("/");
       }
@@ -128,6 +128,7 @@ class _TripCreateState extends State<CreateTrip> {
                         CupertinoDatePickerButton(
                           margin: const EdgeInsets.only(bottom: 25),
                           showFuture: true,
+                          presetDate: DateFormat('dd-MM-yyyy').format(selectedStartDate ?? DateTime.now()),
                           onDateSelected: (DateStringTupel formattedDate) {
                             setState(() {
                               selectedStartDate = formattedDate.date;
@@ -152,23 +153,29 @@ class _TripCreateState extends State<CreateTrip> {
                         CupertinoDatePickerButton(
                           margin: const EdgeInsets.only(bottom: 25),
                           showFuture: true,
+                          presetDate: DateFormat('dd-MM-yyyy').format(selectedEndDate ?? DateTime.now()),
                           onDateSelected: (DateStringTupel formattedDate) {
                             setState(() {
                               selectedEndDate = formattedDate.date;
                             });
                           },
                         ),
-                        MyButton(
+                       /*  MyButton(
                             onTap: connectPhotosAlbum,
                             imagePath: 'assets/googlephotos.png',
-                            text: 'Create Photos Album'),
+                            text: 'Create Photos Album'), */
                         MyButton(
                             margin: const EdgeInsets.only(top: 30),
                             onTap: create_trip,
                             text: 'Create Trip'),
+                        if(context.canPop())    
                         MyButton(
                             margin: const EdgeInsets.only(top: 30),
-                            onTap: Navigator.of(context).pop,
+                            onTap: () {
+                              if(context.canPop()) {
+                                context.pop();
+                              }
+                            },
                             text: 'Cancel')
                       ],
                     )),
