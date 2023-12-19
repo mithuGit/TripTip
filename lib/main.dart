@@ -1,27 +1,35 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_stripe/flutter_stripe.dart';
+import 'package:internet_praktikum/blocs/payment/payment_bloc.dart';
 import 'package:internet_praktikum/ui/router.dart';
-import 'package:internet_praktikum/ui/views/main_pages/dashboard.dart';
 import 'firebase_options.dart';
+import '.env';
 
-void main() async {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  //Stripe pub-key
+  Stripe.publishableKey = stripePublishableKey;
+  await Stripe.instance.applySettings();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  runApp(const Main());
+  runApp(const ProviderScope(child: Main()));
 }
 
 class Main extends StatelessWidget {
   const Main({super.key});
   @override
   Widget build(BuildContext context) {
-    return MaterialApp.router(
-      debugShowCheckedModeBanner: false,
-      routerConfig: MyRouter.router,
-      title: 'Let\'s Travel Together. ',
+    return BlocProvider(
+      create: (context) => PaymentBloc(),
+      child: MaterialApp.router(
+        debugShowCheckedModeBanner: false,
+        routerConfig: MyRouter.router,
+        title: 'Let\'s Travel Together. ',
+      ),
     );
   }
 }

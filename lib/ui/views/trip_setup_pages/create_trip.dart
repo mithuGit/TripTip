@@ -14,7 +14,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class CreateTrip extends StatefulWidget {
   final FirebaseFirestore firestore;
   final FirebaseAuth auth;
-  CreateTrip({super.key, required this.firestore, required this.auth});
+  const CreateTrip({super.key, required this.firestore, required this.auth});
   @override
   State<CreateTrip> createState() => _TripCreateState();
 }
@@ -46,13 +46,16 @@ class _TripCreateState extends State<CreateTrip> {
     try {
       final members = [];
       if (destination == null) throw Exception("Destination is empty");
-      if (selectedStartDate == null)
+      if (selectedStartDate == null) {
         throw Exception("You need to select a start date!");
-      if (selectedEndDate == null)
+      }
+      if (selectedEndDate == null) {
         throw Exception("You need to select a end date!");
+      }
       if (selectedEndDate!.millisecondsSinceEpoch <
-          selectedStartDate!.millisecondsSinceEpoch)
+          selectedStartDate!.millisecondsSinceEpoch) {
         throw Exception("End date must be after start date!");
+      }
 
       members.add(widget.auth.currentUser?.uid);
       print("Create Trip: $destination $selectedStartDate $selectedEndDate");

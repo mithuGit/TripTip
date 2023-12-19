@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:internet_praktikum/main.dart';
-import 'package:internet_praktikum/ui/views/trip_setup_pages/create_trip.dart';
-import 'package:internet_praktikum/ui/views/trip_setup_pages/join_trip.dart';
 import 'package:internet_praktikum/ui/widgets/container.dart';
 import 'package:internet_praktikum/ui/widgets/my_button.dart';
 

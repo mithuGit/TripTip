@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:internet_praktikum/ui/styles/Styles.dart';
-import 'package:internet_praktikum/ui/widgets/finanzen/payment.dart';
 import 'package:slide_to_act/slide_to_act.dart';
+
+import '../../views/finanzen/creditcard.dart';
 
 class SlideButton extends StatelessWidget {
   final String buttonText;
@@ -36,7 +37,7 @@ class SlideButton extends StatelessWidget {
         onSubmit: () {
           return Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => const Payment()),
+            MaterialPageRoute(builder: (context) => const CardFormScreen()),
           );
         },
       ),
