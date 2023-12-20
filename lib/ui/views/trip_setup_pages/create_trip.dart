@@ -99,9 +99,9 @@ class _TripCreateState extends State<CreateTrip> {
               child: Center(
                 child: Padding(
                     padding: const EdgeInsets.only(
-                        top: 80, left: 14, right: 14, bottom: 45),
+                        top: 80, left: 14, right: 14, bottom: 100),
                     child: CustomContainer(
-                      title: "Start your next Adventure:",
+                      title: "Create Trip",
                       children: [
                         Padding(
                           padding: const EdgeInsets.only(bottom: 25),
@@ -174,18 +174,17 @@ class _TripCreateState extends State<CreateTrip> {
                             imagePath: 'assets/googlephotos.png',
                             text: 'Create Photos Album'), */
                         MyButton(
-                            margin: const EdgeInsets.only(top: 30),
+                            margin: const EdgeInsets.only(top: 20),
                             onTap: create_trip,
                             text: 'Create Trip'),
-                        if (context.canPop())
-                          MyButton(
-                              margin: const EdgeInsets.only(top: 30),
-                              onTap: () {
-                                if (context.canPop()) {
-                                  context.pop();
-                                }
-                              },
-                              text: 'Cancel')
+                        MyButton(
+                            margin: const EdgeInsets.only(top: 10),
+                            onTap: () {
+                              if (context.canPop()) {
+                                context.pop();
+                              }
+                            },
+                            text: 'Cancel')
                       ],
                     )),
               ),

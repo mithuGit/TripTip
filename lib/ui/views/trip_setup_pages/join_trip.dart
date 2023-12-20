@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:internet_praktikum/ui/widgets/container.dart';
 import 'package:internet_praktikum/ui/widgets/inputfield.dart';
 import 'package:internet_praktikum/ui/widgets/my_button.dart';
@@ -36,18 +37,26 @@ class JoinTrip extends StatelessWidget {
               child: Center(
                 child: Padding(
                     padding: const EdgeInsets.only(
-                        top: 80, left: 14, right: 14, bottom: 45),
+                        top: 200, left: 14, right: 14, bottom: 230),
                     child:
                         CustomContainer(title: "Join your Friends", children: [
                       InputField(
+                          margin: EdgeInsets.only(top: 15, bottom: 10),
                           controller: groupController,
                           hintText: "Trip Code",
                           obscureText: false),
                       MyButton(
+                        margin: EdgeInsets.only(bottom: 10),
                           onTap: () {
                             join_trip();
                           },
-                          text: "Next")
+                          text: "Next"),
+                      MyButton(
+                        margin: EdgeInsets.only(bottom: 10),
+                          onTap: () {
+                            context.pop();
+                          },
+                          text: "Cancel")
                     ])),
               )),
         ])));

@@ -46,11 +46,19 @@ class MyButton extends StatelessWidget {
                 children: [
                   if ((iconData != null || imagePath != null)) ...[
                     if (imagePath != null) ...[
-                      Image.asset(
+                      if(imagePath!.startsWith("http") == true) ...[
+                        Image.network(
                         imagePath!,
                         width: 30,
                         height: 30,
                       )
+                       ] else ...[
+                        Image.asset(
+                          imagePath!,
+                          width: 30,
+                          height: 30,
+                        )
+                      ]
                     ] else ...[
                       Icon(iconData)
                     ],
