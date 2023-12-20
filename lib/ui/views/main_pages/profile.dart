@@ -1,7 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:internet_praktikum/ui/views/account/account_details.dart';
 import 'package:internet_praktikum/ui/widgets/header/topbar.dart';
 
 import '../../widgets/profile_menu.dart';
