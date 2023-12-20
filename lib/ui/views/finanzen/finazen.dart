@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:internet_praktikum/ui/widgets/header/topbar.dart';
 
 import '../../widgets/finanzen/extendablecontainer.dart';
 import 'creditcard.dart';
@@ -91,47 +92,17 @@ class _FinanzenState extends State<Finanzen> {
     return Scaffold(
       extendBody: true,
       backgroundColor: const Color(0xFFFFFFFF),
-      appBar: AppBar(
-        centerTitle: true,
-        backgroundColor: const Color(0xFFFFFFFF),
-        title: const Row(
-          children: [
-            Text(
-              "Finanzübersicht",
-              style: TextStyle(
-                  fontSize: 20.0,
-                  color: Colors.black // Adjust the font size as needed
-                  ),
-            ),
-          ],
-        ),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 10),
-            child: GestureDetector(
-              child: IconButton(
-                icon: const Icon(
-                  Icons.payment,
-                  color: Colors.black,
-                ),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const CardFormScreen()),
-                  );
-                },
-              ),
-            ),
-          ),
-        ],
-      ),
-
-      /*TopBar(
+      appBar: TopBar(
         isDash: false,
         icon: Icons.payment,
-        onTapForIconWidget: null,
+        onTapForIconWidget: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const CardFormScreen()),
+          );
+        },
         title: "Finanzübersicht",
-      ),*/
+      ),
       body: Stack(
         children: [
           Align(
