@@ -43,6 +43,7 @@ class _AddAppointmentWidgetToDashboardState extends State<AddAppointmentWidgetTo
       } else {
         await ManageDashboardWidged().updateWidget(widget.day, by, data, widget.data!["key"]);
       }
+      if(context.mounted) Navigator.pop(context);
     }
 
     return Column(children: [

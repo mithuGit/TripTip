@@ -40,22 +40,25 @@ class CustomBottomSheet {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Row(
+                      Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(
-                            Icons.keyboard_arrow_down,
-                            size: 40.0, // Die Größe nach Bedarf anpassen
-                            color:
-                                Colors.grey, // Die Farbe nach Bedarf anpassen
-                          ),
+                          GestureDetector(
+                            onTap: () => Navigator.pop(context),
+                            child: Image.asset(
+                              'assets/moveModalDown.png',
+                              width: 80,
+                              height: 10,),
+                          )
                         ],
                       ),
+                      const SizedBox(height: 8.0),
                       Text(
                         title,
                         style: Styles
                             .title, // Hier wird die title-Methode aus der Styles-Klasse verwendet
                       ),
+                      const SizedBox(height: 8.0),
                       ...content,
                     ],
                   ),

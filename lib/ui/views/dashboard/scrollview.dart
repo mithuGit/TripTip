@@ -100,9 +100,8 @@ class ScrollViewWidget extends StatelessWidget {
           }
           debugPrint("Container is editable");
           return Container(
-            height: MediaQuery.of(context).size.height * 0.7,
-            margin: const EdgeInsets.only(
-                bottom: 65), // 65 because of the bottom navigation bar
+            padding: const EdgeInsets.only(bottom: 50),
+            // 65 because of the bottom navigation bar
             child: ReorderableListView(
               buildDefaultDragHandles: true,
               scrollDirection: Axis.vertical,
