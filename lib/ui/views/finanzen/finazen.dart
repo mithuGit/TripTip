@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:internet_praktikum/ui/widgets/bottom_sheet.dart';
 import 'package:internet_praktikum/ui/widgets/header/topbar.dart';
-
 import '../../widgets/finanzen/extendablecontainer.dart';
-import 'creditcard.dart';
 
 class Finanzen extends StatefulWidget {
   const Finanzen({Key? key}) : super(key: key);
@@ -91,86 +90,95 @@ class _FinanzenState extends State<Finanzen> {
   Widget build(BuildContext context) {
     return Scaffold(
       extendBody: true,
-      backgroundColor: const Color(0xFFFFFFFF),
       appBar: TopBar(
         isDash: false,
         icon: Icons.payment,
         onTapForIconWidget: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const CardFormScreen()),
-          );
+          CustomBottomSheet
+              .show(context, title: "Change your Payment Method", content: [
+            Builder(
+              builder: (context) {
+                return Center(
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 32),
+                      const Text("Currently only Credit Card is supported."),
+                      const SizedBox(
+                          height:
+                              8), // Hier kannst du die gewünschte vertikale Distanz einstellen
+                      const Text("We are working on adding more payment methods."),
+                      const SizedBox(height: 32),
+                      Image.asset("assets/coding.png", height: 150),
+                    ],
+                  ),
+                );
+              },
+            ), // get the secound element of list since the first is the Userdata
+          ]);
         },
         title: "Finanzübersicht",
       ),
       body: Stack(
         children: [
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: FractionallySizedBox(
-              child: Container(
-                decoration: const BoxDecoration(
-                  image: DecorationImage(
-                    image: AssetImage('assets/mainpage_pic/finazen.png'),
-                    fit: BoxFit.cover, // Maintain width, adjust height
-                  ),
-                ),
+          Container(
+            decoration: const BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage('assets/mainpage_pic/finazen.png'),
+                fit: BoxFit.cover, // Maintain width, adjust height
               ),
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.only(bottom: 50),
-            child: Container(
-              child: const Padding(
-                padding:
-                    EdgeInsets.only(top: 50, left: 20, right: 20, bottom: 40),
-                child: SingleChildScrollView(
-                  physics: BouncingScrollPhysics(),
-                  child: Column(
-                    children: [
-                      Padding(
-                        padding: EdgeInsets.only(bottom: 25),
-                        child: ExpandableContainer(
-                          name: 'Test0',
-                          items: [
-                            'Activity 1: 10.00 ',
-                            'Activity 2: 10.00 ',
-                          ],
-                          sum: 45,
-                        ),
+          const Padding(
+            padding: EdgeInsets.only(bottom: 50),
+            child: Padding(
+              padding:
+                  EdgeInsets.only(top: 50, left: 20, right: 20, bottom: 40),
+              child: SingleChildScrollView(
+                physics: BouncingScrollPhysics(),
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.only(bottom: 25),
+                      child: ExpandableContainer(
+                        name: 'Test0',
+                        items: [
+                          'Activity 1: 10.00 ',
+                          'Activity 2: 10.00 ',
+                        ],
+                        sum: 45,
                       ),
-                      Padding(
-                        padding: EdgeInsets.only(bottom: 25),
-                        child: ExpandableContainer(
-                          name: 'Test1',
-                          items: [
-                            'Activity 1: 10.00 ',
-                            'Activity 2: 20.00 ',
-                            'Activity 3: 15.00 ',
-                            'Activity 4: 15.00 ',
-                            'Activity 5: 15.00 ',
-                            'Activity 6: 15.00 ',
-                            'Activity 7: 15.00 ',
-                            'Activity 8: 15.00 ',
-                            'Activity 9: 15.00 ',
-                          ],
-                          sum: 45,
-                        ),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.only(bottom: 25),
+                      child: ExpandableContainer(
+                        name: 'Test1',
+                        items: [
+                          'Activity 1: 10.00 ',
+                          'Activity 2: 20.00 ',
+                          'Activity 3: 15.00 ',
+                          'Activity 4: 15.00 ',
+                          'Activity 5: 15.00 ',
+                          'Activity 6: 15.00 ',
+                          'Activity 7: 15.00 ',
+                          'Activity 8: 15.00 ',
+                          'Activity 9: 15.00 ',
+                        ],
+                        sum: 45,
                       ),
-                      Padding(
-                        padding: EdgeInsets.only(bottom: 25),
-                        child: ExpandableContainer(
-                          name: 'Test2',
-                          items: [
-                            'Activity 1: 10.00 ',
-                            'Activity 2: 20.00 ',
-                            'Activity 3: 15.00 ',
-                          ],
-                          sum: 45,
-                        ),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.only(bottom: 25),
+                      child: ExpandableContainer(
+                        name: 'Test2',
+                        items: [
+                          'Activity 1: 10.00 ',
+                          'Activity 2: 20.00 ',
+                          'Activity 3: 15.00 ',
+                        ],
+                        sum: 45,
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
             ),

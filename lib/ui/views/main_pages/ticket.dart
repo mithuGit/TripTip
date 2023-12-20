@@ -23,11 +23,15 @@ class _TicketState extends State<Ticket> {
 
   void deleteUser() async {
     await FirebaseAuth.instance.currentUser!.delete();
+    if (context.mounted) {
+      GoRouter.of(context).go('/loginorregister');
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBody: true,
       appBar: const TopBar(
           isDash: false,
           title: "Tickets",
@@ -41,7 +45,7 @@ class _TicketState extends State<Ticket> {
               image: DecorationImage(
                 image: AssetImage(
                     'assets/mainpage_pic/ticket.png'), // assets/BackgroundCity.png
-                fit: BoxFit.fill,
+                fit: BoxFit.cover,
               ),
             ),
             child: Center(

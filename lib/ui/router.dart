@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:internet_praktikum/ui/views/account/account_details.dart';
+import 'package:internet_praktikum/ui/views/finanzen/creditcard.dart';
 import 'package:internet_praktikum/ui/views/finanzen/finazen.dart';
 import 'package:internet_praktikum/ui/views/main_pages/dashboard.dart';
 import 'package:internet_praktikum/ui/views/main_pages/map.dart';
@@ -174,6 +175,21 @@ class MyRouter {
         path: '/changeTrip',
         builder: (context, state) => ChangeTrip(
           key: state.pageKey,
+        ),
+      ),
+      GoRoute(
+        name: 'payment',
+        path: '/payment',
+        builder: (context, state) => CardFormScreen(
+          key: state.pageKey,
+        ),
+      ),
+       GoRoute(
+        name: 'accountdetails-isEditProfile',
+        path: '/accountdetails-isEditProfile',
+        builder: (context, state) => Account(
+          key: state.pageKey,
+          isEditProfile: true,
         ),
       ),
     ],

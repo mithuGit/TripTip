@@ -26,6 +26,7 @@ class _MapPageState extends State<MapPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBody: true,
       appBar: AppBar(backgroundColor: Colors.transparent, actions: [
         IconButton(
           icon: const Icon(Icons.search, color: Colors.black, size: 30),
@@ -41,7 +42,7 @@ class _MapPageState extends State<MapPage> {
               image: DecorationImage(
                 image: AssetImage(
                     'assets/mainpage_pic/dashboard.png'), // assets/BackgroundCity.png
-                fit: BoxFit.fill,
+                fit: BoxFit.cover,
               ),
             ),
             child: Center(

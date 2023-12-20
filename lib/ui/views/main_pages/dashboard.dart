@@ -46,7 +46,8 @@ class _DashBoardState extends State<DashBoard> {
   Future<Map<String, dynamic>> getUserData() async {
     print("getUserData");
     final userCollection = FirebaseFirestore.instance.collection('users');
-    final userDoc = await userCollection.where('uid', isEqualTo: user.uid).get();
+    final userDoc =
+        await userCollection.where('uid', isEqualTo: user.uid).get();
     Map<String, dynamic> _userData = userDoc.docs.first.data();
     return _userData;
   }
@@ -95,7 +96,7 @@ class _DashBoardState extends State<DashBoard> {
       });
       return day;
     }
-    List<dynamic> days = currentTripdata?['days'].toList();
+    List<dynamic> days = currentTripdata['days'].toList();
     Iterable<dynamic> filtered = days.where((el) =>
         (el['starttime'] as Timestamp).toDate().day == selectedDay!.day &&
         (el['starttime'] as Timestamp).toDate().month == selectedDay!.month &&
@@ -121,28 +122,6 @@ class _DashBoardState extends State<DashBoard> {
     return currentDay!;
   }
 
-  late String prename; // Variable für den Vornamen
-
-  // Dafür benötigen wir ein Future, da die Datenbank-Abfrage asynchron ist
-  void loadPrename() async {
-    try {
-      // Benutzer-ID (uid) aus dem aktuellen Benutzer abrufen
-      final String uid = FirebaseAuth.instance.currentUser!.uid;
-
-      // Den Vornamen aus der Firestore-Datenbank laden
-      final String prenameResult = await getPrename(uid);
-
-      // Wenn die Komponente noch im Widget-Baum ist, das State aktualisieren
-      if (context.mounted) {
-        setState(() {
-          prename = prenameResult;
-        });
-      }
-    } catch (error) {
-      print("Fehler beim Laden des Vornamens: $error");
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -154,12 +133,14 @@ class _DashBoardState extends State<DashBoard> {
                 title: "Add new Widget to your Dashboard",
                 content: [
                   Builder(builder: (context) {
-                    if(providerDay.day != null && providerUserdata.userdata != null) {
-                      return CreateNewWidgetOnDashboard(day: providerDay.day!, userdata: providerUserdata.userdata);
+                    if (providerDay.day != null &&
+                        providerUserdata.userdata != null) {
+                      return CreateNewWidgetOnDashboard(
+                          day: providerDay.day!,
+                          userdata: providerUserdata.userdata);
                     } else {
                       return const Text("no userdata and no day data");
                     }
-                       
                   }), // get the secound element of list since the first is the Userdata
                 ]);
           }),
@@ -187,13 +168,16 @@ class _DashBoardState extends State<DashBoard> {
                   getCurrentDay().then((value) =>
                       {providerDay.changeDay(value), setState(() {})});
                 }),
-                 Builder(builder: (context) {
-                    if(providerDay.day != null && providerUserdata.userdata != null) {
-                      return ScrollViewWidget(day: providerDay.day!, userdata: providerUserdata.userdata);
-                    } else {
-                      return const Text("no userdata and no day data");
-                    }
-                  })
+                Builder(builder: (context) {
+                  if (providerDay.day != null &&
+                      providerUserdata.userdata != null) {
+                    return ScrollViewWidget(
+                        day: providerDay.day!,
+                        userdata: providerUserdata.userdata);
+                  } else {
+                    return const Text("no userdata and no day data");
+                  }
+                })
               ]),
             ),
           )
@@ -201,12 +185,4 @@ class _DashBoardState extends State<DashBoard> {
       ),
     );
   }
-}
-
-Future<String> getPrename(String uid) async {
-  final DocumentSnapshot<Map<String, dynamic>> documentSnapshot =
-      await FirebaseFirestore.instance.collection('users').doc(uid).get();
-  final String prename = documentSnapshot.data()!['prename'].toString();
-  print(prename);
-  return prename;
 }

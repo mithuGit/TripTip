@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:internet_praktikum/ui/views/account/account_details.dart';
 import 'package:internet_praktikum/ui/widgets/header/topbar.dart';
 
@@ -26,6 +27,7 @@ class ProfilePage extends StatelessWidget {
     // DarkMode Bool noch hinzufügen
 
     return Scaffold(
+      extendBody: true,
       appBar: const TopBar(
         icon: Icons.settings,
         isDash: false,
@@ -39,7 +41,7 @@ class ProfilePage extends StatelessWidget {
                 image: DecorationImage(
                   image: AssetImage(
                       'assets/mainpage_pic/profile.png'), // assets/BackgroundCity.png
-                  fit: BoxFit.fill,
+                  fit: BoxFit.cover,
                 ),
               ),
               child: Column(
@@ -77,12 +79,13 @@ class ProfilePage extends StatelessWidget {
                       width: 200,
                       child: ElevatedButton(
                           onPressed: () {
-                            Navigator.push(
+                            /*Navigator.push(
                               context,
                               MaterialPageRoute(
                                 builder: (context) => const Account(isEditProfile: true,),
                               ),
-                            );
+                            );*/
+                            context.pushReplacement("/accountdetails-isEditProfile");
                           },
                           style: ElevatedButton.styleFrom(
                               backgroundColor: isDark

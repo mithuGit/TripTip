@@ -1,18 +1,18 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:internet_praktikum/ui/views/main_pages/dashboard.dart';
 import 'package:internet_praktikum/ui/widgets/dashboardWidgets/addAppointmentWidgetToDashboard.dart';
 import 'package:internet_praktikum/ui/widgets/dashboardWidgets/addNoteWidgetToDashboard.dart';
 import 'package:internet_praktikum/ui/widgets/dashboardWidgets/addSurveyWidgetToDashboard.dart';
 import 'package:internet_praktikum/ui/widgets/my_button.dart';
-import 'package:provider/provider.dart';
 
+// ignore: must_be_immutable
 class CreateNewWidgetOnDashboard extends StatefulWidget {
   Map<String, dynamic> userdata;
   DocumentReference day;
   CreateNewWidgetOnDashboard({super.key, required this.day, required this.userdata});
 
   @override
+  // ignore: library_private_types_in_public_api
   _CreateNewWidgetOnDashboardState createState() =>
       _CreateNewWidgetOnDashboardState();
 }
@@ -25,6 +25,7 @@ class _CreateNewWidgetOnDashboardState
     switch (show) {
       case 'init':
         return Column(children: [
+          const SizedBox(height: 40),
           MyButton(
               colors: Colors.blue,
               onTap: () => {
@@ -33,6 +34,7 @@ class _CreateNewWidgetOnDashboardState
                     })
                   },
               text: "Add Note"),
+          const SizedBox(height: 20),
           MyButton(
               colors: Colors.blue,
               onTap: () => {
@@ -41,6 +43,7 @@ class _CreateNewWidgetOnDashboardState
                     })
                   },
               text: "Add Appointment"),
+          const SizedBox(height: 20),
           MyButton(
               colors: Colors.blue,
               onTap: () => {

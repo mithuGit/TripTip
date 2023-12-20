@@ -1,6 +1,4 @@
-import 'dart:ffi';
 import 'dart:io';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -241,10 +239,10 @@ class _AccountState extends State<Account> {
                             updateAuthDisplayName(prenameController.text,
                                 lastnameController.text);
 
-                            if (widget.isEditProfile!) {
-                              Navigator.of(context).pop();
-                            } else {
-                              context.go("/createtrip");
+                            if (context.mounted) {
+                              widget.isEditProfile == true
+                                  ? context.go('/profile')
+                                  : context.go('/createTrip');
                             }
                           },
                           text: 'Finish',
