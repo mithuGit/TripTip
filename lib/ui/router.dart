@@ -6,7 +6,7 @@ import 'package:internet_praktikum/ui/views/account/account_details.dart';
 import 'package:internet_praktikum/ui/views/finanzen/creditcard.dart';
 import 'package:internet_praktikum/ui/views/finanzen/finazen.dart';
 import 'package:internet_praktikum/ui/views/main_pages/dashboard.dart';
-import 'package:internet_praktikum/ui/views/main_pages/map.dart';
+import 'package:internet_praktikum/ui/views/map/map.dart';
 import 'package:internet_praktikum/ui/views/main_pages/profile.dart';
 import 'package:internet_praktikum/ui/views/main_pages/ticket.dart';
 import 'package:internet_praktikum/ui/views/navigation/app_navigation.dart';
