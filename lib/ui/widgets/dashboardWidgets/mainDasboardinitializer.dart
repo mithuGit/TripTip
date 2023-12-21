@@ -53,13 +53,10 @@ class _MainDasboardinitializerState extends State<MainDasboardinitializer> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    SizedBox(
-                      width: 300,
-                      child: Text(
-                        super.widget.title,
-                        textAlign: TextAlign.left,
-                        style: Styles.mainDasboardinitializerTitle,
-                      ),
+                    Text(
+                      super.widget.title,
+                      textAlign: TextAlign.left,
+                      style: Styles.mainDasboardinitializerTitle,
                     ),
                     if (widget.data?["addAble"] != null &&
                         widget.data?["addAble"] == true)
