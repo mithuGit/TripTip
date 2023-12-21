@@ -6,14 +6,12 @@ class ProfileMenuWidget extends StatelessWidget {
     required this.title,
     required this.icon,
     required this.onPress,
-    required this.endIcon,
     required this.textColor, // hab mal noch textColor hinzugefügt wenn wir was ändern wollen z.B Bei Logout text rot
   });
 
   final String title;
   final IconData icon;
   final VoidCallback onPress;
-  final bool endIcon;
   final bool textColor;
 
   @override
@@ -50,19 +48,6 @@ class ProfileMenuWidget extends StatelessWidget {
                 fontSize: 20,
                 color: Colors.red,
               )),
-      trailing: endIcon
-          ? Container(
-              // Falls endIcon true ist wird das noch hinzugefügt
-              // rechte Icon im Button
-              width: 30,
-              height: 30,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(100),
-                color: Colors.grey[300], // genauere Farbe wählen
-              ),
-              child: const Icon(Icons.arrow_right, color: Colors.grey),
-            )
-          : null,
     );
   }
 }
