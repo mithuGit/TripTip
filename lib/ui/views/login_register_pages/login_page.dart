@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -80,6 +81,7 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
+  bool isDateOfBirth = true;
   //error messsage to user
 
   @override
@@ -156,19 +158,72 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                     const SizedBox(height: 30),
                     MyButton(
-                      onTap: () {
-                        signInWithGoogle().whenComplete(() {
-                          context.go('/');
+                      onTap: () async {
+                        await signInWithGoogle();
+                        bool isDateOfBirth = true;
+
+                        // testen ob DateOfBirth == null, dann soll AccountDetails aufgerufen werden
+                        FirebaseAuth.instance
+                            .authStateChanges()
+                            .listen((user) async {
+                          if (user != null) {
+                            DocumentSnapshot documentSnapshot =
+                                await FirebaseFirestore.instance
+                                    .collection('users')
+                                    .doc(user.uid)
+                                    .get();
+
+                            if (documentSnapshot.exists) {
+                              if ((documentSnapshot.data()
+                                      as Map<String, dynamic>)['dateOfBirth'] ==
+                                  null) {
+                                isDateOfBirth = false;
+                              }
+                            }
+                          }
+
+                          if (isDateOfBirth == false) {
+                            if (context.mounted) context.go('/accountdetails');
+                          } else {
+                            if (context.mounted) context.go('/');
+                          }
                         });
                       },
                       imagePath: 'assets/google_logo.png',
                       text: "Login with Google",
                     ),
+
                     const SizedBox(height: 25),
                     MyButton(
-                      onTap: () {
-                        signInWithFacebook().whenComplete(() {
-                          context.go('/');
+                      onTap: () async {
+                        await signInWithFacebook();
+                        bool isDateOfBirth = true;
+
+                        // testen ob DateOfBirth == null, dann soll AccountDetails aufgerufen werden
+                        FirebaseAuth.instance
+                            .authStateChanges()
+                            .listen((user) async {
+                          if (user != null) {
+                            DocumentSnapshot documentSnapshot =
+                                await FirebaseFirestore.instance
+                                    .collection('users')
+                                    .doc(user.uid)
+                                    .get();
+
+                            if (documentSnapshot.exists) {
+                              if ((documentSnapshot.data()
+                                      as Map<String, dynamic>)['dateOfBirth'] ==
+                                  null) {
+                                isDateOfBirth = false;
+                              }
+                            }
+                          }
+
+                          if (isDateOfBirth == false) {
+                            if (context.mounted) context.go('/accountdetails');
+                          } else {
+                            if (context.mounted) context.go('/');
+                          }
                         });
                       },
                       imagePath: 'assets/facebook_logo.png',

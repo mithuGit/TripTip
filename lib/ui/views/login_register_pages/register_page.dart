@@ -190,10 +190,36 @@ class _RegisterPageState extends State<RegisterPage> {
                     const SizedBox(height: 30),
 
                     MyButton(
-                      //onTap: () => AuthService().signInWithGoogle(),
-                      onTap: () {
-                        signInWithGoogle().whenComplete(() {
-                          context.go('/accountdetails');
+                      onTap: () async {
+                        await signInWithGoogle();
+
+                        bool isDateOfBirth = true;
+
+                        // testen ob DateOfBirth == null, dann soll AccountDetails aufgerufen werden
+                        FirebaseAuth.instance
+                            .authStateChanges()
+                            .listen((user) async {
+                          if (user != null) {
+                            DocumentSnapshot documentSnapshot =
+                                await FirebaseFirestore.instance
+                                    .collection('users')
+                                    .doc(user.uid)
+                                    .get();
+
+                            if (documentSnapshot.exists) {
+                              if ((documentSnapshot.data()
+                                      as Map<String, dynamic>)['dateOfBirth'] ==
+                                  null) {
+                                isDateOfBirth = false;
+                              }
+                            }
+                          }
+
+                          if (isDateOfBirth == false) {
+                            if (context.mounted) context.go('/accountdetails');
+                          } else {
+                            if (context.mounted) context.go('/');
+                          }
                         });
                       },
                       imagePath: 'assets/google_logo.png',
@@ -202,9 +228,35 @@ class _RegisterPageState extends State<RegisterPage> {
                     const SizedBox(height: 25),
 
                     MyButton(
-                      onTap: () {
-                        signInWithFacebook().whenComplete(() {
-                          context.go('/accountdetails');
+                      onTap: () async {
+                        await signInWithFacebook();
+                        bool isDateOfBirth = true;
+
+                        // testen ob DateOfBirth == null, dann soll AccountDetails aufgerufen werden
+                        FirebaseAuth.instance
+                            .authStateChanges()
+                            .listen((user) async {
+                          if (user != null) {
+                            DocumentSnapshot documentSnapshot =
+                                await FirebaseFirestore.instance
+                                    .collection('users')
+                                    .doc(user.uid)
+                                    .get();
+
+                            if (documentSnapshot.exists) {
+                              if ((documentSnapshot.data()
+                                      as Map<String, dynamic>)['dateOfBirth'] ==
+                                  null) {
+                                isDateOfBirth = false;
+                              }
+                            }
+                          }
+
+                          if (isDateOfBirth == false) {
+                            if (context.mounted) context.go('/accountdetails');
+                          } else {
+                            if (context.mounted) context.go('/');
+                          }
                         });
                       },
                       imagePath: 'assets/facebook_logo.png',

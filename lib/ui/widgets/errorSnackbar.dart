@@ -1,22 +1,25 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:internet_praktikum/ui/styles/Styles.dart';
 import 'package:internet_praktikum/ui/views/login_register_pages/login_or_register_page.dart';
 import 'package:internet_praktikum/ui/views/main_pages/profile.dart';
 import 'package:webview_flutter_plus/webview_flutter_plus.dart';
 
 class ErrorSnackbar {
-  static Future<void> showErrorSnackbar(BuildContext context, String errorMessage) {
+  static Future<void> showErrorSnackbar(
+      BuildContext context, String errorMessage) {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       content: Text(errorMessage),
       backgroundColor: Colors.red,
-    //  margin: const EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+      //  margin: const EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
     ));
     return Future.delayed(const Duration(seconds: 1), () {});
   }
 
-  static void showMessage(String message, BuildContext context, int counter, {bool forDeleteButton = false}) {
+  static void showMessage(String message, BuildContext context, int counter,
+      {bool forDeleteButton = false}) {
     Completer<bool> dialogCompleter = Completer<bool>();
 
     showDialog(
@@ -61,8 +64,9 @@ class ErrorSnackbar {
                             Navigator.pushReplacement(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) =>
-                                      forDeleteButton ? ProfilePage() : const LoginOrRegisterPage()));
+                                    builder: (context) => forDeleteButton
+                                        ? ProfilePage()
+                                        : const LoginOrRegisterPage()));
                           })
                     },
                   ),
@@ -72,7 +76,7 @@ class ErrorSnackbar {
       // Verzögere das Ausblenden der Fehlermeldung nach 2 Sekunden
       Future.delayed(const Duration(seconds: 2), () {
         if (!dialogCompleter.isCompleted) {
-          Navigator.of(context).pop(); // Schließt den Dialog nach 2 Sekunden
+          context.pop(); // Schließt den Dialog nach 2 Sekunden
           dialogCompleter.complete(true);
         }
       });
