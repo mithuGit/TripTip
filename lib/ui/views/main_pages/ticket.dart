@@ -2,7 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:internet_praktikum/ui/widgets/my_button.dart';
-import 'package:internet_praktikum/ui/widgets/header/topbar.dart';
+import 'package:internet_praktikum/ui/widgets/headerWidgets/topbar.dart';
 
 class Ticket extends StatefulWidget {
   const Ticket({super.key});
@@ -23,13 +23,16 @@ class _TicketState extends State<Ticket> {
 
   void deleteUser() async {
     await FirebaseAuth.instance.currentUser!.delete();
+    if (context.mounted) {
+      GoRouter.of(context).go('/loginorregister');
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBody: true,
       appBar: const TopBar(
-          isDash: false,
           title: "Tickets",
           icon: Icons.add,
           onTapForIconWidget: null,
@@ -41,7 +44,7 @@ class _TicketState extends State<Ticket> {
               image: DecorationImage(
                 image: AssetImage(
                     'assets/mainpage_pic/ticket.png'), // assets/BackgroundCity.png
-                fit: BoxFit.fill,
+                fit: BoxFit.cover,
               ),
             ),
             child: Center(

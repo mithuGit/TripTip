@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:internet_praktikum/ui/styles/Styles.dart';
 import 'package:slide_to_act/slide_to_act.dart';
-
-import '../../views/finanzen/creditcard.dart';
 
 class SlideButton extends StatelessWidget {
   final String buttonText;
@@ -35,10 +34,8 @@ class SlideButton extends StatelessWidget {
         sliderRotate: true,
         height: 50,
         onSubmit: () {
-          return Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const CardFormScreen()),
-          );
+          context.go("/payment");
+          return null;
         },
       ),
     );

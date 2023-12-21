@@ -30,9 +30,8 @@ Future<UserCredential> signInWithGoogle() async {
         'prename': userCredential.user!.displayName,
         'lastname': userCredential.user!.displayName,
         'uid': userCredential.user!.uid,
-        'trips': null,
         'profilepicture': userCredential.user!.photoURL,
-        'date of birth': null,
+        'dateOfBirth': null
       });
     }
   }
@@ -59,10 +58,10 @@ Future<void> signInWithFacebook() async {
           .set({
         'prename': userCredential.user!.displayName,
         'lastname': 'LastNameTest',
-        'date of birth': null,
         'email': userCredential.user!.email,
-        'trips': null,
         'profilepicture': userCredential.user!.photoURL,
+        'uid': userCredential.user!.uid,
+        'dateOfBirth': null
       });
     }
   }

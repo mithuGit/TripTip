@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-
+import 'package:internet_praktikum/ui/widgets/bottom_sheet.dart';
+import 'package:internet_praktikum/ui/widgets/headerWidgets/topbar.dart';
 import '../../widgets/finanzen/extendablecontainer.dart';
-import 'creditcard.dart';
 
 class Finanzen extends StatefulWidget {
   const Finanzen({Key? key}) : super(key: key);
@@ -90,116 +90,84 @@ class _FinanzenState extends State<Finanzen> {
   Widget build(BuildContext context) {
     return Scaffold(
       extendBody: true,
-      backgroundColor: const Color(0xFFFFFFFF),
-      appBar: AppBar(
-        centerTitle: true,
-        backgroundColor: const Color(0xFFFFFFFF),
-        title: const Row(
-          children: [
-            Text(
-              "Finanzübersicht",
-              style: TextStyle(
-                  fontSize: 20.0,
-                  color: Colors.black // Adjust the font size as needed
-                  ),
-            ),
-          ],
-        ),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 10),
-            child: GestureDetector(
-              child: IconButton(
-                icon: const Icon(
-                  Icons.payment,
-                  color: Colors.black,
-                ),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const CardFormScreen()),
-                  );
-                },
-              ),
-            ),
-          ),
-        ],
-      ),
-
-      /*TopBar(
-        isDash: false,
-        icon: Icons.payment,
-        onTapForIconWidget: null,
+      appBar: TopBar(
+        isFinanz: true,
+        icon: Icons.add,
+        onTapForIconWidget: () {
+          CustomBottomSheet
+              .show(context, title: "Add a receipt and set the other members dues.", content: [
+            Builder(
+              builder: (context) {
+                return const Center(
+                  // hier kommt noch die Schuldenüsetzung und Beleg hinzufügen über Galerie oder Foto
+                );
+              },
+            ), 
+          ]);
+        },
         title: "Finanzübersicht",
-      ),*/
+      ),
       body: Stack(
         children: [
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: FractionallySizedBox(
-              child: Container(
-                decoration: const BoxDecoration(
-                  image: DecorationImage(
-                    image: AssetImage('assets/mainpage_pic/finazen.png'),
-                    fit: BoxFit.cover, // Maintain width, adjust height
-                  ),
-                ),
+          Container(
+            decoration: const BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage('assets/mainpage_pic/finazen.png'),
+                fit: BoxFit.cover, // Maintain width, adjust height
               ),
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.only(bottom: 50),
-            child: Container(
-              child: const Padding(
-                padding:
-                    EdgeInsets.only(top: 50, left: 20, right: 20, bottom: 40),
-                child: SingleChildScrollView(
-                  physics: BouncingScrollPhysics(),
-                  child: Column(
-                    children: [
-                      Padding(
-                        padding: EdgeInsets.only(bottom: 25),
-                        child: ExpandableContainer(
-                          name: 'Test0',
-                          items: [
-                            'Activity 1: 10.00 ',
-                            'Activity 2: 10.00 ',
-                          ],
-                          sum: 45,
-                        ),
+          const Padding(
+            padding: EdgeInsets.only(bottom: 50),
+            child: Padding(
+              padding:
+                  EdgeInsets.only(top: 50, left: 20, right: 20, bottom: 40),
+              child: SingleChildScrollView(
+                physics: BouncingScrollPhysics(),
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.only(bottom: 25),
+                      child: ExpandableContainer(
+                        name: 'Test0',
+                        items: [
+                          'Activity 1: 10.00 ',
+                          'Activity 2: 10.00 ',
+                        ],
+                        sum: 45,
                       ),
-                      Padding(
-                        padding: EdgeInsets.only(bottom: 25),
-                        child: ExpandableContainer(
-                          name: 'Test1',
-                          items: [
-                            'Activity 1: 10.00 ',
-                            'Activity 2: 20.00 ',
-                            'Activity 3: 15.00 ',
-                            'Activity 4: 15.00 ',
-                            'Activity 5: 15.00 ',
-                            'Activity 6: 15.00 ',
-                            'Activity 7: 15.00 ',
-                            'Activity 8: 15.00 ',
-                            'Activity 9: 15.00 ',
-                          ],
-                          sum: 45,
-                        ),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.only(bottom: 25),
+                      child: ExpandableContainer(
+                        name: 'Test1',
+                        items: [
+                          'Activity 1: 10.00 ',
+                          'Activity 2: 20.00 ',
+                          'Activity 3: 15.00 ',
+                          'Activity 4: 15.00 ',
+                          'Activity 5: 15.00 ',
+                          'Activity 6: 15.00 ',
+                          'Activity 7: 15.00 ',
+                          'Activity 8: 15.00 ',
+                          'Activity 9: 15.00 ',
+                        ],
+                        sum: 45,
                       ),
-                      Padding(
-                        padding: EdgeInsets.only(bottom: 25),
-                        child: ExpandableContainer(
-                          name: 'Test2',
-                          items: [
-                            'Activity 1: 10.00 ',
-                            'Activity 2: 20.00 ',
-                            'Activity 3: 15.00 ',
-                          ],
-                          sum: 45,
-                        ),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.only(bottom: 25),
+                      child: ExpandableContainer(
+                        name: 'Test2',
+                        items: [
+                          'Activity 1: 10.00 ',
+                          'Activity 2: 20.00 ',
+                          'Activity 3: 15.00 ',
+                        ],
+                        sum: 45,
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
             ),
