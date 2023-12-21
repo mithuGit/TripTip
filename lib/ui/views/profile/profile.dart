@@ -155,7 +155,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     title: "Information",
                     icon: Icons.info,
                     textcolor: Colors.black,
-                    onTap: () {},
+                    onTap: () => context.pushReplacement("/info"),
                   ),
                   ProfileButton(
                     title: "Billing Details",
@@ -182,33 +182,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     onTap: deleteUser,
                   ),
 
-                  /* ProfileMenuWidget(
-                      title: "Billing Details",
-                      icon: Icons.wallet,
-                      textColor: true,
-                      onPress: () {}),
-                  ProfileMenuWidget(
-                    title: "Information",
-                    icon: Icons.info,
-                    textColor: true,
-                    onPress: () {},
-                  ),
-                  ProfileMenuWidget(
-                    title: "Logout",
-                    icon: Icons.logout,
-                    textColor: false,
-                    onPress: () {
-                      signUserOut();
-                    },
-                  ),
-                  ProfileMenuWidget(
-                    title: "Delete",
-                    icon: Icons.delete,
-                    textColor: false,
-                    onPress: () {
-                      deleteUser();
-                    },
-                  ),*/
+                  
                 ],
               )),
         ],

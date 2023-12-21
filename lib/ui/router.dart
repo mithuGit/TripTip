@@ -7,6 +7,7 @@ import 'package:internet_praktikum/ui/views/finanzen/creditcard.dart';
 import 'package:internet_praktikum/ui/views/finanzen/finazen.dart';
 import 'package:internet_praktikum/ui/views/dashboard/dashboard.dart';
 import 'package:internet_praktikum/ui/views/map/map.dart';
+import 'package:internet_praktikum/ui/views/profile/info_page.dart';
 import 'package:internet_praktikum/ui/views/profile/profile.dart';
 import 'package:internet_praktikum/ui/views/ticket/ticket.dart';
 import 'package:internet_praktikum/ui/views/navigation/app_navigation.dart';
@@ -190,6 +191,13 @@ class MyRouter {
         builder: (context, state) => Account(
           key: state.pageKey,
           isEditProfile: true,
+        ),
+      ),
+      GoRoute(
+        name: 'info',
+        path: '/info',
+        builder: (context, state) => InfoPage(
+          key: state.pageKey,
         ),
       ),
     ],

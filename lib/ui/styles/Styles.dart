@@ -80,4 +80,9 @@ class Styles {
       fontSize: 18,
       fontWeight: FontWeight.w400,
       color: Colors.red);
+  static const characterStyle = TextStyle(
+      fontFamily: 'fonts/Ubuntu-Regular.ttf',
+      fontSize: 14,
+      fontWeight: FontWeight.w400,
+      color: Colors.white);
 }
