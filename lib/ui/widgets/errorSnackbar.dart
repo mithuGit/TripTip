@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:internet_praktikum/ui/styles/Styles.dart';
 import 'package:internet_praktikum/ui/views/login_register_pages/login_or_register_page.dart';
-import 'package:internet_praktikum/ui/views/main_pages/profile.dart';
+import 'package:internet_praktikum/ui/views/profile/profile.dart';
 import 'package:webview_flutter_plus/webview_flutter_plus.dart';
 
 class ErrorSnackbar {

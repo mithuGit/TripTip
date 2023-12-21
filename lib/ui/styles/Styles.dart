@@ -70,4 +70,14 @@ class Styles {
       fontSize: 12,
       fontWeight: FontWeight.w400,
       color: Colors.black);
+  static const buttonStyle = TextStyle(
+      fontFamily: 'fonts/Ubuntu-Regular.ttf',
+      fontSize: 18,
+      fontWeight: FontWeight.w400,
+      color: Colors.black);
+  static const buttonStyleRed = TextStyle(
+      fontFamily: 'fonts/Ubuntu-Regular.ttf',
+      fontSize: 18,
+      fontWeight: FontWeight.w400,
+      color: Colors.red);
 }

@@ -1,10 +1,17 @@
+import 'dart:io';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:internet_praktikum/ui/widgets/headerWidgets/topbar.dart';
 import 'package:internet_praktikum/ui/widgets/my_button.dart';
+import 'package:internet_praktikum/ui/widgets/profileWidgets/profileButton.dart';
 
-import '../../widgets/profile_menu.dart';
+import '../../widgets/profileWidgets/profile_menu.dart';
 import '../login_register_pages/login_or_register_page.dart';
 //import 'package:modern_login/components/my_button.dart';
 
@@ -32,6 +39,21 @@ class _ProfilePageState extends State<ProfilePage> {
 
   final auth = FirebaseAuth.instance;
   final user = FirebaseAuth.instance.currentUser!;
+  String imageURL = '';
+
+  final currentUser = FirebaseAuth.instance.currentUser!;
+  final userCollection = FirebaseFirestore.instance.collection('users');
+  final storage = FirebaseStorage.instance;
+  late ImageProvider<Object>? imageProvider;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    currentUser.photoURL != null
+        ? imageProvider = NetworkImage(currentUser.photoURL!)
+        : imageProvider = const AssetImage('assets/Personavatar.png');
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -58,30 +80,48 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
               child: Column(
                 children: <Widget>[
-                  Positioned(
-                    bottom: 0,
-                    right: 0,
-                    child: Container(
-                      width: 35,
-                      height: 35,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(100),
-                        color: Colors.grey[300], // genauere Farbe wählen
-                      ),
-                      child: const Icon(
-                        Icons.edit,
-                        color: Colors.black,
-                        size: 20,
-                      ),
+                  GestureDetector(
+                    onTap: () async {
+                      // Pick image from gallery
+                      ImagePicker imagePicker = ImagePicker();
+                      XFile? pickedFile = await imagePicker.pickImage(
+                          source: ImageSource.gallery);
+                      //get reference to storage root
+                      Reference referenceRoot = FirebaseStorage.instance.ref();
+                      Reference referenceDirImages =
+                          referenceRoot.child('profilePictures');
+
+                      // create a refernece for the image to be stored
+                      Reference referenceImageToUpload =
+                          referenceDirImages.child(currentUser.uid);
+
+                      //Handle errors/succes
+                      try {
+                        if (pickedFile != null) {
+                          await referenceImageToUpload
+                              .putFile(File(pickedFile.path));
+                        }
+                        imageURL =
+                            await referenceImageToUpload.getDownloadURL();
+                      } catch (e) {
+                        print(e);
+                      }
+                      setState(() {
+                        imageProvider = (pickedFile != null
+                                ? FileImage(File(pickedFile.path))
+                                : const AssetImage('assets/Personavatar.png'))
+                            as ImageProvider<Object>?;
+                        currentUser.updatePhotoURL(imageURL);
+                      });
+                    },
+                    child: CircleAvatar(
+                      radius: 37.5,
+                      backgroundImage: imageProvider,
                     ),
                   ),
                   const SizedBox(height: 10),
 
                   Text('Welcome ${user.displayName}',
-                      style: const TextStyle(
-                          fontSize: 20, fontWeight: FontWeight.bold)),
-
-                  Text('Your email is ${user.email}',
                       style: const TextStyle(
                           fontSize: 20, fontWeight: FontWeight.bold)),
 
@@ -91,12 +131,6 @@ class _ProfilePageState extends State<ProfilePage> {
                       width: 200,
                       child: ElevatedButton(
                           onPressed: () {
-                            /*Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const Account(isEditProfile: true,),
-                              ),
-                            );*/
                             context.pushReplacement(
                                 "/accountdetails-isEditProfile");
                           },
@@ -112,13 +146,43 @@ class _ProfilePageState extends State<ProfilePage> {
                                   color: Colors
                                       .black)))), // primary nochmal angucken und verändern
 
-                  const SizedBox(height: 30),
+                  const SizedBox(height: 15),
                   const Divider(
                       color: Colors
-                          .grey), // damit machen wir alles in den Center // color ändern
-                  const SizedBox(height: 10),
+                          .black), // damit machen wir alles in den Center // color ändern
+                  const SizedBox(height: 15),
+                  ProfileButton(
+                    title: "Information",
+                    icon: Icons.info,
+                    textcolor: Colors.black,
+                    onTap: () {},
+                  ),
+                  ProfileButton(
+                    title: "Billing Details",
+                    icon: Icons.wallet,
+                    textcolor: Colors.black,
+                    onTap: () {},
+                  ),
+                  ProfileButton(
+                    title: "Game: Choose a Loser ",
+                    icon: Icons.games, // so Game Icon wär gut
+                    textcolor: Colors.purpleAccent,
+                    onTap: () {},
+                  ),
+                  ProfileButton(
+                    title: "Logout",
+                    icon: Icons.logout,
+                    textcolor: Colors.red,
+                    onTap: signUserOut,
+                  ),
+                  ProfileButton(
+                    title: "Delete Account",
+                    icon: Icons.delete,
+                    textcolor: Colors.red,
+                    onTap: deleteUser,
+                  ),
 
-                  ProfileMenuWidget(
+                  /* ProfileMenuWidget(
                       title: "Billing Details",
                       icon: Icons.wallet,
                       textColor: true,
@@ -144,7 +208,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     onPress: () {
                       deleteUser();
                     },
-                  ),
+                  ),*/
                 ],
               )),
         ],
