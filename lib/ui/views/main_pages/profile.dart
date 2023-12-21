@@ -29,7 +29,6 @@ class ProfilePage extends StatelessWidget {
       extendBody: true,
       appBar: const TopBar(
         icon: Icons.settings,
-        isDash: false,
         title: "Profile",
         onTapForIconWidget: null,
       ),

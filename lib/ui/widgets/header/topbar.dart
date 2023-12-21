@@ -72,7 +72,7 @@ class _TopBarState extends State<TopBar> {
                 weatherImage:
                     WeatherService.getWeatherIcon(actualWeather?.mainCondition),
               )
-            : widget.isFinanz!
+            : widget.isFinanz != null
                 ? HeaderButton(
                   icon: Icons.payment,
                     onTap: () {

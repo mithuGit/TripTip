@@ -33,7 +33,6 @@ class _TicketState extends State<Ticket> {
     return Scaffold(
       extendBody: true,
       appBar: const TopBar(
-          isDash: false,
           title: "Tickets",
           icon: Icons.add,
           onTapForIconWidget: null,
