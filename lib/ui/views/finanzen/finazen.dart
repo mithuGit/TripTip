@@ -91,29 +91,18 @@ class _FinanzenState extends State<Finanzen> {
     return Scaffold(
       extendBody: true,
       appBar: TopBar(
-        isDash: false,
-        icon: Icons.payment,
+        isFinanz: true,
+        icon: Icons.add,
         onTapForIconWidget: () {
           CustomBottomSheet
-              .show(context, title: "Change your Payment Method", content: [
+              .show(context, title: "Add a receipt and set the other members dues.", content: [
             Builder(
               builder: (context) {
-                return Center(
-                  child: Column(
-                    children: [
-                      const SizedBox(height: 32),
-                      const Text("Currently only Credit Card is supported."),
-                      const SizedBox(
-                          height:
-                              8), // Hier kannst du die gewünschte vertikale Distanz einstellen
-                      const Text("We are working on adding more payment methods."),
-                      const SizedBox(height: 32),
-                      Image.asset("assets/coding.png", height: 150),
-                    ],
-                  ),
+                return const Center(
+                  // hier kommt noch die Schuldenüsetzung und Beleg hinzufügen über Galerie oder Foto
                 );
               },
-            ), // get the secound element of list since the first is the Userdata
+            ), 
           ]);
         },
         title: "Finanzübersicht",
