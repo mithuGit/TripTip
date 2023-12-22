@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:internet_praktikum/ui/widgets/dashboardWidgets/mainDasboardinitializer.dart';
-
 class Styles {
   static const overlayTitle = TextStyle(
       fontFamily: 'Ubuntu',
