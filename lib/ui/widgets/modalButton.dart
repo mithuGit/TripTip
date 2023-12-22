@@ -4,10 +4,9 @@ import 'package:internet_praktikum/ui/styles/Styles.dart';
 class ModalButton extends StatelessWidget {
   final Function()? onTap;
   final String? text;
-  final IconData? iconData;
-  final String? imagePath;
-  ModalButton(
-      {Key? key, required this.onTap, this.text, this.iconData, this.imagePath})
+  final IconData? icon;
+  final Image? image;
+  ModalButton({Key? key, required this.onTap, this.text, this.icon, this.image})
       : super(key: key);
   @override
   Widget build(BuildContext context) {
@@ -17,21 +16,29 @@ class ModalButton extends StatelessWidget {
       height: 50,
       child: ElevatedButton(
         onPressed: onTap,
-        
         style: ElevatedButton.styleFrom(
           backgroundColor: const Color(0xE51E1E1E),
           shadowColor: Colors.transparent,
           elevation: 0,
-          padding: (iconData == null && imagePath == null)
-              ? const EdgeInsets.all(16)
-              : const EdgeInsets.only(top: 8, bottom: 8, left: 12, right: 12),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
           side: const BorderSide(
             width: 0,
             color: Colors.white,
           ),
         ),
-        child: Text(text!, style: Styles.buttonFontStyle),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            if (icon != null) ...[
+              Icon(icon, color: Colors.white, size: 50),
+              const SizedBox(height: 10)],
+            if (image != null) ...[
+              image!,
+              const SizedBox(height: 10)],
+            Text(text!, style: Styles.buttonFontStyle),
+          ],
+        ),
       ),
     );
   }

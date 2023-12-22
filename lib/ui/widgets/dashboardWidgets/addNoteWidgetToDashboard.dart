@@ -1,13 +1,9 @@
-import 'dart:math';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:internet_praktikum/core/services/manageDashboardWidget.dart';
-import 'package:internet_praktikum/ui/views/main_pages/dashboard.dart';
 import 'package:internet_praktikum/ui/widgets/errorSnackbar.dart';
 import 'package:internet_praktikum/ui/widgets/inputfield.dart';
 import 'package:internet_praktikum/ui/widgets/my_button.dart';
-import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
 
 class AddNoteWidgetToDashboard extends StatefulWidget {
@@ -25,7 +21,7 @@ class AddNoteWidgetToDashboard extends StatefulWidget {
 class _AddNoteWidgetToDashboardState extends State<AddNoteWidgetToDashboard> {
   final nameOfNote = TextEditingController();
   final note = TextEditingController();
-  var uuid = Uuid();
+  var uuid = const Uuid();
   @override
   void initState() {
     super.initState();
