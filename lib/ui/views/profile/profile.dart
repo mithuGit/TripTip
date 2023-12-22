@@ -1,20 +1,12 @@
 import 'dart:io';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:internet_praktikum/ui/widgets/headerWidgets/topbar.dart';
-import 'package:internet_praktikum/ui/widgets/my_button.dart';
 import 'package:internet_praktikum/ui/widgets/profileWidgets/profileButton.dart';
-
-import '../../widgets/profileWidgets/profile_menu.dart';
-import '../login_register_pages/login_or_register_page.dart';
-//import 'package:modern_login/components/my_button.dart';
-
 class ProfilePage extends StatefulWidget {
   ProfilePage({Key? key}) : super(key: key);
 
@@ -64,7 +56,7 @@ class _ProfilePageState extends State<ProfilePage> {
     return Scaffold(
       extendBody: true,
       appBar: const TopBar(
-        icon: Icons.settings,
+        icon: null,
         title: "Profile",
         onTapForIconWidget: null,
       ),
@@ -147,42 +139,63 @@ class _ProfilePageState extends State<ProfilePage> {
                                       .black)))), // primary nochmal angucken und verändern
 
                   const SizedBox(height: 15),
-                  const Divider(
+                    const Divider(
                       color: Colors
                           .black), // damit machen wir alles in den Center // color ändern
                   const SizedBox(height: 15),
-                  ProfileButton(
-                    title: "Information",
-                    icon: Icons.info,
-                    textcolor: Colors.black,
-                    onTap: () => context.pushReplacement("/info"),
-                  ),
-                  ProfileButton(
-                    title: "Billing Details",
-                    icon: Icons.wallet,
-                    textcolor: Colors.black,
-                    onTap: () {},
-                  ),
-                  ProfileButton(
-                    title: "Game: Choose a Loser ",
-                    icon: Icons.games, // so Game Icon wär gut
-                    textcolor: Colors.purpleAccent,
-                    onTap: () {},
-                  ),
-                  ProfileButton(
-                    title: "Logout",
-                    icon: Icons.logout,
-                    textcolor: Colors.red,
-                    onTap: signUserOut,
-                  ),
-                  ProfileButton(
-                    title: "Delete Account",
-                    icon: Icons.delete,
-                    textcolor: Colors.red,
-                    onTap: deleteUser,
-                  ),
 
-                  
+                  Center(
+                    child: Padding(
+                      padding: const EdgeInsets.only(
+                          left: 14, right: 14, bottom: 45),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: const Color.fromARGB(255, 43, 43, 43)
+                              .withOpacity(0.90),
+                          borderRadius: BorderRadius.circular(34.5),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(22),
+                          child: SingleChildScrollView(
+                            child: Column(
+                              children: [
+                                ProfileButton(
+                                  title: "Information",
+                                  icon: Icons.info,
+                                  textcolor: Colors.white,
+                                  onTap: () => context.go("/info"),
+                                ),
+                                ProfileButton(
+                                  title: "Billing Details",
+                                  icon: Icons.wallet,
+                                  textcolor: Colors.white,
+                                  onTap: () {},
+                                ),
+                                ProfileButton(
+                                  title: "Game: Choose a Loser ",
+                                  icon: Icons.games, // so Game Icon wär gut
+                                  textcolor: Colors.purpleAccent,
+                                  onTap: () {},
+                                ),
+                                ProfileButton(
+                                  title: "Logout",
+                                  icon: Icons.logout,
+                                  textcolor: Colors.red,
+                                  onTap: signUserOut,
+                                ),
+                                ProfileButton(
+                                  title: "Delete Account",
+                                  icon: Icons.delete,
+                                  textcolor: Colors.red,
+                                  onTap: deleteUser,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
                 ],
               )),
         ],

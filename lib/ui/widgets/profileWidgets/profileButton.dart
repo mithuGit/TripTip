@@ -22,18 +22,19 @@ class ProfileButton extends StatelessWidget {
     ).createShader(const Rect.fromLTWH(0.0, 0.0, 200.0, 70.0));
 
     return Container(
-      margin: const EdgeInsets.only(top: 10, right: 30, left: 30, bottom: 10),
+      margin: const EdgeInsets.only(top: 10, bottom: 10),
       child: OutlinedButton(
         onPressed: onTap,
         style: OutlinedButton.styleFrom(
-          backgroundColor: Colors.white,
+          backgroundColor:
+              const Color.fromARGB(255, 43, 43, 43).withOpacity(0.90),
           foregroundColor: textcolor,
           padding: const EdgeInsets.all(16),
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(11)),
           side: const BorderSide(
             width: 1.5,
-            color: Colors.black,
+            color: Colors.white,
           ),
         ),
         child: Row(
@@ -44,16 +45,17 @@ class ProfileButton extends StatelessWidget {
               children: [
                 Icon(icon),
                 const SizedBox(width: 20),
-                textcolor == Colors.black
+                textcolor == Colors.white
                     ? Text(title, style: Styles.buttonStyle)
-                    : textcolor == Colors.purpleAccent ? 
-                    Text(
-                        title,
-                        style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w400,
-                            foreground: Paint()..shader = linearGradient),
-                      ): Text(title, style: Styles.buttonStyleRed)
+                    : textcolor == Colors.purpleAccent
+                        ? Text(
+                            title,
+                            style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w400,
+                                foreground: Paint()..shader = linearGradient),
+                          )
+                        : Text(title, style: Styles.buttonStyleRed)
               ],
             ),
           ],

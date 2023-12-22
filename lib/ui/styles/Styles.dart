@@ -74,7 +74,7 @@ class Styles {
       fontFamily: 'fonts/Ubuntu-Regular.ttf',
       fontSize: 18,
       fontWeight: FontWeight.w400,
-      color: Colors.black);
+      color: Colors.white);
   static const buttonStyleRed = TextStyle(
       fontFamily: 'fonts/Ubuntu-Regular.ttf',
       fontSize: 18,
