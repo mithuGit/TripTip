@@ -153,9 +153,21 @@ class _CreateTicketsWidgetState extends State<CreateTicketsWidget> {
                       child: const Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(
-                            Icons.camera_alt,
-                            size: 50,
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.camera_alt,
+                                size: 50,
+                              ),
+                              SizedBox(width: 10),
+                              Text("Or"),
+                              SizedBox(width: 10),
+                              Icon(
+                                Icons.upload_file_outlined,
+                                size: 50,
+                              ),
+                            ],
                           ),
                           SizedBox(height: 10),
                           Text(
@@ -172,7 +184,8 @@ class _CreateTicketsWidgetState extends State<CreateTicketsWidget> {
 
         const SizedBox(height: 10),
         ProfileButton(
-          onTap: () => uploadFile(),
+          onTap: () =>
+              uploadFile(), // TODO: Widget soll dann erstellt werden und dieser soll in Ticket direkt zu sehen sein.
           title: "Upload Ticket or Receipt",
           textcolor: Colors.white,
           backgroundColor: Colors.blue,
