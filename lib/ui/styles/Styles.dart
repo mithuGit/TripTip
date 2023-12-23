@@ -83,4 +83,9 @@ class Styles {
       fontSize: 14,
       fontWeight: FontWeight.w400,
       color: Colors.white);
+  static const endCredits = TextStyle(
+      fontFamily: 'fonts/Ubuntu-Regular.ttf',
+      fontSize: 14,
+      fontWeight: FontWeight.w400,
+      color: Colors.black);
 }

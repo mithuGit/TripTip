@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:internet_praktikum/ui/widgets/bottom_sheet.dart';
 import 'package:internet_praktikum/ui/widgets/my_button.dart';
 import 'package:internet_praktikum/ui/widgets/headerWidgets/topbar.dart';
 
@@ -32,11 +33,23 @@ class _TicketState extends State<Ticket> {
   Widget build(BuildContext context) {
     return Scaffold(
       extendBody: true,
-      appBar: const TopBar(
-          title: "Tickets",
-          icon: Icons.add,
-          onTapForIconWidget: null,
-        ),
+      appBar: TopBar(
+        title: "Tickets",
+        icon: Icons.add,
+        onTapForIconWidget: () {
+          CustomBottomSheet.show(context,
+              title: "Add Ticket or Receipt",
+              content: [
+                Builder(
+                  builder: (context) {
+                    return const Center(
+                        // hier kommt noch die Schuldenüsetzung und Beleg hinzufügen über Galerie oder Foto
+                        );
+                  },
+                ),
+              ]);
+        },
+      ),
       body: Stack(
         children: [
           Container(
@@ -57,10 +70,6 @@ class _TicketState extends State<Ticket> {
                   const SizedBox(height: 20),
                   Text('Your uid is ${user.uid}'),
                   const SizedBox(height: 20),
-                  Text('Your profile picture is ${user.photoURL}'),
-                  //Uri.file(user.photoURL!).isAbsolute
-                  //    ? Image.network(user.photoURL!)
-                  //    : Image.asset(user.photoURL!),
                   MyButton(
                     onTap: signUserOut,
                     text: "Logout",

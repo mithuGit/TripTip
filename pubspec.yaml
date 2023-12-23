@@ -3,7 +3,7 @@ description: A coloaborative Travel App
 
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
-publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+publish_to: "none" # Remove this line if you wish to publish to pub.dev
 
 # The following defines the version and build number for your application.
 # A version number is three numbers separated by dots, like 1.2.43
@@ -20,7 +20,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 version: 1.0.0+1
 
 environment:
-  sdk: '>=3.0.0 <=3.15.0'
+  sdk: ">=3.0.0 <=3.15.0"
 
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
@@ -64,6 +64,8 @@ dependencies:
   google_maps_flutter: ^2.5.0
   dio: ^5.4.0
   flutter_polyline_points: ^2.0.0
+  url_launcher: ^6.2.2
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -89,7 +91,6 @@ dev_dependencies:
 
 # The following section is specific to Flutter packages.
 flutter:
-
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.
@@ -116,7 +117,7 @@ flutter:
           weight: 700
         - asset: fonts/Ubuntu-Medium.ttf
           weight: 500
-        - asset:  fonts/Ubuntu-MediumItalic.ttf
+        - asset: fonts/Ubuntu-MediumItalic.ttf
           style: italic
           weight: 500
         - asset: fonts/Ubuntu-Light.ttf
@@ -126,7 +127,6 @@ flutter:
           weight: 300
         - asset: fonts/Ubuntu-Regular.ttf
           weight: 400
-
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:internet_praktikum/ui/widgets/headerWidgets/topbar.dart';
 import 'package:internet_praktikum/ui/widgets/profileWidgets/profileButton.dart';
+
 class ProfilePage extends StatefulWidget {
   ProfilePage({Key? key}) : super(key: key);
 
@@ -49,10 +50,6 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    var isDark = MediaQuery.of(context).platformBrightness ==
-        Brightness.dark; // check if dark mode is enabled
-    // DarkMode Bool noch hinzufügen
-
     return Scaffold(
       extendBody: true,
       appBar: const TopBar(
@@ -112,13 +109,10 @@ class _ProfilePageState extends State<ProfilePage> {
                     ),
                   ),
                   const SizedBox(height: 10),
-
                   Text('Welcome ${user.displayName}',
                       style: const TextStyle(
                           fontSize: 20, fontWeight: FontWeight.bold)),
-
                   const SizedBox(height: 20),
-
                   SizedBox(
                       width: 200,
                       child: ElevatedButton(
@@ -127,23 +121,16 @@ class _ProfilePageState extends State<ProfilePage> {
                                 "/accountdetails-isEditProfile");
                           },
                           style: ElevatedButton.styleFrom(
-                              backgroundColor: isDark
-                                  ? Colors.grey[700]
-                                  : Colors.grey[
-                                      300], // maybe hier eine eindeutige Farbe wählen, wie Lila oder gelb.
+                              backgroundColor: Colors.grey[300],
                               side: BorderSide.none,
                               shape: const StadiumBorder()),
                           child: const Text('Edit Profile',
-                              style: TextStyle(
-                                  color: Colors
-                                      .black)))), // primary nochmal angucken und verändern
-
-                  const SizedBox(height: 15),
-                    const Divider(
-                      color: Colors
-                          .black), // damit machen wir alles in den Center // color ändern
-                  const SizedBox(height: 15),
-
+                              style: TextStyle(color: Colors.black)))),
+                  const SizedBox(height: 25),
+                  const Divider(
+                    color: Colors.black,
+                  ),
+                  const SizedBox(height: 25),
                   Center(
                     child: Padding(
                       padding: const EdgeInsets.only(

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:internet_praktikum/ui/styles/Styles.dart';
 import 'package:internet_praktikum/ui/views/profile/character.dart';
 
 class InfoPage extends StatelessWidget {
@@ -9,6 +10,7 @@ class InfoPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        //backgroundColor: const Color.fromARGB(255, 49, 48, 78),
         leading: IconButton(
           onPressed: () {
             context.go("/profile");
@@ -16,60 +18,89 @@ class InfoPage extends StatelessWidget {
           icon: const Icon(Icons.arrow_back_ios),
         ),
         centerTitle: true,
-        title: const Text(
-            "The Creators "),
+        title: const Text("The Creators "),
       ),
-      body: const Column(
-        children: [
-          Row(
+      body: SingleChildScrollView(
+        child: Container(
+
+          child: Column(
             children: [
-              CharakterContainer(
-                name: "Mithusan Naguleswaran",
-                description: "Co Founder, CEO",
-                link: "bla bla bla",
-                image: "assets/character_pic/mithu.png",
-                color: Colors.red,
+              SizedBox(
+                height: MediaQuery.of(context).size.height * 0.3 -
+                    kToolbarHeight / 3,
+                child: const Row(
+                  children: [
+                    CharakterContainer(
+                      name: "Mithusan Naguleswaran",
+                      description: "Co Founder, CEO",
+                      link:
+                          "https://www.linkedin.com/in/mithusan-naguleswaran-b046a1292/",
+                      image: "assets/character_pic/mithu.png",
+                      color: Colors.red,
+                    ),
+                    CharakterContainer(
+                      name: "Thai Binh Nguyen",
+                      description: "Co Founder, CEO",
+                      link: "https://pub.dev/packages/url_launcher",
+                      image: "assets/character_pic/thai.png",
+                      color: Colors.purple,
+                    ),
+                  ],
+                ),
               ),
-              CharakterContainer(
-                name: "Thai Binh Nguyen",
-                description: "Co Founder, CEO",
-                link: "bla bla bla",
-                image: "assets/character_pic/thai.png",
-                color: Colors.purple,
+              SizedBox(
+                height: MediaQuery.of(context).size.height * 0.3 -
+                    kToolbarHeight / 3,
+                child: const Row(
+                  children: [
+                    CharakterContainer(
+                      name: "Tim Carlo Päpke",
+                      description: "Co Founder, CEO",
+                      link: "bla bla bla",
+                      image: "assets/character_pic/mithu.png",
+                      color: Colors.orange,
+                    ),
+                    CharakterContainer(
+                      name: "Felix Bauer",
+                      description: "Co Founder, CEO",
+                      link: "bla bla bla",
+                      image: "assets/character_pic/mithu.png",
+                      color: Colors.green,
+                    ),
+                  ],
+                ),
               ),
+              SizedBox(
+                height: MediaQuery.of(context).size.height * 0.3 -
+                    kToolbarHeight / 3,
+                child: const Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    CharakterContainer(
+                      name: "David Henn",
+                      description: "Co Founder, CEO",
+                      link: "bla bla bla",
+                      image: "assets/character_pic/mithu.png",
+                      color: Colors.blue,
+                      fill: true,
+                    ),
+                  ],
+                ),
+              ),
+              const Text(
+                  "Thank you for using our App, We hope you enjoy our App",
+                  style: Styles.endCredits),
+              const Text("We are a group of 5 students of TU Darmstadt",
+                  style: Styles.endCredits),
+              const Text(
+                  "and created this App for our Internet Praktikum project",
+                  style: Styles.endCredits),
+              const Text(
+                  "Feel free to contact us for any suggestions or questions",
+                  style: Styles.endCredits)
             ],
           ),
-          Row(
-            children: [
-              CharakterContainer(
-                name: "Tim Carlo Päpke",
-                description: "Co Founder, CEO",
-                link: "bla bla bla",
-                image: "assets/character_pic/mithu.png",
-                color: Colors.orange,
-              ),
-              CharakterContainer(
-                name: "Felix Bauer",
-                description: "Co Founder, CEO",
-                link: "bla bla bla",
-                image: "assets/character_pic/mithu.png",
-                color: Colors.green,
-              ),
-            ],
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              CharakterContainer(
-                name: "David Henn",
-                description: "Co Founder, CEO",
-                link: "bla bla bla",
-                image: "assets/character_pic/mithu.png",
-                color: Colors.blue,
-              ),
-            ],
-          ),
-        ],
+        ),
       ),
     );
   }

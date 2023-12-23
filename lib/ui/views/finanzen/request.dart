@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:internet_praktikum/ui/styles/Styles.dart';
 
-import '../../widgets/finanzen/requestcontainer.dart';
+import '../../widgets/finanzenWidgets/requestcontainer.dart';
 import '../../widgets/inputfield.dart';
 
 class RequestMoney extends StatefulWidget {
