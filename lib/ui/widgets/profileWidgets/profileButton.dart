@@ -6,6 +6,7 @@ class ProfileButton extends StatelessWidget {
   final IconData? icon;
   final Function()? onTap;
   final Color? textcolor;
+  final Color? backgroundColor;
 
   const ProfileButton({
     super.key,
@@ -13,6 +14,7 @@ class ProfileButton extends StatelessWidget {
     this.icon,
     this.onTap,
     this.textcolor,
+    this.backgroundColor,
   });
 
   @override
@@ -27,6 +29,7 @@ class ProfileButton extends StatelessWidget {
         onPressed: onTap,
         style: OutlinedButton.styleFrom(
           backgroundColor:
+              backgroundColor ??
               const Color.fromARGB(255, 43, 43, 43).withOpacity(0.90),
           foregroundColor: textcolor,
           padding: const EdgeInsets.all(16),
@@ -55,7 +58,14 @@ class ProfileButton extends StatelessWidget {
                                 fontWeight: FontWeight.w400,
                                 foreground: Paint()..shader = linearGradient),
                           )
-                        : Text(title, style: Styles.buttonStyleRed)
+                        : textcolor == Colors.red
+                            ? Text(title, style: Styles.buttonStyleRed)
+                            : Text(title,
+                                style: TextStyle(
+                                    fontFamily: 'fonts/Ubuntu-Regular.ttf',
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w400,
+                                    color: textcolor)),
               ],
             ),
           ],

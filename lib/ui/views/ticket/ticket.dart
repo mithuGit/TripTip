@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:internet_praktikum/ui/widgets/bottom_sheet.dart';
 import 'package:internet_praktikum/ui/widgets/my_button.dart';
 import 'package:internet_praktikum/ui/widgets/headerWidgets/topbar.dart';
+import 'package:internet_praktikum/ui/widgets/ticketWidgets/createTicketWidget.dart';
+import 'package:internet_praktikum/ui/widgets/ticketWidgets/ticketContainer.dart';
 
 class Ticket extends StatefulWidget {
   const Ticket({super.key});
@@ -42,9 +44,8 @@ class _TicketState extends State<Ticket> {
               content: [
                 Builder(
                   builder: (context) {
-                    return const Center(
-                        // hier kommt noch die Schuldenüsetzung und Beleg hinzufügen über Galerie oder Foto
-                        );
+                    // hier kommt noch die Schuldenüsetzung und Beleg hinzufügen über Galerie oder Fotoupload
+                    return CreateTicketsWidget();
                   },
                 ),
               ]);
@@ -60,27 +61,40 @@ class _TicketState extends State<Ticket> {
                 fit: BoxFit.cover,
               ),
             ),
-            child: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Text('Welcome ${user.displayName}'),
-                  const SizedBox(height: 20),
-                  Text('Your email is ${user.email}'),
-                  const SizedBox(height: 20),
-                  Text('Your uid is ${user.uid}'),
-                  const SizedBox(height: 20),
-                  MyButton(
-                    onTap: signUserOut,
-                    text: "Logout",
-                    colors: Colors.red,
-                  ),
-                  MyButton(
-                    onTap: deleteUser,
-                    text: "Delete Account",
-                    colors: Colors.red,
-                  ),
-                ],
+            child: SingleChildScrollView(
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Text('Welcome ${user.displayName}'),
+                    const SizedBox(height: 20),
+                    Text('Your email is ${user.email}'),
+                    const SizedBox(height: 20),
+                    Text('Your uid is ${user.uid}'),
+                    const SizedBox(height: 20),
+                    MyButton(
+                      onTap: signUserOut,
+                      text: "Logout",
+                      colors: Colors.red,
+                    ),
+                    MyButton(
+                      onTap: deleteUser,
+                      text: "Delete Account",
+                      colors: Colors.red,
+                    ),
+              
+                    const TicketContainer(title: "Ticket from Deutsche Bahn "),
+                    const TicketContainer(title: "Ticket from Deutsche Bahn "),
+                    const TicketContainer(title: "Ticket from Deutsche Bahn "),
+                    const TicketContainer(title: "Ticket from Deutsche Bahn "),
+                    const TicketContainer(title: "Ticket from Deutsche Bahn "),
+                    const TicketContainer(title: "Ticket from Deutsche Bahn "),
+                    const TicketContainer(title: "Ticket from Deutsche Bahn "),
+                    const TicketContainer(title: "Ticket from Deutsche Bahn "),
+                    const TicketContainer(title: "Ticket from Deutsche Bahn "),
+                    const TicketContainer(title: "Ticket from Deutsche Bahn ")
+                  ],
+                ),
               ),
             ),
           ),

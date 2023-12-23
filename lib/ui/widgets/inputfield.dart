@@ -9,6 +9,7 @@ class InputField extends StatelessWidget {
   final EdgeInsets? margin;
   final FocusNode? focusNode;
   final Color? borderColor;
+  final Color? focusedBorderColor;
 
   const InputField(
       {super.key,
@@ -16,7 +17,7 @@ class InputField extends StatelessWidget {
       this.controller,
       required this.obscureText,
       this.margin,
-      this.focusNode, this.borderColor});
+      this.focusNode, this.borderColor, this.focusedBorderColor});
 
   bool isValidEmail(String email) {
     String emailRegex =
@@ -54,7 +55,7 @@ class InputField extends StatelessWidget {
               borderRadius: BorderRadius.circular(11.0),
             ),
             focusedBorder: OutlineInputBorder(
-              borderSide: BorderSide(color: Colors.grey.shade400),
+              borderSide: focusedBorderColor != null ? BorderSide(color: focusedBorderColor!) : BorderSide(color: Colors.grey.shade400),
               borderRadius: BorderRadius.circular(11.0),
             ),
             fillColor: Colors.white,
