@@ -33,6 +33,7 @@ class UpdateWidgetListeners {
     } else if (data["type"] == "survey") {
       CustomBottomSheet.show(context, title: "Edit Survey", content: [
         AddSurveyWidgetToDashboard(
+          typeOfSurvey: '',
            day: day,
            userdata: userdata,
            data: data,

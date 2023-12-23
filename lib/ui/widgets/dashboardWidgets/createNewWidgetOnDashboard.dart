@@ -53,10 +53,18 @@ class _CreateNewWidgetOnDashboardState
                   icon: Icons.poll,
                   onTap: () => {
                         setState(() {
-                          show = 'survey';
+                          show = 'questionsurvey';
                         })
                       },
-                  text: "Add Survey"),
+                  text: "Add Question Survery"),
+              ModalButton(
+                  icon: Icons.poll,
+                  onTap: () => {
+                        setState(() {
+                          show = 'appointmentsurvey';
+                        })
+                      },
+                  text: "Add Appointment Survery"),    
             ],
           ),
         );
@@ -66,9 +74,12 @@ class _CreateNewWidgetOnDashboardState
       case 'appointment':
         return AddAppointmentWidgetToDashboard(
             userdata: widget.userdata, day: widget.day);
-      case 'survey':
+      case 'questionsurvey':
         return AddSurveyWidgetToDashboard(
-            userdata: widget.userdata, day: widget.day);
+            userdata: widget.userdata, day: widget.day, typeOfSurvey: 'questionsurvey',);
+      case 'appointmentsurvey':
+        return AddSurveyWidgetToDashboard(
+            userdata: widget.userdata, day: widget.day, typeOfSurvey: 'appointmentsurvey',);      
       default:
         return const Text('default');
     }

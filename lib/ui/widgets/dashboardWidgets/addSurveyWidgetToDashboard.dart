@@ -1,19 +1,56 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:internet_praktikum/core/services/manageDashboardWidget.dart';
 import 'package:internet_praktikum/ui/styles/Styles.dart';
+import 'package:internet_praktikum/ui/widgets/datepicker.dart';
 import 'package:internet_praktikum/ui/widgets/errorSnackbar.dart';
 import 'package:internet_praktikum/ui/widgets/inputfield.dart';
 import 'package:internet_praktikum/ui/widgets/my_button.dart';
+import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
 
+abstract class SelectedOption {
+  bool get isNotEmpty;
+  bool get isDate => this is SelectedDate;
+  bool get isQuestion => this is SelectedQuestion;
+  Object? get value;
+  set value(Object? value);
+  Map toMap();
+}
+class SelectedDate extends SelectedOption {
+  DateTime? date;
+  @override
+  bool get isNotEmpty => date != null;
+  @override
+  Map toMap() => {"date": date!};
+  @override
+  Object? get value => date;
+  @override
+  set value(Object? value) => date = value as DateTime?;
+  @override
+  String toString() => DateFormat('dd/MM/yyyy hh:mm').format(date!);
+}
+class SelectedQuestion extends SelectedOption {
+  TextEditingController question = TextEditingController();
+  @override
+  bool get isNotEmpty => question != null;
+  @override
+  Map toMap() => {"question": question!.text};
+  @override
+  Object? get value => question;
+  @override
+  set value(Object? value) => question!.value = value as TextEditingValue;
+  @override String toString() => question!.text;
+}
 // ignore: must_be_immutable
 class AddSurveyWidgetToDashboard extends StatefulWidget {
   DocumentReference day;
+  String typeOfSurvey;
   Map<String, dynamic> userdata;
   Map<String, dynamic>? data;
   AddSurveyWidgetToDashboard(
-      {super.key, required this.day, required this.userdata, this.data});
+      {super.key, required this.day, required this.userdata, this.data, required this.typeOfSurvey});
 
   // ignore: library_private_types_in_public_api
   _AddSurveyWidgetToDashboardState createState() =>
@@ -25,9 +62,28 @@ class _AddSurveyWidgetToDashboardState
   final nameofSurvey = TextEditingController();
   final survey = TextEditingController();
   final option = TextEditingController();
+  late SelectedOption selectedOption; 
+  late DateTime dateofDay;
+  DateTime boundingDate = DateTime.now();
+  @override
+  void initState() {
+    super.initState();
+    selectedOption = widget.typeOfSurvey == "questionsurvey" ? SelectedQuestion() : SelectedDate();
+    widget.day.get().then((value) { 
+      Map<String, dynamic> data = value.data() as Map<String, dynamic>;
+      dateofDay = data["starttime"].toDate();
+      print(dateofDay);
+      if(dateofDay.day == DateTime.now().day && dateofDay.month == DateTime.now().month && dateofDay.year == DateTime.now().year){
+        boundingDate = DateTime.now();
+      } else {
+        boundingDate = DateTime(dateofDay.year, dateofDay.month, dateofDay.day, 0,0);
+      }
+    });
+  }
 
   var uuid = const Uuid();
-  final List<String> _items = List.empty(growable: true);
+  final List<SelectedOption> _optionList = List.empty(growable: true);
+  final List<bool> linkwith = [false, false, false];
   @override
   Widget build(BuildContext context) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
@@ -59,40 +115,41 @@ class _AddSurveyWidgetToDashboardState
       if (context.mounted) Navigator.pop(context);
     }
 
-    Widget _buildTenableListTile(String item, int index) {
+    Widget _buildTenableListTile(SelectedOption item, int index) {
       return Dismissible(
-        key: Key('$index'),
+        key: Key(_optionList[index].toString()),
         onDismissed: (direction) {
           setState(() {
-            _items.removeAt(index);
+            _optionList.removeAt(index);
           });
         },
-        background: Container(
-            color: Colors.red,
-            child:const Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                Icon(Icons.delete, color: Colors.white),
-                SizedBox(width: 10),
-              ],
-            )),
-        child: ListTile(
-          key: ValueKey('$index-$index'),
-          title: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                _items[index],
-                style: Styles.inputField,
+        background: Container(color: Colors.red),
+        child: Container(
+          decoration: BoxDecoration(
+            border: Border(
+              bottom: BorderSide(
+                color: Colors.grey.shade400,
+                width: 1.0,
               ),
-              const Icon(Icons.drag_handle),
-            ],
+            ),
+          ),
+          child: ListTile(
+            title: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  _optionList[index].toString(),
+                  style: Styles.inputField,
+                ),
+                const Icon(Icons.drag_handle),
+              ],
+            ),
           ),
         ),
       );
     }
 
-    List<Widget> _getListItems() => _items
+    List<Widget> _getListItems() => _optionList
         .asMap()
         .map((i, item) => MapEntry(i, _buildTenableListTile(item, i)))
         .values
@@ -105,35 +162,40 @@ class _AddSurveyWidgetToDashboardState
             focusedBorderColor: const Color.fromARGB(255, 84, 113, 255),
             hintText: "Title of Survey",
             obscureText: false),
-        SizedBox(height: 10),
-        InputField(
-          controller: survey,
-          hintText: "Question of Survey",
-          borderColor: Colors.grey.shade400,
-          focusedBorderColor: const Color.fromARGB(255, 84, 113, 255),
-          obscureText: false,
-        ),
-        SizedBox(height: 10),
+        const SizedBox(height: 10),
         Row(
           children: [
-            Expanded(
+            if(selectedOption.isQuestion) ...[
+              Expanded(
               flex: 2,
-              child: InputField(
-                controller: option,
-                hintText: "Option you can add",
+              child: 
+              InputField(
+                controller: (selectedOption as SelectedQuestion).question,
+                hintText: "Question you can add",
                 borderColor: Colors.grey.shade400,
                 focusedBorderColor: const Color.fromARGB(255, 84, 113, 255),
                 obscureText: false,
-              ),
-            ),
-            const SizedBox(width: 5),
+              ))
+            ] else if(selectedOption.isDate) ...[
+              Expanded(
+              flex: 2,
+              child: CupertinoDatePickerButton(
+                showFuture: true,
+                mode: CupertinoDatePickerMode.time,
+                boundingDate: boundingDate,
+                presetDate: selectedOption.value != null ? selectedOption.toString() : "select time",
+                onDateSelected: (date) {
+                  setState(() {
+                    selectedOption.value = date.date;
+                  });
+                },
+              ))
+            ], const SizedBox(width: 5),
             IconButton(
                 onPressed: () => {
                       setState(() {
-                        if (option.text.isNotEmpty) {
-                          _items.add(option.text);
-                          option.clear();
-                        }
+                        _optionList.add(selectedOption);
+                        selectedOption = widget.typeOfSurvey == "questionsurvey" ? SelectedQuestion() : SelectedDate();
                       })
                     },
                 icon: const Icon(
@@ -144,29 +206,30 @@ class _AddSurveyWidgetToDashboardState
         ),
         ConstrainedBox(
           constraints: const BoxConstraints(maxHeight: 200),
-          child: ReorderableListView(
+          child: ReorderableListView.builder(
             shrinkWrap: true,
-            children: _getListItems(),
+            itemCount: _optionList.length,
+            itemBuilder: (context, index) =>
+                _buildTenableListTile(_optionList[index], index),
             onReorder: (int oldIndex, int newIndex) {
               setState(() {
                 if (oldIndex < newIndex) {
                   newIndex -= 1;
                 }
-                final String item = _items.removeAt(oldIndex);
-                _items.insert(newIndex, item);
+                final SelectedOption item = _optionList.removeAt(oldIndex);
+                _optionList.insert(newIndex, item);
               });
             },
           ),
         ),
-        SizedBox(height: 5),
-        if (_items.isNotEmpty)
+        const SizedBox(height: 5),
+        if (_optionList.isNotEmpty)
           MyButton(
               colors: Colors.blue,
               onTap: () =>
                   createorUpdateSurvey().onError((error, stackTrace) => {
                         print(error.toString()),
                         print(stackTrace.toString()),
-                        print("error"),
                         ErrorSnackbar.showErrorSnackbar(
                             context, error.toString())
                       }),
