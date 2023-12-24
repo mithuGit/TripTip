@@ -43,7 +43,7 @@ class SelectedQuestion extends SelectedOption {
   @override
   Object? get value => question;
   @override
-  set value(Object? value) => question.value = value as TextEditingValue;
+  set value(Object? value) => question.text = value as String;
   @override
   String toString() => question.text;
 }
@@ -86,10 +86,11 @@ class AddSurveyWidgetToDashboardState
     // when you want to update a survey you have to pass the data
     if (widget.data != null) {
       nameofSurvey.text = widget.data!["title"];
+      allowmultipleAnswers = widget.data!["allowmultipleanswers"];
       _optionList.clear();
       _optionList.addAll(widget.data!["options"]
           .map((e) {
-            if (widget.data!["typeOfSurvey"] == "questionsurvey") {
+            if (widget.typeOfSurvey == "questionsurvey") {
               return SelectedQuestion()..value = e["string"];
             } else {
               return SelectedDate()..value = e["date"].toDate();
@@ -97,7 +98,7 @@ class AddSurveyWidgetToDashboardState
           })
           .toList()
           .cast<SelectedOption>());
-    }    
+    }
   }
 
   Future<DateTime> getDay() async {
@@ -110,13 +111,12 @@ class AddSurveyWidgetToDashboardState
   final List<bool> linkwith = [false, false, false];
   @override
   Widget build(BuildContext context) {
-
     Future<void> createorUpdateSurvey() async {
       Map<String, dynamic> data = {
         "type": "survey",
-        "allowmultipleanswers": allowmultipleAnswers,
         "title": nameofSurvey.text,
         "typeOfSurvey": widget.typeOfSurvey,
+        "allowmultipleanswers": allowmultipleAnswers,
       };
       if (deadline != null) data["deadline"] = deadline;
       data["options"] = _optionList.map((e) => e.toMap()).toList();
@@ -165,6 +165,7 @@ class AddSurveyWidgetToDashboardState
         ),
       );
     }
+
     return SingleChildScrollView(
       child: Column(children: [
         InputField(
@@ -175,35 +176,36 @@ class AddSurveyWidgetToDashboardState
             obscureText: false),
         const SizedBox(height: 10),
         // you can only change the deadline if you create a new survey
-        if (widget.data == null)
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              SelectDeadlineButton(
-                notifier: (Deadline value) {
-                  setState(() {
-                    if (value.isSet) deadline = value.deadline;
-                  });
-                },
-              ),
-              const SizedBox(width: 10),
-              Row(
-                children: [
-                  const Text(
-                    "Allow multiple answers",
-                    style: Styles.inputField,
-                  ),
-                  Checkbox(
-                      value: allowmultipleAnswers,
-                      onChanged: (value) {
-                        setState(() {
-                          allowmultipleAnswers = value!;
-                        });
-                      }),
-                ],
-              )
-            ],
-          ),
+
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            if (widget.data == null)
+            SelectDeadlineButton(
+              notifier: (Deadline value) {
+                setState(() {
+                  if (value.isSet) deadline = value.deadline;
+                });
+              },
+            ),
+            const SizedBox(width: 10),
+            Row(
+              children: [
+                const Text(
+                  "Allow multiple answers",
+                  style: Styles.inputField,
+                ),
+                Checkbox(
+                    value: allowmultipleAnswers,
+                    onChanged: (value) {
+                      setState(() {
+                        allowmultipleAnswers = value!;
+                      });
+                    }),
+              ],
+            )
+          ],
+        ),
         const SizedBox(height: 10),
         Row(
           children: [
