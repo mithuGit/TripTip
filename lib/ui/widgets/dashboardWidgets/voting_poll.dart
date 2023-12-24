@@ -6,12 +6,15 @@ class VotingPoll extends StatefulWidget {
   final int index;
   DocumentReference? day;
   Map<String, dynamic>? userdata;
+  ValueChanged<bool> onTap;
+  
   VotingPoll(
       {super.key,
       required this.data,
       required this.index,
       required this.userdata,
-      required this.day});
+      required this.day,
+      required this.onTap});
 
   @override
   State<VotingPoll> createState() => _VotingPollState();
@@ -19,7 +22,6 @@ class VotingPoll extends StatefulWidget {
 
 class _VotingPollState extends State<VotingPoll> {
   bool isClicked = false;
-  int? numberOfVoters;
   @override
   void initState() {
     super.initState();
@@ -50,49 +52,16 @@ class _VotingPollState extends State<VotingPoll> {
     return getNumberOfVoters() / getNumberOfUsers();
   }
 
-  void vote() async {
-    Map<String, dynamic> voteelement = widget.data["options"][widget.index];
-    Map<String, dynamic> widgetdata = widget.data;
-
-    if (voteelement["voters"] == null) {
-      voteelement["voters"] = [];
-    }
-    voteelement["voters"].add(widget.userdata!["uid"]);
-    Map<String, dynamic> dayData =
-        (await widget.day!.get()).data() as Map<String, dynamic>;
-    Map<String, dynamic> widgets = dayData['active'];
-    widgetdata["options"][widget.index] = voteelement;
-    widgets[widget.data["key"]] = widgetdata;
-    await widget.day!.update({'active': widgets});
-  }
-
-  void unvote() async {
-    Map<String, dynamic> voteelement = widget.data["options"][widget.index];
-    Map<String, dynamic> widgetdata = widget.data;
-
-    if (voteelement["voters"] == null) {
-      voteelement["voters"] = [];
-    }
-    voteelement["voters"].remove(widget.userdata!["uid"]);
-    Map<String, dynamic> dayData =
-        (await widget.day!.get()).data() as Map<String, dynamic>;
-    Map<String, dynamic> widgets = dayData['active'];
-    widgetdata["options"][widget.index] = voteelement;
-    widgets[widget.data["key"]] = widgetdata;
-    await widget.day!.update({'active': widgets});
-  }
-
   @override
   Widget build(BuildContext context) {
     return Row(
       children: [
         GestureDetector(
           onTap: () {
-            if (isClicked) {
-              unvote();
-            } else {
-              vote();
-            }
+            setState(() {
+              isClicked = !isClicked;
+            });
+            widget.onTap(isClicked);
           },
           child: Container(
             width: 30,

@@ -1,3 +1,4 @@
+// ignore: file_names
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -36,15 +37,15 @@ class SelectedDate extends SelectedOption {
 class SelectedQuestion extends SelectedOption {
   TextEditingController question = TextEditingController();
   @override
-  bool get isNotEmpty => question != null;
+  bool get isNotEmpty => true;
   @override
-  Map toMap() => {"string": question!.text};
+  Map toMap() => {"string": question.text};
   @override
   Object? get value => question;
   @override
-  set value(Object? value) => question!.value = value as TextEditingValue;
+  set value(Object? value) => question.value = value as TextEditingValue;
   @override
-  String toString() => question!.text;
+  String toString() => question.text;
 }
 
 // ignore: must_be_immutable
@@ -60,12 +61,12 @@ class AddSurveyWidgetToDashboard extends StatefulWidget {
       this.data,
       required this.typeOfSurvey});
 
-  // ignore: library_private_types_in_public_api
-  _AddSurveyWidgetToDashboardState createState() =>
-      _AddSurveyWidgetToDashboardState();
+  @override
+  AddSurveyWidgetToDashboardState createState() =>
+      AddSurveyWidgetToDashboardState();
 }
 
-class _AddSurveyWidgetToDashboardState
+class AddSurveyWidgetToDashboardState
     extends State<AddSurveyWidgetToDashboard> {
   final nameofSurvey = TextEditingController();
   late SelectedOption selectedOption;
@@ -111,7 +112,6 @@ class _AddSurveyWidgetToDashboardState
   Widget build(BuildContext context) {
 
     Future<void> createorUpdateSurvey() async {
-      print(widget.userdata);
       Map<String, dynamic> data = {
         "type": "survey",
         "allowmultipleanswers": allowmultipleAnswers,
@@ -132,7 +132,7 @@ class _AddSurveyWidgetToDashboardState
       if (context.mounted) Navigator.pop(context);
     }
 
-    Widget _buildTenableListTile(SelectedOption item, int index) {
+    Widget buildTenableListTile(SelectedOption item, int index) {
       return Dismissible(
         key: Key(_optionList[index].toString()),
         onDismissed: (direction) {
@@ -165,12 +165,6 @@ class _AddSurveyWidgetToDashboardState
         ),
       );
     }
-
-    List<Widget> _getListItems() => _optionList
-        .asMap()
-        .map((i, item) => MapEntry(i, _buildTenableListTile(item, i)))
-        .values
-        .toList();
     return SingleChildScrollView(
       child: Column(children: [
         InputField(
@@ -275,7 +269,7 @@ class _AddSurveyWidgetToDashboardState
             shrinkWrap: true,
             itemCount: _optionList.length,
             itemBuilder: (context, index) =>
-                _buildTenableListTile(_optionList[index], index),
+                buildTenableListTile(_optionList[index], index),
             onReorder: (int oldIndex, int newIndex) {
               setState(() {
                 if (oldIndex < newIndex) {
@@ -293,7 +287,9 @@ class _AddSurveyWidgetToDashboardState
               colors: Colors.blue,
               onTap: () =>
                   createorUpdateSurvey().onError((error, stackTrace) => {
+                        // ignore: avoid_print
                         print(error.toString()),
+                        // ignore: avoid_print
                         print(stackTrace.toString()),
                         ErrorSnackbar.showErrorSnackbar(
                             context, error.toString())
