@@ -32,7 +32,7 @@ class _SurveyWidgetState extends State<SurveyWidget> {
         }
       }
     } else {
-      for (int i = 0; i <= widgetdata["options"].length; i++) {
+      for (int i = 0; i < widgetdata["options"].length; i++) {
         if (widgetdata["options"][i]["voters"] != null) {
           if (widgetdata["options"][i]["voters"]
               .contains(widget.userdata!["uid"])) {
