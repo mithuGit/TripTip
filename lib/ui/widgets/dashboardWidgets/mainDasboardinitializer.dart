@@ -20,12 +20,16 @@ class AddButton extends ChangeNotifier {
 class MainDasboardinitializer extends StatefulWidget {
   double elevation = 0;
   final String title;
-  Map<String, dynamic>? data;
+  Map<String, dynamic> data;
+  Map<String, dynamic> userdata;
+  DocumentReference? day;
   MainDasboardinitializer({
     super.key,
     double? elevation,
     required this.title,
     required this.data,
+    required this.userdata,
+    required this.day,
   });
   @override
   State<MainDasboardinitializer> createState() =>
@@ -85,7 +89,7 @@ class _MainDasboardinitializerState extends State<MainDasboardinitializer> {
                     } else if (widget.data?["type"] == "appointment") {
                       return AppointmentWidget(data: widget.data);
                     } else if (widget.data?["type"] == "survey") {
-                      return SurveyWidget(data: widget.data);
+                      return SurveyWidget(data: widget.data, userdata: widget.userdata, day: widget.day);
                     } else {
                       return const Text("No type is specified");
                     }

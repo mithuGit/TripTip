@@ -18,12 +18,13 @@ abstract class SelectedOption {
   set value(Object? value);
   Map toMap();
 }
+
 class SelectedDate extends SelectedOption {
   DateTime? date;
   @override
   bool get isNotEmpty => date != null;
   @override
-  Map toMap() => {"date": date!};
+  Map toMap() => {"string": DateFormat('hh:mm').format(date!), "date": date!};
   @override
   Object? get value => date;
   @override
@@ -31,18 +32,21 @@ class SelectedDate extends SelectedOption {
   @override
   String toString() => DateFormat('dd/MM/yyyy hh:mm').format(date!);
 }
+
 class SelectedQuestion extends SelectedOption {
   TextEditingController question = TextEditingController();
   @override
   bool get isNotEmpty => question != null;
   @override
-  Map toMap() => {"question": question!.text};
+  Map toMap() => {"string": question!.text};
   @override
   Object? get value => question;
   @override
   set value(Object? value) => question!.value = value as TextEditingValue;
-  @override String toString() => question!.text;
+  @override
+  String toString() => question!.text;
 }
+
 // ignore: must_be_immutable
 class AddSurveyWidgetToDashboard extends StatefulWidget {
   DocumentReference day;
@@ -50,7 +54,11 @@ class AddSurveyWidgetToDashboard extends StatefulWidget {
   Map<String, dynamic> userdata;
   Map<String, dynamic>? data;
   AddSurveyWidgetToDashboard(
-      {super.key, required this.day, required this.userdata, this.data, required this.typeOfSurvey});
+      {super.key,
+      required this.day,
+      required this.userdata,
+      this.data,
+      required this.typeOfSurvey});
 
   // ignore: library_private_types_in_public_api
   _AddSurveyWidgetToDashboardState createState() =>
@@ -62,23 +70,23 @@ class _AddSurveyWidgetToDashboardState
   final nameofSurvey = TextEditingController();
   final survey = TextEditingController();
   final option = TextEditingController();
-  late SelectedOption selectedOption; 
+  late SelectedOption selectedOption;
   late DateTime dateofDay;
-  DateTime boundingDate = DateTime.now();
   @override
   void initState() {
     super.initState();
-    selectedOption = widget.typeOfSurvey == "questionsurvey" ? SelectedQuestion() : SelectedDate();
-    widget.day.get().then((value) { 
-      Map<String, dynamic> data = value.data() as Map<String, dynamic>;
-      dateofDay = data["starttime"].toDate();
-      print(dateofDay);
-      if(dateofDay.day == DateTime.now().day && dateofDay.month == DateTime.now().month && dateofDay.year == DateTime.now().year){
-        boundingDate = DateTime.now();
-      } else {
-        boundingDate = DateTime(dateofDay.year, dateofDay.month, dateofDay.day, 0,0);
-      }
-    });
+    selectedOption = widget.typeOfSurvey == "questionsurvey"
+        ? SelectedQuestion()
+        : SelectedDate();
+    getDay().then((value) => setState(() {
+          dateofDay = value;
+        }));
+  }
+
+  Future<DateTime> getDay() async {
+    DocumentSnapshot dd = await widget.day.get();
+    Map<String, dynamic> data = dd.data() as Map<String, dynamic>;
+    return data["starttime"].toDate();
   }
 
   var uuid = const Uuid();
@@ -97,12 +105,9 @@ class _AddSurveyWidgetToDashboardState
       print(widget.userdata);
       Map<String, dynamic> data = {
         "type": "survey",
-        "content": survey.text,
         "title": nameofSurvey.text,
-        // hier muss noch die Anzahl an Member gespeichert werden
-        // und in Options soll die Anzahl an Stimmen gespeichert werden
-        // "options": [option1.text, options2.text, options3.text, options4.text],
       };
+      data["options"] = _optionList.map((e) => e.toMap()).toList();
       DocumentReference by = FirebaseFirestore.instance
           .collection('users')
           .doc(widget.userdata["uid"]);
@@ -165,38 +170,55 @@ class _AddSurveyWidgetToDashboardState
         const SizedBox(height: 10),
         Row(
           children: [
-            if(selectedOption.isQuestion) ...[
+            if (selectedOption.isQuestion) ...[
               Expanded(
-              flex: 2,
-              child: 
-              InputField(
-                controller: (selectedOption as SelectedQuestion).question,
-                hintText: "Question you can add",
-                borderColor: Colors.grey.shade400,
-                focusedBorderColor: const Color.fromARGB(255, 84, 113, 255),
-                obscureText: false,
-              ))
-            ] else if(selectedOption.isDate) ...[
+                  flex: 2,
+                  child: InputField(
+                    controller: (selectedOption as SelectedQuestion).question,
+                    hintText: "Question you can add",
+                    borderColor: Colors.grey.shade400,
+                    focusedBorderColor: const Color.fromARGB(255, 84, 113, 255),
+                    obscureText: false,
+                  ))
+            ] else if (selectedOption.isDate) ...[
               Expanded(
-              flex: 2,
-              child: CupertinoDatePickerButton(
-                showFuture: true,
-                mode: CupertinoDatePickerMode.time,
-                boundingDate: boundingDate,
-                presetDate: selectedOption.value != null ? selectedOption.toString() : "select time",
-                onDateSelected: (date) {
-                  setState(() {
-                    selectedOption.value = date.date;
-                  });
-                },
-              ))
-            ], const SizedBox(width: 5),
+                flex: 2,
+                child: CupertinoDatePickerButton(
+                  showFuture: true,
+                  mode: CupertinoDatePickerMode.time,
+                  boundingDate: DateTime(2023),
+                  presetDate: selectedOption.value != null
+                      ? selectedOption.toString()
+                      : "select time",
+                  onDateSelected: (date) {
+                    setState(() {
+                      selectedOption.value = dateofDay.add(Duration(
+                          hours: date.date.hour, minutes: date.date.minute));
+                    });
+                  },
+                ),
+              )
+            ],
+            const SizedBox(width: 5),
             IconButton(
                 onPressed: () => {
-                      setState(() {
-                        _optionList.add(selectedOption);
-                        selectedOption = widget.typeOfSurvey == "questionsurvey" ? SelectedQuestion() : SelectedDate();
-                      })
+                      if (_optionList
+                          .where((element) =>
+                              element.value == selectedOption.value)
+                          .isEmpty)
+                        {
+                          if (selectedOption.value != null &&
+                              _optionList.length <= 5)
+                            {
+                              setState(() {
+                                _optionList.add(selectedOption);
+                                selectedOption =
+                                    widget.typeOfSurvey == "questionsurvey"
+                                        ? SelectedQuestion()
+                                        : SelectedDate();
+                              })
+                            }
+                        }
                     },
                 icon: const Icon(
                   Icons.add,

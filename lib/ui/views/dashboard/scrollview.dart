@@ -73,6 +73,8 @@ class ScrollViewWidget extends StatelessWidget {
             // and set its elevation to the animated value.
             child: MainDasboardinitializer(
                 key: Key('$index'),
+                userdata: userdata!,
+                day: day,
                 title: bufferArray![index]["title"] as String,
                 data: bufferArray![index],), // or any other fallback widget
           );
@@ -194,6 +196,8 @@ class ScrollViewWidget extends StatelessWidget {
                       ),
                       child: MainDasboardinitializer(
                         title: con!["title"],
+                        userdata: userdata!,
+                        day: day,
                         data: con
                       ),
                     );
