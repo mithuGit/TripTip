@@ -93,7 +93,6 @@ class _VotingPollState extends State<VotingPoll> {
             } else {
               vote();
             }
-            //print(numberOfVoters);
           },
           child: Container(
             width: 30,

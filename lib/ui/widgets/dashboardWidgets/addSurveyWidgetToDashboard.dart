@@ -3,12 +3,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:internet_praktikum/core/services/manageDashboardWidget.dart';
 import 'package:internet_praktikum/ui/styles/Styles.dart';
+import 'package:internet_praktikum/ui/widgets/dashboardWidgets/selectDeadline.dart';
 import 'package:internet_praktikum/ui/widgets/datepicker.dart';
 import 'package:internet_praktikum/ui/widgets/errorSnackbar.dart';
 import 'package:internet_praktikum/ui/widgets/inputfield.dart';
 import 'package:internet_praktikum/ui/widgets/my_button.dart';
 import 'package:intl/intl.dart';
-import 'package:uuid/uuid.dart';
 
 abstract class SelectedOption {
   bool get isNotEmpty;
@@ -68,10 +68,11 @@ class AddSurveyWidgetToDashboard extends StatefulWidget {
 class _AddSurveyWidgetToDashboardState
     extends State<AddSurveyWidgetToDashboard> {
   final nameofSurvey = TextEditingController();
-  final survey = TextEditingController();
-  final option = TextEditingController();
   late SelectedOption selectedOption;
   late DateTime dateofDay;
+  DateTime? deadline;
+
+  bool allowmultipleAnswers = true;
   @override
   void initState() {
     super.initState();
@@ -81,6 +82,21 @@ class _AddSurveyWidgetToDashboardState
     getDay().then((value) => setState(() {
           dateofDay = value;
         }));
+    // when you want to update a survey you have to pass the data
+    if (widget.data != null) {
+      nameofSurvey.text = widget.data!["title"];
+      _optionList.clear();
+      _optionList.addAll(widget.data!["options"]
+          .map((e) {
+            if (widget.data!["typeOfSurvey"] == "questionsurvey") {
+              return SelectedQuestion()..value = e["string"];
+            } else {
+              return SelectedDate()..value = e["date"].toDate();
+            }
+          })
+          .toList()
+          .cast<SelectedOption>());
+    }    
   }
 
   Future<DateTime> getDay() async {
@@ -89,24 +105,20 @@ class _AddSurveyWidgetToDashboardState
     return data["starttime"].toDate();
   }
 
-  var uuid = const Uuid();
   final List<SelectedOption> _optionList = List.empty(growable: true);
   final List<bool> linkwith = [false, false, false];
   @override
   Widget build(BuildContext context) {
-    final ColorScheme colorScheme = Theme.of(context).colorScheme;
-    final Color oddItemColor = colorScheme.primary.withOpacity(0.05);
-    final Color evenItemColor = colorScheme.primary.withOpacity(0.15);
-    if (widget.data != null) {
-      nameofSurvey.text = widget.data!["title"];
-      survey.text = widget.data!["content"];
-    }
+
     Future<void> createorUpdateSurvey() async {
       print(widget.userdata);
       Map<String, dynamic> data = {
         "type": "survey",
+        "allowmultipleanswers": allowmultipleAnswers,
         "title": nameofSurvey.text,
+        "typeOfSurvey": widget.typeOfSurvey,
       };
+      if (deadline != null) data["deadline"] = deadline;
       data["options"] = _optionList.map((e) => e.toMap()).toList();
       DocumentReference by = FirebaseFirestore.instance
           .collection('users')
@@ -167,6 +179,37 @@ class _AddSurveyWidgetToDashboardState
             focusedBorderColor: const Color.fromARGB(255, 84, 113, 255),
             hintText: "Title of Survey",
             obscureText: false),
+        const SizedBox(height: 10),
+        // you can only change the deadline if you create a new survey
+        if (widget.data == null)
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              SelectDeadlineButton(
+                notifier: (Deadline value) {
+                  setState(() {
+                    if (value.isSet) deadline = value.deadline;
+                  });
+                },
+              ),
+              const SizedBox(width: 10),
+              Row(
+                children: [
+                  const Text(
+                    "Allow multiple answers",
+                    style: Styles.inputField,
+                  ),
+                  Checkbox(
+                      value: allowmultipleAnswers,
+                      onChanged: (value) {
+                        setState(() {
+                          allowmultipleAnswers = value!;
+                        });
+                      }),
+                ],
+              )
+            ],
+          ),
         const SizedBox(height: 10),
         Row(
           children: [
@@ -245,7 +288,7 @@ class _AddSurveyWidgetToDashboardState
           ),
         ),
         const SizedBox(height: 5),
-        if (_optionList.isNotEmpty)
+        if (_optionList.length >= 2)
           MyButton(
               colors: Colors.blue,
               onTap: () =>
@@ -260,7 +303,7 @@ class _AddSurveyWidgetToDashboardState
                   : "Update Survey")
         else
           const Text(
-            "Please add at least one option",
+            "Please add at least two options and a title",
             style: Styles.inputField,
           )
       ]),
