@@ -4,12 +4,13 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:internet_praktikum/main.dart';
 import 'package:internet_praktikum/ui/widgets/inputfield.dart';
 import 'package:internet_praktikum/ui/widgets/profileWidgets/profileButton.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:pdf_render/pdf_render.dart';
-import 'package:pdf_render/pdf_render_widgets.dart';
-import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
+//import 'package:pdf_render/pdf_render.dart';
+//import 'package:pdf_render/pdf_render_widgets.dart';
+//import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 
 class CreateTicketsWidget extends StatefulWidget {
   const CreateTicketsWidget({super.key});
@@ -94,12 +95,16 @@ class _CreateTicketsWidgetState extends State<CreateTicketsWidget> {
     });
   }
 
-  void showAlertDialog(BuildContext context) {
+  void showAlertDialog(BuildContext context,
+      {String? title = "Select an Option",
+      String? button1 = "Take a Picture",
+      bool? button2 = true}) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text("Select an Option"),
+          actionsAlignment: MainAxisAlignment.center,
+          title: Text(title!),
           titleTextStyle: const TextStyle(
             fontWeight: FontWeight.bold,
             color: Colors.black,
@@ -109,18 +114,22 @@ class _CreateTicketsWidgetState extends State<CreateTicketsWidget> {
           actions: [
             ElevatedButton(
               onPressed: () {
-                takePicture();
+                button2! ? takePicture() : null;
                 Navigator.of(context).pop();
               },
-              child: const Text("Take a Picture "),
+              child: Text(button1!),
             ),
-            ElevatedButton(
-                onPressed: () {
-                  // Funktion File hin
-                  selectedFile();
-                  Navigator.of(context).pop();
-                },
-                child: const Text("Upload a File")),
+            button2!
+                ? ElevatedButton(
+                    onPressed: () {
+                      // Funktion File hin
+                      selectedFile();
+                      Navigator.of(context).pop();
+                    },
+                    child: const Text("Upload a File"))
+                : Container(
+                    width: 0,
+                  ), // hier muss width = 0, damit actionsAlignment: MainAxisAlignment.center,
           ],
         );
       },
@@ -167,8 +176,8 @@ class _CreateTicketsWidgetState extends State<CreateTicketsWidget> {
                       // TODO: Gerade funktioniert nur Bilder und keine PDF
                       onTap: () => selectedFile(),
                       child: isPdf
-                          ? 
-                          //SfPdfViewer.file(File(pickedFile!.path!)) 
+                          ?
+                          //SfPdfViewer.file(File(pickedFile!.path!))
                           //ENTWEDER MIT SFPDFVIEWER ODER MIT PDFRENDER
                           /*FutureBuilder<PdfDocument>(
                               future: PdfDocument.openFile(pickedFile!.path!),
@@ -191,10 +200,10 @@ class _CreateTicketsWidgetState extends State<CreateTicketsWidget> {
                                 }
                               },
                             )*/
-                            const ImageIcon(
-                                AssetImage("assets/pdf_file.png"),
-                                size: 90,
-                              )
+                          const ImageIcon(
+                              AssetImage("assets/pdf_file.png"),
+                              size: 90,
+                            )
                           : Image.file(
                               File(pickedFile!.path!),
                               fit: BoxFit.cover,
@@ -240,11 +249,28 @@ class _CreateTicketsWidgetState extends State<CreateTicketsWidget> {
         ProfileButton(
           onTap: () => {
             // TODO: Widget soll dann erstellt werden und dieser soll in Ticket direkt zu sehen sein.
-            uploadFile(),
-            Navigator.of(context).pop(),
-            setState(() async{
-              uploadTask = null;
-            })
+            if (titleOfTicket.text.isNotEmpty &&
+                (selectedImage != null || pickedFile != null))
+              {
+                uploadFile(),
+                Navigator.of(context).pop(),
+                setState(() {
+                  uploadTask = null;
+                })
+              }
+            else
+              {
+                if (selectedImage == null && pickedFile == null)
+                  {showAlertDialog(context)}
+                else
+                  {
+                    showAlertDialog(context,
+                        title:
+                            "Please enter a title for your Ticket or Receipt",
+                        button1: "Ok",
+                        button2: false)
+                  }
+              }
           },
           title: "Upload Ticket or Receipt",
           textcolor: Colors.white,

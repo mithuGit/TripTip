@@ -45,7 +45,11 @@ class _TicketContainerState extends State<TicketContainer> {
           await FirebaseStorage.instance.ref(imageUrl).getDownloadURL();
       print("LIST:  $getDownloadUrlLink");
       setState(() {
-        image = Image.network(getDownloadUrlLink);
+        image = Image.network(
+          getDownloadUrlLink,
+          fit: BoxFit.cover,
+          width: double.infinity,
+        );
       });
     } catch (error) {
       image = null;
@@ -62,50 +66,50 @@ class _TicketContainerState extends State<TicketContainer> {
           const EdgeInsets.only(left: 20, right: 20, top: 10.0, bottom: 10.0),
       child: GestureDetector(
         onTap: () async {
-          setState(() => CustomBottomSheet.show(context, title: widget.title, content: [
-                  Builder(
-                    builder: (context) {
-                      fetchImage();
-                      return Column(
-                          // hier Modal für Preview des Belegs
-                          children: [
-                            const SizedBox(height: 30.0),
-                            Container(
-                              decoration: BoxDecoration(
-                                border: Border.all(
-                                  width: 1,
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .primary
-                                      .withOpacity(0.2),
-                                ),
+          setState(() =>
+              CustomBottomSheet.show(context, title: widget.title, content: [
+                Builder(
+                  builder: (context) {
+                    fetchImage();
+                    return Column(
+                        // hier Modal für Preview des Belegs
+                        children: [
+                          const SizedBox(height: 30.0),
+                          Container(
+                            decoration: BoxDecoration(
+                              border: Border.all(
+                                width: 1,
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .primary
+                                    .withOpacity(0.2),
                               ),
-                              height: 350,
-                              width: double.infinity,
-                              alignment: Alignment.center,
-                              child: image != null
-                                  ? GestureDetector(
-                                      onTap: () {
-                                        //TODO: hier muss das Bild dann Größer werden, heißt eine Page öffnet sich => Preview Page
-                                        Navigator.of(context).pop();
-                                      },
-                                      child: image,
-                                    )
-                                  : const Center(
-                                      child: Text(
-                                        "No Image Selected",
-                                        style: TextStyle(
-                                          color: Colors.grey,
-                                          fontSize: 30,
-                                        ),
+                            ),
+                            height: 350,
+                            width: double.infinity,
+                            alignment: Alignment.center,
+                            child: image != null
+                                ? GestureDetector(
+                                    onTap: () {
+                                      //TODO: hier muss das Bild dann Größer werden, heißt eine Page öffnet sich => Preview Page
+                                      Navigator.of(context).pop();
+                                    },
+                                    child: image,
+                                  )
+                                : const Center(
+                                    child: Text(
+                                      "No Image Selected",
+                                      style: TextStyle(
+                                        color: Colors.grey,
+                                        fontSize: 30,
                                       ),
                                     ),
-                            ),
-                          ]);
-                    },
-                  ),
-                ])
-              );
+                                  ),
+                          ),
+                        ]);
+                  },
+                ),
+              ]));
         },
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 300),
