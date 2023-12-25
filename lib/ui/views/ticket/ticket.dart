@@ -45,7 +45,7 @@ class _TicketState extends State<Ticket> {
                 Builder(
                   builder: (context) {
                     // hier kommt noch die Schuldenüsetzung und Beleg hinzufügen über Galerie oder Fotoupload
-                    return CreateTicketsWidget();
+                    return const CreateTicketsWidget();
                   },
                 ),
               ]);
@@ -83,16 +83,16 @@ class _TicketState extends State<Ticket> {
                       colors: Colors.red,
                     ),
               
-                    const TicketContainer(title: "Ticket from Deutsche Bahn "),
-                    const TicketContainer(title: "Ticket from Deutsche Bahn "),
-                    const TicketContainer(title: "Ticket from Deutsche Bahn "),
-                    const TicketContainer(title: "Ticket from Deutsche Bahn "),
-                    const TicketContainer(title: "Ticket from Deutsche Bahn "),
-                    const TicketContainer(title: "Ticket from Deutsche Bahn "),
-                    const TicketContainer(title: "Ticket from Deutsche Bahn "),
-                    const TicketContainer(title: "Ticket from Deutsche Bahn "),
-                    const TicketContainer(title: "Ticket from Deutsche Bahn "),
-                    const TicketContainer(title: "Ticket from Deutsche Bahn ")
+                    const TicketContainer(title: "Ticket from Deutsche Bahn"),
+                    const TicketContainer(title: "Ticket from Deutsche Bahn"),
+                    const TicketContainer(title: "Ticket from Deutsche Bahn"),
+                    const TicketContainer(title: "Ticket from Deutsche Bahn"),
+                    const TicketContainer(title: "Ticket from Deutsche Bahn"),
+                    const TicketContainer(title: "Ticket from Deutsche Bahn"),
+                    const TicketContainer(title: "Ticket from Deutsche Bahn"),
+                    const TicketContainer(title: "Ticket from Deutsche Bahn"),
+                    const TicketContainer(title: "Ticket from Deutsche Bahn"),
+                    const TicketContainer(title: "Ticket from Deutsche Bahn")
                   ],
                 ),
               ),
