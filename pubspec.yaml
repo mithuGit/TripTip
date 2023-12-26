@@ -44,7 +44,7 @@ dependencies:
   flutter_svg_provider: ^1.0.6
   webview_flutter_plus: ^0.3.0+2
   flutter_facebook_auth: ^6.0.3
-  intl: ^0.19.0
+  intl: ^0.18.1
   http: ^1.1.0
   uuid: ^4.2.1
   flutter_riverpod: ^2.4.8
@@ -64,11 +64,11 @@ dependencies:
   google_maps_flutter: ^2.5.0
   dio: ^5.4.0
   flutter_polyline_points: ^2.0.0
-  flutter_picker: ^2.1.0
   url_launcher: ^6.2.2
   file_picker: ^6.1.1
   syncfusion_flutter_pdfviewer: ^24.1.41
   pdf_render: ^1.4.5
+
 
 dev_dependencies:
   flutter_test:
