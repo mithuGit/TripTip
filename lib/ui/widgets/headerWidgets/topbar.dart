@@ -8,14 +8,14 @@ import 'package:internet_praktikum/ui/widgets/headerWidgets/header_button.dart';
 class TopBar extends StatefulWidget implements PreferredSizeWidget {
   final bool? isDash;
   final bool? isFinanz;
-  final IconData icon;
+  final IconData? icon;
   final String? title;
   final Function()? onTapForIconWidget;
 
   const TopBar({
     super.key,
     this.isDash,
-    required this.icon,
+    this.icon,
     this.title,
     required this.onTapForIconWidget,
     this.isFinanz,
@@ -62,7 +62,9 @@ class _TopBarState extends State<TopBar> {
                 widget.title!,
                 style: const TextStyle(fontSize: 20),
               ),
-        leadingWidth: (widget.isDash != null || widget.isFinanz != null) ? 66 : 0, // defaul 56 + 10
+        leadingWidth: (widget.isDash != null || widget.isFinanz != null)
+            ? 66
+            : 0, // defaul 56 + 10
         leading: widget.isDash != null
             ? HeaderButton(
                 onTap: () {
@@ -74,7 +76,7 @@ class _TopBarState extends State<TopBar> {
               )
             : widget.isFinanz != null
                 ? HeaderButton(
-                  icon: Icons.payment,
+                    icon: Icons.payment,
                     onTap: () {
                       CustomBottomSheet.show(context,
                           title: "Change your Payment Method",
@@ -104,12 +106,14 @@ class _TopBarState extends State<TopBar> {
                     },
                   )
                 : null,
-        actions: [
-          HeaderButton(
-            onTap: widget.onTapForIconWidget,
-            icon: widget.icon,
-          ),
-          const SizedBox(width: 10)
-        ]);
+        actions: widget.icon != null
+            ? [
+                HeaderButton(
+                  onTap: widget.onTapForIconWidget,
+                  icon: widget.icon,
+                ),
+                const SizedBox(width: 10)
+              ]
+            : null);
   }
 }

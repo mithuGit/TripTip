@@ -65,6 +65,11 @@ dependencies:
   dio: ^5.4.0
   flutter_polyline_points: ^2.0.0
   flutter_picker: ^2.1.0
+  url_launcher: ^6.2.2
+  file_picker: ^6.1.1
+  syncfusion_flutter_pdfviewer: ^24.1.41
+  pdf_render: ^1.4.5
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -90,7 +95,6 @@ dev_dependencies:
 
 # The following section is specific to Flutter packages.
 flutter:
-
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.
@@ -105,6 +109,8 @@ flutter:
     - assets/navbar_pic/
     - assets/mainpage_pic/
     - assets/votingbutton_pic/
+    - assets/character_pic/
+
   fonts:
     - family: Ubuntu
       fonts:
@@ -115,7 +121,7 @@ flutter:
           weight: 700
         - asset: fonts/Ubuntu-Medium.ttf
           weight: 500
-        - asset:  fonts/Ubuntu-MediumItalic.ttf
+        - asset: fonts/Ubuntu-MediumItalic.ttf
           style: italic
           weight: 500
         - asset: fonts/Ubuntu-Light.ttf
@@ -125,7 +131,6 @@ flutter:
           weight: 300
         - asset: fonts/Ubuntu-Regular.ttf
           weight: 400
-
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

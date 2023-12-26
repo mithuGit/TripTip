@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:internet_praktikum/ui/widgets/bottom_sheet.dart';
 import 'package:internet_praktikum/ui/widgets/headerWidgets/topbar.dart';
-import '../../widgets/finanzen/extendablecontainer.dart';
+import '../../widgets/finanzenWidgets/extendablecontainer.dart';
 
 class Finanzen extends StatefulWidget {
   const Finanzen({Key? key}) : super(key: key);

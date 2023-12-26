@@ -51,6 +51,7 @@ class _AddNoteWidgetToDashboardState extends State<AddNoteWidgetToDashboard> {
       }
       if(context.mounted) Navigator.pop(context);
     }
+
     return Column(children: [
       InputField(
           controller: nameOfNote,

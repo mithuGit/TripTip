@@ -5,10 +5,11 @@ import 'package:go_router/go_router.dart';
 import 'package:internet_praktikum/ui/views/account/account_details.dart';
 import 'package:internet_praktikum/ui/views/finanzen/creditcard.dart';
 import 'package:internet_praktikum/ui/views/finanzen/finazen.dart';
-import 'package:internet_praktikum/ui/views/main_pages/dashboard.dart';
+import 'package:internet_praktikum/ui/views/dashboard/dashboard.dart';
 import 'package:internet_praktikum/ui/views/map/map.dart';
-import 'package:internet_praktikum/ui/views/main_pages/profile.dart';
-import 'package:internet_praktikum/ui/views/main_pages/ticket.dart';
+import 'package:internet_praktikum/ui/views/profile/info_page.dart';
+import 'package:internet_praktikum/ui/views/profile/profile.dart';
+import 'package:internet_praktikum/ui/views/ticket/ticket.dart';
 import 'package:internet_praktikum/ui/views/navigation/app_navigation.dart';
 import 'package:internet_praktikum/ui/views/login_register_pages/login_or_register_page.dart';
 import 'package:internet_praktikum/ui/views/trip_setup_pages/change_trip.dart';
@@ -190,6 +191,13 @@ class MyRouter {
         builder: (context, state) => Account(
           key: state.pageKey,
           isEditProfile: true,
+        ),
+      ),
+      GoRoute(
+        name: 'info',
+        path: '/info',
+        builder: (context, state) => InfoPage(
+          key: state.pageKey,
         ),
       ),
     ],

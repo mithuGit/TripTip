@@ -1,6 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:internet_praktikum/ui/widgets/finanzen/slidablebutton.dart';
+import 'package:internet_praktikum/ui/widgets/finanzenWidgets/slidablebutton.dart';
 
 class ExpandableContainer extends StatefulWidget {
   const ExpandableContainer({

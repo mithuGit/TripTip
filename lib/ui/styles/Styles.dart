@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:internet_praktikum/ui/widgets/dashboardWidgets/mainDasboardinitializer.dart';
-
 class Styles {
   static const overlayTitle = TextStyle(
       fontFamily: 'Ubuntu',
@@ -68,6 +66,26 @@ class Styles {
   static const listviewNoContente = TextStyle(
       fontFamily: 'fonts/Ubuntu-Regular.ttf',
       fontSize: 12,
+      fontWeight: FontWeight.w400,
+      color: Colors.black);
+  static const buttonStyle = TextStyle(
+      fontFamily: 'fonts/Ubuntu-Regular.ttf',
+      fontSize: 18,
+      fontWeight: FontWeight.w400,
+      color: Colors.white);
+  static const buttonStyleRed = TextStyle(
+      fontFamily: 'fonts/Ubuntu-Regular.ttf',
+      fontSize: 18,
+      fontWeight: FontWeight.w400,
+      color: Colors.red);
+  static const characterStyle = TextStyle(
+      fontFamily: 'fonts/Ubuntu-Regular.ttf',
+      fontSize: 14,
+      fontWeight: FontWeight.w400,
+      color: Colors.white);
+  static const endCredits = TextStyle(
+      fontFamily: 'fonts/Ubuntu-Regular.ttf',
+      fontSize: 14,
       fontWeight: FontWeight.w400,
       color: Colors.black);
 }
