@@ -73,6 +73,10 @@ class _CalendarState extends State<Calendar> {
   DateTime? newStart; // Neues Startdatum
   DateTime? newEnd; // Neues Enddatum
 
+  bool? isToday = false;
+  bool? isTomorrow = false;
+  bool? isYesterday = false;
+
   @override
   void initState() {
     super.initState();
@@ -99,10 +103,6 @@ class _CalendarState extends State<Calendar> {
     }
     widget.onDateSelected(selectedDate!);
   }
-
-  //DateTime getSelectedDate() {
-  //  return selectedDate!;
-  //}
 
   Future<void> _showDateRangePicker() async {
     DateTime start = await getStartDate();
@@ -277,13 +277,15 @@ class _CalendarState extends State<Calendar> {
       child: Column(
         children: [
           Text(
-            date.isAtSameMomentAs(DateTime(today.year, today.month, today.day))
+            isSameDay(date, DateTime(today.year, today.month, today.day))
                 ? "Today"
-                : date.isAtSameMomentAs(
+                : isSameDay(date,
                         DateTime(tomorrow.year, tomorrow.month, tomorrow.day))
                     ? "Tomorrow"
-                    : date.isAtSameMomentAs(DateTime(
-                            yesterday.year, yesterday.month, yesterday.day))
+                    : isSameDay(
+                            date,
+                            DateTime(
+                                yesterday.year, yesterday.month, yesterday.day))
                         ? "Yesterday"
                         : DateFormat('dd.MM.yyyy').format(date),
             style: TextStyle(
@@ -331,5 +333,11 @@ class _CalendarState extends State<Calendar> {
         ],
       ),
     );
+  }
+
+  bool isSameDay(DateTime date1, DateTime date2) {
+    return date1.year == date2.year &&
+        date1.month == date2.month &&
+        date1.day == date2.day;
   }
 }
