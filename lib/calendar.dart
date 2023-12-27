@@ -282,8 +282,10 @@ class _CalendarState extends State<Calendar> {
                 : isSameDay(date,
                         DateTime(tomorrow.year, tomorrow.month, tomorrow.day))
                     ? "Tomorrow"
-                    : isSameDay(date,
-                            DateTime(yesterday.year, yesterday.month, yesterday.day))
+                    : isSameDay(
+                            date,
+                            DateTime(
+                                yesterday.year, yesterday.month, yesterday.day))
                         ? "Yesterday"
                         : DateFormat('dd.MM.yyyy').format(date),
             style: TextStyle(
