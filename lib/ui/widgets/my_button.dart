@@ -8,6 +8,8 @@ class MyButton extends StatelessWidget {
   final String? imagePath;
   final Color? colors;
   final EdgeInsets? margin;
+  final Color? borderColor;
+  final TextStyle? textStyle;
 
   const MyButton(
       {Key? key,
@@ -16,7 +18,9 @@ class MyButton extends StatelessWidget {
       this.iconData,
       this.imagePath,
       this.colors,
-      this.margin})
+      this.margin,
+      this.borderColor,
+      this.textStyle})
       : super(key: key);
 
   @override
@@ -34,9 +38,9 @@ class MyButton extends StatelessWidget {
                       top: 8, bottom: 8, left: 12, right: 12),
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(11)),
-              side: const BorderSide(
+              side: BorderSide(
                 width: 1.5,
-                color: Colors.white,
+                color: borderColor ?? Colors.white
               ),
             ),
             child: Row(
@@ -66,7 +70,7 @@ class MyButton extends StatelessWidget {
                   ],
                   Text(
                     text,
-                    style: Styles.buttonFontStyle,
+                    style: textStyle ?? Styles.buttonFontStyle,
                   )
                 ])));
   }

@@ -138,11 +138,12 @@ class _DashBoardState extends State<DashBoard> {
       body: Stack(
         children: [
           Container(
+            width: MediaQuery.of(context).size.width,
             decoration: const BoxDecoration(
               image: DecorationImage(
                 image: AssetImage(
-                    'assets/mainpage_pic/dashboard.png'), // assets/BackgroundCity.png
-                fit: BoxFit.cover,
+                    'assets/background_forest.png'), // assets/BackgroundCity.png
+                fit: BoxFit.fitWidth,
               ),
             ),
             child: Column(children: [

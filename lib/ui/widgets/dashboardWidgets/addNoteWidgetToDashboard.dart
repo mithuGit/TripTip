@@ -1,8 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:internet_praktikum/core/services/manageDashboardWidget.dart';
+import 'package:internet_praktikum/ui/styles/Styles.dart';
 import 'package:internet_praktikum/ui/widgets/errorSnackbar.dart';
 import 'package:internet_praktikum/ui/widgets/inputfield.dart';
+import 'package:internet_praktikum/ui/widgets/modalButton.dart';
 import 'package:internet_praktikum/ui/widgets/my_button.dart';
 import 'package:uuid/uuid.dart';
 
@@ -34,7 +36,10 @@ class _AddNoteWidgetToDashboardState extends State<AddNoteWidgetToDashboard> {
   @override
   Widget build(BuildContext context) {
     Future<void> createOrUpdateNote() async {
-      print(widget.userdata);
+      if(note.text.isEmpty || nameOfNote.text.isEmpty) {
+        ErrorSnackbar.showErrorSnackbar(context, "Please fill out all fields");
+        return;
+      }
       Map<String, dynamic> data = {
         "type": "note",
         "content": note.text,
@@ -49,20 +54,32 @@ class _AddNoteWidgetToDashboardState extends State<AddNoteWidgetToDashboard> {
         await ManageDashboardWidged()
             .updateWidget(widget.day!, by, data, widget.data!["key"]);
       }
-      if(context.mounted) Navigator.pop(context);
+      if (context.mounted) Navigator.pop(context);
     }
 
     return Column(children: [
       InputField(
           controller: nameOfNote,
           hintText: "Title of Note",
+          borderColor: Colors.grey.shade400,
+          focusedBorderColor: const Color.fromARGB(255, 84, 113, 255),
           obscureText: false),
+      const SizedBox(
+        height: 10,
+      ),
       InputField(
           controller: note,
           hintText: "Note",
-          obscureText: false), // creating mode when no data is passed
+          borderColor: Colors.grey.shade400,
+          multiline: true,
+          focusedBorderColor: const Color.fromARGB(255, 84, 113, 255),
+          obscureText: false),
+      const SizedBox(
+        height: 10,
+      ), // creating mode when no data is passed
       MyButton(
-          colors: Colors.blue,
+          borderColor: Colors.black,
+          textStyle: Styles.buttonFontStyleModal,
           onTap: () => createOrUpdateNote().onError((error, stackTrace) => {
                 print(error.toString()),
                 print(stackTrace.toString()),

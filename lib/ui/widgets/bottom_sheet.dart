@@ -35,32 +35,35 @@ class CustomBottomSheet {
                   ),
                 ),
                 padding: const EdgeInsets.all(16.0),
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 8.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          GestureDetector(
-                            onTap: () => Navigator.pop(context),
-                            child: Image.asset(
-                              'assets/moveModalDown.png',
-                              width: 80,
-                              height: 10,),
-                          )
-                        ],
-                      ),
-                      const SizedBox(height: 8.0),
-                      Text(
-                        title,
-                        style: Styles
-                            .title, // Hier wird die title-Methode aus der Styles-Klasse verwendet
-                      ),
-                      const SizedBox(height: 8.0),
-                      ...content,
-                    ],
+                child: Scaffold(
+                  backgroundColor: Colors.transparent, 
+                  body: Padding(
+                    padding: const EdgeInsets.only(top: 8.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            GestureDetector(
+                              onTap: () => Navigator.pop(context),
+                              child: Image.asset(
+                                'assets/moveModalDown.png',
+                                width: 80,
+                                height: 10,),
+                            )
+                          ],
+                        ),
+                        const SizedBox(height: 8.0),
+                        Text(
+                          title,
+                          style: Styles
+                              .title, // Hier wird die title-Methode aus der Styles-Klasse verwendet
+                        ),
+                        const SizedBox(height: 8.0),
+                        ...content,
+                      ],
+                    ),
                   ),
                 ),
               ),

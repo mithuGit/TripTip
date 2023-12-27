@@ -21,6 +21,12 @@ class Styles {
     fontFamily: 'Ubuntu',
     fontWeight: FontWeight.w500,
   );
+  static const buttonFontStyleModal = TextStyle(
+    color: Colors.black,
+    fontSize: 14,
+    fontFamily: 'Ubuntu',
+    fontWeight: FontWeight.w500,
+  );
   static const inputField = TextStyle(
     color: Colors.black,
     fontSize: 14,
@@ -88,4 +94,9 @@ class Styles {
       fontSize: 14,
       fontWeight: FontWeight.w400,
       color: Colors.black);
+  static const errorSnackbar = TextStyle(
+      fontFamily: 'fonts/Ubuntu-Regular.ttf',
+      fontSize: 14,
+      fontWeight: FontWeight.w400,
+      color: Colors.white);    
 }

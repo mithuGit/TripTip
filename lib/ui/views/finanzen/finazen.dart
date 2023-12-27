@@ -112,7 +112,7 @@ class _FinanzenState extends State<Finanzen> {
           Container(
             decoration: const BoxDecoration(
               image: DecorationImage(
-                image: AssetImage('assets/mainpage_pic/finazen.png'),
+                image: AssetImage('assets/background_city_persona.png'),
                 fit: BoxFit.cover, // Maintain width, adjust height
               ),
             ),
