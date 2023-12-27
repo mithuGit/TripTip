@@ -13,6 +13,13 @@ class AppNavigation extends StatefulWidget {
 class _AppNavigationState extends State<AppNavigation> {
   int index = 0;
 
+  @override
+  void initState() {
+    super.initState();
+    // Hier den Initialwert für den ausgewählten Index setzen
+    index = widget.navigationShell.currentIndex;
+  }
+
   void _gotoBranch(int index) {
     widget.navigationShell.goBranch(
       index,
