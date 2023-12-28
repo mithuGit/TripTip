@@ -13,6 +13,13 @@ class AppNavigation extends StatefulWidget {
 class _AppNavigationState extends State<AppNavigation> {
   int index = 0;
 
+  @override
+  void initState() {
+    super.initState();
+    // Hier den Initialwert für den ausgewählten Index setzen
+    index = widget.navigationShell.currentIndex;
+  }
+
   void _gotoBranch(int index) {
     widget.navigationShell.goBranch(
       index,
@@ -22,6 +29,9 @@ class _AppNavigationState extends State<AppNavigation> {
 
   @override
   Widget build(BuildContext context) {
+    bool isIndex2 = index == 2;
+
+
     return Scaffold(
         extendBody: true,
         body: SizedBox(
@@ -48,15 +58,15 @@ class _AppNavigationState extends State<AppNavigation> {
                 });
                 _gotoBranch(this.index);
               },
-              destinations: const [
+              destinations: [
                 NavigationDestination(
                   icon: ImageIcon(
-                    AssetImage('assets/navbar_pic/home.256x229.png'),
-                    color: Colors.white,
+                    const AssetImage('assets/navbar_pic/home.256x229.png'),
+                    color: isIndex2 ? Colors.black : Colors.white,
                     size: 35,
                   ),
                   label: "Dashboard",
-                  selectedIcon: ImageIcon(
+                  selectedIcon: const ImageIcon(
                     AssetImage('assets/navbar_pic/home.256x229.png'),
                     color: Colors.black,
                     size: 35,
@@ -64,12 +74,12 @@ class _AppNavigationState extends State<AppNavigation> {
                 ),
                 NavigationDestination(
                   icon: ImageIcon(
-                    AssetImage('assets/navbar_pic/wallet.256x235.png'),
-                    color: Colors.white,
+                    const AssetImage('assets/navbar_pic/wallet.256x235.png'),
+                    color: isIndex2 ? Colors.black : Colors.white,
                     size: 35,
                   ),
                   label: "Payment",
-                  selectedIcon: ImageIcon(
+                  selectedIcon: const ImageIcon(
                     AssetImage('assets/navbar_pic/wallet.256x235.png'),
                     color: Colors.black,
                     size: 35,
@@ -77,12 +87,12 @@ class _AppNavigationState extends State<AppNavigation> {
                 ),
                 NavigationDestination(
                   icon: ImageIcon(
-                    AssetImage('assets/navbar_pic/map.256x256.png'),
-                    color: Colors.white,
+                    const AssetImage('assets/navbar_pic/map.256x256.png'),
+                    color: isIndex2 ? Colors.black : Colors.white,
                     size: 35,
                   ),
                   label: "Map",
-                  selectedIcon: ImageIcon(
+                  selectedIcon: const ImageIcon(
                     AssetImage('assets/navbar_pic/map.256x256.png'),
                     color: Colors.black,
                     size: 35,
@@ -90,12 +100,12 @@ class _AppNavigationState extends State<AppNavigation> {
                 ),
                 NavigationDestination(
                   icon: ImageIcon(
-                    AssetImage('assets/navbar_pic/train.197x256.png'),
-                    color: Colors.white,
+                    const AssetImage('assets/navbar_pic/train.197x256.png'),
+                    color: isIndex2 ? Colors.black : Colors.white,
                     size: 35,
                   ),
                   label: "Tickets",
-                  selectedIcon: ImageIcon(
+                  selectedIcon: const ImageIcon(
                     AssetImage('assets/navbar_pic/train.197x256.png'),
                     color: Colors.black,
                     size: 35,
@@ -103,12 +113,12 @@ class _AppNavigationState extends State<AppNavigation> {
                 ),
                 NavigationDestination(
                   icon: ImageIcon(
-                    AssetImage('assets/navbar_pic/user.226x256.png'),
-                    color: Colors.white,
+                    const AssetImage('assets/navbar_pic/user.226x256.png'),
+                    color: isIndex2 ? Colors.black : Colors.white,
                     size: 35,
                   ),
                   label: "Profile",
-                  selectedIcon: ImageIcon(
+                  selectedIcon: const ImageIcon(
                     AssetImage('assets/navbar_pic/user.226x256.png'),
                     color: Colors.black,
                     size: 35,

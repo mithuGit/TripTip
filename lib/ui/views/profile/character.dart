@@ -23,25 +23,38 @@ class CharakterContainer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-        width: fill != null ? MediaQuery.of(context).size.width : MediaQuery.of(context).size.width * 0.5,
-        decoration: BoxDecoration(
-          color: color,
+        width: fill != null
+            ? MediaQuery.of(context).size.width
+            : MediaQuery.of(context).size.width * 0.5,
+        decoration: const BoxDecoration(
+          color: Color.fromARGB(255, 49, 48, 78),
         ),
         child: Column(children: [
           // Image (genauer gesagt ein GiF )
-          Image.asset(image, height: 170),
+          Container(
+              decoration: BoxDecoration(
+                color: color,
+                border: Border.all(color: Colors.black),
+              ),
+              width: fill != null
+                  ? MediaQuery.of(context).size.width
+                  : MediaQuery.of(context).size.width * 0.5,
+              child: Image.asset(image, height: 170)),
 
           // Charakter Name
           Text(name, style: Styles.characterStyle),
 
           // Charakter Beschreibung
-          Text(description, style: Styles.characterStyle),
+          Text(
+            description,
+            style: Styles.characterStyle,
+          ),
 
           // Link von LinkedIn
           RichText(
             text: TextSpan(
               text: 'LinkedIn',
-              style: const TextStyle(color: Colors.black),
+              style: const TextStyle(color: Colors.blue),
               recognizer: TapGestureRecognizer()
                 ..onTap = () async {
                   launchUrl(Uri.parse(link));

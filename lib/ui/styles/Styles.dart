@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 class Styles {
   static const overlayTitle = TextStyle(
       fontFamily: 'Ubuntu',
@@ -93,7 +94,12 @@ class Styles {
       fontFamily: 'fonts/Ubuntu-Regular.ttf',
       fontSize: 14,
       fontWeight: FontWeight.w400,
-      color: Colors.black);
+      color: Colors.white);
+  static const infoTitle = TextStyle(
+      fontFamily: 'fonts/Ubuntu-Regular.ttf',
+      fontSize: 20,
+      fontWeight: FontWeight.w500,
+      color: Colors.white);
   static const errorSnackbar = TextStyle(
       fontFamily: 'fonts/Ubuntu-Regular.ttf',
       fontSize: 14,

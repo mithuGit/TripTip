@@ -89,9 +89,6 @@ class _TicketState extends State<Ticket> {
                     const TicketContainer(title: "Test5"),
                     const TicketContainer(title: "Ticket from Deutsche Bahn"),
                     const TicketContainer(title: "Ticket from Deutsche Bahn"),
-                    const TicketContainer(title: "Ticket from Deutsche Bahn"),
-                    const TicketContainer(title: "Ticket from Deutsche Bahn"),
-                    const TicketContainer(title: "Ticket from Deutsche Bahn")
                   ],
                 ),
               ),

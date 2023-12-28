@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:internet_praktikum/ui/views/map/directions.dart';
@@ -11,15 +13,27 @@ class MapPage extends StatefulWidget {
 }
 
 class _MapPageState extends State<MapPage> {
-  static const _initialCameraPosition = CameraPosition(
-    target: LatLng(52.520008, 13.404954),
-    zoom: 12,
-  );
-
+// TODO: null beim landen von map -> fixen
   GoogleMapController? _googleMapController;
   Marker? _origin;
   Marker? _destination;
   Directions? _info;
+  LatLng? latLng;
+
+  CameraPosition? _initialCameraPosition;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    getLatLng().then((value) => setState(() {
+          latLng = value;
+          _initialCameraPosition = CameraPosition(
+            target: latLng != null ? latLng! : const LatLng(0, 0),
+            zoom: 11.5,
+          );
+        }));
+  }
 
   @override
   void dispose() {
@@ -87,7 +101,7 @@ class _MapPageState extends State<MapPage> {
           GoogleMap(
             myLocationButtonEnabled: false,
             zoomControlsEnabled: false,
-            initialCameraPosition: _initialCameraPosition,
+            initialCameraPosition: _initialCameraPosition!,
             onMapCreated: (controller) => _googleMapController = controller,
             markers: {
               if (_origin != null) _origin!,
@@ -142,7 +156,7 @@ class _MapPageState extends State<MapPage> {
         onPressed: () => _googleMapController!.animateCamera(
           _info != null
               ? CameraUpdate.newLatLngBounds(_info!.bounds, 100.0)
-              : CameraUpdate.newCameraPosition(_initialCameraPosition),
+              : CameraUpdate.newCameraPosition(_initialCameraPosition!),
         ),
         child: const Icon(Icons.center_focus_strong),
       ),
@@ -186,5 +200,41 @@ class _MapPageState extends State<MapPage> {
           .getDirection(origin: _origin!.position, destination: pos);
       setState(() => _info = directions);
     }
+  }
+
+  Future<LatLng> getLatLng() async {
+    final auth = FirebaseAuth.instance.currentUser;
+
+    if (auth == null) {
+      // Handle the case where the user is not authenticated
+      return Future.error('User not authenticated');
+    }
+
+    final DocumentSnapshot<Map<String, dynamic>> userDoc =
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(auth.uid)
+            .get();
+
+    final String tripId = userDoc.data()!['selectedtrip'].toString();
+
+    final DocumentSnapshot<Map<String, dynamic>> selectedTripDoc =
+        await FirebaseFirestore.instance.collection('trips').doc(tripId).get();
+
+    if (selectedTripDoc.exists == false) {
+      // Handle the case where no trip is found for the user
+      return Future.error('No trip found for the user');
+    }
+
+    final String lat = selectedTripDoc
+        .data()!['placedetails']["location"]["latitude"]
+        .toString();
+    final String long = selectedTripDoc
+        .data()!['placedetails']["location"]["longitude"]
+        .toString();
+
+    LatLng latLng = LatLng(double.parse(lat), double.parse(long));
+    // print( "latLng: " + latLng.toString());
+    return latLng;
   }
 }
