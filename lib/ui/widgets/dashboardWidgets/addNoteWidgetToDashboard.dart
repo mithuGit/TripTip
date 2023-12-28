@@ -1,13 +1,11 @@
-import 'dart:math';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:internet_praktikum/core/services/manageDashboardWidget.dart';
-import 'package:internet_praktikum/ui/views/dashboard/dashboard.dart';
+import 'package:internet_praktikum/ui/styles/Styles.dart';
 import 'package:internet_praktikum/ui/widgets/errorSnackbar.dart';
 import 'package:internet_praktikum/ui/widgets/inputfield.dart';
+import 'package:internet_praktikum/ui/widgets/modalButton.dart';
 import 'package:internet_praktikum/ui/widgets/my_button.dart';
-import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
 
 class AddNoteWidgetToDashboard extends StatefulWidget {
@@ -25,10 +23,11 @@ class AddNoteWidgetToDashboard extends StatefulWidget {
 class _AddNoteWidgetToDashboardState extends State<AddNoteWidgetToDashboard> {
   final nameOfNote = TextEditingController();
   final note = TextEditingController();
-  var uuid = Uuid();
-  @override void initState() {
+  var uuid = const Uuid();
+  @override
+  void initState() {
     super.initState();
-    if(widget.data != null){
+    if (widget.data != null) {
       nameOfNote.text = widget.data!["title"];
       note.text = widget.data!["content"];
     }
@@ -36,8 +35,11 @@ class _AddNoteWidgetToDashboardState extends State<AddNoteWidgetToDashboard> {
 
   @override
   Widget build(BuildContext context) {
-    Future<void> createNote() async {
-      print(widget.userdata);
+    Future<void> createOrUpdateNote() async {
+      if(note.text.isEmpty || nameOfNote.text.isEmpty) {
+        ErrorSnackbar.showErrorSnackbar(context, "Please fill out all fields");
+        return;
+      }
       Map<String, dynamic> data = {
         "type": "note",
         "content": note.text,
@@ -46,46 +48,45 @@ class _AddNoteWidgetToDashboardState extends State<AddNoteWidgetToDashboard> {
       DocumentReference by = FirebaseFirestore.instance
           .collection('users')
           .doc(widget.userdata!["uid"]);
-      await ManageDashboardWidged().addWidget(widget.day!, by, data);
-    }
-    Future<void> updateNote() async {
-      print(widget.userdata);
-      Map<String, dynamic> data = {
-        "content": note.text,
-        "title": nameOfNote.text,
-      };
-      DocumentReference by = FirebaseFirestore.instance
-          .collection('users')
-          .doc(widget.userdata!["uid"]);
-      await ManageDashboardWidged().updateWidget(widget.day!,by, data, widget.data!["key"]);
+      if (widget.data == null) {
+        await ManageDashboardWidged().addWidget(widget.day!, by, data);
+      } else {
+        await ManageDashboardWidged()
+            .updateWidget(widget.day!, by, data, widget.data!["key"]);
+      }
+      if (context.mounted) Navigator.pop(context);
     }
 
     return Column(children: [
       InputField(
           controller: nameOfNote,
           hintText: "Title of Note",
+          borderColor: Colors.grey.shade400,
+          focusedBorderColor: const Color.fromARGB(255, 84, 113, 255),
           obscureText: false),
-      InputField(controller: note, hintText: "Note", obscureText: false),
-      if (widget.data == null) // creating mode when no data is passed
-        MyButton(
-            colors: Colors.blue,
-            onTap: () => createNote().onError((error, stackTrace) => {
-                  print(error.toString()),
-                  print(stackTrace.toString()),
-                  print("error"),
-                  ErrorSnackbar.showErrorSnackbar(context, error.toString())
-                }),
-            text: "Create Note")
-      else // editing mode when data is passed
-        MyButton(
-            colors: Colors.blue,
-            onTap: () => updateNote().onError((error, stackTrace) => {
-                  print(error.toString()),
-                  print(stackTrace.toString()),
-                  print("error"),
-                  ErrorSnackbar.showErrorSnackbar(context, error.toString())
-                }),
-            text: "Update Note")
+      const SizedBox(
+        height: 10,
+      ),
+      InputField(
+          controller: note,
+          hintText: "Note",
+          borderColor: Colors.grey.shade400,
+          multiline: true,
+          focusedBorderColor: const Color.fromARGB(255, 84, 113, 255),
+          obscureText: false),
+      const SizedBox(
+        height: 10,
+      ), // creating mode when no data is passed
+      MyButton(
+          borderColor: Colors.black,
+          textStyle: Styles.buttonFontStyleModal,
+          onTap: () => createOrUpdateNote().onError((error, stackTrace) => {
+                print(error.toString()),
+                print(stackTrace.toString()),
+                print("error"),
+                ErrorSnackbar.showErrorSnackbar(context, error.toString())
+              }),
+          text: widget.data == null ? "Create Note" : "Update Note")
     ]);
   }
 }

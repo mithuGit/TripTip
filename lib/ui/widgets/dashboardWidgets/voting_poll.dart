@@ -1,8 +1,20 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 class VotingPoll extends StatefulWidget {
-  final String title;
-  const VotingPoll({super.key, required this.title});
+  final Map<String, dynamic> data;
+  final int index;
+  DocumentReference? day;
+  Map<String, dynamic>? userdata;
+  ValueChanged<bool> onTap;
+  
+  VotingPoll(
+      {super.key,
+      required this.data,
+      required this.index,
+      required this.userdata,
+      required this.day,
+      required this.onTap});
 
   @override
   State<VotingPoll> createState() => _VotingPollState();
@@ -10,11 +22,34 @@ class VotingPoll extends StatefulWidget {
 
 class _VotingPollState extends State<VotingPoll> {
   bool isClicked = false;
-  int? numberOfVoters;
-
   @override
   void initState() {
     super.initState();
+    Map<String, dynamic> voteelement = widget.data["options"][widget.index];
+    if (voteelement["voters"] != null) {
+      if (voteelement["voters"].contains(widget.userdata!["uid"])) {
+        setState(() {
+          isClicked = true;
+        });
+      }
+    }
+  }
+
+  int getNumberOfVoters() {
+    Map<String, dynamic> voteelement = widget.data["options"][widget.index];
+    if (voteelement["voters"] != null) {
+      return voteelement["voters"].length;
+    } else {
+      return 0;
+    }
+  }
+
+  int getNumberOfUsers() {
+    return widget.userdata!["numberofusers"];
+  }
+
+  double getPercentage() {
+    return getNumberOfVoters() / getNumberOfUsers();
   }
 
   @override
@@ -26,7 +61,7 @@ class _VotingPollState extends State<VotingPoll> {
             setState(() {
               isClicked = !isClicked;
             });
-            //print(numberOfVoters);
+            widget.onTap(isClicked);
           },
           child: Container(
             width: 30,
@@ -48,18 +83,19 @@ class _VotingPollState extends State<VotingPoll> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(widget.title,
+                    Text(widget.data!["options"][widget.index]["string"],
                         style:
                             const TextStyle(fontSize: 20, color: Colors.white)),
-                    const Text("1/5", //TODO; hier das ändern
-                        style: TextStyle(fontSize: 20, color: Colors.white)),
+                    Text("${getNumberOfVoters()}/${getNumberOfUsers()}",
+                        style:
+                            const TextStyle(fontSize: 20, color: Colors.white)),
                   ],
                 ),
                 const SizedBox(height: 2),
                 LinearProgressIndicator(
                   borderRadius: const BorderRadius.all(Radius.circular(10)),
                   minHeight: 5,
-                  value: isClicked ? 0.2 : 0.0,
+                  value: getPercentage(),
                   backgroundColor: Colors.white,
                   color: const Color.fromARGB(255, 86, 153, 123),
                 ),

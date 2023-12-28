@@ -15,13 +15,17 @@ class CupertinoDatePickerButton extends StatefulWidget {
       showFuture; // this field is set to true when the datepicker is used for the future Dates
   final ValueChanged<DateStringTupel>? onDateSelected;
   final String? presetDate;
+  final CupertinoDatePickerMode? mode;
+  DateTime? boundingDate;
 
-  const CupertinoDatePickerButton(
+  CupertinoDatePickerButton(
       {super.key,
       this.margin,
       this.onDateSelected,
       required this.showFuture,
-      this.presetDate});
+      this.presetDate,
+      this.mode = CupertinoDatePickerMode.date,
+      this.boundingDate});
 
   @override
   _CupertinoDatePickerButtonState createState() =>
@@ -32,7 +36,11 @@ class _CupertinoDatePickerButtonState extends State<CupertinoDatePickerButton> {
   DateTime? selectedDate;
 
   String f_String = "";
-  DateTime? boundingDate = DateTime.now();
+  @override
+  void initState() {
+    super.initState();
+    widget.boundingDate = widget.boundingDate ?? DateTime.now();
+  }
 
   Future<void> _selectDate(BuildContext context) async {
     DateTime currentDate = selectedDate ?? DateTime.now();
@@ -68,10 +76,10 @@ class _CupertinoDatePickerButtonState extends State<CupertinoDatePickerButton> {
                   color: Colors.white,
                 ),
                 child: CupertinoDatePicker(
-                    initialDateTime: boundingDate,
-                    mode: CupertinoDatePickerMode.date,
-                    maximumDate: !widget.showFuture ? boundingDate : null,
-                    minimumDate: widget.showFuture ? boundingDate : null,
+                    initialDateTime:  widget.boundingDate,
+                    mode: widget.mode!,
+                    maximumDate: !widget.showFuture ? widget.boundingDate : null,
+                    minimumDate: widget.showFuture ? widget.boundingDate : null,
                     onDateTimeChanged: (DateTime newDate) {
                       currentDate = newDate;
                       //formatieren des Strings

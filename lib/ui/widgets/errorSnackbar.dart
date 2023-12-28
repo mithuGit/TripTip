@@ -11,8 +11,9 @@ class ErrorSnackbar {
   static Future<void> showErrorSnackbar(
       BuildContext context, String errorMessage) {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text(errorMessage),
+      content: Text(errorMessage, style: Styles.errorSnackbar,),
       backgroundColor: Colors.red,
+      behavior: SnackBarBehavior.floating,
       //  margin: const EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
     ));
     return Future.delayed(const Duration(seconds: 1), () {});

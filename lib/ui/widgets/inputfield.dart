@@ -10,6 +10,7 @@ class InputField extends StatelessWidget {
   final FocusNode? focusNode;
   final Color? borderColor;
   final Color? focusedBorderColor;
+  final bool? multiline;
 
   const InputField(
       {super.key,
@@ -17,6 +18,7 @@ class InputField extends StatelessWidget {
       this.controller,
       required this.obscureText,
       this.margin,
+      this.multiline,
       this.focusNode, this.borderColor, this.focusedBorderColor});
 
   bool isValidEmail(String email) {
@@ -47,8 +49,10 @@ class InputField extends StatelessWidget {
         },
         style: Styles.inputField,
         focusNode: focusNode,
-        cursorColor: const Color.fromARGB(0, 113, 113, 113),
+        cursorColor: Colors.grey.shade400,
         cursorWidth: 1.5,
+        maxLines: multiline == true ? 5 : 1,
+        keyboardType: multiline == true ? TextInputType.multiline : TextInputType.text,
         decoration: InputDecoration(
             enabledBorder: OutlineInputBorder(
               borderSide: borderColor != null ? BorderSide(color: borderColor!) : const BorderSide(color: Colors.white),

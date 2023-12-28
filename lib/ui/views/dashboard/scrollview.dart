@@ -2,10 +2,10 @@ import 'dart:async';
 import 'dart:ui';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:internet_praktikum/core/services/updateWidgetListeners.dart';
 import 'package:internet_praktikum/ui/styles/Styles.dart';
 import 'package:internet_praktikum/ui/widgets/dashboardWidgets/mainDasboardinitializer.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
-
 
 class ScrollViewWidget extends StatelessWidget {
   DocumentReference? day;
@@ -13,7 +13,6 @@ class ScrollViewWidget extends StatelessWidget {
   ScrollViewWidget({super.key, required this.day, required this.userdata});
   List<dynamic>? bufferArray = List.empty();
   bool justChangged = false;
-  
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +21,6 @@ class ScrollViewWidget extends StatelessWidget {
     if (day == null) {
       return const CircularProgressIndicator();
     }
-    Map<String, StreamController<bool>> pressedEditButton = {};
     final Stream<DocumentSnapshot> _dayStream =
         firestore.collection('days').doc(day?.id).snapshots();
 
@@ -54,10 +52,6 @@ class ScrollViewWidget extends StatelessWidget {
               localbufferArray![i]["prename"] = userdata["prename"];
               localbufferArray![i]["lastname"] = userdata["lastname"];
             }
-
-            //Add for every widget a PressdEditButton that it can listen on changes
-            pressedEditButton[localbufferArray![i]["key"]] =
-                StreamController<bool>();
           }
           dayStreamFiltered.add(localbufferArray);
         }
@@ -79,9 +73,10 @@ class ScrollViewWidget extends StatelessWidget {
             // and set its elevation to the animated value.
             child: MainDasboardinitializer(
                 key: Key('$index'),
+                userdata: userdata!,
+                day: day,
                 title: bufferArray![index]["title"] as String,
-                data: bufferArray![index],
-                updateStream: pressedEditButton[bufferArray![index]["key"]]!.stream), // or any other fallback widget
+                data: bufferArray![index],), // or any other fallback widget
           );
         },
         child: child,
@@ -107,9 +102,8 @@ class ScrollViewWidget extends StatelessWidget {
           }
           debugPrint("Container is editable");
           return Container(
-            height: MediaQuery.of(context).size.height * 0.7,
-            margin: const EdgeInsets.only(
-                bottom: 65), // 65 because of the bottom navigation bar
+            padding: const EdgeInsets.only(bottom: 50),
+            // 65 because of the bottom navigation bar
             child: ReorderableListView(
               buildDefaultDragHandles: true,
               scrollDirection: Axis.vertical,
@@ -151,7 +145,13 @@ class ScrollViewWidget extends StatelessWidget {
                         children: [
                           SlidableAction(
                             onPressed: (sdf) {
-                              pressedEditButton[con["key"]]?.add(true);
+                              UpdateWidgetListeners().updateWidget(
+                                con["key"],
+                                con!,
+                                day!,
+                                userdata!,
+                                context,
+                              );
                             },
                             backgroundColor: Colors.transparent,
                             foregroundColor: Colors.blue,
@@ -195,9 +195,11 @@ class ScrollViewWidget extends StatelessWidget {
                         ],
                       ),
                       child: MainDasboardinitializer(
-                          title: con!["title"],
-                          data: con,
-                          updateStream: pressedEditButton[con["key"]]!.stream),
+                        title: con!["title"],
+                        userdata: userdata!,
+                        day: day,
+                        data: con
+                      ),
                     );
                   })
                   .toList()

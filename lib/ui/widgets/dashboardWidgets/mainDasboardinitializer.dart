@@ -20,18 +20,17 @@ class AddButton extends ChangeNotifier {
 class MainDasboardinitializer extends StatefulWidget {
   double elevation = 0;
   final String title;
-  Map<String, dynamic>? data;
-  Stream<bool> updateStream;
-  Map<String, dynamic>? userdata;
+  Map<String, dynamic> data;
+  Map<String, dynamic> userdata;
   DocumentReference? day;
-  MainDasboardinitializer(
-      {super.key,
-      double? elevation,
-      required this.title,
-      required this.data,
-      required this.updateStream,
-      this.userdata, 
-      this.day});
+  MainDasboardinitializer({
+    super.key,
+    double? elevation,
+    required this.title,
+    required this.data,
+    required this.userdata,
+    required this.day,
+  });
   @override
   State<MainDasboardinitializer> createState() =>
       _MainDasboardinitializerState();
@@ -58,13 +57,10 @@ class _MainDasboardinitializerState extends State<MainDasboardinitializer> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    SizedBox(
-                      width: 300,
-                      child: Text(
-                        super.widget.title,
-                        textAlign: TextAlign.left,
-                        style: Styles.mainDasboardinitializerTitle,
-                      ),
+                    Text(
+                      super.widget.title,
+                      textAlign: TextAlign.left,
+                      style: Styles.mainDasboardinitializerTitle,
                     ),
                     if (widget.data?["addAble"] != null &&
                         widget.data?["addAble"] == true)
@@ -84,20 +80,16 @@ class _MainDasboardinitializerState extends State<MainDasboardinitializer> {
                   } else {
                     if (widget.data?["type"] == "note") {
                       return SimpleNoteWidget(
-                          data: widget.data,
-                          userdata: widget.userdata,
-                          day: widget.day,
-                          pressedStream: widget.updateStream);
+                        data: widget.data,
+                      );
                     } else if (widget.data?["type"] == "list") {
                       return SimpleNoteWidget(
-                          data: widget.data,
-                          userdata: widget.userdata,
-                          day: widget.day,
-                          pressedStream: widget.updateStream);
+                        data: widget.data,
+                      );
                     } else if (widget.data?["type"] == "appointment") {
                       return AppointmentWidget(data: widget.data);
                     } else if (widget.data?["type"] == "survey") {
-                      return SurveyWidget(data: widget.data);
+                      return SurveyWidget(data: widget.data, userdata: widget.userdata, day: widget.day);
                     } else {
                       return const Text("No type is specified");
                     }
