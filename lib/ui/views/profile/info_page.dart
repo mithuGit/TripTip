@@ -60,7 +60,7 @@ class InfoPage extends StatelessWidget {
                       name: "Tim Carlo Päpke",
                       description: "Co Founder, CEO",
                       link: "bla bla bla",
-                      image: "assets/character_pic/mithu.png",
+                      image: "assets/character_pic/tim.png",
                       color: Colors.orange,
                     ),
                     CharakterContainer(

@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -10,6 +12,7 @@ import 'package:internet_praktikum/ui/widgets/my_button.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:pdf_render/pdf_render.dart';
 import 'package:pdf_render/pdf_render_widgets.dart';
+import 'package:internet_praktikum/ui/widgets/errorSnackbar.dart';
 
 class CreateTicketsWidget extends StatefulWidget {
   const CreateTicketsWidget({super.key});
@@ -26,43 +29,52 @@ class _CreateTicketsWidgetState extends State<CreateTicketsWidget> {
   bool isPdf = false;
 
   Future uploadFile() async {
-    try {
-      if (selectedImage == null && pickedFile == null) {
-        return;
-      }
+    if (selectedImage == null && pickedFile == null) {
+      return;
+    }
 
-      File file;
+    File file;
 
-      if (selectedImage != null) {
-        file = File(selectedImage!.path);
-      } else {
-        file = File(pickedFile!.path!);
-      }
+    if (selectedImage != null) {
+      file = File(selectedImage!.path);
+    } else {
+      file = File(pickedFile!.path!);
+    }
 
-      final auth = FirebaseAuth.instance.currentUser!;
-      final DocumentSnapshot<Map<String, dynamic>> userDoc =
-          await FirebaseFirestore.instance
-              .collection('users')
-              .doc(auth.uid)
-              .get();
-      final String tripId = userDoc.data()!['selectedtrip'].toString();
+    final auth = FirebaseAuth.instance.currentUser!;
+    final DocumentSnapshot<Map<String, dynamic>> userDoc =
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(auth.uid)
+            .get();
+    final String tripId = userDoc.data()!['selectedtrip'].toString();
 
-      // TODO: Pfad anpassen; Temporär in FirebaseStorage mit TripID und titleOfTicket
-      String titleOfTicketText = titleOfTicket.text;
-      String fileName = file.path.split('/').last;
-      final path = "files/$tripId/$titleOfTicketText/$fileName";
+    String titleOfTicketText = titleOfTicket.text;
 
+    // Check if the title already exists in the specified path
+    String fileName;
+    String path;
+
+    fileName = file.path.split('/').last;
+    path = "files/$tripId/$titleOfTicketText/$fileName";
+
+    bool fileExists = await doesFileExist(tripId, titleOfTicketText);
+
+    if (fileExists) {
+      // ignore: use_build_context_synchronously
+      ErrorSnackbar.showErrorSnackbar(
+          context, "File with title $titleOfTicketText already exists ");
+    } else {
       final ref = FirebaseStorage.instance.ref().child(path);
       setState(() {
         uploadTask = ref.putFile(file);
       });
+      
+      await uploadTask!.whenComplete(() {});
 
-      final snapshot = await uploadTask!.whenComplete(() {});
-      final urlDownload = await snapshot.ref.getDownloadURL();
-
-      print('Download-Link: $urlDownload');
-    } on Exception catch (e) {
-      print(e);
+      // Only for testing
+      //final urlDownload = await snapshot.ref.getDownloadURL();
+      //print('Download-Link: $urlDownload');
     }
   }
 
@@ -87,7 +99,6 @@ class _CreateTicketsWidgetState extends State<CreateTicketsWidget> {
   void takePicture() async {
     try {
       final imagePicker = ImagePicker();
-      //ImageSource.galery auch möglich
       final pickedImage = await imagePicker.pickImage(
           source: ImageSource.camera, maxWidth: 600);
 
@@ -148,7 +159,6 @@ class _CreateTicketsWidgetState extends State<CreateTicketsWidget> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        //TODO: checken ob Title schon existiert, um Konflikte zu vermeiden
         InputField(
             controller: titleOfTicket,
             borderColor: Colors.grey.shade400,
@@ -274,5 +284,17 @@ class _CreateTicketsWidgetState extends State<CreateTicketsWidget> {
         ),
       ],
     );
+  }
+
+  // Function to check if a file already exists in the specified path
+  Future<bool> doesFileExist(String tripId, String titleOfTicketText) async {
+    final pathToCheck = "files/$tripId/$titleOfTicketText";
+    final ref =
+        await FirebaseStorage.instance.ref().child(pathToCheck).listAll();
+    if (ref.items.isNotEmpty) {
+      return true;
+    } else {
+      return false;
+    }
   }
 }

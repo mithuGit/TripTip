@@ -29,7 +29,7 @@ class _MapPageState extends State<MapPage> {
   CameraPosition? _initialCameraPosition;
 
   //Circle
-  final Set<Circle> _circles = <Circle>{};
+  Set<Circle> _circles = {};
   var radiusValue = 3000.0;
   LatLng? tappedPoint;
 
@@ -120,45 +120,38 @@ class _MapPageState extends State<MapPage> {
             ),
           ]),
       body: Stack(
-        alignment: Alignment.center,
         children: [
-          GestureDetector(
-            //TODO: Es soll wenn man ert auf die Map drückt hintergrund weg machen und map nimmt screen size an
-            onTap: () => setState(() {
-              mapIsActiv = !mapIsActiv;
-            }),
-            child: Container(
-              //height: MediaQuery.of(context).size.height * 0.5,
-              //width: MediaQuery.of(context).size.width,
-              child: GoogleMap(
-                myLocationButtonEnabled: false,
-                zoomControlsEnabled: false,
-                initialCameraPosition: _initialCameraPosition!,
-                onMapCreated: (GoogleMapController controller) {
-                  _googleMapController.complete(controller);
-                },
-                markers: {
-                  if (_origin != null) _origin!,
-                  if (_destination != null) _destination!,
-                },
-                polylines: {
-                  if (_info != null)
-                    Polyline(
-                      polylineId: const PolylineId('overview_polyline'),
-                      color: Colors.red,
-                      width: 5,
-                      points: _info!.polylinePoints
-                          .map((e) => LatLng(e.latitude, e.longitude))
-                          .toList(),
-                    ),
-                },
-                onLongPress: _addMarker,
-                circles: _circles,
-                onTap: (point) {
-                  //tappedPoint = point; // TODO: maxbe für später
-                  _setCircle(point);
-                },
-              ),
+          Container(
+            //height: MediaQuery.of(context).size.height * 0.5,
+            //width: MediaQuery.of(context).size.width,
+            child: GoogleMap(
+              myLocationButtonEnabled: false,
+              zoomControlsEnabled: false,
+              initialCameraPosition: _initialCameraPosition!,
+              onMapCreated: (GoogleMapController controller) {
+                _googleMapController.complete(controller);
+              },
+              markers: {
+                if (_origin != null) _origin!,
+                if (_destination != null) _destination!,
+              },
+              polylines: {
+                if (_info != null)
+                  Polyline(
+                    polylineId: const PolylineId('overview_polyline'),
+                    color: Colors.red,
+                    width: 5,
+                    points: _info!.polylinePoints
+                        .map((e) => LatLng(e.latitude, e.longitude))
+                        .toList(),
+                  ),
+              },
+              onLongPress: _addMarker,
+              circles: _circles,
+              onTap: (point) {
+                //tappedPoint = point; // TODO: maxbe für später
+                _setCircle(point);
+              },
             ),
           ),
           if (_info != null)
@@ -217,17 +210,21 @@ class _MapPageState extends State<MapPage> {
                     color: Colors.black.withOpacity(0.3),
                     child: Row(children: [
                       Expanded(
-                          child: Slider(
-                              max: 7000,
-                              min: 1000,
-                              value: radiusValue,
-                              onChanged: (newValue) {
-                                setState(() {
-                                  radiusValue = newValue;
-                                  pressedNear = false;
-                                  _setCircle(tappedPoint!);
-                                });
-                              }))
+                        child: Slider(
+                          max: 7000,
+                          min: 1000,
+                          value: radiusValue,
+                          onChanged: (newValue) {
+                            setState(() {
+                              radiusValue = newValue;
+                              pressedNear = false;
+                              if (tappedPoint != null) {
+                                _setCircle(tappedPoint!);
+                              }
+                            });
+                          },
+                        ),
+                      )
                     ]),
                   ))
               : Container(),
