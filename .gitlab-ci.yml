@@ -1,4 +1,4 @@
-image: ghcr.io/cirruslabs/flutter:latest
+image: cirrusci/flutter:3.7.8
 stages:
   - tests
   - build
