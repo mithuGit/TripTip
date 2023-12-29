@@ -8,6 +8,8 @@ import 'package:flutter/material.dart';
 import 'package:internet_praktikum/ui/views/ticket/ImageViewerPage.dart';
 import 'package:internet_praktikum/ui/views/ticket/PDFViewerPage.dart';
 import 'package:internet_praktikum/ui/widgets/bottom_sheet.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:pdf_render/pdf_render_widgets.dart';
 
 class TicketContainer extends StatefulWidget {
   const TicketContainer({
@@ -22,10 +24,12 @@ class TicketContainer extends StatefulWidget {
 }
 
 class _TicketContainerState extends State<TicketContainer> {
-  Image? image;
+  Image image = Image.network('');
   bool isImageLoading = false; // TODO: loading animation npoh einbauen
   bool isPDF = false;
   String? imageUrlNew;
+  PdfDocumentLoader? pdfDocumentLoader;
+  File? pdfFile;
 
   @override
   void initState() {
@@ -48,22 +52,35 @@ class _TicketContainerState extends State<TicketContainer> {
           .list()
           .then((value) => value.items.first.fullPath);
 
-      imageUrlNew = imageUrl;
-
       imageUrl.contains('.pdf') ? isPDF = true : isPDF = false;
 
       var getDownloadUrlLink =
           await FirebaseStorage.instance.ref(imageUrl).getDownloadURL();
       print("LIST:  $getDownloadUrlLink");
-      setState(() {
-        image = Image.network(
-          getDownloadUrlLink,
-          fit: BoxFit.cover,
-          width: double.infinity,
-        );
-      });
+
+      isPDF
+          ? setState(() async {
+              final Directory tempDir = await getTemporaryDirectory();
+              final File localPdfFile = File('${tempDir.path}/${widget.title}');
+              await FirebaseStorage.instance
+                  .ref(imageUrl)
+                  .writeToFile(localPdfFile);
+
+              pdfDocumentLoader = PdfDocumentLoader.openFile(
+                localPdfFile.path,
+                pageNumber: 1,
+              );
+              pdfFile = localPdfFile;
+            })
+          : setState(() {
+              image = Image.network(
+                getDownloadUrlLink,
+                fit: BoxFit.cover,
+                width: double.infinity,
+              );
+            });
     } catch (error) {
-      image = null;
+     // image = null;
       if (kDebugMode) {
         print('Error fetching image: $error');
       }
@@ -99,22 +116,22 @@ class _TicketContainerState extends State<TicketContainer> {
                             height: 350,
                             width: double.infinity,
                             alignment: Alignment.center,
-                            child: image != null
+                            child: image != null || pdfFile != null
                                 ? GestureDetector(
                                     onTap: () {
-                                      (isPDF == true
+                                      ((isPDF == true && imageUrlNew != null)
                                           ? openPDF(
                                               context,
-                                              File(image!.toString()),
+                                              pdfFile!,
                                               widget
                                                   .title) // Das funktioniert nicht
                                           : openImage(
                                               context,
-                                              image!,
+                                              image,
                                               widget
                                                   .title)); // Das funktioniert
                                     },
-                                    child: image,
+                                    child: isPDF ? pdfDocumentLoader : image,
                                   )
                                 : const Center(
                                     child: Text(

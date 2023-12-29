@@ -7,7 +7,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:internet_praktikum/core/services/placeApiProvider.dart';
 import 'package:internet_praktikum/ui/views/map/directions.dart';
 import 'package:internet_praktikum/ui/views/map/directions_repository.dart';
-import 'package:internet_praktikum/ui/widgets/inputfield_search_lookahead.dart';
+//import 'package:internet_praktikum/ui/widgets/inputfield_search_lookahead.dart';
 
 class MapPage extends StatefulWidget {
   const MapPage({super.key});
@@ -18,7 +18,7 @@ class MapPage extends StatefulWidget {
 
 class _MapPageState extends State<MapPage> {
 // TODO: null beim landen von map -> fixen
-  Completer<GoogleMapController> _googleMapController = Completer();
+  final Completer<GoogleMapController> _googleMapController = Completer();
   Marker? _origin;
   Marker? _destination;
   Directions? _info;
