@@ -16,7 +16,18 @@ class _ImageViewerPageState extends State<ImageViewerPage> {
       appBar: AppBar(
         title: Text(widget.title),
       ),
-      body: Center(child: widget.image),
+      body: Center(
+        //für zoom in und zoom raus 
+        child:InteractiveViewer(
+          maxScale: double.infinity,
+          //infinity berechtigt oder etwas übertrieben ?
+          //TODO 
+          minScale: 0.5,
+        panEnabled: true,
+          scaleEnabled: true,
+          trackpadScrollCausesScale: false,
+        child: widget.image),)
+      
     );
   }
 }

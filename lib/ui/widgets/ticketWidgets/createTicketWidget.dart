@@ -173,6 +173,8 @@ class _CreateTicketsWidgetState extends State<CreateTicketsWidget> {
                   ? GestureDetector(
                       // Nochmal neues File erstellen, wenn man drauf klickt
                       // TODO: Gerade funktioniert nur Bilder und keine PDF
+                      //Thai: Das muss du mir nochmal erklären bei mir klappts oder lese ich das falsch
+
                       onTap: () => selectedFile(),
                       child: isPdf
                           ?
@@ -279,6 +281,10 @@ class _CreateTicketsWidgetState extends State<CreateTicketsWidget> {
     );
   }
 
+
+
+
+//TODO BuildProgress mit if uploadtask != null dann wirds aufgerufen ? eventuell nach upload und dann wird der upload button weiß wenns ready ist 
   Widget buildProgress() => StreamBuilder<TaskSnapshot>(
       stream: uploadTask!.snapshotEvents,
       builder: (context, snapshot) {
