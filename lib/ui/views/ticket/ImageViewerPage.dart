@@ -20,8 +20,6 @@ class _ImageViewerPageState extends State<ImageViewerPage> {
           //für zoom in und zoom raus
           child: InteractiveViewer(
               maxScale: double.infinity,
-              //infinity berechtigt oder etwas übertrieben ?
-              //TODO
               minScale: 0.5,
               panEnabled: true,
               scaleEnabled: true,

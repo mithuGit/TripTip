@@ -24,12 +24,11 @@ class TicketContainer extends StatefulWidget {
 }
 
 class _TicketContainerState extends State<TicketContainer> {
-  Image image = Image.network('');
-  bool isImageLoading = false; // TODO: loading animation npoh einbauen
+  Image? image;
   bool isPDF = false;
-  String? imageUrlNew;
   PdfDocumentLoader? pdfDocumentLoader;
   File? pdfFile;
+  var height = 350.0;
 
   @override
   void initState() {
@@ -52,25 +51,24 @@ class _TicketContainerState extends State<TicketContainer> {
           .list()
           .then((value) => value.items.first.fullPath);
 
-      imageUrl.contains('.pdf') ? isPDF = true : isPDF = false;
-
       var getDownloadUrlLink =
           await FirebaseStorage.instance.ref(imageUrl).getDownloadURL();
-      print("LIST:  $getDownloadUrlLink");
+      getDownloadUrlLink.contains('.pdf') ? isPDF = true : isPDF = false;
 
       isPDF
           ? setState(() async {
               final Directory tempDir = await getTemporaryDirectory();
-              final File localPdfFile = File('${tempDir.path}/${widget.title}');
+              pdfFile = File('${tempDir.path}/${widget.title}');
               await FirebaseStorage.instance
                   .ref(imageUrl)
-                  .writeToFile(localPdfFile);
+                  .writeToFile(pdfFile!);
 
               pdfDocumentLoader = PdfDocumentLoader.openFile(
-                localPdfFile.path,
+                pdfFile!.path,
                 pageNumber: 1,
               );
-              pdfFile = localPdfFile;
+              image = null;
+              height = 480.0;
             })
           : setState(() {
               image = Image.network(
@@ -78,9 +76,11 @@ class _TicketContainerState extends State<TicketContainer> {
                 fit: BoxFit.cover,
                 width: double.infinity,
               );
+              pdfFile = null;
+              height = 350.0;
             });
     } catch (error) {
-     // image = null;
+      // image = null;
       if (kDebugMode) {
         print('Error fetching image: $error');
       }
@@ -102,7 +102,7 @@ class _TicketContainerState extends State<TicketContainer> {
                     return Column(
                         // hier Modal für Preview des Belegs
                         children: [
-                          const SizedBox(height: 30.0),
+                          const SizedBox(height: 20.0),
                           Container(
                             decoration: BoxDecoration(
                               border: Border.all(
@@ -113,23 +113,17 @@ class _TicketContainerState extends State<TicketContainer> {
                                     .withOpacity(0.2),
                               ),
                             ),
-                            height: 350,
+                            height: height,
                             width: double.infinity,
                             alignment: Alignment.center,
                             child: image != null || pdfFile != null
                                 ? GestureDetector(
                                     onTap: () {
-                                      ((isPDF == true && imageUrlNew != null)
-                                          ? openPDF(
-                                              context,
-                                              pdfFile!,
-                                              widget
-                                                  .title) // Das funktioniert nicht
-                                          : openImage(
-                                              context,
-                                              image,
-                                              widget
-                                                  .title)); // Das funktioniert
+                                      isPDF
+                                          ? (openPDF(
+                                              context, pdfFile!, widget.title))
+                                          : (openImage(
+                                              context, image!, widget.title));
                                     },
                                     child: isPDF ? pdfDocumentLoader : image,
                                   )

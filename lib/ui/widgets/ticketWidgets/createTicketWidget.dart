@@ -25,73 +25,82 @@ class _CreateTicketsWidgetState extends State<CreateTicketsWidget> {
   PlatformFile? pickedFile;
   bool isPdf = false;
 
-  //TODO: Die Methode in ein Try-Catch-Block reinpacken
   Future uploadFile() async {
-    if (selectedImage == null && pickedFile == null) {
-      return;
+    try {
+      if (selectedImage == null && pickedFile == null) {
+        return;
+      }
+
+      File file;
+
+      if (selectedImage != null) {
+        file = File(selectedImage!.path);
+      } else {
+        file = File(pickedFile!.path!);
+      }
+
+      final auth = FirebaseAuth.instance.currentUser!;
+      final DocumentSnapshot<Map<String, dynamic>> userDoc =
+          await FirebaseFirestore.instance
+              .collection('users')
+              .doc(auth.uid)
+              .get();
+      final String tripId = userDoc.data()!['selectedtrip'].toString();
+
+      // TODO: Pfad anpassen; Temporär in FirebaseStorage mit TripID und titleOfTicket
+      String titleOfTicketText = titleOfTicket.text;
+      String fileName = file.path.split('/').last;
+      final path = "files/$tripId/$titleOfTicketText/$fileName";
+
+      final ref = FirebaseStorage.instance.ref().child(path);
+      setState(() {
+        uploadTask = ref.putFile(file);
+      });
+
+      final snapshot = await uploadTask!.whenComplete(() {});
+      final urlDownload = await snapshot.ref.getDownloadURL();
+
+      print('Download-Link: $urlDownload');
+    } on Exception catch (e) {
+      print(e);
     }
-
-    File file;
-
-    if (selectedImage != null) {
-      file = File(selectedImage!.path);
-    } else {
-      file = File(pickedFile!.path!);
-    }
-
-    final auth = FirebaseAuth.instance.currentUser!;
-    final DocumentSnapshot<Map<String, dynamic>> userDoc =
-        await FirebaseFirestore.instance
-            .collection('users')
-            .doc(auth.uid)
-            .get();
-    final String tripId = userDoc.data()!['selectedtrip'].toString();
-
-    // TODO: Pfad anpassen; Temporär in FirebaseStorage mit TripID und titleOfTicket
-    String titleOfTicketText = titleOfTicket.text;
-    String fileName = file.path.split('/').last;
-    final path = "files/$tripId/$titleOfTicketText/$fileName";
-
-    final ref = FirebaseStorage.instance.ref().child(path);
-    setState(() {
-      uploadTask = ref.putFile(file);
-    });
-
-    final snapshot = await uploadTask!.whenComplete(() {});
-    final urlDownload = await snapshot.ref.getDownloadURL();
-
-    print('Download-Link: $urlDownload');
   }
 
-  // TODO: Die Methode in ein Try-Catch-Block reinpacken
   Future selectedFile() async {
-    final result = await FilePicker.platform.pickFiles(
-      allowMultiple: false,
-      //type: FileType.custom,
-      //allowedExtensions: ['jpg', 'pdf', 'png', 'jpeg'],
-    );
-    if (result == null) return;
+    try {
+      final result = await FilePicker.platform.pickFiles(
+        allowMultiple: false,
+        //type: FileType.custom,
+        //allowedExtensions: ['jpg', 'pdf', 'png', 'jpeg'],
+      );
+      if (result == null) return;
 
-    setState(() {
-      isPdf = result.files.first.extension == 'pdf';
-      pickedFile = result.files.first;
-    });
+      setState(() {
+        isPdf = result.files.first.extension == 'pdf';
+        pickedFile = result.files.first;
+      });
+    } on Exception catch (e) {
+      print(e);
+    }
   }
 
-  // TODO: Die Methode in ein Try-Catch-Block reinpacken
   void takePicture() async {
-    final imagePicker = ImagePicker();
-    //ImageSource.galery auch möglich
-    final pickedImage =
-        await imagePicker.pickImage(source: ImageSource.camera, maxWidth: 600);
+    try {
+      final imagePicker = ImagePicker();
+      //ImageSource.galery auch möglich
+      final pickedImage = await imagePicker.pickImage(
+          source: ImageSource.camera, maxWidth: 600);
 
-    if (pickedImage == null) {
-      return;
+      if (pickedImage == null) {
+        return;
+      }
+
+      setState(() {
+        selectedImage = File(pickedImage.path);
+      });
+    } catch (e) {
+      print(e);
     }
-
-    setState(() {
-      selectedImage = File(pickedImage.path);
-    });
   }
 
   void showAlertDialog(BuildContext context,
@@ -139,8 +148,7 @@ class _CreateTicketsWidgetState extends State<CreateTicketsWidget> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        //TODO: checken ob Title schon existiert, um KOnflikte zu vermeiden
-        //TODO: checken ob Title schon existiert, um KOnflikte zu vermeiden
+        //TODO: checken ob Title schon existiert, um Konflikte zu vermeiden
         InputField(
             controller: titleOfTicket,
             borderColor: Colors.grey.shade400,
@@ -174,11 +182,9 @@ class _CreateTicketsWidgetState extends State<CreateTicketsWidget> {
               : pickedFile != null
                   ? GestureDetector(
                       // Nochmal neues File erstellen, wenn man drauf klickt
-                      // TODO: Gerade funktioniert nur Bilder und keine PDF
                       onTap: () => selectedFile(),
                       child: isPdf
-                          ?
-                          FutureBuilder<PdfDocument>(
+                          ? FutureBuilder<PdfDocument>(
                               future: PdfDocument.openFile(pickedFile!.path!),
                               builder: (context, snapshot) {
                                 if (snapshot.connectionState ==
@@ -269,35 +275,4 @@ class _CreateTicketsWidgetState extends State<CreateTicketsWidget> {
       ],
     );
   }
-
-
-
-
-//TODO BuildProgress mit if uploadtask != null dann wirds aufgerufen ? eventuell nach upload und dann wird der upload button weiß wenns ready ist 
-  Widget buildProgress() => StreamBuilder<TaskSnapshot>(
-      stream: uploadTask!.snapshotEvents,
-      builder: (context, snapshot) {
-        if (snapshot.hasData) {
-          final data = snapshot.data!;
-          final progress = data.bytesTransferred / data.totalBytes;
-
-          return SizedBox(
-            height: 80,
-            child: Stack(fit: StackFit.expand, children: [
-              LinearProgressIndicator(
-                value: progress,
-                backgroundColor: Colors.black,
-                color: Colors.green,
-              ),
-              Center(
-                  child: Text(
-                '${(100 * progress).roundToDouble()}%',
-                style: const TextStyle(color: Colors.black),
-              ))
-            ]),
-          );
-        } else {
-          return Container();
-        }
-      });
 }
