@@ -31,10 +31,9 @@ integration_tests_android: # Run the integration tests on android
   tags:
     - docker
   artifacts:
+    when: always
     paths:
-      - screenshots
-      - report.json
-      - video.mp4      
+      - e2e_output.log
 build: # Build the app for android
   stage: build
   before_script:
