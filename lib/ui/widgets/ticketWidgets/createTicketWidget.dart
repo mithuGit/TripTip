@@ -4,12 +4,12 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:internet_praktikum/ui/styles/Styles.dart';
 import 'package:internet_praktikum/ui/widgets/inputfield.dart';
-import 'package:internet_praktikum/ui/widgets/profileWidgets/profileButton.dart';
+import 'package:internet_praktikum/ui/widgets/my_button.dart';
 import 'package:file_picker/file_picker.dart';
-//import 'package:pdf_render/pdf_render.dart';
-//import 'package:pdf_render/pdf_render_widgets.dart';
-//import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
+import 'package:pdf_render/pdf_render.dart';
+import 'package:pdf_render/pdf_render_widgets.dart';
 
 class CreateTicketsWidget extends StatefulWidget {
   const CreateTicketsWidget({super.key});
@@ -139,6 +139,7 @@ class _CreateTicketsWidgetState extends State<CreateTicketsWidget> {
   Widget build(BuildContext context) {
     return Column(
       children: [
+        //TODO: checken ob Title schon existiert, um KOnflikte zu vermeiden
         InputField(
             controller: titleOfTicket,
             borderColor: Colors.grey.shade400,
@@ -173,14 +174,10 @@ class _CreateTicketsWidgetState extends State<CreateTicketsWidget> {
                   ? GestureDetector(
                       // Nochmal neues File erstellen, wenn man drauf klickt
                       // TODO: Gerade funktioniert nur Bilder und keine PDF
-                      //Thai: Das muss du mir nochmal erklären bei mir klappts oder lese ich das falsch
-
                       onTap: () => selectedFile(),
                       child: isPdf
                           ?
-                          //SfPdfViewer.file(File(pickedFile!.path!))
-                          //ENTWEDER MIT SFPDFVIEWER ODER MIT PDFRENDER
-                          /*FutureBuilder<PdfDocument>(
+                          FutureBuilder<PdfDocument>(
                               future: PdfDocument.openFile(pickedFile!.path!),
                               builder: (context, snapshot) {
                                 if (snapshot.connectionState ==
@@ -189,7 +186,7 @@ class _CreateTicketsWidgetState extends State<CreateTicketsWidget> {
                                   return pdfDocument != null
                                       ? PdfDocumentLoader(
                                           doc: pdfDocument,
-                                          pageNumber: 0,
+                                          pageNumber: 1,
                                         )
                                       : Container(); // Handle null document
                                 } else if (snapshot.hasError) {
@@ -200,10 +197,6 @@ class _CreateTicketsWidgetState extends State<CreateTicketsWidget> {
                                   return const CircularProgressIndicator();
                                 }
                               },
-                            )*/
-                          const ImageIcon(
-                              AssetImage("assets/pdf_file.png"),
-                              size: 90,
                             )
                           : Image.file(
                               File(pickedFile!.path!),
@@ -247,35 +240,30 @@ class _CreateTicketsWidgetState extends State<CreateTicketsWidget> {
         ),
 
         const SizedBox(height: 10),
-        ProfileButton(
-          onTap: () => {
+        MyButton(
+          borderColor: Colors.black,
+          textStyle: Styles.buttonFontStyleModal,
+          onTap: () {
             // TODO: Widget soll dann erstellt werden und dieser soll in Ticket direkt zu sehen sein.
             if (titleOfTicket.text.isNotEmpty &&
-                (selectedImage != null || pickedFile != null))
-              {
-                uploadFile(),
-                Navigator.of(context).pop(),
-                setState(() {
-                  uploadTask = null;
-                })
+                (selectedImage != null || pickedFile != null)) {
+              uploadFile();
+              Navigator.of(context).pop();
+              setState(() {
+                uploadTask = null;
+              });
+            } else {
+              if (selectedImage == null && pickedFile == null) {
+                showAlertDialog(context);
+              } else {
+                showAlertDialog(context,
+                    title: "Please enter a title for your Ticket or Receipt",
+                    button1: "Ok",
+                    button2: false);
               }
-            else
-              {
-                if (selectedImage == null && pickedFile == null)
-                  {showAlertDialog(context)}
-                else
-                  {
-                    showAlertDialog(context,
-                        title:
-                            "Please enter a title for your Ticket or Receipt",
-                        button1: "Ok",
-                        button2: false)
-                  }
-              }
+            }
           },
-          title: "Upload Ticket or Receipt",
-          textcolor: Colors.white,
-          backgroundColor: Colors.blue,
+          text: "Upload Ticket or Receipt",
         ),
       ],
     );
