@@ -1,12 +1,12 @@
 import 'dart:async';
-
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:internet_praktikum/core/services/placeApiProvider.dart';
 import 'package:internet_praktikum/ui/views/map/directions.dart';
 import 'package:internet_praktikum/ui/views/map/directions_repository.dart';
+import 'package:internet_praktikum/core/services/map_service.dart';
 //import 'package:internet_praktikum/ui/widgets/inputfield_search_lookahead.dart';
 
 class MapPage extends StatefulWidget {
@@ -28,10 +28,21 @@ class _MapPageState extends State<MapPage> {
 
   CameraPosition? _initialCameraPosition;
 
+//Marker
+  Set<Marker> _markers = <Marker>{};
+  Set<Marker> _markersDupe = Set<Marker>();
+
+  int markerIdCounter = 1;
+
+  //places
+  List allFavoritePlaces = [];
+  String tokenKey = '';
+
   //Circle
-  Set<Circle> _circles = {};
+  final Set<Circle> _circles = <Circle>{};
   var radiusValue = 3000.0;
-  LatLng? tappedPoint;
+  dynamic tappedPoint;
+  Timer? _debounce;
 
   //Toggling UI as we need;
   bool searchToggle = false;
@@ -44,7 +55,7 @@ class _MapPageState extends State<MapPage> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    getLatLng().then((value) => setState(() {
+    GoogleMapService().getLatLng().then((value) => setState(() {
           latLng = value;
           _initialCameraPosition = CameraPosition(
             target: latLng != null ? latLng! : const LatLng(0, 0),
@@ -134,6 +145,7 @@ class _MapPageState extends State<MapPage> {
               markers: {
                 if (_origin != null) _origin!,
                 if (_destination != null) _destination!,
+                ..._markers,
               },
               polylines: {
                 if (_info != null)
@@ -149,7 +161,7 @@ class _MapPageState extends State<MapPage> {
               onLongPress: _addMarker,
               circles: _circles,
               onTap: (point) {
-                //tappedPoint = point; // TODO: maxbe für später
+                tappedPoint = point;
                 _setCircle(point);
               },
             ),
@@ -182,26 +194,6 @@ class _MapPageState extends State<MapPage> {
                 ),
               ),
             ),
-          /*mapIsActiv ? Container(
-            decoration: const BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage(
-                    'assets/background_forest_trans.png'), // assets/BackgroundCity.png
-                fit: BoxFit.fitWidth,
-              ),
-            ),
-          ) : const Text("Map is not activ"),*/
-
-          /*Padding(
-            padding: const EdgeInsets.only(left: 14, right: 14),
-            child: AsyncAutocomplete(
-              onDestinationPick: (PlaceDetails details) {
-                setState(() {
-                  placeDetails = details;
-                });
-              },
-            ),
-          ),*/
           radiusSlider
               ? Padding(
                   padding: const EdgeInsets.fromLTRB(15, 30, 15, 0),
@@ -210,21 +202,101 @@ class _MapPageState extends State<MapPage> {
                     color: Colors.black.withOpacity(0.3),
                     child: Row(children: [
                       Expanded(
-                        child: Slider(
-                          max: 7000,
-                          min: 1000,
-                          value: radiusValue,
-                          onChanged: (newValue) {
-                            setState(() {
-                              radiusValue = newValue;
-                              pressedNear = false;
-                              if (tappedPoint != null) {
-                                _setCircle(tappedPoint!);
-                              }
-                            });
-                          },
-                        ),
-                      )
+                          child: Slider(
+                        max: 7000,
+                        min: 1000,
+                        value: radiusValue,
+                        onChanged: (newValue) {
+                          setState(() {
+                            radiusValue = newValue;
+                            pressedNear = false;
+                            if (tappedPoint != null) {
+                              _setCircle(tappedPoint!);
+                            }
+                          });
+                        },
+                      )),
+                      !pressedNear
+                          ? IconButton(
+                              onPressed: () {
+                                if (_debounce?.isActive ?? false) {
+                                  _debounce?.cancel();
+                                }
+                                _debounce =
+                                    Timer(const Duration(seconds: 2), () async {
+                                  var placesResult = await GoogleMapService()
+                                      .getPlaceDetails(
+                                          tappedPoint, radiusValue.toInt());
+
+                                  List<dynamic> placesWithin =
+                                      placesResult['results'] as List;
+
+                                  allFavoritePlaces = placesWithin;
+
+                                  tokenKey =
+                                      placesResult['next_page_token'] ?? 'none';
+                                  _markers = {};
+                                  for (var element in placesWithin) {
+                                    _setNearMarker(
+                                      LatLng(
+                                          element['geometry']['location']
+                                              ['lat'],
+                                          element['geometry']['location']
+                                              ['lng']),
+                                      element['name'],
+                                      element['types'],
+                                      element['business_status'] ??
+                                          'not available',
+                                    );
+                                  }
+                                  _markersDupe = _markers;
+                                  pressedNear = true;
+                                });
+                              },
+                              icon: const Icon(
+                                Icons.near_me,
+                                color: Colors.blue,
+                              ))
+                          : IconButton(
+                              onPressed: () {
+                                if (_debounce?.isActive ?? false) {
+                                  _debounce?.cancel();
+                                }
+                                _debounce =
+                                    Timer(const Duration(seconds: 2), () async {
+                                  if (tokenKey != 'none') {
+                                    var placesResult = await GoogleMapService()
+                                        .getMorePlaceDetails(tokenKey);
+
+                                    List<dynamic> placesWithin =
+                                        placesResult['results'] as List;
+
+                                    allFavoritePlaces.addAll(placesWithin);
+
+                                    tokenKey =
+                                        placesResult['next_page_token'] ??
+                                            'none';
+
+                                    for (var element in placesWithin) {
+                                      _setNearMarker(
+                                        LatLng(
+                                            element['geometry']['location']
+                                                ['lat'],
+                                            element['geometry']['location']
+                                                ['lng']),
+                                        element['name'],
+                                        element['types'],
+                                        element['business_status'] ??
+                                            'not available',
+                                      );
+                                    }
+                                  } else {
+                                    print('Thats all folks!!');
+                                  }
+                                });
+                              },
+                              icon: const Icon(Icons.more_time,
+                                  color: Colors.blue)),
                     ]),
                   ))
               : Container(),
@@ -264,6 +336,53 @@ class _MapPageState extends State<MapPage> {
     });
   }
 
+  _setNearMarker(LatLng point, String label, List types, String status) async {
+    var counter = markerIdCounter++;
+
+    final Uint8List markerIcon;
+
+    if (types.contains('restaurants')) {
+      markerIcon =
+          await getBytesFromAsset('assets/mapicons/restaurants.png', 75);
+    } else if (types.contains('food')) {
+      markerIcon = await getBytesFromAsset('assets/mapicons/food.png', 75);
+    } else if (types.contains('school')) {
+      markerIcon = await getBytesFromAsset('assets/mapicons/schools.png', 75);
+    } else if (types.contains('bar')) {
+      markerIcon = await getBytesFromAsset('assets/mapicons/bars.png', 75);
+    } else if (types.contains('lodging')) {
+      markerIcon = await getBytesFromAsset('assets/mapicons/hotels.png', 75);
+    } else if (types.contains('store')) {
+      markerIcon =
+          await getBytesFromAsset('assets/mapicons/retail-stores.png', 75);
+    } else if (types.contains('locality')) {
+      markerIcon =
+          await getBytesFromAsset('assets/mapicons/local-services.png', 75);
+    } else {
+      markerIcon = await getBytesFromAsset('assets/mapicons/places.png', 75);
+    }
+    final Marker marker = Marker(
+        markerId: MarkerId('marker_$counter'),
+        position: point,
+        onTap: () {},
+        icon: BitmapDescriptor.fromBytes(markerIcon));
+
+    setState(() {
+      _markers.add(marker);
+    });
+  }
+
+  Future<Uint8List> getBytesFromAsset(String path, int width) async {
+    ByteData data = await rootBundle.load(path);
+
+    ui.Codec codec = await ui.instantiateImageCodec(data.buffer.asUint8List(),
+        targetWidth: width);
+    ui.FrameInfo fi = await codec.getNextFrame();
+    return (await fi.image.toByteData(format: ui.ImageByteFormat.png))!
+        .buffer
+        .asUint8List();
+  }
+
   void _addMarker(LatLng pos) async {
     if (_origin == null || (_origin != null && _destination != null)) {
       // Origin is not set OR Origin/Destination are both set
@@ -301,41 +420,5 @@ class _MapPageState extends State<MapPage> {
           .getDirection(origin: _origin!.position, destination: pos);
       setState(() => _info = directions);
     }
-  }
-
-  Future<LatLng> getLatLng() async {
-    final auth = FirebaseAuth.instance.currentUser;
-
-    if (auth == null) {
-      // Handle the case where the user is not authenticated
-      return Future.error('User not authenticated');
-    }
-
-    final DocumentSnapshot<Map<String, dynamic>> userDoc =
-        await FirebaseFirestore.instance
-            .collection('users')
-            .doc(auth.uid)
-            .get();
-
-    final String tripId = userDoc.data()!['selectedtrip'].toString();
-
-    final DocumentSnapshot<Map<String, dynamic>> selectedTripDoc =
-        await FirebaseFirestore.instance.collection('trips').doc(tripId).get();
-
-    if (selectedTripDoc.exists == false) {
-      // Handle the case where no trip is found for the user
-      return Future.error('No trip found for the user');
-    }
-
-    final String lat = selectedTripDoc
-        .data()!['placedetails']["location"]["latitude"]
-        .toString();
-    final String long = selectedTripDoc
-        .data()!['placedetails']["location"]["longitude"]
-        .toString();
-
-    LatLng latLng = LatLng(double.parse(lat), double.parse(long));
-    // print( "latLng: " + latLng.toString());
-    return latLng;
   }
 }
