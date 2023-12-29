@@ -7,6 +7,7 @@ import 'package:internet_praktikum/core/services/placeApiProvider.dart';
 import 'package:internet_praktikum/ui/views/map/directions.dart';
 import 'package:internet_praktikum/ui/views/map/directions_repository.dart';
 import 'package:internet_praktikum/core/services/map_service.dart';
+import 'package:internet_praktikum/ui/widgets/errorSnackbar.dart';
 //import 'package:internet_praktikum/ui/widgets/inputfield_search_lookahead.dart';
 
 class MapPage extends StatefulWidget {
@@ -30,7 +31,7 @@ class _MapPageState extends State<MapPage> {
 
 //Marker
   Set<Marker> _markers = <Marker>{};
-  Set<Marker> _markersDupe = Set<Marker>();
+  //Set<Marker> _markersDupe = Set<Marker>();
 
   int markerIdCounter = 1;
 
@@ -249,7 +250,7 @@ class _MapPageState extends State<MapPage> {
                                           'not available',
                                     );
                                   }
-                                  _markersDupe = _markers;
+                                  //_markersDupe = _markers;
                                   pressedNear = true;
                                 });
                               },
@@ -291,7 +292,7 @@ class _MapPageState extends State<MapPage> {
                                       );
                                     }
                                   } else {
-                                    print('Thats all folks!!');
+                                    ErrorSnackbar.showErrorSnackbar(context, "No more places available");
                                   }
                                 });
                               },
@@ -340,26 +341,26 @@ class _MapPageState extends State<MapPage> {
     var counter = markerIdCounter++;
 
     final Uint8List markerIcon;
-
+//TODO alle else if teile machen 
     if (types.contains('restaurants')) {
       markerIcon =
-          await getBytesFromAsset('assets/mapicons/restaurants.png', 75);
+          await getBytesFromAsset('assets/map_icon/restaurants.png', 75);
     } else if (types.contains('food')) {
-      markerIcon = await getBytesFromAsset('assets/mapicons/food.png', 75);
+      markerIcon = await getBytesFromAsset('assets/map_icon/food.png', 75);
     } else if (types.contains('school')) {
-      markerIcon = await getBytesFromAsset('assets/mapicons/schools.png', 75);
+      markerIcon = await getBytesFromAsset('assets/map_icon/schools.png', 75);
     } else if (types.contains('bar')) {
-      markerIcon = await getBytesFromAsset('assets/mapicons/bars.png', 75);
+      markerIcon = await getBytesFromAsset('assets/map_icon/bars.png', 75);
     } else if (types.contains('lodging')) {
-      markerIcon = await getBytesFromAsset('assets/mapicons/hotels.png', 75);
+      markerIcon = await getBytesFromAsset('assets/map_icon/hotels.png', 75);
     } else if (types.contains('store')) {
       markerIcon =
-          await getBytesFromAsset('assets/mapicons/retail-stores.png', 75);
+          await getBytesFromAsset('assets/map_icon/retail-stores.png', 75);
     } else if (types.contains('locality')) {
       markerIcon =
-          await getBytesFromAsset('assets/mapicons/local-services.png', 75);
+          await getBytesFromAsset('assets/map_icon/local-services.png', 75);
     } else {
-      markerIcon = await getBytesFromAsset('assets/mapicons/places.png', 75);
+      markerIcon = await getBytesFromAsset('assets/map_icon/places.png', 75);
     }
     final Marker marker = Marker(
         markerId: MarkerId('marker_$counter'),
