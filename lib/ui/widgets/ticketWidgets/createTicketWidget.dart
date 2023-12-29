@@ -5,7 +5,9 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:internet_praktikum/ui/styles/Styles.dart';
+import 'package:internet_praktikum/ui/styles/Styles.dart';
 import 'package:internet_praktikum/ui/widgets/inputfield.dart';
+import 'package:internet_praktikum/ui/widgets/my_button.dart';
 import 'package:internet_praktikum/ui/widgets/my_button.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:pdf_render/pdf_render.dart';
@@ -139,6 +141,7 @@ class _CreateTicketsWidgetState extends State<CreateTicketsWidget> {
   Widget build(BuildContext context) {
     return Column(
       children: [
+        //TODO: checken ob Title schon existiert, um KOnflikte zu vermeiden
         //TODO: checken ob Title schon existiert, um KOnflikte zu vermeiden
         InputField(
             controller: titleOfTicket,
