@@ -8,7 +8,13 @@ unit tests:
     - lcov -r coverage/lcov.info '*/__test*__/*' -o coverage/lcov_cleaned.info
     - genhtml coverage/lcov_cleaned.info --output=coverage
   tags:
-    - flutter
+    - docker
   artifacts:
     paths:
       - coverage
+unit build: # Build the app for the web
+  stage: tests
+  script:
+    - flutter build apk --release
+  tags:
+    - docker      

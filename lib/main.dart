@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:internet_praktikum/ui/router.dart';
 import 'firebase_options.dart';
@@ -14,7 +13,8 @@ Future<void> main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  runApp(const ProviderScope(child: Main()));
+
+  runApp(Main());
 }
 
 class Main extends StatelessWidget {
@@ -28,19 +28,3 @@ class Main extends StatelessWidget {
     );
   }
 }
-
-/*class Main extends StatelessWidget {
-  const Main({super.key});
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      //.router(
-      debugShowCheckedModeBanner: false,
-      home: const DashBoard(),
-      theme: ThemeData(
-          brightness: Brightness.dark, primarySwatch: Colors.deepPurple),
-      //routerConfig: MyRouter.router,
-      //title: 'Let's Travel Together. ',
-    );
-  }
-}*/

@@ -75,18 +75,6 @@ class _AccountState extends State<Account> {
   @override
   void initState() {
     super.initState();
-    currentUser.photoURL != null
-        ? imageProvider = NetworkImage(currentUser.photoURL!)
-        : imageProvider = const AssetImage('assets/Personavatar.png');
-    emailController.text = currentUser.email!;
-    if (currentUser.displayName != null &&
-        currentUser.displayName!.isNotEmpty) {
-      List<String> displayNameParts = currentUser.displayName!.split(' ');
-      if (displayNameParts.length == 2) {
-        prenameController.text = displayNameParts[0];
-        lastnameController.text = displayNameParts[1];
-      }
-    }
     userCollection.doc(currentUser.uid).get().then((snapshot) {
       if (snapshot.exists) {
         Map<String, dynamic> userData = snapshot.data() as Map<String, dynamic>;
@@ -96,9 +84,46 @@ class _AccountState extends State<Account> {
             selectedDate = userData['dateOfBirth'];
           });
         }
+      //  if (userData.containsKey('profilepicture') &&
+       //     userData['profilepicture'] != null) {
+       //   setState(() {
+           // imageProvider = DocumentSnapshot userdata = await FirebaseFirestore.instance.doc(data?["createdBy"].path).get();
+      //    });
+     //   }
+        if(userData['prename'] != null) prenameController.text = userData['prename'];
+        if(userData['lastname'] != null) lastnameController.text = userData['lastname'];
+      } else {
+        currentUser.photoURL != null
+            ? imageProvider = NetworkImage(currentUser.photoURL!)
+            : imageProvider = const AssetImage('assets/Personavatar.png');
+        emailController.text = currentUser.email!;
+        if (currentUser.displayName != null &&
+            currentUser.displayName!.isNotEmpty) {
+          List<String> displayNameParts = currentUser.displayName!.split(' ');
+          if (displayNameParts.length == 2) {
+            prenameController.text = displayNameParts[0];
+            lastnameController.text = displayNameParts[1];
+          }
+        }
       }
     });
   }
+  /*
+  Future<Map<String, dynamic>> getUserData() async {
+    
+    DocumentSnapshot userdata =
+        await FirebaseFirestore.instance.doc().get();
+
+    if (!userdata.exists)
+      throw Exception("Document does not exist on the database");
+
+    print('Document data: ${userdata.data()}');
+    Map<String, dynamic> _userData = userdata.data()! as Map<String, dynamic>;
+
+    return _userData;
+    
+  }
+  */
 
   @override
   Widget build(BuildContext context) {

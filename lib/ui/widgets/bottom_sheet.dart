@@ -19,7 +19,7 @@ class CustomBottomSheet {
         return Padding(
           padding: MediaQuery.of(context).viewInsets,
           child: Container(
-            height: MediaQuery.of(context).size.height * 0.7,
+            height: MediaQuery.of(context).size.height * 0.6,
             decoration: const BoxDecoration(
               color: Colors.transparent,
             ),
