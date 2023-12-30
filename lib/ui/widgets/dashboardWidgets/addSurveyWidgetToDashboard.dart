@@ -26,7 +26,7 @@ class SelectedDate extends SelectedOption {
   @override
   bool get isNotEmpty => date != null;
   @override
-  Map toMap() => {"string": DateFormat('hh:mm').format(date!), "date": date!, "options": []};
+  Map toMap() => {"string": DateFormat('hh:mm').format(date!), "date": date!, "voters": []};
   @override
   Object? get value => date;
   @override
@@ -40,7 +40,7 @@ class SelectedQuestion extends SelectedOption {
   @override
   bool get isNotEmpty => true;
   @override
-  Map toMap() => {"string": question.text, "options": []};
+  Map toMap() => {"string": question.text, "voters": []};
   @override
   Object? get value => question;
   @override
