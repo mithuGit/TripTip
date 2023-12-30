@@ -4,10 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:internet_praktikum/core/services/placeApiProvider.dart';
+import 'package:internet_praktikum/ui/styles/Styles.dart';
 import 'package:internet_praktikum/ui/views/map/directions.dart';
 import 'package:internet_praktikum/ui/views/map/directions_repository.dart';
 import 'package:internet_praktikum/core/services/map_service.dart';
 import 'package:internet_praktikum/ui/widgets/errorSnackbar.dart';
+import 'package:flutter_rating_stars/flutter_rating_stars.dart';
 //import 'package:internet_praktikum/ui/widgets/inputfield_search_lookahead.dart';
 
 class MapPage extends StatefulWidget {
@@ -20,6 +22,8 @@ class MapPage extends StatefulWidget {
 class _MapPageState extends State<MapPage> {
 // TODO: null beim landen von map -> fixen
   final Completer<GoogleMapController> _googleMapController = Completer();
+  static const key = "AIzaSyBUh4YsufaUkM8XQqdO8TSXKpBf_3dJOmA";
+
   Marker? _origin;
   Marker? _destination;
   Directions? _info;
@@ -40,7 +44,7 @@ class _MapPageState extends State<MapPage> {
   String tokenKey = '';
 
   //Circle
-  final Set<Circle> _circles = <Circle>{};
+  Set<Circle> _circles = <Circle>{};
   var radiusValue = 3000.0;
   dynamic tappedPoint;
   Timer? _debounce;
@@ -51,6 +55,18 @@ class _MapPageState extends State<MapPage> {
   bool cardTapped = false;
   bool pressedNear = false;
   bool getDirections = false;
+
+  //page Controller
+  late PageController _pageController;
+  int prevPage = 0;
+  var tappedPlaceDetail;
+  String placeImg = '';
+  var photoGalleryIndex = 0;
+  bool showBlankCard = false;
+  bool isReviews = true;
+  bool isPhotos = false;
+
+  //TODO ehhh Rezensionen wenn man auf den container klickt bzw. aufs Bild oder Tite
 
   @override
   void initState() {
@@ -63,12 +79,60 @@ class _MapPageState extends State<MapPage> {
             zoom: 11.5,
           );
         }));
+    _pageController = PageController(initialPage: 1, viewportFraction: 0.85)
+      ..addListener(_swipe);
   }
 
   @override
   void dispose() {
     //_googleMapController?.dispose(); //TODO: brauch ich das?
     super.dispose();
+  }
+
+  void _swipe() {
+    if (_pageController.page!.toInt() != prevPage) {
+      prevPage = _pageController.page!.toInt();
+      cardTapped = false;
+      photoGalleryIndex = 1;
+      showBlankCard = false;
+      goToTappedPlace();
+      fetchImage();
+    }
+  }
+
+  Future<void> goToTappedPlace() async {
+    final GoogleMapController controller = await _googleMapController.future;
+
+    _markers = {};
+
+    var selectedPlace = allFavoritePlaces[_pageController.page!.toInt()];
+
+    _setNearMarker(
+        LatLng(selectedPlace['geometry']['location']['lat'],
+            selectedPlace['geometry']['location']['lng']),
+        selectedPlace['name'] ?? 'no name',
+        selectedPlace['types'],
+        selectedPlace['business_status'] ?? 'none');
+
+    controller.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
+        target: LatLng(selectedPlace['geometry']['location']['lat'],
+            selectedPlace['geometry']['location']['lng']),
+        zoom: 14.0,
+        bearing: 45.0,
+        tilt: 45.0)));
+  }
+
+  void fetchImage() async {
+    if (_pageController.page != null) {
+      if (allFavoritePlaces[_pageController.page!.toInt()]['photos'] != null) {
+        setState(() {
+          placeImg = allFavoritePlaces[_pageController.page!.toInt()]['photos']
+              [0]['photo_reference'];
+        });
+      }
+    } else {
+      placeImg = '';
+    }
   }
 
   @override
@@ -139,7 +203,8 @@ class _MapPageState extends State<MapPage> {
             child: GoogleMap(
               myLocationButtonEnabled: false,
               zoomControlsEnabled: false,
-              initialCameraPosition: _initialCameraPosition!,
+              initialCameraPosition:
+                  _initialCameraPosition!, //TODO: null check am Anfang beheben
               onMapCreated: (GoogleMapController controller) {
                 _googleMapController.complete(controller);
               },
@@ -292,18 +357,46 @@ class _MapPageState extends State<MapPage> {
                                       );
                                     }
                                   } else {
-                                    ErrorSnackbar.showErrorSnackbar(context, "No more places available");
+                                    ErrorSnackbar.showErrorSnackbar(
+                                        context, "No more places available");
                                   }
                                 });
                               },
                               icon: const Icon(Icons.more_time,
                                   color: Colors.blue)),
+                      IconButton(
+                          onPressed: () {
+                            setState(() {
+                              radiusSlider = false;
+                              pressedNear = false;
+                              cardTapped = false;
+                              radiusValue = 3000.0;
+                              _circles = {};
+                              _markers = {};
+                              allFavoritePlaces = [];
+                            });
+                          },
+                          icon: const Icon(Icons.close, color: Colors.red))
                     ]),
+                  ))
+              : Container(),
+          pressedNear
+              ? Positioned(
+                  bottom: 20.0,
+                  child: SizedBox(
+                    height: 200.0,
+                    width: MediaQuery.of(context).size.width,
+                    child: PageView.builder(
+                        controller: _pageController,
+                        itemCount: allFavoritePlaces.length,
+                        itemBuilder: (BuildContext context, int index) {
+                          return _nearbyPlacesList(index);
+                        }),
                   ))
               : Container(),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
+      /*  floatingActionButton: FloatingActionButton(
         backgroundColor: Theme.of(context).primaryColor,
         foregroundColor: Colors.black,
         onPressed: () async {
@@ -315,7 +408,7 @@ class _MapPageState extends State<MapPage> {
           );
         },
         child: const Icon(Icons.center_focus_strong),
-      ),
+      ),*/
     );
   }
 
@@ -341,7 +434,7 @@ class _MapPageState extends State<MapPage> {
     var counter = markerIdCounter++;
 
     final Uint8List markerIcon;
-//TODO alle else if teile machen 
+//TODO alle else if teile machen
     if (types.contains('restaurants')) {
       markerIcon =
           await getBytesFromAsset('assets/map_icon/restaurants.png', 75);
@@ -356,9 +449,6 @@ class _MapPageState extends State<MapPage> {
     } else if (types.contains('store')) {
       markerIcon =
           await getBytesFromAsset('assets/map_icon/retail-stores.png', 75);
-    } else if (types.contains('locality')) {
-      markerIcon =
-          await getBytesFromAsset('assets/map_icon/local-services.png', 75);
     } else {
       markerIcon = await getBytesFromAsset('assets/map_icon/places.png', 75);
     }
@@ -421,5 +511,142 @@ class _MapPageState extends State<MapPage> {
           .getDirection(origin: _origin!.position, destination: pos);
       setState(() => _info = directions);
     }
+  }
+
+  _nearbyPlacesList(index) {
+    return AnimatedBuilder(
+      animation: _pageController,
+      builder: (BuildContext context, Widget? widget) {
+        double value = 1;
+        if (_pageController.position.haveDimensions) {
+          value = (_pageController.page! - index);
+          value = (1 - (value.abs() * 0.3) + 0.06).clamp(0.0, 1.0);
+        }
+        return Center(
+          child: SizedBox(
+            height: Curves.easeInOut.transform(value) * 125.0,
+            width: Curves.easeInOut.transform(value) * 350.0,
+            child: widget,
+          ),
+        );
+      },
+      child: InkWell(
+        onTap: () async {
+          cardTapped = !cardTapped;
+          if (cardTapped) {
+            tappedPlaceDetail = await GoogleMapService()
+                .getPlace(allFavoritePlaces[index]['place_id']);
+            setState(() {});
+          }
+          moveCameraSlightly();
+        },
+        child: Stack(
+          children: [
+            Center(
+              child: Container(
+                height: 125.0,
+                width: 325.0,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(34.5),
+                  color:
+                      const Color.fromARGB(255, 43, 43, 43).withOpacity(0.90),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Row(
+                    children: [
+                      _pageController.position.haveDimensions
+                          ? _pageController.page!.toInt() == index
+                              ? Container(
+                                  height: 90.0,
+                                  width: 90.0,
+                                  decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(10.0),
+                                      image: DecorationImage(
+                                          image: NetworkImage(placeImg != ''
+                                              //TODO erstes bild in map wird nicht angezeigt und immer default kamera
+                                              ? 'https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=$placeImg&key=$key'
+                                              : 'https://pic.onlinewebfonts.com/svg/img_546302.png'), //TODO anderes Bild für Default nehmen sonst so ähnlich
+                                          fit: BoxFit.cover),
+                                      border: Border.all(
+                                        color: Colors.white,
+                                        width: 4,
+                                      )),
+                                )
+                              : Container(
+                                  height: 90.0,
+                                  width: 10.0,
+                                  decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(5.0),
+                                      color: Colors.white),
+                                )
+                          : Container(),
+                      const SizedBox(width: 15.0),
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SizedBox(
+                            width: 130.0,
+                            height: 50.0,
+                            child: Text(allFavoritePlaces[index]['name'],
+                                style: Styles.maptitle),
+                          ),
+                          RatingStars(
+                            value: allFavoritePlaces[index]['rating']
+                                        .runtimeType ==
+                                    int
+                                ? allFavoritePlaces[index]['rating'] * 1.0
+                                : allFavoritePlaces[index]['rating'] ?? 0.0,
+                            starCount: 5,
+                            starSize: 20,
+                            starColor: Colors.white,
+                            starOffColor: const Color(0xff9b9b9b),
+                            valueLabelColor: const Color(0xff9b9b9b),
+                            valueLabelTextStyle: const TextStyle(
+                                color: Colors.white,
+                                fontFamily: 'WorkSans',
+                                fontWeight: FontWeight.w400,
+                                fontStyle: FontStyle.normal,
+                                fontSize: 12.0),
+                            valueLabelRadius: 10,
+                            maxValue: 5,
+                            starSpacing: 2,
+                            maxValueVisibility: false,
+                            //TODO Demokratie abstimmung mit text an sternen oder nicht !!!!!!!!!!!
+                            valueLabelVisibility: false,
+                            animationDuration:
+                                const Duration(milliseconds: 3000),
+                            valueLabelPadding: const EdgeInsets.symmetric(
+                                vertical: 1, horizontal: 8),
+                            valueLabelMargin: const EdgeInsets.only(right: 8),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            )
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> moveCameraSlightly() async {
+    final GoogleMapController controller = await _googleMapController.future;
+
+    controller.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
+        target: LatLng(
+            allFavoritePlaces[_pageController.page!.toInt()]['geometry']
+                    ['location']['lat'] +
+                0.0125,
+            allFavoritePlaces[_pageController.page!.toInt()]['geometry']
+                    ['location']['lng'] +
+                0.005),
+        zoom: 14.0,
+        bearing: 45.0,
+        tilt: 45.0)));
   }
 }

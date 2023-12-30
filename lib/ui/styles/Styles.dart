@@ -105,4 +105,10 @@ class Styles {
       fontSize: 14,
       fontWeight: FontWeight.w400,
       color: Colors.white);    
+  static const maptitle = TextStyle(
+      fontFamily: 'fonts/Ubuntu-Regular.ttf',
+      fontSize: 16,
+      fontWeight: FontWeight.bold,
+      color: Colors.white);
 }
+
