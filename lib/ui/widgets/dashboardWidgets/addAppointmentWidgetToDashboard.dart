@@ -74,7 +74,7 @@ class _AddAppointmentWidgetToDashboardState
       Map<String, dynamic> data = {
         "type": "appointment",
         "content": appointment.text,
-        "date": selectedDate,
+        "time": selectedDate,
         "title": nameOfAppointment.text,
       };
 
@@ -121,6 +121,14 @@ class _AddAppointmentWidgetToDashboardState
             ? DateFormat('HH:mm').format(selectedDate!)
             : "Select Time",
       ),
+      const SizedBox(height: 10),
+      InputField(
+          controller: appointment,
+          hintText: "Description of Appointment",
+          focusedBorderColor: const Color.fromARGB(255, 84, 113, 255),
+          borderColor: Colors.grey.shade400,
+          multiline: true,
+          obscureText: false),
       const SizedBox(height: 10),
       MyButton(
           borderColor: Colors.black,
