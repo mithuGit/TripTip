@@ -95,7 +95,6 @@ class _CupertinoDatePickerButtonState extends State<CupertinoDatePickerButton> {
         );
       },
     );
-
     if (currentDate != selectedDate) {
       setState(() {
         selectedDate = currentDate;

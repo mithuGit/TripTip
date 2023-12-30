@@ -5,14 +5,15 @@ import 'package:uuid/uuid.dart';
 
 class ManageDashboardWidged {
   var uuid = const Uuid();
-  Future<void> addWidget(DocumentReference day, DocumentReference user,
-      Map<String, dynamic> data) async {
+  var firestore = FirebaseFirestore.instance;
+  Future<void> addWidget({required DocumentReference day, required DocumentReference user,
+      required Map<String, dynamic> data, String? key}) async {
     Map<String, dynamic> dayData =
         (await day.get()).data() as Map<String, dynamic>;
     List<dynamic> widgets =
         dayData['active'].entries?.map((entry) => entry.value)?.toList();
     int length = widgets.length;
-    data['key'] = uuid.v4();
+    data['key'] = key ?? uuid.v4();
     data['index'] = length;
     data['createdAt'] = DateTime.now();
     data['createdBy'] = user;
@@ -28,8 +29,8 @@ class ManageDashboardWidged {
     await day.update({'active': res2});
   }
 
-  Future<void> updateWidget(
-      DocumentReference day, DocumentReference user, Map<String, dynamic> data, String key) async {
+  Future<void> updateWidget(DocumentReference day, DocumentReference user,
+      Map<String, dynamic> data, String key) async {
     Map<String, dynamic> dayData =
         (await day.get()).data() as Map<String, dynamic>;
     Map<String, dynamic> widget;
@@ -42,7 +43,7 @@ class ManageDashboardWidged {
         widget[item.key] = item.value;
       }
       if (widget['modified'] == null) {
-        widget['modified'] = List<Map<String, dynamic>>.empty(growable: true); 
+        widget['modified'] = List<Map<String, dynamic>>.empty(growable: true);
         widget['modified'].add({'when': DateTime.now(), 'by': user});
       } else {
         widget['modified'].add({'when': DateTime.now(), 'by': user});
@@ -71,5 +72,10 @@ class ManageDashboardWidged {
     } else {
       throw Exception("Widget not found");
     }
+  }
+
+  Future<DocumentReference> addSurveyNotificationTask(DocumentReference day,
+      DocumentReference user, Map<String, dynamic> data, String key) {
+    return firestore.collection("tasks").add(data);
   }
 }
