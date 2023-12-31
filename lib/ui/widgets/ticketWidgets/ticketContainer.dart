@@ -8,6 +8,8 @@ import 'package:flutter/material.dart';
 import 'package:internet_praktikum/ui/views/ticket/ImageViewerPage.dart';
 import 'package:internet_praktikum/ui/views/ticket/PDFViewerPage.dart';
 import 'package:internet_praktikum/ui/widgets/bottom_sheet.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:pdf_render/pdf_render_widgets.dart';
 
 class TicketContainer extends StatefulWidget {
   const TicketContainer({
@@ -23,9 +25,10 @@ class TicketContainer extends StatefulWidget {
 
 class _TicketContainerState extends State<TicketContainer> {
   Image? image;
-  bool isImageLoading = false; // TODO: loading animation npoh einbauen
   bool isPDF = false;
-  String? imageUrlNew;
+  PdfDocumentLoader? pdfDocumentLoader;
+  File? pdfFile;
+  var height = 350.0;
 
   @override
   void initState() {
@@ -48,22 +51,36 @@ class _TicketContainerState extends State<TicketContainer> {
           .list()
           .then((value) => value.items.first.fullPath);
 
-      imageUrlNew = imageUrl;
-
-      imageUrl.contains('.pdf') ? isPDF = true : isPDF = false;
-
       var getDownloadUrlLink =
           await FirebaseStorage.instance.ref(imageUrl).getDownloadURL();
-      print("LIST:  $getDownloadUrlLink");
-      setState(() {
-        image = Image.network(
-          getDownloadUrlLink,
-          fit: BoxFit.cover,
-          width: double.infinity,
-        );
-      });
+      getDownloadUrlLink.contains('.pdf') ? isPDF = true : isPDF = false;
+
+      isPDF
+          ? setState(() async {
+              final Directory tempDir = await getTemporaryDirectory();
+              pdfFile = File('${tempDir.path}/${widget.title}');
+              await FirebaseStorage.instance
+                  .ref(imageUrl)
+                  .writeToFile(pdfFile!);
+
+              pdfDocumentLoader = PdfDocumentLoader.openFile(
+                pdfFile!.path,
+                pageNumber: 1,
+              );
+              image = null;
+              height = 480.0;
+            })
+          : setState(() {
+              image = Image.network(
+                getDownloadUrlLink,
+                fit: BoxFit.cover,
+                width: double.infinity,
+              );
+              pdfFile = null;
+              height = 350.0;
+            });
     } catch (error) {
-      image = null;
+      // image = null;
       if (kDebugMode) {
         print('Error fetching image: $error');
       }
@@ -85,7 +102,7 @@ class _TicketContainerState extends State<TicketContainer> {
                     return Column(
                         // hier Modal für Preview des Belegs
                         children: [
-                          const SizedBox(height: 30.0),
+                          const SizedBox(height: 20.0),
                           Container(
                             decoration: BoxDecoration(
                               border: Border.all(
@@ -96,25 +113,19 @@ class _TicketContainerState extends State<TicketContainer> {
                                     .withOpacity(0.2),
                               ),
                             ),
-                            height: 350,
+                            height: height,
                             width: double.infinity,
                             alignment: Alignment.center,
-                            child: image != null
+                            child: image != null || pdfFile != null
                                 ? GestureDetector(
                                     onTap: () {
-                                      (isPDF == true
-                                          ? openPDF(
-                                              context,
-                                              File(image!.toString()),
-                                              widget
-                                                  .title) // Das funktioniert nicht
-                                          : openImage(
-                                              context,
-                                              image!,
-                                              widget
-                                                  .title)); // Das funktioniert
+                                      isPDF
+                                          ? (openPDF(
+                                              context, pdfFile!, widget.title))
+                                          : (openImage(
+                                              context, image!, widget.title));
                                     },
-                                    child: image,
+                                    child: isPDF ? pdfDocumentLoader : image,
                                   )
                                 : const Center(
                                     child: Text(

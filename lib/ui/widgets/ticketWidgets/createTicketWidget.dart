@@ -1,15 +1,18 @@
+// ignore_for_file: avoid_print
+
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:internet_praktikum/ui/styles/Styles.dart';
 import 'package:internet_praktikum/ui/widgets/inputfield.dart';
-import 'package:internet_praktikum/ui/widgets/profileWidgets/profileButton.dart';
+import 'package:internet_praktikum/ui/widgets/my_button.dart';
 import 'package:file_picker/file_picker.dart';
-//import 'package:pdf_render/pdf_render.dart';
-//import 'package:pdf_render/pdf_render_widgets.dart';
-//import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
+import 'package:pdf_render/pdf_render.dart';
+import 'package:pdf_render/pdf_render_widgets.dart';
+import 'package:internet_praktikum/ui/widgets/errorSnackbar.dart';
 
 class CreateTicketsWidget extends StatefulWidget {
   const CreateTicketsWidget({super.key});
@@ -25,7 +28,6 @@ class _CreateTicketsWidgetState extends State<CreateTicketsWidget> {
   PlatformFile? pickedFile;
   bool isPdf = false;
 
-  //TODO: Die Methode in ein Try-Catch-Block reinpacken
   Future uploadFile() async {
     if (selectedImage == null && pickedFile == null) {
       return;
@@ -47,51 +49,69 @@ class _CreateTicketsWidgetState extends State<CreateTicketsWidget> {
             .get();
     final String tripId = userDoc.data()!['selectedtrip'].toString();
 
-    // TODO: Pfad anpassen; Temporär in FirebaseStorage mit TripID und titleOfTicket
     String titleOfTicketText = titleOfTicket.text;
-    String fileName = file.path.split('/').last;
-    final path = "files/$tripId/$titleOfTicketText/$fileName";
 
-    final ref = FirebaseStorage.instance.ref().child(path);
-    setState(() {
-      uploadTask = ref.putFile(file);
-    });
+    // Check if the title already exists in the specified path
+    String fileName;
+    String path;
 
-    final snapshot = await uploadTask!.whenComplete(() {});
-    final urlDownload = await snapshot.ref.getDownloadURL();
+    fileName = file.path.split('/').last;
+    path = "files/$tripId/$titleOfTicketText/$fileName";
 
-    print('Download-Link: $urlDownload');
-  }
+    bool fileExists = await doesFileExist(tripId, titleOfTicketText);
 
-  // TODO: Die Methode in ein Try-Catch-Block reinpacken
-  Future selectedFile() async {
-    final result = await FilePicker.platform.pickFiles(
-      allowMultiple: false,
-      //type: FileType.custom,
-      //allowedExtensions: ['jpg', 'pdf', 'png', 'jpeg'],
-    );
-    if (result == null) return;
+    if (fileExists) {
+      // ignore: use_build_context_synchronously
+      ErrorSnackbar.showErrorSnackbar(
+          context, "File with title $titleOfTicketText already exists ");
+    } else {
+      final ref = FirebaseStorage.instance.ref().child(path);
+      setState(() {
+        uploadTask = ref.putFile(file);
+      });
+      
+      await uploadTask!.whenComplete(() {});
 
-    setState(() {
-      isPdf = result.files.first.extension == 'pdf';
-      pickedFile = result.files.first;
-    });
-  }
-
-  // TODO: Die Methode in ein Try-Catch-Block reinpacken
-  void takePicture() async {
-    final imagePicker = ImagePicker();
-    //ImageSource.galery auch möglich
-    final pickedImage =
-        await imagePicker.pickImage(source: ImageSource.camera, maxWidth: 600);
-
-    if (pickedImage == null) {
-      return;
+      // Only for testing
+      //final urlDownload = await snapshot.ref.getDownloadURL();
+      //print('Download-Link: $urlDownload');
     }
+  }
 
-    setState(() {
-      selectedImage = File(pickedImage.path);
-    });
+  Future selectedFile() async {
+    try {
+      final result = await FilePicker.platform.pickFiles(
+        allowMultiple: false,
+        //type: FileType.custom,
+        //allowedExtensions: ['jpg', 'pdf', 'png', 'jpeg'],
+      );
+      if (result == null) return;
+
+      setState(() {
+        isPdf = result.files.first.extension == 'pdf';
+        pickedFile = result.files.first;
+      });
+    } on Exception catch (e) {
+      print(e);
+    }
+  }
+
+  void takePicture() async {
+    try {
+      final imagePicker = ImagePicker();
+      final pickedImage = await imagePicker.pickImage(
+          source: ImageSource.camera, maxWidth: 600);
+
+      if (pickedImage == null) {
+        return;
+      }
+
+      setState(() {
+        selectedImage = File(pickedImage.path);
+      });
+    } catch (e) {
+      print(e);
+    }
   }
 
   void showAlertDialog(BuildContext context,
@@ -172,13 +192,9 @@ class _CreateTicketsWidgetState extends State<CreateTicketsWidget> {
               : pickedFile != null
                   ? GestureDetector(
                       // Nochmal neues File erstellen, wenn man drauf klickt
-                      // TODO: Gerade funktioniert nur Bilder und keine PDF
                       onTap: () => selectedFile(),
                       child: isPdf
-                          ?
-                          //SfPdfViewer.file(File(pickedFile!.path!))
-                          //ENTWEDER MIT SFPDFVIEWER ODER MIT PDFRENDER
-                          /*FutureBuilder<PdfDocument>(
+                          ? FutureBuilder<PdfDocument>(
                               future: PdfDocument.openFile(pickedFile!.path!),
                               builder: (context, snapshot) {
                                 if (snapshot.connectionState ==
@@ -187,7 +203,7 @@ class _CreateTicketsWidgetState extends State<CreateTicketsWidget> {
                                   return pdfDocument != null
                                       ? PdfDocumentLoader(
                                           doc: pdfDocument,
-                                          pageNumber: 0,
+                                          pageNumber: 1,
                                         )
                                       : Container(); // Handle null document
                                 } else if (snapshot.hasError) {
@@ -198,10 +214,6 @@ class _CreateTicketsWidgetState extends State<CreateTicketsWidget> {
                                   return const CircularProgressIndicator();
                                 }
                               },
-                            )*/
-                          const ImageIcon(
-                              AssetImage("assets/pdf_file.png"),
-                              size: 90,
                             )
                           : Image.file(
                               File(pickedFile!.path!),
@@ -245,64 +257,44 @@ class _CreateTicketsWidgetState extends State<CreateTicketsWidget> {
         ),
 
         const SizedBox(height: 10),
-        ProfileButton(
-          onTap: () => {
+        MyButton(
+          borderColor: Colors.black,
+          textStyle: Styles.buttonFontStyleModal,
+          onTap: () {
             // TODO: Widget soll dann erstellt werden und dieser soll in Ticket direkt zu sehen sein.
             if (titleOfTicket.text.isNotEmpty &&
-                (selectedImage != null || pickedFile != null))
-              {
-                uploadFile(),
-                Navigator.of(context).pop(),
-                setState(() {
-                  uploadTask = null;
-                })
+                (selectedImage != null || pickedFile != null)) {
+              uploadFile();
+              Navigator.of(context).pop();
+              setState(() {
+                uploadTask = null;
+              });
+            } else {
+              if (selectedImage == null && pickedFile == null) {
+                showAlertDialog(context);
+              } else {
+                showAlertDialog(context,
+                    title: "Please enter a title for your Ticket or Receipt",
+                    button1: "Ok",
+                    button2: false);
               }
-            else
-              {
-                if (selectedImage == null && pickedFile == null)
-                  {showAlertDialog(context)}
-                else
-                  {
-                    showAlertDialog(context,
-                        title:
-                            "Please enter a title for your Ticket or Receipt",
-                        button1: "Ok",
-                        button2: false)
-                  }
-              }
+            }
           },
-          title: "Upload Ticket or Receipt",
-          textcolor: Colors.white,
-          backgroundColor: Colors.blue,
+          text: "Upload Ticket or Receipt",
         ),
       ],
     );
   }
 
-  Widget buildProgress() => StreamBuilder<TaskSnapshot>(
-      stream: uploadTask!.snapshotEvents,
-      builder: (context, snapshot) {
-        if (snapshot.hasData) {
-          final data = snapshot.data!;
-          final progress = data.bytesTransferred / data.totalBytes;
-
-          return SizedBox(
-            height: 80,
-            child: Stack(fit: StackFit.expand, children: [
-              LinearProgressIndicator(
-                value: progress,
-                backgroundColor: Colors.black,
-                color: Colors.green,
-              ),
-              Center(
-                  child: Text(
-                '${(100 * progress).roundToDouble()}%',
-                style: const TextStyle(color: Colors.black),
-              ))
-            ]),
-          );
-        } else {
-          return Container();
-        }
-      });
+  // Function to check if a file already exists in the specified path
+  Future<bool> doesFileExist(String tripId, String titleOfTicketText) async {
+    final pathToCheck = "files/$tripId/$titleOfTicketText";
+    final ref =
+        await FirebaseStorage.instance.ref().child(pathToCheck).listAll();
+    if (ref.items.isNotEmpty) {
+      return true;
+    } else {
+      return false;
+    }
+  }
 }

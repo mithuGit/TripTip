@@ -13,10 +13,18 @@ class _ImageViewerPageState extends State<ImageViewerPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-      ),
-      body: Center(child: widget.image),
-    );
+        appBar: AppBar(
+          title: Text(widget.title),
+        ),
+        body: Center(
+          //für zoom in und zoom raus
+          child: InteractiveViewer(
+              maxScale: double.infinity,
+              minScale: 0.5,
+              panEnabled: true,
+              scaleEnabled: true,
+              trackpadScrollCausesScale: false,
+              child: widget.image),
+        ));
   }
 }

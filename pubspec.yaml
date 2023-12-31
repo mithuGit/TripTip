@@ -3,7 +3,7 @@ description: A coloaborative Travel App
 
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
-publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+publish_to: "none" # Remove this line if you wish to publish to pub.dev
 
 # The following defines the version and build number for your application.
 # A version number is three numbers separated by dots, like 1.2.43
@@ -20,7 +20,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 version: 1.0.0+1
 
 environment:
-  sdk: '>=3.0.0 <=3.15.0'
+  sdk: ">=3.0.0 <=3.15.0"
 
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
@@ -49,6 +49,8 @@ dependencies:
   intl: ^0.18.1
   http: ^1.1.0
   uuid: ^4.2.1
+  flutter_riverpod: ^2.4.8
+  riverpod_annotation: ^2.3.2
   geolocator: ^10.1.0
   geocoding: ^2.1.1
   lottie: ^2.7.0
@@ -73,6 +75,8 @@ dependencies:
   cloud_functions: ^4.5.8
 
 
+  googleapis_auth: ^1.4.1
+  flutter_rating_stars: ^1.0.3+4
 
 dev_dependencies:
   flutter_test:
@@ -114,6 +118,7 @@ flutter:
     - assets/mainpage_pic/
     - assets/votingbutton_pic/
     - assets/character_pic/
+    - assets/map_icon/
 
   fonts:
     - family: Ubuntu
