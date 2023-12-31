@@ -74,7 +74,7 @@ class _AddAppointmentWidgetToDashboardState
       Map<String, dynamic> data = {
         "type": "appointment",
         "content": appointment.text,
-        "time": selectedDate,
+        "date": selectedDate,
         "title": nameOfAppointment.text,
       };
 
@@ -112,6 +112,7 @@ class _AddAppointmentWidgetToDashboardState
         showFuture: true,
         mode: CupertinoDatePickerMode.time,
         boundingDate: DateTime(2021, 1, 1, 0, 0),
+        use24hFormat: true,
         onDateSelected: (date) {
           setState(() {
             selectedDate = date.date;

@@ -26,13 +26,17 @@ class SelectedDate extends SelectedOption {
   @override
   bool get isNotEmpty => date != null;
   @override
-  Map toMap() => {"string": DateFormat('hh:mm').format(date!), "date": date!, "voters": []};
+  Map toMap() => {
+        "string": DateFormat('hh:mm').format(date!),
+        "date": date!,
+        "voters": []
+      };
   @override
   Object? get value => date;
   @override
   set value(Object? value) => date = value as DateTime?;
   @override
-  String toString() => DateFormat('dd/MM/yyyy hh:mm').format(date!);
+  String toString() => DateFormat('HH:mm').format(date!);
 }
 
 class SelectedQuestion extends SelectedOption {
@@ -118,7 +122,9 @@ class AddSurveyWidgetToDashboardState
       "typeOfSurvey": widget.typeOfSurvey,
       "allowmultipleanswers": allowmultipleAnswers,
     };
-    if (deadline != null) data["deadline"] = deadline;
+    if (deadline != null) {
+      data["deadline"] = deadline;  
+    } 
     data["options"] = _optionList.map((e) => e.toMap()).toList();
     DocumentReference by = FirebaseFirestore.instance
         .collection('users')
@@ -128,30 +134,32 @@ class AddSurveyWidgetToDashboardState
         .doc(widget.userdata["selectedtrip"]);
     if (widget.data == null) {
       String key = const Uuid().v4();
-      DocumentReference converter = await firestore.collection("tasks").add({
-        "worker": "SurveyConvertion",
-        "performAt": deadline,
-        "status": "pending",
-        "options": {
-          "day": widget.day,
-          "widgetCreatedBy": by,
-          "titleOfSurvey": nameofSurvey.text,
-          "trip": trip,
-          "key": key
-        }
-      });
-      DocumentReference alerter = await firestore.collection("tasks").add({
-        "worker": "LastChanceSurvey",
-        "performAt": deadline!.subtract(const Duration(minutes: 15)),
-        "status": "pending",
-        "options": {
-          "day": widget.day,
-          "widgetCreatedBy": by,
-          "titleOfSurvey": nameofSurvey.text,
-          "trip": trip,
-        }
-      });
-      data["workers"] = [converter, alerter];
+      if (deadline != null) {
+        DocumentReference converter = await firestore.collection("tasks").add({
+          "worker": "SurveyConvertion",
+          "performAt": deadline,
+          "status": "pending",
+          "options": {
+            "day": widget.day,
+            "widgetCreatedBy": by,
+            "titleOfSurvey": nameofSurvey.text,
+            "trip": trip,
+            "key": key
+          }
+        });
+        DocumentReference alerter = await firestore.collection("tasks").add({
+          "worker": "LastChanceSurvey",
+          "performAt": deadline!.subtract(const Duration(minutes: 15)),
+          "status": "pending",
+          "options": {
+            "day": widget.day,
+            "widgetCreatedBy": by,
+            "titleOfSurvey": nameofSurvey.text,
+            "trip": trip,
+          }
+        });
+        data["workers"] = [converter, alerter];
+      }
       await ManageDashboardWidged()
           .addWidget(day: widget.day, user: by, data: data, key: key);
     } else {
@@ -165,7 +173,7 @@ class AddSurveyWidgetToDashboardState
   Widget build(BuildContext context) {
     Widget buildTenableListTile(SelectedOption item, int index) {
       return Dismissible(
-        key: Key(_optionList[index].toString()),
+        key: Key(_optionList[index].toString() + index.toString()),
         onDismissed: (direction) {
           setState(() {
             _optionList.removeAt(index);
@@ -196,7 +204,7 @@ class AddSurveyWidgetToDashboardState
         ),
       );
     }
-
+    // needed that the widget is moveable
     return SingleChildScrollView(
       child: Column(children: [
         InputField(
@@ -255,6 +263,7 @@ class AddSurveyWidgetToDashboardState
                 flex: 2,
                 child: CupertinoDatePickerButton(
                   showFuture: true,
+                  use24hFormat: true,
                   mode: CupertinoDatePickerMode.time,
                   boundingDate: DateTime(2023),
                   presetDate: selectedOption.value != null
@@ -262,8 +271,7 @@ class AddSurveyWidgetToDashboardState
                       : "select time",
                   onDateSelected: (date) {
                     setState(() {
-                      selectedOption.value = dateofDay.add(Duration(
-                          hours: date.date.hour, minutes: date.date.minute));
+                      selectedOption.value = date.date;
                     });
                   },
                 ),
@@ -273,8 +281,7 @@ class AddSurveyWidgetToDashboardState
             IconButton(
                 onPressed: () => {
                       if (_optionList
-                          .where((element) =>
-                              element.value == selectedOption.value)
+                          .where((element) => element == selectedOption)
                           .isEmpty)
                         {
                           if (selectedOption.value != null &&
