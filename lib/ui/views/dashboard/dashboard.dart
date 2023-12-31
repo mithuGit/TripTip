@@ -62,6 +62,7 @@ class _DashBoardState extends State<DashBoard> {
 
     final currentTrip =
         await FirebaseFirestore.instance.collection('trips').doc(tripId).get();
+
     Map<String, dynamic>? currentTripdata = currentTrip.data();
     if (currentTripdata!['days'] == null) {
       print('The Days Parameter in the Document is null');
@@ -102,6 +103,29 @@ class _DashBoardState extends State<DashBoard> {
     currentDay = day!['ref'];
     return currentDay!;
   }
+/*   Future<DocumentReference> getCurrentDaySubCollection() async {
+    final userCollection = FirebaseFirestore.instance.collection('users');
+    final userDoc = await userCollection.doc(user.uid).get();
+    if (userDoc.data()?['selectedtrip'] == null)
+      throw Exception('No trip selected');
+
+    final tripId = userDoc.data()?['selectedtrip'];
+    try {
+      await FirebaseFirestore.instance.collection('trips').doc(tripId).get();
+    } catch (e) {
+      print('Trip does not exist anymore');
+      await userCollection.doc(user.uid).update({'selectedtrip': null});
+      throw Exception('Trip does not exist anymore');
+    }
+
+    final currentTrip =
+        await FirebaseFirestore.instance.collection('trips').doc(tripId);
+
+    }
+    Map<String, dynamic>? day = filtered.first;
+    currentDay = day!['ref'];
+    return currentDay!;
+  } */
 
   @override
   Widget build(BuildContext context) {

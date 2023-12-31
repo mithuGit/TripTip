@@ -22,11 +22,16 @@ class TicketContainer extends StatefulWidget {
   State<TicketContainer> createState() => _TicketContainerState();
 }
 
+class FetchFile {
+  File? pdf;
+  Widget widget;
+  bool get isPdf => widget is PdfDocumentLoader;
+  bool get isImage => widget is Image;
+  Image get image => widget as Image;
+  FetchFile({this.pdf, required this.widget});
+}
+
 class _TicketContainerState extends State<TicketContainer> {
-  Image? image;
-  bool isPDF = false;
-  PdfDocumentLoader? pdfDocumentLoader;
-  File? pdfFile;
   var height = 350.0;
   Map<String, dynamic>? data;
 
@@ -36,42 +41,33 @@ class _TicketContainerState extends State<TicketContainer> {
     data = widget.ticket.data() as Map<String, dynamic>;
   }
 
-  Future<void> fetchImage() async {
-    try {
-      var getDownloadUrlLink =
-          await FirebaseStorage.instance.ref(data!["url"]).getDownloadURL();
-      getDownloadUrlLink.contains('.pdf') ? isPDF = true : isPDF = false;
+  Future<FetchFile> fetchFile() async {
+    var getDownloadUrlLink =
+        await FirebaseStorage.instance.ref(data!["url"]).getDownloadURL();
+    bool isPDF = false;
+    getDownloadUrlLink.contains('.pdf') ? isPDF = true : isPDF = false;
 
-      isPDF
-          ? setState(() async {
-              final Directory tempDir = await getTemporaryDirectory();
-              pdfFile = File('${tempDir.path}/${data!["title"]}');
-              await FirebaseStorage.instance
-                  .ref(data!["url"])
-                  .writeToFile(pdfFile!);
+    Widget docWidget;
+    File? pdfFile;
+    if (isPDF) {
+      final Directory tempDir = await getTemporaryDirectory();
+      pdfFile = File('${tempDir.path}/${data!["title"]}');
+      await FirebaseStorage.instance.ref(data!["url"]).writeToFile(pdfFile!);
 
-              pdfDocumentLoader = PdfDocumentLoader.openFile(
-                pdfFile!.path,
-                pageNumber: 1,
-              );
-              image = null;
-              height = 480.0;
-            })
-          : setState(() {
-              image = Image.network(
-                getDownloadUrlLink,
-                fit: BoxFit.cover,
-                width: double.infinity,
-              );
-              pdfFile = null;
-              height = 350.0;
-            });
-    } catch (error) {
-      // image = null;
-      if (kDebugMode) {
-        print('Error fetching image: $error');
-      }
+      docWidget = PdfDocumentLoader.openFile(
+        pdfFile.path,
+        pageNumber: 1,
+      );
+      //  height = 480.0;
+    } else {
+      docWidget = Image.network(
+        getDownloadUrlLink,
+        fit: BoxFit.cover,
+        width: double.infinity,
+      );
+      height = 350.0;
     }
+    return FetchFile(pdf: pdfFile, widget: docWidget);
   }
 
   @override
@@ -83,8 +79,13 @@ class _TicketContainerState extends State<TicketContainer> {
         onTap: () async {
           CustomBottomSheet.show(context, title: data!["title"], content: [
             FutureBuilder(
-              future: fetchImage(),
-              builder: (context, futuredata) {
+              future: fetchFile(),
+              builder: (context, file) {
+                if (file.connectionState == ConnectionState.waiting) {
+                  return const Center(
+                    child: CircularProgressIndicator(),
+                  );
+                }
                 return Column(
                     // hier Modal für Preview des Belegs
                     children: [
@@ -102,36 +103,24 @@ class _TicketContainerState extends State<TicketContainer> {
                         height: height,
                         width: double.infinity,
                         alignment: Alignment.center,
-                        child: image != null || pdfFile != null
-                            ? GestureDetector(
+                        child:GestureDetector(
                                 onTap: () {
-                                  isPDF
+                                  file.data!.isPdf
                                       ? (openPDF(
-                                          context, pdfFile!, data!["title"]))
+                                          context, file.data!.pdf!, data!["title"]))
                                       : (openImage(
-                                          context, image!, data!["title"]));
+                                          context, file.data!.image, data!["title"]));
                                 },
-                                child: isPDF ? pdfDocumentLoader : image,
+                                child: file.data!.widget,
                               )
-                            : const Center(
-                                child: Text(
-                                  "No Image Selected",
-                                  style: TextStyle(
-                                    color: Colors.grey,
-                                    fontSize: 30,
-                                  ),
-                                ),
-                              ),
+  
                       ),
                     ]);
               },
             ),
           ]);
         },
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeInOut,
-          height: 66.0,
+        child: Container(
           decoration: BoxDecoration(
             color: const Color(0xE51E1E1E),
             border: Border.all(color: const Color(0xE51E1E1E)),

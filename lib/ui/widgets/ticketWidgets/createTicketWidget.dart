@@ -13,6 +13,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:pdf_render/pdf_render.dart';
 import 'package:pdf_render/pdf_render_widgets.dart';
 import 'package:internet_praktikum/ui/widgets/errorSnackbar.dart';
+import 'package:uuid/uuid.dart';
 
 class CreateTicketsWidget extends StatefulWidget {
   final DocumentReference? selectedTrip;
@@ -50,7 +51,8 @@ class _CreateTicketsWidgetState extends State<CreateTicketsWidget> {
     String path;
 
     fileName = file.path.split('/').last;
-    path = "files/$tripId/$titleOfTicketText/$fileName";
+    String uuid = const Uuid().v4();
+    path = "files/$tripId/$uuid/$fileName";
 
     bool fileExists = await doesFileExist(tripId, titleOfTicketText);
 
@@ -62,8 +64,8 @@ class _CreateTicketsWidgetState extends State<CreateTicketsWidget> {
       final ref = FirebaseStorage.instance.ref().child(path);
 
       uploadTask = ref.putFile(file);
+      // TODU catch error while upluading
       uploadTask!.whenComplete(() {
-        
           FirebaseFirestore.instance
               .collection("trips")
               .doc(tripId)
