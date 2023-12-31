@@ -45,7 +45,7 @@ class _DashBoardState extends State<DashBoard> {
   }
 
   // A function that returns the current day for the Widget list and also saves it in the currentDay variable for later use
-  Future<DocumentReference> getCurrentDay() async {
+  Future<DocumentReference> getCurrentDaySubCollection() async {
     final userCollection = FirebaseFirestore.instance.collection('users');
     final userDoc = await userCollection.doc(user.uid).get();
     if (userDoc.data()?['selectedtrip'] == null)
@@ -60,72 +60,23 @@ class _DashBoardState extends State<DashBoard> {
       throw Exception('Trip does not exist anymore');
     }
 
-    final currentTrip =
-        await FirebaseFirestore.instance.collection('trips').doc(tripId).get();
+    final currentTrip = FirebaseFirestore.instance.collection('trips').doc(tripId);
 
-    Map<String, dynamic>? currentTripdata = currentTrip.data();
-    if (currentTripdata!['days'] == null) {
-      print('The Days Parameter in the Document is null');
-      DocumentReference day =
-          await FirebaseFirestore.instance.collection('days').add({
+    QuerySnapshot currentDay = await currentTrip
+        .collection("days")
+        .where("starttime", isEqualTo: Timestamp.fromDate(selectedDay!))
+        .get();
+    if (currentDay.docs.isEmpty) {
+      DocumentReference day = await currentTrip.collection("days").add({
         'starttime': Timestamp.fromDate(selectedDay!),
         'active': {},
         'archive': {},
       });
-      await FirebaseFirestore.instance.collection('trips').doc(tripId).update({
-        'days': FieldValue.arrayUnion([
-          {'starttime': Timestamp.fromDate(selectedDay!), 'ref': day}
-        ])
-      });
       return day;
+    } else {
+      return currentDay.docs.first.reference;
     }
-    List<dynamic> days = currentTripdata['days'].toList();
-    Iterable<dynamic> filtered = days.where((el) =>
-        (el['starttime'] as Timestamp).toDate().day == selectedDay!.day &&
-        (el['starttime'] as Timestamp).toDate().month == selectedDay!.month &&
-        (el['starttime'] as Timestamp).toDate().year == selectedDay!.year);
-    if (filtered.isEmpty) {
-      print('No day found');
-      DocumentReference day =
-          await FirebaseFirestore.instance.collection('days').add({
-        'starttime': Timestamp.fromDate(selectedDay!),
-        'active': {},
-        'archive': {},
-      });
-      await FirebaseFirestore.instance.collection('trips').doc(tripId).update({
-        'days': FieldValue.arrayUnion([
-          {'starttime': Timestamp.fromDate(selectedDay!), 'ref': day}
-        ])
-      });
-      return day;
-    }
-    Map<String, dynamic>? day = filtered.first;
-    currentDay = day!['ref'];
-    return currentDay!;
   }
-/*   Future<DocumentReference> getCurrentDaySubCollection() async {
-    final userCollection = FirebaseFirestore.instance.collection('users');
-    final userDoc = await userCollection.doc(user.uid).get();
-    if (userDoc.data()?['selectedtrip'] == null)
-      throw Exception('No trip selected');
-
-    final tripId = userDoc.data()?['selectedtrip'];
-    try {
-      await FirebaseFirestore.instance.collection('trips').doc(tripId).get();
-    } catch (e) {
-      print('Trip does not exist anymore');
-      await userCollection.doc(user.uid).update({'selectedtrip': null});
-      throw Exception('Trip does not exist anymore');
-    }
-
-    final currentTrip =
-        await FirebaseFirestore.instance.collection('trips').doc(tripId);
-
-    }
-    Map<String, dynamic>? day = filtered.first;
-    currentDay = day!['ref'];
-    return currentDay!;
-  } */
 
   @override
   Widget build(BuildContext context) {
@@ -139,24 +90,27 @@ class _DashBoardState extends State<DashBoard> {
                 title: "Add new Widget to your Dashboard",
                 content: [
                   FutureBuilder(
-                  future: Future.wait([
-                    getUserData(),
-                    getCurrentDay(),
-                  ]),
-                  builder: (context, AsyncSnapshot<List<dynamic>> snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(
-                        child: CircularProgressIndicator(),
-                      );
-                    }
-                    if (snapshot.hasError) {
-                      return const Center(
-                        child: Text('An error occured!'),
-                      );
-                    }
-                    return CreateNewWidgetOnDashboard(
-                        day: snapshot.data![1], userdata: snapshot.data![0]);
-                  }) 
+                      future: Future.wait([
+                        getUserData(),
+                        getCurrentDaySubCollection(),
+                      ]),
+                      builder:
+                          (context, AsyncSnapshot<List<dynamic>> snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const Center(
+                            child: CircularProgressIndicator(),
+                          );
+                        }
+                        if (snapshot.hasError) {
+                          return const Center(
+                            child: Text('An error occured!'),
+                          );
+                        }
+                        return CreateNewWidgetOnDashboard(
+                            day: snapshot.data![1],
+                            userdata: snapshot.data![0]);
+                      })
                 ]);
           }),
       body: Stack(
@@ -180,7 +134,7 @@ class _DashBoardState extends State<DashBoard> {
               FutureBuilder(
                   future: Future.wait([
                     getUserData(),
-                    getCurrentDay(),
+                    getCurrentDaySubCollection(),
                   ]),
                   builder: (context, AsyncSnapshot<List<dynamic>> snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {

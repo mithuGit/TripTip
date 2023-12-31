@@ -21,12 +21,9 @@ class ScrollViewWidget extends StatelessWidget {
     if (day == null) {
       return const CircularProgressIndicator();
     }
-    final Stream<DocumentSnapshot> _dayStream =
-        firestore.collection('days').doc(day?.id).snapshots();
-
     final StreamController<List<dynamic>> dayStreamFiltered =
         StreamController<List<dynamic>>();
-    _dayStream.listen((event) async {
+    day!.snapshots().listen((event) async {
       try {
         debugPrint("Stream got Data");
         if (justChangged) {
@@ -72,11 +69,12 @@ class ScrollViewWidget extends StatelessWidget {
             // Create a Card based on the color and the content of the dragged one
             // and set its elevation to the animated value.
             child: MainDasboardinitializer(
-                key: Key('$index'),
-                userdata: userdata!,
-                day: day,
-                title: bufferArray![index]["title"] as String,
-                data: bufferArray![index],), // or any other fallback widget
+              key: Key('$index'),
+              userdata: userdata!,
+              day: day,
+              title: bufferArray![index]["title"] as String,
+              data: bufferArray![index],
+            ), // or any other fallback widget
           );
         },
         child: child,
@@ -127,12 +125,8 @@ class ScrollViewWidget extends StatelessWidget {
                   return MapEntry(value["key"] as String, value);
                 });
                 justChangged = true;
-
                 //umschreibem
-                firestore
-                    .collection('days')
-                    .doc(day?.id)
-                    .update({"active": res2});
+                day!.update({"active": res2});
               },
               children: bufferArray!
                   .map((con) {
@@ -160,31 +154,22 @@ class ScrollViewWidget extends StatelessWidget {
                           ),
                           SlidableAction(
                             onPressed: (s) async {
-                              debugPrint("Delete");
-                              DocumentSnapshot archiveColl = await firestore
-                                  .collection('days')
-                                  .doc(day?.id)
-                                  .get();
-                              Map<String, dynamic> archive = archiveColl
-                                  .get('archive') as Map<String, dynamic>;
+                              Map<String, dynamic> archive = ((await day!.get())
+                                  .data() as Map<String, dynamic>)['archive'];
                               archive[con["key"]] = con;
-                              Map<String, dynamic> item = con;
                               List<dynamic>? tempArray = bufferArray;
                               tempArray?.remove(con);
                               dayStreamFiltered.add(tempArray!);
-                              Map<int, dynamic>? res = tempArray?.asMap();
-                              res?.forEach((key, value) {
+                              Map<int, dynamic>? res = tempArray.asMap();
+                              res.forEach((key, value) {
                                 value['index'] = key;
                               });
                               Map<String, dynamic>? res2 =
-                                  res?.map((key, value) {
+                                  res.map((key, value) {
                                 return MapEntry(value["key"] as String, value);
                               });
                               //umschreibem
-                              firestore
-                                  .collection('days')
-                                  .doc(day?.id)
-                                  .update({"active": res2, "archive": archive});
+                              day!.update({"active": res2, "archive": archive});
                               justChangged = true;
                             },
                             backgroundColor: Colors.transparent,
@@ -195,11 +180,10 @@ class ScrollViewWidget extends StatelessWidget {
                         ],
                       ),
                       child: MainDasboardinitializer(
-                        title: con!["title"],
-                        userdata: userdata!,
-                        day: day,
-                        data: con
-                      ),
+                          title: con!["title"],
+                          userdata: userdata!,
+                          day: day,
+                          data: con),
                     );
                   })
                   .toList()
