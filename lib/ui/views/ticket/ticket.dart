@@ -84,9 +84,8 @@ class _TicketState extends State<Ticket> {
                         return const Center(
                             child: Text("Error while fetching tickets"));
                       }
-                      print(snapshot.data!.docs);
                       if (snapshot.data!.docs.isEmpty) {
-                        return Center(
+                        return const Center(
                             child: Text(
                                 "No Tickets found, press the + button to add one"));
                       }
