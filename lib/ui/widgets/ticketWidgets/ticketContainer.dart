@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -12,12 +11,12 @@ import 'package:path_provider/path_provider.dart';
 import 'package:pdf_render/pdf_render_widgets.dart';
 
 class TicketContainer extends StatefulWidget {
-  const TicketContainer({
-    Key? key,
-    required this.title,
-  }) : super(key: key);
+  DocumentSnapshot ticket;
 
-  final String title;
+  TicketContainer({
+    Key? key,
+    required this.ticket,
+  }) : super(key: key);
 
   @override
   State<TicketContainer> createState() => _TicketContainerState();
@@ -29,38 +28,26 @@ class _TicketContainerState extends State<TicketContainer> {
   PdfDocumentLoader? pdfDocumentLoader;
   File? pdfFile;
   var height = 350.0;
+  Map<String, dynamic>? data;
 
   @override
   void initState() {
     super.initState();
-    fetchImage();
+    data = widget.ticket.data() as Map<String, dynamic>;
   }
 
   Future<void> fetchImage() async {
     try {
-      final DocumentSnapshot<Map<String, dynamic>> userDoc =
-          await FirebaseFirestore.instance
-              .collection('users')
-              .doc(FirebaseAuth.instance.currentUser!.uid)
-              .get();
-      final String tripId = userDoc.data()!['selectedtrip'].toString();
-
-      final imageUrl = await FirebaseStorage.instance
-          .ref()
-          .child('files/$tripId/${widget.title}')
-          .list()
-          .then((value) => value.items.first.fullPath);
-
       var getDownloadUrlLink =
-          await FirebaseStorage.instance.ref(imageUrl).getDownloadURL();
+          await FirebaseStorage.instance.ref(data!["url"]).getDownloadURL();
       getDownloadUrlLink.contains('.pdf') ? isPDF = true : isPDF = false;
 
       isPDF
           ? setState(() async {
               final Directory tempDir = await getTemporaryDirectory();
-              pdfFile = File('${tempDir.path}/${widget.title}');
+              pdfFile = File('${tempDir.path}/${data!["title"]}');
               await FirebaseStorage.instance
-                  .ref(imageUrl)
+                  .ref(data!["url"])
                   .writeToFile(pdfFile!);
 
               pdfDocumentLoader = PdfDocumentLoader.openFile(
@@ -94,53 +81,52 @@ class _TicketContainerState extends State<TicketContainer> {
           const EdgeInsets.only(left: 20, right: 20, top: 10.0, bottom: 10.0),
       child: GestureDetector(
         onTap: () async {
-          setState(() =>
-              CustomBottomSheet.show(context, title: widget.title, content: [
-                Builder(
-                  builder: (context) {
-                    fetchImage();
-                    return Column(
-                        // hier Modal für Preview des Belegs
-                        children: [
-                          const SizedBox(height: 20.0),
-                          Container(
-                            decoration: BoxDecoration(
-                              border: Border.all(
-                                width: 1,
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .primary
-                                    .withOpacity(0.2),
-                              ),
-                            ),
-                            height: height,
-                            width: double.infinity,
-                            alignment: Alignment.center,
-                            child: image != null || pdfFile != null
-                                ? GestureDetector(
-                                    onTap: () {
-                                      isPDF
-                                          ? (openPDF(
-                                              context, pdfFile!, widget.title))
-                                          : (openImage(
-                                              context, image!, widget.title));
-                                    },
-                                    child: isPDF ? pdfDocumentLoader : image,
-                                  )
-                                : const Center(
-                                    child: Text(
-                                      "No Image Selected",
-                                      style: TextStyle(
-                                        color: Colors.grey,
-                                        fontSize: 30,
-                                      ),
-                                    ),
-                                  ),
+          CustomBottomSheet.show(context, title: data!["title"], content: [
+            FutureBuilder(
+              future: fetchImage(),
+              builder: (context, futuredata) {
+                return Column(
+                    // hier Modal für Preview des Belegs
+                    children: [
+                      const SizedBox(height: 20.0),
+                      Container(
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            width: 1,
+                            color: Theme.of(context)
+                                .colorScheme
+                                .primary
+                                .withOpacity(0.2),
                           ),
-                        ]);
-                  },
-                ),
-              ]));
+                        ),
+                        height: height,
+                        width: double.infinity,
+                        alignment: Alignment.center,
+                        child: image != null || pdfFile != null
+                            ? GestureDetector(
+                                onTap: () {
+                                  isPDF
+                                      ? (openPDF(
+                                          context, pdfFile!, data!["title"]))
+                                      : (openImage(
+                                          context, image!, data!["title"]));
+                                },
+                                child: isPDF ? pdfDocumentLoader : image,
+                              )
+                            : const Center(
+                                child: Text(
+                                  "No Image Selected",
+                                  style: TextStyle(
+                                    color: Colors.grey,
+                                    fontSize: 30,
+                                  ),
+                                ),
+                              ),
+                      ),
+                    ]);
+              },
+            ),
+          ]);
         },
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 300),
@@ -163,7 +149,7 @@ class _TicketContainerState extends State<TicketContainer> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            widget.title,
+                            data!["title"],
                             style: const TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,

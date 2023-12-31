@@ -1,8 +1,9 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:internet_praktikum/ui/widgets/bottom_sheet.dart';
-import 'package:internet_praktikum/ui/widgets/my_button.dart';
 import 'package:internet_praktikum/ui/widgets/headerWidgets/topbar.dart';
 import 'package:internet_praktikum/ui/widgets/ticketWidgets/createTicketWidget.dart';
 import 'package:internet_praktikum/ui/widgets/ticketWidgets/ticketContainer.dart';
@@ -16,19 +17,13 @@ class Ticket extends StatefulWidget {
 
 class _TicketState extends State<Ticket> {
   final user = FirebaseAuth.instance.currentUser!;
+  final firestore = FirebaseFirestore.instance;
 
-  void signUserOut() async {
-    await FirebaseAuth.instance.signOut();
-    if (context.mounted) {
-      GoRouter.of(context).go('/loginorregister');
-    }
-  }
-
-  void deleteUser() async {
-    await FirebaseAuth.instance.currentUser!.delete();
-    if (context.mounted) {
-      GoRouter.of(context).go('/loginorregister');
-    }
+  Future<String> getSelectedtrip() async {
+    DocumentSnapshot sn =
+        await firestore.collection("users").doc(user.uid).get();
+    print(sn.data()! as Map<String, dynamic>);
+    return (sn.data()! as Map<String, dynamic>)["selectedtrip"];
   }
 
   @override
@@ -42,12 +37,14 @@ class _TicketState extends State<Ticket> {
           CustomBottomSheet.show(context,
               title: "Add Ticket or Receipt",
               content: [
-                Builder(
-                  builder: (context) {
-                    // hier kommt noch die Schuldenüsetzung und Beleg hinzufügen über Galerie oder Fotoupload
-                    return const CreateTicketsWidget();
-                  },
-                ),
+                FutureBuilder(
+                    future: getSelectedtrip(),
+                    builder: (context, selectedTrip) {
+                      DocumentReference trip = firestore
+                          .collection("trips")
+                          .doc(selectedTrip.data as String);
+                      return CreateTicketsWidget(selectedTrip: trip);
+                    })
               ]);
         },
       ),
@@ -57,41 +54,75 @@ class _TicketState extends State<Ticket> {
             decoration: const BoxDecoration(
               image: DecorationImage(
                 image: AssetImage(
-                    'assets/mainpage_pic/ticket.png'), // assets/BackgroundCity.png
+                    'assets/background_city_persona.png'), // assets/BackgroundCity.png
                 fit: BoxFit.cover,
               ),
             ),
-            child: SingleChildScrollView(
-              child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Text('Welcome ${user.displayName}'),
-                    const SizedBox(height: 20),
-                    Text('Your email is ${user.email}'),
-                    const SizedBox(height: 20),
-                    Text('Your uid is ${user.uid}'),
-                    const SizedBox(height: 20),
-                    MyButton(
-                      onTap: signUserOut,
-                      text: "Logout",
-                      colors: Colors.red,
-                    ),
-                    MyButton(
-                      onTap: deleteUser,
-                      text: "Delete Account",
-                      colors: Colors.red,
-                    ),
-                    const TicketContainer(title: "Test1"),
-                    const TicketContainer(title: "Test2"),
-                    const TicketContainer(title: "Test3"),
-                    const TicketContainer(title: "Test4"),
-                    const TicketContainer(title: "Test5"),
-                    const TicketContainer(title: "Test6"),
-                    const TicketContainer(title: "Ticket from Deutsche Bahn"),
-                  ],
-                ),
-              ),
+            child: FutureBuilder(
+              future: getSelectedtrip(),
+              builder: (context, currentTrip) {
+                if (currentTrip.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                if (currentTrip.hasError) {
+                  return const Center(
+                      child: Text("Error while fetching Selectedtrip"));
+                }
+                //Todo: change selected Trio to DocumentReference
+                return StreamBuilder<QuerySnapshot>(
+                    stream: firestore
+                        .collection("trips")
+                        .doc(currentTrip.data as String)
+                        .collection("tickets")
+                        .snapshots(),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+                      if (snapshot.hasError) {
+                        debugPrint(snapshot.error.toString());
+                        return const Center(
+                            child: Text("Error while fetching tickets"));
+                      }
+                      print(snapshot.data!.docs);
+                      if (snapshot.data!.docs.isEmpty) {
+                        return Center(
+                            child: Text(
+                                "No Tickets found, press the + button to add one"));
+                      }
+                      return ListView(
+                        children: snapshot.data!.docs
+                            .map((DocumentSnapshot document) {
+                          return Slidable(
+                            key: Key(document.id),
+                            endActionPane: ActionPane(
+                              motion: const ScrollMotion(),
+                              children: [
+                                SlidableAction(
+                                  onPressed: (sdf) async {
+                                    Map<String, dynamic> data =
+                                        (document.data() as Map<String, dynamic>);
+                                    if(data["url"] != null){
+                                      Reference doc = FirebaseStorage.instance.ref(data!["url"]);
+                                      await doc.delete();
+                                    }
+                                    document.reference.delete();
+                                  },
+                                  backgroundColor: Colors.transparent,
+                                  foregroundColor: Colors.red,
+                                  icon: Icons.delete,
+                                  label: 'Delete Ticket',
+                                )
+                              ],
+                            ),
+                            child: TicketContainer(
+                              ticket: document,
+                            ),
+                          );
+                        }).toList(),
+                      );
+                    });
+              },
             ),
           ),
         ],
