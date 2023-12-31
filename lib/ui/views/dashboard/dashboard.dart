@@ -69,7 +69,17 @@ class _DashBoardState extends State<DashBoard> {
     if (currentDay.docs.isEmpty) {
       DocumentReference day = await currentTrip.collection("days").add({
         'starttime': Timestamp.fromDate(selectedDay!),
-        'active': {},
+        'active': {
+          'diary': {
+            'key' : 'diary',
+            'index': 0,
+            'title': 'Your daily Diary',
+            'dontEdit': true,
+            'dontDelete': true,
+            'type': 'diary',
+            'due': 'Diary',
+          },
+        },
         'archive': {},
       });
       return day;
@@ -126,7 +136,6 @@ class _DashBoardState extends State<DashBoard> {
             ),
             child: Column(children: [
               Calendar(onDateSelected: (date) {
-                print("onDateSelected");
                 setState(() {
                   selectedDay = date;
                 });
@@ -145,7 +154,7 @@ class _DashBoardState extends State<DashBoard> {
                     if (snapshot.hasError) {
                       print(snapshot.error);
                       return const Center(
-                        child: Text('An error occured!'),
+                        child: Text('An error occured while fetching data! check your internet connection!'),
                       );
                     }
                     return ScrollViewWidget(

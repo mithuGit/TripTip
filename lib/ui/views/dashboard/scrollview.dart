@@ -39,15 +39,17 @@ class ScrollViewWidget extends StatelessWidget {
                 (a, b) => (a['index'] as int).compareTo(b['index'] as int));
           }
           for (var i = 0; i < localbufferArray!.length; i++) {
-            DocumentSnapshot userdoc =
-                await localbufferArray![i]["createdBy"].get();
-            if (userdoc.exists) {
-              Map<String, dynamic> userdata =
-                  userdoc.data() as Map<String, dynamic>;
-              localbufferArray![i]["profilePicture"] =
-                  userdata["profilePicture"];
-              localbufferArray![i]["prename"] = userdata["prename"];
-              localbufferArray![i]["lastname"] = userdata["lastname"];
+            if (localbufferArray![i]["createdBy"] != null) {
+              DocumentSnapshot userdoc =
+                  await localbufferArray![i]["createdBy"].get();
+              if (userdoc.exists) {
+                Map<String, dynamic> userdata =
+                    userdoc.data() as Map<String, dynamic>;
+                localbufferArray![i]["profilePicture"] =
+                    userdata["profilePicture"];
+                localbufferArray![i]["prename"] = userdata["prename"];
+                localbufferArray![i]["lastname"] = userdata["lastname"];
+              }
             }
           }
           dayStreamFiltered.add(localbufferArray);
@@ -180,7 +182,7 @@ class ScrollViewWidget extends StatelessWidget {
                         ],
                       ),
                       child: MainDasboardinitializer(
-                          title: con!["title"],
+                          title:  con!["title"],
                           userdata: userdata!,
                           day: day,
                           data: con),

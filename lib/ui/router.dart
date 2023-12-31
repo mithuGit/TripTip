@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:internet_praktikum/ui/views/account/account_details.dart';
+import 'package:internet_praktikum/ui/views/dashboard/writeDiary.dart';
 import 'package:internet_praktikum/ui/views/finanzen/creditcard.dart';
 import 'package:internet_praktikum/ui/views/finanzen/finazen.dart';
 import 'package:internet_praktikum/ui/views/dashboard/dashboard.dart';
@@ -185,7 +186,7 @@ class MyRouter {
           key: state.pageKey,
         ),
       ),
-       GoRoute(
+      GoRoute(
         name: 'accountdetails-isEditProfile',
         path: '/accountdetails-isEditProfile',
         builder: (context, state) => Account(
@@ -200,6 +201,13 @@ class MyRouter {
           key: state.pageKey,
         ),
       ),
+      GoRoute(
+          name: 'diary',
+          path: '/diary',
+          builder: (context, state) {
+            final day = state.extra as DocumentReference?;
+            return WriteDiary(day : day!);
+          }),
     ],
   );
 }

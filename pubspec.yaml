@@ -73,6 +73,7 @@ dependencies:
 
   googleapis_auth: ^1.4.1
   flutter_rating_stars: ^1.0.3+4
+  flutter_quill: ^9.2.0
 
 dev_dependencies:
   flutter_test:
