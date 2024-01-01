@@ -91,6 +91,15 @@ class _DashBoardState extends State<DashBoard> {
         },
         'archive': {},
       });
+      await FirebaseFirestore.instance.collection("tasks").add({
+        'performAt': diaryTime,
+        'status': 'pending',
+        'worker': 'WriteDiaryNotification',
+        'options': {
+          'day': day,
+          'trip': currentTrip,
+        },
+      });
 
       return day;
     } else {

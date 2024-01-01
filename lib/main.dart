@@ -1,6 +1,8 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
+import 'package:internet_praktikum/core/services/init_pushnotifications.dart';
 import 'package:internet_praktikum/ui/router.dart';
 import 'firebase_options.dart';
 import '.env';
@@ -13,7 +15,9 @@ Future<void> main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-
+  if (FirebaseAuth.instance.currentUser != null) {
+    await PushNotificationService().checkInitialized();
+  }
   runApp(Main());
 }
 
