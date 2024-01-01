@@ -20,7 +20,6 @@ class MapPage extends StatefulWidget {
 }
 
 class _MapPageState extends State<MapPage> {
-// TODO: null beim landen von map -> fixen
   final Completer<GoogleMapController> _googleMapController = Completer();
   static const key = "AIzaSyBUh4YsufaUkM8XQqdO8TSXKpBf_3dJOmA";
 
@@ -59,12 +58,15 @@ class _MapPageState extends State<MapPage> {
   //page Controller
   late PageController _pageController;
   int prevPage = 0;
-  var tappedPlaceDetail;
+  dynamic tappedPlaceDetail;
   String placeImg = '';
   var photoGalleryIndex = 0;
   bool showBlankCard = false;
   bool isReviews = true;
   bool isPhotos = false;
+
+  //expandable container
+  bool isExpanded = false;
 
   //TODO ehhh Rezensionen wenn man auf den container klickt bzw. aufs Bild oder Tite
 
@@ -195,207 +197,223 @@ class _MapPageState extends State<MapPage> {
               },
             ),
           ]),
-      body: Stack(
-        children: [
-          Container(
-            //height: MediaQuery.of(context).size.height * 0.5,
-            //width: MediaQuery.of(context).size.width,
-            child: GoogleMap(
-              myLocationButtonEnabled: false,
-              zoomControlsEnabled: false,
-              initialCameraPosition:
-                  _initialCameraPosition!, //TODO: null check am Anfang beheben
-              onMapCreated: (GoogleMapController controller) {
-                _googleMapController.complete(controller);
-              },
-              markers: {
-                if (_origin != null) _origin!,
-                if (_destination != null) _destination!,
-                ..._markers,
-              },
-              polylines: {
+      body: _initialCameraPosition == null
+          ? const Column(
+              //TODO: maybe ein Bild mit Animation für Loading Screen
+              children: [
+                SizedBox(height: 100),
+                Center(child: CircularProgressIndicator()),
+                SizedBox(height: 20),
+                Center(child: Text('Loading Map')),
+              ],
+            )
+          : Stack(
+              children: [
+                Container(
+                  //height: MediaQuery.of(context).size.height * 0.5,
+                  //width: MediaQuery.of(context).size.width,
+                  child: GoogleMap(
+                    myLocationButtonEnabled: false,
+                    zoomControlsEnabled: false,
+                    initialCameraPosition: _initialCameraPosition!,
+                    onMapCreated: (GoogleMapController controller) {
+                      _googleMapController.complete(controller);
+                    },
+                    markers: {
+                      if (_origin != null) _origin!,
+                      if (_destination != null) _destination!,
+                      ..._markers,
+                    },
+                    polylines: {
+                      if (_info != null)
+                        Polyline(
+                          polylineId: const PolylineId('overview_polyline'),
+                          color: Colors.red,
+                          width: 5,
+                          points: _info!.polylinePoints
+                              .map((e) => LatLng(e.latitude, e.longitude))
+                              .toList(),
+                        ),
+                    },
+                    onLongPress: _addMarker,
+                    circles: _circles,
+                    onTap: (point) {
+                      tappedPoint = point;
+                      _setCircle(point);
+                    },
+                  ),
+                ),
                 if (_info != null)
-                  Polyline(
-                    polylineId: const PolylineId('overview_polyline'),
-                    color: Colors.red,
-                    width: 5,
-                    points: _info!.polylinePoints
-                        .map((e) => LatLng(e.latitude, e.longitude))
-                        .toList(),
+                  Positioned(
+                    top: 20.0,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 6.0,
+                        horizontal: 12.0,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.yellowAccent,
+                        borderRadius: BorderRadius.circular(20.0),
+                        boxShadow: const [
+                          BoxShadow(
+                            color: Colors.black26,
+                            offset: Offset(0, 2),
+                            blurRadius: 6.0,
+                          )
+                        ],
+                      ),
+                      child: Text(
+                        '${_info!.totalDistance}, ${_info!.totalDuration}',
+                        style: const TextStyle(
+                          fontSize: 18.0,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
                   ),
-              },
-              onLongPress: _addMarker,
-              circles: _circles,
-              onTap: (point) {
-                tappedPoint = point;
-                _setCircle(point);
-              },
-            ),
-          ),
-          if (_info != null)
-            Positioned(
-              top: 20.0,
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  vertical: 6.0,
-                  horizontal: 12.0,
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.yellowAccent,
-                  borderRadius: BorderRadius.circular(20.0),
-                  boxShadow: const [
-                    BoxShadow(
-                      color: Colors.black26,
-                      offset: Offset(0, 2),
-                      blurRadius: 6.0,
-                    )
-                  ],
-                ),
-                child: Text(
-                  '${_info!.totalDistance}, ${_info!.totalDuration}',
-                  style: const TextStyle(
-                    fontSize: 18.0,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-            ),
-          radiusSlider
-              ? Padding(
-                  padding: const EdgeInsets.fromLTRB(15, 30, 15, 0),
-                  child: Container(
-                    height: 50,
-                    color: Colors.black.withOpacity(0.3),
-                    child: Row(children: [
-                      Expanded(
-                          child: Slider(
-                        max: 7000,
-                        min: 1000,
-                        value: radiusValue,
-                        onChanged: (newValue) {
-                          setState(() {
-                            radiusValue = newValue;
-                            pressedNear = false;
-                            if (tappedPoint != null) {
-                              _setCircle(tappedPoint!);
-                            }
-                          });
-                        },
-                      )),
-                      !pressedNear
-                          ? IconButton(
-                              onPressed: () {
-                                if (_debounce?.isActive ?? false) {
-                                  _debounce?.cancel();
-                                }
-                                _debounce =
-                                    Timer(const Duration(seconds: 2), () async {
-                                  var placesResult = await GoogleMapService()
-                                      .getPlaceDetails(
-                                          tappedPoint, radiusValue.toInt());
-
-                                  List<dynamic> placesWithin =
-                                      placesResult['results'] as List;
-
-                                  allFavoritePlaces = placesWithin;
-
-                                  tokenKey =
-                                      placesResult['next_page_token'] ?? 'none';
-                                  _markers = {};
-                                  for (var element in placesWithin) {
-                                    _setNearMarker(
-                                      LatLng(
-                                          element['geometry']['location']
-                                              ['lat'],
-                                          element['geometry']['location']
-                                              ['lng']),
-                                      element['name'],
-                                      element['types'],
-                                      element['business_status'] ??
-                                          'not available',
-                                    );
-                                  }
-                                  //_markersDupe = _markers;
-                                  pressedNear = true;
-                                });
-                              },
-                              icon: const Icon(
-                                Icons.near_me,
-                                color: Colors.blue,
-                              ))
-                          : IconButton(
-                              onPressed: () {
-                                if (_debounce?.isActive ?? false) {
-                                  _debounce?.cancel();
-                                }
-                                _debounce =
-                                    Timer(const Duration(seconds: 2), () async {
-                                  if (tokenKey != 'none') {
-                                    var placesResult = await GoogleMapService()
-                                        .getMorePlaceDetails(tokenKey);
-
-                                    List<dynamic> placesWithin =
-                                        placesResult['results'] as List;
-
-                                    allFavoritePlaces.addAll(placesWithin);
-
-                                    tokenKey =
-                                        placesResult['next_page_token'] ??
-                                            'none';
-
-                                    for (var element in placesWithin) {
-                                      _setNearMarker(
-                                        LatLng(
-                                            element['geometry']['location']
-                                                ['lat'],
-                                            element['geometry']['location']
-                                                ['lng']),
-                                        element['name'],
-                                        element['types'],
-                                        element['business_status'] ??
-                                            'not available',
-                                      );
-                                    }
-                                  } else {
-                                    ErrorSnackbar.showErrorSnackbar(
-                                        context, "No more places available");
+                radiusSlider
+                    ? Padding(
+                        padding: const EdgeInsets.fromLTRB(15, 30, 15, 0),
+                        child: Container(
+                          height: 50,
+                          color: Colors.black.withOpacity(0.3),
+                          child: Row(children: [
+                            Expanded(
+                                child: Slider(
+                              max: 7000,
+                              min: 1000,
+                              value: radiusValue,
+                              onChanged: (newValue) {
+                                setState(() {
+                                  radiusValue = newValue;
+                                  pressedNear = false;
+                                  if (tappedPoint != null) {
+                                    _setCircle(tappedPoint!);
                                   }
                                 });
                               },
-                              icon: const Icon(Icons.more_time,
-                                  color: Colors.blue)),
-                      IconButton(
-                          onPressed: () {
-                            setState(() {
-                              radiusSlider = false;
-                              pressedNear = false;
-                              cardTapped = false;
-                              radiusValue = 3000.0;
-                              _circles = {};
-                              _markers = {};
-                              allFavoritePlaces = [];
-                            });
-                          },
-                          icon: const Icon(Icons.close, color: Colors.red))
-                    ]),
-                  ))
-              : Container(),
-          pressedNear
-              ? Positioned(
-                  bottom: 20.0,
-                  child: SizedBox(
-                    height: 200.0,
-                    width: MediaQuery.of(context).size.width,
-                    child: PageView.builder(
-                        controller: _pageController,
-                        itemCount: allFavoritePlaces.length,
-                        itemBuilder: (BuildContext context, int index) {
-                          return _nearbyPlacesList(index);
-                        }),
-                  ))
-              : Container(),
-        ],
-      ),
+                            )),
+                            !pressedNear
+                                ? IconButton(
+                                    onPressed: () {
+                                      if (_debounce?.isActive ?? false) {
+                                        _debounce?.cancel();
+                                      }
+                                      _debounce = Timer(
+                                          const Duration(seconds: 2), () async {
+                                        var placesResult =
+                                            await GoogleMapService()
+                                                .getPlaceDetails(tappedPoint,
+                                                    radiusValue.toInt());
+
+                                        List<dynamic> placesWithin =
+                                            placesResult['results'] as List;
+
+                                        allFavoritePlaces = placesWithin;
+
+                                        tokenKey =
+                                            placesResult['next_page_token'] ??
+                                                'none';
+                                        _markers = {};
+                                        for (var element in placesWithin) {
+                                          _setNearMarker(
+                                            LatLng(
+                                                element['geometry']['location']
+                                                    ['lat'],
+                                                element['geometry']['location']
+                                                    ['lng']),
+                                            element['name'],
+                                            element['types'],
+                                            element['business_status'] ??
+                                                'not available',
+                                          );
+                                        }
+                                        //_markersDupe = _markers;
+                                        pressedNear = true;
+                                      });
+                                    },
+                                    icon: const Icon(
+                                      Icons.near_me,
+                                      color: Colors.blue,
+                                    ))
+                                : IconButton(
+                                    onPressed: () {
+                                      if (_debounce?.isActive ?? false) {
+                                        _debounce?.cancel();
+                                      }
+                                      _debounce = Timer(
+                                          const Duration(seconds: 2), () async {
+                                        if (tokenKey != 'none') {
+                                          var placesResult =
+                                              await GoogleMapService()
+                                                  .getMorePlaceDetails(
+                                                      tokenKey);
+
+                                          List<dynamic> placesWithin =
+                                              placesResult['results'] as List;
+
+                                          allFavoritePlaces
+                                              .addAll(placesWithin);
+
+                                          tokenKey =
+                                              placesResult['next_page_token'] ??
+                                                  'none';
+
+                                          for (var element in placesWithin) {
+                                            _setNearMarker(
+                                              LatLng(
+                                                  element['geometry']
+                                                      ['location']['lat'],
+                                                  element['geometry']
+                                                      ['location']['lng']),
+                                              element['name'],
+                                              element['types'],
+                                              element['business_status'] ??
+                                                  'not available',
+                                            );
+                                          }
+                                        } else {
+                                          ErrorSnackbar.showErrorSnackbar(
+                                              context,
+                                              "No more places available");
+                                        }
+                                      });
+                                    },
+                                    icon: const Icon(Icons.more_time,
+                                        color: Colors.blue)),
+                            IconButton(
+                                onPressed: () {
+                                  setState(() {
+                                    radiusSlider = false;
+                                    pressedNear = false;
+                                    cardTapped = false;
+                                    radiusValue = 3000.0;
+                                    _circles = {};
+                                    _markers = {};
+                                    allFavoritePlaces = [];
+                                  });
+                                },
+                                icon:
+                                    const Icon(Icons.close, color: Colors.red))
+                          ]),
+                        ))
+                    : Container(),
+                pressedNear
+                    ? Positioned(
+                        bottom: 20.0,
+                        child: SizedBox(
+                          height: 200.0,
+                          width: MediaQuery.of(context).size.width,
+                          child: PageView.builder(
+                              controller: _pageController,
+                              itemCount: allFavoritePlaces.length,
+                              itemBuilder: (BuildContext context, int index) {
+                                return _nearbyPlacesList(index);
+                              }),
+                        ))
+                    : Container(),
+              ],
+            ),
       /*  floatingActionButton: FloatingActionButton(
         backgroundColor: Theme.of(context).primaryColor,
         foregroundColor: Colors.black,
@@ -524,7 +542,7 @@ class _MapPageState extends State<MapPage> {
         }
         return Center(
           child: SizedBox(
-            height: Curves.easeInOut.transform(value) * 125.0,
+            height: Curves.easeInOut.transform(value) * 600.0,
             width: Curves.easeInOut.transform(value) * 350.0,
             child: widget,
           ),
@@ -543,87 +561,98 @@ class _MapPageState extends State<MapPage> {
         child: Stack(
           children: [
             Center(
-              child: Container(
-                height: 125.0,
-                width: 325.0,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(34.5),
-                  color:
-                      const Color.fromARGB(255, 43, 43, 43).withOpacity(0.90),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Row(
-                    children: [
-                      _pageController.position.haveDimensions
-                          ? _pageController.page!.toInt() == index
-                              ? Container(
-                                  height: 90.0,
-                                  width: 90.0,
-                                  decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(10.0),
-                                      image: DecorationImage(
-                                          image: NetworkImage(placeImg != ''
-                                              //TODO erstes bild in map wird nicht angezeigt und immer default kamera
-                                              ? 'https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=$placeImg&key=$key'
-                                              : 'https://pic.onlinewebfonts.com/svg/img_546302.png'), //TODO anderes Bild für Default nehmen sonst so ähnlich
-                                          fit: BoxFit.cover),
-                                      border: Border.all(
-                                        color: Colors.white,
-                                        width: 4,
-                                      )),
-                                )
-                              : Container(
-                                  height: 90.0,
-                                  width: 10.0,
-                                  decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(5.0),
-                                      color: Colors.white),
-                                )
-                          : Container(),
-                      const SizedBox(width: 15.0),
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          SizedBox(
-                            width: 130.0,
-                            height: 50.0,
-                            child: Text(allFavoritePlaces[index]['name'],
-                                style: Styles.maptitle),
-                          ),
-                          RatingStars(
-                            value: allFavoritePlaces[index]['rating']
-                                        .runtimeType ==
-                                    int
-                                ? allFavoritePlaces[index]['rating'] * 1.0
-                                : allFavoritePlaces[index]['rating'] ?? 0.0,
-                            starCount: 5,
-                            starSize: 20,
-                            starColor: Colors.white,
-                            starOffColor: const Color(0xff9b9b9b),
-                            valueLabelColor: const Color(0xff9b9b9b),
-                            valueLabelTextStyle: const TextStyle(
-                                color: Colors.white,
-                                fontFamily: 'WorkSans',
-                                fontWeight: FontWeight.w400,
-                                fontStyle: FontStyle.normal,
-                                fontSize: 12.0),
-                            valueLabelRadius: 10,
-                            maxValue: 5,
-                            starSpacing: 2,
-                            maxValueVisibility: false,
-                            //TODO Demokratie abstimmung mit text an sternen oder nicht !!!!!!!!!!!
-                            valueLabelVisibility: false,
-                            animationDuration:
-                                const Duration(milliseconds: 3000),
-                            valueLabelPadding: const EdgeInsets.symmetric(
-                                vertical: 1, horizontal: 8),
-                            valueLabelMargin: const EdgeInsets.only(right: 8),
-                          ),
-                        ],
-                      ),
-                    ],
+              child: GestureDetector(
+                onTap: () {
+                  setState(() {
+                    isExpanded = !isExpanded;
+                  });
+                },
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 500),
+                  curve: Curves.easeInOut,
+                  height: isExpanded ? 450.0 : 125.0,
+                  width: 325.0,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(34.5),
+                    color:
+                        const Color.fromARGB(255, 43, 43, 43).withOpacity(0.90),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Row(
+                      children: [
+                        _pageController.position.haveDimensions
+                            ? _pageController.page!.toInt() == index
+                                ? Container(
+                                    height: 90.0,
+                                    width: 90.0,
+                                    decoration: BoxDecoration(
+                                        borderRadius:
+                                            BorderRadius.circular(10.0),
+                                        image: DecorationImage(
+                                            image: NetworkImage(placeImg != ''
+                                                //TODO erstes bild in map wird nicht angezeigt und immer default kamera
+                                                ? 'https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=$placeImg&key=$key'
+                                                : 'https://pic.onlinewebfonts.com/svg/img_546302.png'), //TODO anderes Bild für Default nehmen sonst so ähnlich
+                                            fit: BoxFit.cover),
+                                        border: Border.all(
+                                          color: Colors.white,
+                                          width: 4,
+                                        )),
+                                  )
+                                : Container(
+                                    height: 90.0,
+                                    width: 10.0,
+                                    decoration: BoxDecoration(
+                                        borderRadius:
+                                            BorderRadius.circular(5.0),
+                                        color: Colors.white),
+                                  )
+                            : Container(),
+                        const SizedBox(width: 15.0),
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            SizedBox(
+                              width: 130.0,
+                              height: 50.0,
+                              child: Text(allFavoritePlaces[index]['name'],
+                                  style: Styles.maptitle),
+                            ),
+                            RatingStars(
+                              value: allFavoritePlaces[index]['rating']
+                                          .runtimeType ==
+                                      int
+                                  ? allFavoritePlaces[index]['rating'] * 1.0
+                                  : allFavoritePlaces[index]['rating'] ?? 0.0,
+                              starCount: 5,
+                              starSize: 20,
+                              starColor: Colors.white,
+                              starOffColor: const Color(0xff9b9b9b),
+                              valueLabelColor: const Color(0xff9b9b9b),
+                              valueLabelTextStyle: const TextStyle(
+                                  color: Colors.white,
+                                  fontFamily: 'WorkSans',
+                                  fontWeight: FontWeight.w400,
+                                  fontStyle: FontStyle.normal,
+                                  fontSize: 12.0),
+                              valueLabelRadius: 10,
+                              maxValue: 5,
+                              starSpacing: 2,
+                              maxValueVisibility: false,
+                              //TODO Demokratie abstimmung mit text an sternen oder nicht !!!!!!!!!!!
+                              valueLabelVisibility: false,
+                              animationDuration:
+                                  const Duration(milliseconds: 3000),
+                              valueLabelPadding: const EdgeInsets.symmetric(
+                                  vertical: 1, horizontal: 8),
+                              valueLabelMargin: const EdgeInsets.only(right: 8),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
