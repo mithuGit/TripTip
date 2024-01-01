@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -15,7 +13,6 @@ class WriteDiary extends StatefulWidget {
 }
 
 class WriteDiaryState extends State<WriteDiary> {
-  String diaryEntry = '';
   QuillController _controller = QuillController.basic();
   FirebaseFirestore firestore = FirebaseFirestore.instance;
 
@@ -60,35 +57,36 @@ class WriteDiaryState extends State<WriteDiary> {
               if (snapshot.hasError) {
                 return const Center(child: Text("Error"));
               }
-              snapshot.data!.snapshots().listen((event) {
-                debugPrint("sad");
-                _controller = QuillController(
-                    selection: TextSelection.collapsed(offset: 0),
-                    document: Document.fromJson(jsonDecode(
-                        (event.data()! as Map<String, dynamic>)["content"])));
-              });
               _controller.addListener(() {
-                print("kkllklk");
-                snapshot.data!.set(
-                    {"content": _controller.document.toDelta().toJson()},
-                    SetOptions(merge: true));
+                snapshot.data!.update(
+                    {"content": _controller.document.toDelta().toJson()});
               });
               return Column(children: [
                 QuillToolbar.simple(
-                  configurations: QuillSimpleToolbarConfigurations(
-                    controller: _controller,
-                    sharedConfigurations: const QuillSharedConfigurations(
-                      locale: Locale('en'),
-                    ),
-                  ),
-                ),
-                Expanded(
-                  child: QuillEditor.basic(
-                    configurations: QuillEditorConfigurations(
-                      controller: _controller,
-                      readOnly: false,
-                      sharedConfigurations: const QuillSharedConfigurations(
-                        locale: Locale('en'),
+                    configurations: QuillSimpleToolbarConfigurations(
+                  controller: _controller,
+                  showFontFamily: false,
+                  showLink: false,
+                  showFontSize: false,
+                  showColorButton: false,
+                  showListCheck: false,
+                  showSubscript: false,
+                  showSuperscript: false,
+                  showSearchButton: false,
+                  showClearFormat: false,
+                  showInlineCode: false,
+                  showCodeBlock: false,
+                )),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Expanded(
+                    child: QuillEditor.basic(
+                      configurations: QuillEditorConfigurations(
+                        controller: _controller,
+                        readOnly: false,
+                        sharedConfigurations: const QuillSharedConfigurations(
+                          locale: Locale('en'),
+                        ),
                       ),
                     ),
                   ),

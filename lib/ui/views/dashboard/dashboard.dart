@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -48,8 +50,7 @@ class _DashBoardState extends State<DashBoard> {
   Future<DocumentReference> getCurrentDaySubCollection() async {
     final userCollection = FirebaseFirestore.instance.collection('users');
     final userDoc = await userCollection.doc(user.uid).get();
-    if (userDoc.data()?['selectedtrip'] == null)
-      throw Exception('No trip selected');
+    if (userDoc.data()?['selectedtrip'] == null) throw Exception('No trip selected');
 
     final tripId = userDoc.data()?['selectedtrip'];
     try {
@@ -61,14 +62,20 @@ class _DashBoardState extends State<DashBoard> {
     }
 
     final currentTrip = FirebaseFirestore.instance.collection('trips').doc(tripId);
+    // issue: that the day doesnt starts at 0:00, thats why we need to filter the day
+    final filteredDay = Timestamp.fromDate(DateTime(selectedDay!.year,selectedDay!.month,selectedDay!.day));
 
     QuerySnapshot currentDay = await currentTrip
         .collection("days")
-        .where("starttime", isEqualTo: Timestamp.fromDate(selectedDay!))
+        .where("starttime", isEqualTo: filteredDay)
         .get();
     if (currentDay.docs.isEmpty) {
+      // if there is no day yet, create one
+      // every Day has a starttime, active and archive
+      // the first widget is the diary, wiche is always active and cant be deleted
+      DateTime diaryTime = await calculateDiaryTime(selectedDay!);
       DocumentReference day = await currentTrip.collection("days").add({
-        'starttime': Timestamp.fromDate(selectedDay!),
+        'starttime': filteredDay,
         'active': {
           'diary': {
             'key' : 'diary',
@@ -76,12 +83,15 @@ class _DashBoardState extends State<DashBoard> {
             'title': 'Your daily Diary',
             'dontEdit': true,
             'dontDelete': true,
+            'diaryStartTime': diaryTime,
+            'diaryEndTime': diaryTime.add(const Duration(hours: 2)),
             'type': 'diary',
             'due': 'Diary',
           },
         },
         'archive': {},
       });
+
       return day;
     } else {
       return currentDay.docs.first.reference;
@@ -166,4 +176,14 @@ class _DashBoardState extends State<DashBoard> {
       ),
     );
   }
+}
+
+Future<DateTime> calculateDiaryTime(DateTime starttime) {
+  int randomHour = Random().nextInt(14);
+  // since People are not awake at 0:00, we add 8 hours to the randomHour
+  // and people shoud go to bed at 22:00, so we substract 2 hours
+  randomHour = randomHour + 8;
+  int randomMinute = Random().nextInt(61);
+  DateTime diaryTime = DateTime(starttime.year, starttime.month, starttime.day, randomHour, randomMinute, 0, 0);
+  return Future.value(diaryTime);
 }
