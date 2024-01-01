@@ -153,7 +153,7 @@ class PushNotificationService {
         RemoteNotification? notification = message.notification;
         var platform = NotificationDetails(android: android);
         if (notification != null) {
-          notificationsPlugin.show(notification.hashCode, notification.title,
+          notificationsPlugin.show(notification.hashCode, notification.title, 
               notification.body, platform);
         }
       }
