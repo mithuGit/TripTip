@@ -118,18 +118,23 @@ class DiaryWidgetState extends State<DiaryWidget> {
                 "Blame $writerPrename $writerLastname for not writing your diary!",
                 style: Styles.noteTextstyle),
           ] else if (writerPrename != null && writerLastname != null) ...[
-            Text(
-                "$writerPrename $writerLastname is has written a Diary for the Day!",
-                style: Styles.noteTextstyle),
-            IconButton(
-                onPressed: () {
-                  GoRouter.of(context).go('/diary/read', extra: widget.day);
-                },
-                icon: const Icon(
-                  Icons.preview,
-                  size: 30,
-                  color: Colors.white,
-                )),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                    "$writerPrename $writerLastname has written\na Diary for the Day!",
+                    style: Styles.noteTextstyle),
+                IconButton(
+                    onPressed: () {
+                      GoRouter.of(context).go('/diary/read', extra: widget.day);
+                    },
+                    icon: const Icon(
+                      Icons.preview,
+                      size: 30,
+                      color: Colors.white,
+                    )),
+              ],
+            )
           ]
         ] else ...[
           Text(

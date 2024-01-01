@@ -49,83 +49,87 @@ class ReadDiaryState extends State<ReadDiary> {
           centerTitle: true,
           title: const Text("Read Diary", style: Styles.title),
         ),
-        body: FutureBuilder<DocumentReference>(
-            future: createDiary(),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(child: CircularProgressIndicator());
-              }
-              if (snapshot.hasError) {
-                return const Center(child: Text("Error in FutureBuilder"));
-              }
-
-              return StreamBuilder<DocumentSnapshot>(
-                  stream: snapshot.data!.snapshots(),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(child: CircularProgressIndicator());
-                    }
-                    if (snapshot.hasError) {
-                      return const Center(child: Text("Error in StremBuilder"));
-                    }
-                    Map<String, dynamic> data =
-                        snapshot.data!.data() as Map<String, dynamic>;
-                    _controller = QuillController(
-                        document: Document.fromJson(data["content"]),
-                        selection: const TextSelection.collapsed(offset: 0));
-                    return Expanded(
-                      child: QuillEditor.basic(
-                        configurations: QuillEditorConfigurations(
-                          padding: const EdgeInsets.all(8),
-                          controller: _controller,
-                          readOnly: true,
-                          showCursor: false,
-                          enableInteractiveSelection: false,
-                          customStyles: DefaultStyles(
-                            h1: DefaultTextBlockStyle(
-                                TextStyle(
-                                    fontSize: 30,
-                                    fontFamily: 'fonts/Ubuntu-Bold.ttf',
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.black),
-                                VerticalSpacing(5, 5),
-                                VerticalSpacing(5, 5),
-                                null),
-                            h2: DefaultTextBlockStyle(
-                                TextStyle(
-                                    fontSize: 30,
-                                    fontFamily: 'fonts/Ubuntu-Regular.ttf',
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.black),
-                                VerticalSpacing(5, 5),
-                                VerticalSpacing(5, 5),
-                                null),
-                            h3: DefaultTextBlockStyle(
-                                TextStyle(
-                                    fontSize: 30,
-                                    fontFamily: 'fonts/Ubuntu-Regular.ttf',
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.black),
-                                VerticalSpacing(5, 5),
-                                VerticalSpacing(5, 5),
-                                null),
-                            paragraph: DefaultTextBlockStyle(
-                                TextStyle(
-                                    fontSize: 30,
-                                    fontFamily: 'fonts/Ubuntu-Regular.ttf',
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.black),
-                                VerticalSpacing(5, 5),
-                                VerticalSpacing(5, 5),
-                                null),
+        body: Column(
+          children: [
+            FutureBuilder<DocumentReference>(
+                future: createDiary(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  if (snapshot.hasError) {
+                    return const Center(child: Text("Error in FutureBuilder"));
+                  }
+            
+                  return StreamBuilder<DocumentSnapshot>(
+                      stream: snapshot.data!.snapshots(),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState == ConnectionState.waiting) {
+                          return const Center(child: CircularProgressIndicator());
+                        }
+                        if (snapshot.hasError) {
+                          return const Center(child: Text("Error in StremBuilder"));
+                        }
+                        Map<String, dynamic> data =
+                            snapshot.data!.data() as Map<String, dynamic>;
+                        _controller = QuillController(
+                            document: Document.fromJson(data["content"]),
+                            selection: const TextSelection.collapsed(offset: 0));
+                        return Expanded(
+                          child: QuillEditor.basic(
+                            configurations: QuillEditorConfigurations(
+                              padding: const EdgeInsets.all(8),
+                              controller: _controller,
+                              readOnly: true,
+                              showCursor: false,
+                              enableInteractiveSelection: false,
+                              customStyles: DefaultStyles(
+                                h1: DefaultTextBlockStyle(
+                                    TextStyle(
+                                        fontSize: 30,
+                                        fontFamily: 'fonts/Ubuntu-Bold.ttf',
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.black),
+                                    VerticalSpacing(5, 5),
+                                    VerticalSpacing(5, 5),
+                                    null),
+                                h2: DefaultTextBlockStyle(
+                                    TextStyle(
+                                        fontSize: 30,
+                                        fontFamily: 'fonts/Ubuntu-Regular.ttf',
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.black),
+                                    VerticalSpacing(5, 5),
+                                    VerticalSpacing(5, 5),
+                                    null),
+                                h3: DefaultTextBlockStyle(
+                                    TextStyle(
+                                        fontSize: 30,
+                                        fontFamily: 'fonts/Ubuntu-Regular.ttf',
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.black),
+                                    VerticalSpacing(5, 5),
+                                    VerticalSpacing(5, 5),
+                                    null),
+                                paragraph: DefaultTextBlockStyle(
+                                    TextStyle(
+                                        fontSize: 30,
+                                        fontFamily: 'fonts/Ubuntu-Regular.ttf',
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.black),
+                                    VerticalSpacing(5, 5),
+                                    VerticalSpacing(5, 5),
+                                    null),
+                              ),
+                              sharedConfigurations: const QuillSharedConfigurations(
+                                locale: Locale('en'),
+                              ),
+                            ),
                           ),
-                          sharedConfigurations: const QuillSharedConfigurations(
-                            locale: Locale('en'),
-                          ),
-                        ),
-                      ),
-                    );
-                  });
-            }));
+                        );
+                      });
+                }),
+          ],
+        ));
   }
 }
