@@ -36,6 +36,9 @@ class _AddAppointmentWidgetToDashboardState
       appointment.text = widget.data!["content"];
     }
     Future<void> createOrAddAppointment() async {
+      if (nameOfAppointment.text.isEmpty) {
+        throw Exception("Please enter a title for this appointment");
+      }
       DocumentSnapshot daySnapshot = await widget.day.get();
       Map<String, dynamic> dayData = daySnapshot.data() as Map<String, dynamic>;
       // check if the starttime is not null and if the starttime is not on the selected day
@@ -50,16 +53,10 @@ class _AddAppointmentWidgetToDashboardState
           selectedDate!.year == DateTime.now().year) {
         // check if the starttime is before the current time
         if (selectedDate!.hour < DateTime.now().hour) {
-          if (context.mounted)
-            ErrorSnackbar.showErrorSnackbar(
-                context, "The appointment can't be in the past");
-          return;
+          throw Exception("The appointment can't be in the past");
         } else if (selectedDate!.hour == DateTime.now().hour &&
             selectedDate!.minute < DateTime.now().minute) {
-          if (context.mounted)
-            ErrorSnackbar.showErrorSnackbar(
-                context, "The appointment can't be in the past");
-          return;
+          throw Exception("The appointment can't be in the past");
         }
       }
       DocumentReference by = FirebaseFirestore.instance

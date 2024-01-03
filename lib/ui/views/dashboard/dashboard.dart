@@ -18,7 +18,7 @@ class DashBoard extends StatefulWidget {
 
 class _DashBoardState extends State<DashBoard> {
   final user = FirebaseAuth.instance.currentUser!;
-  DateTime? selectedDay = DateTime(2023, 10, 1);
+  DateTime? selectedDay;
   bool showSomething = false;
   DocumentReference? currentDay;
 
@@ -32,32 +32,35 @@ class _DashBoardState extends State<DashBoard> {
           icon: Icons.menu_rounded,
           onTapForIconWidget: () {
             // Hier muss Bürge Menü rein und in diesem Menü soll das was unten steht über ein Add Widget Button aufgerufen werden
-            CustomBottomSheet.show(context,
-                title: "Add new Widget to your Dashboard",
-                content: [
-                  FutureBuilder(
-                      future: Future.wait([
-                        DashBoardData.getUserData(selectedDay!),
-                        DashBoardData.getCurrentDaySubCollection(selectedDay!),
-                      ]),
-                      builder:
-                          (context, AsyncSnapshot<List<dynamic>> snapshot) {
-                        if (snapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return const Center(
-                            child: CircularProgressIndicator(),
-                          );
-                        }
-                        if (snapshot.hasError) {
-                          return const Center(
-                            child: Text('An error occured!'),
-                          );
-                        }
-                        return CreateNewWidgetOnDashboard(
-                            day: snapshot.data![1],
-                            userdata: snapshot.data![0]);
-                      })
-                ]);
+            if (currentDay != null) {
+              CustomBottomSheet.show(context,
+                  title: "Add new Widget to your Dashboard",
+                  content: [
+                    FutureBuilder(
+                        future: Future.wait([
+                          DashBoardData.getUserData(selectedDay!),
+                          DashBoardData.getCurrentDaySubCollection(
+                              selectedDay!),
+                        ]),
+                        builder:
+                            (context, AsyncSnapshot<List<dynamic>> snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return const Center(
+                              child: CircularProgressIndicator(),
+                            );
+                          }
+                          if (snapshot.hasError) {
+                            return const Center(
+                              child: Text('An error occured!'),
+                            );
+                          }
+                          return CreateNewWidgetOnDashboard(
+                              day: snapshot.data![1],
+                              userdata: snapshot.data![0]);
+                        })
+                  ]);
+            }
           }),
       body: Stack(
         children: [
@@ -76,6 +79,7 @@ class _DashBoardState extends State<DashBoard> {
                   selectedDay = date;
                 });
               }),
+              if(selectedDay != null)
               FutureBuilder(
                   future: Future.wait([
                     DashBoardData.getUserData(selectedDay!),

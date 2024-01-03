@@ -37,8 +37,7 @@ class _AddNoteWidgetToDashboardState extends State<AddNoteWidgetToDashboard> {
   Widget build(BuildContext context) {
     Future<void> createOrUpdateNote() async {
       if (note.text.isEmpty || nameOfNote.text.isEmpty) {
-        ErrorSnackbar.showErrorSnackbar(context, "Please fill out all fields");
-        return;
+        throw Exception("Please enter a title and a note");
       }
       Map<String, dynamic> data = {
         "type": "note",
