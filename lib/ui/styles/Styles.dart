@@ -110,5 +110,47 @@ class Styles {
       fontSize: 16,
       fontWeight: FontWeight.bold,
       color: Colors.white);
+  static const mapadress = TextStyle(
+      fontFamily: 'fonts/Ubuntu-Regular.ttf',
+      fontSize: 12,
+      fontWeight: FontWeight.bold,
+      color: Colors.white);
+    static const mapadressformatted = TextStyle(
+      fontFamily: 'fonts/Ubuntu-Regular.ttf',
+      fontSize: 11,
+      fontWeight: FontWeight.bold,
+      color: Colors.white);
+      static const mapcontact = TextStyle(
+      fontFamily: 'fonts/Ubuntu-Regular.ttf',
+      fontSize: 12,
+      fontWeight: FontWeight.bold,
+      color: Colors.white);
+      static const mapcontactformatted = TextStyle(
+      fontFamily: 'fonts/Ubuntu-Regular.ttf',
+      fontSize: 11,
+      fontWeight: FontWeight.bold,
+      color: Colors.white);
+      static const mapreviewstext = TextStyle(
+      fontFamily: 'fonts/Ubuntu-Regular.ttf',
+      fontSize: 12,
+      fontWeight: FontWeight.bold,
+      color: Colors.white);
+    static const mapreviewstext2 = TextStyle(
+      fontFamily: 'fonts/Ubuntu-Regular.ttf',
+      fontSize: 12,
+      fontWeight: FontWeight.bold,
+      color: Colors.white);
+        static const autorreview = TextStyle(
+      fontFamily: 'fonts/Ubuntu-Regular.ttf',
+      fontSize: 12,
+      fontWeight: FontWeight.bold,
+      color: Colors.white);
+        static const reviewtext = TextStyle(
+      fontFamily: 'fonts/Ubuntu-Regular.ttf',
+      fontSize: 11,
+      fontWeight: FontWeight.bold,
+      color: Colors.white);
+    
 }
+
 

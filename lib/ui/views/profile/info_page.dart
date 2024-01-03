@@ -83,7 +83,7 @@ class InfoPage extends StatelessWidget {
                       name: "David Henn",
                       description: "Co Founder, CEO",
                       link: "bla bla bla",
-                      image: "assets/character_pic/mithu.png",
+                      image: "assets/character_pic/david.png",
                       color: Colors.blue,
                       fill: true,
                     ),
