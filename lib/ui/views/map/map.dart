@@ -70,12 +70,6 @@ class _MapPageState extends State<MapPage> {
   //expandable container
   bool isExpanded = false;
 
-  //TODO ehhh Rezensionen wenn man auf den container klickt bzw. aufs Bild oder Tite
-  //TODO eventuell heute das fertig mache mit den Rezensionen als auch den Container mit next etc.
-  //heute else if noch fertig ? mal schauen wie viel zeit noch übrig bleibt
-  //TODO beim anklicken der Container wird der groß soll das so sein ?
-  //TODO farbe der Buttons in den Reviews etc. umändern aber welche nur ? sonst fertig
-
   @override
   void initState() {
     // TODO: implement initState
@@ -809,27 +803,7 @@ class _MapPageState extends State<MapPage> {
     var counter = markerIdCounter++;
 
     final Uint8List markerIcon;
-//TODO alle else if teile machen
 
-    /*  if (types.contains('restaurants')) {
-      markerIcon =
-          await getBytesFromAsset('assets/map_icon/restaurants.png', 75);
-    } else if (types.contains('food')) {
-      markerIcon = await getBytesFromAsset('assets/map_icon/food.png', 75);
-    } else if (types.contains('school')) {
-      markerIcon = await getBytesFromAsset('assets/map_icon/schools.png', 75);
-    } else if (types.contains('bar')) {
-      markerIcon = await getBytesFromAsset('assets/map_icon/bars.png', 75);
-    } else if (types.contains('lodging')) {
-      markerIcon = await getBytesFromAsset('assets/map_icon/hotels.png', 75);
-    } else if (types.contains('store')) {
-      markerIcon =
-          await getBytesFromAsset('assets/map_icon/retail-stores.png', 75);
-    } else {
-      markerIcon = await getBytesFromAsset('assets/map_icon/places.png', 75);
-    }*/
-
-    //bei manchen abfragen noch kurz abschneiden mit dem ,,-""
     if (types.contains('bars')) {
       markerIcon = await getBytesFromAsset('assets/map_icon/bars.png', 75);
     } else if (types.contains('breakfast')) {
