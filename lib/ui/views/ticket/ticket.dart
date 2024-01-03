@@ -4,6 +4,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:internet_praktikum/ui/widgets/bottom_sheet.dart';
+import 'package:internet_praktikum/ui/widgets/centerText.dart';
 import 'package:internet_praktikum/ui/widgets/headerWidgets/topbar.dart';
 import 'package:internet_praktikum/ui/widgets/ticketWidgets/createTicketWidget.dart';
 import 'package:internet_praktikum/ui/widgets/ticketWidgets/ticketContainer.dart';
@@ -74,8 +75,7 @@ class _TicketState extends State<Ticket> {
                   return const Center(child: CircularProgressIndicator());
                 }
                 if (currentTrip.hasError) {
-                  return const Center(
-                      child: Text("Error while fetching Selectedtrip"));
+                  return const CenterText(text: "Error while fetching Selectedtrip");
                 }
                 //Todo: change selected Trio to DocumentReference
                 return StreamBuilder<QuerySnapshot>(
@@ -90,13 +90,10 @@ class _TicketState extends State<Ticket> {
                       }
                       if (snapshot.hasError) {
                         debugPrint(snapshot.error.toString());
-                        return const Center(
-                            child: Text("Error while fetching tickets"));
+                        return const CenterText(text: "Error while fetching Tickets");
                       }
                       if (snapshot.data!.docs.isEmpty) {
-                        return const Center(
-                            child: Text(
-                                "No Tickets found, press the + button to add one"));
+                        return const CenterText(text: "No Tickets found, press the + button to add one");
                       }
                       return ListView(
                         children: snapshot.data!.docs

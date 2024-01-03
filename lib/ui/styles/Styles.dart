@@ -110,5 +110,11 @@ class Styles {
       fontSize: 16,
       fontWeight: FontWeight.bold,
       color: Colors.white);
+  static const centerText = TextStyle(
+      fontFamily: 'fonts/Ubuntu-Regular.ttf',
+      fontSize: 15,
+      fontWeight: FontWeight.w400,
+      color: Colors.white
+  );    
 }
 
