@@ -36,7 +36,7 @@ class _TicketState extends State<Ticket> {
         icon: Icons.add,
         onTapForIconWidget: () {
           CustomBottomSheet.show(context,
-              title: "Add Ticket or Receipt",
+              title: "Upload a Ticket",
               content: [
                 FutureBuilder(
                     future: getSelectedtrip(),
