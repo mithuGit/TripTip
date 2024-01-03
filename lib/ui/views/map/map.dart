@@ -402,7 +402,9 @@ class _MapPageState extends State<MapPage> {
                     ? Positioned(
                         bottom: 20.0,
                         child: SizedBox(
-                          height: 200.0,
+                          height: isExpanded
+                              ? 500.0
+                              : 200.0, // TODO: Hier kann man die Höhe der Karte einstellen
                           width: MediaQuery.of(context).size.width,
                           child: PageView.builder(
                               controller: _pageController,
@@ -542,7 +544,9 @@ class _MapPageState extends State<MapPage> {
         }
         return Center(
           child: SizedBox(
-            height: Curves.easeInOut.transform(value) * 600.0,
+            height: Curves.easeInOut.transform(value) *
+                MediaQuery.of(context).size.height *
+                0.5,
             width: Curves.easeInOut.transform(value) * 350.0,
             child: widget,
           ),
@@ -570,7 +574,7 @@ class _MapPageState extends State<MapPage> {
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 500),
                   curve: Curves.easeInOut,
-                  height: isExpanded ? 450.0 : 125.0,
+                  height: isExpanded ? 900.0 : 125.0,
                   width: 325.0,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(34.5),
@@ -579,78 +583,154 @@ class _MapPageState extends State<MapPage> {
                   ),
                   child: Padding(
                     padding: const EdgeInsets.all(16),
-                    child: Row(
+                    child: Column(
                       children: [
-                        _pageController.position.haveDimensions
-                            ? _pageController.page!.toInt() == index
-                                ? Container(
-                                    height: 90.0,
-                                    width: 90.0,
-                                    decoration: BoxDecoration(
-                                        borderRadius:
-                                            BorderRadius.circular(10.0),
-                                        image: DecorationImage(
-                                            image: NetworkImage(placeImg != ''
-                                                //TODO erstes bild in map wird nicht angezeigt und immer default kamera
-                                                ? 'https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=$placeImg&key=$key'
-                                                : 'https://pic.onlinewebfonts.com/svg/img_546302.png'), //TODO anderes Bild für Default nehmen sonst so ähnlich
-                                            fit: BoxFit.cover),
-                                        border: Border.all(
-                                          color: Colors.white,
-                                          width: 4,
-                                        )),
-                                  )
-                                : Container(
-                                    height: 90.0,
-                                    width: 10.0,
-                                    decoration: BoxDecoration(
-                                        borderRadius:
-                                            BorderRadius.circular(5.0),
-                                        color: Colors.white),
-                                  )
-                            : Container(),
-                        const SizedBox(width: 15.0),
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                        isExpanded
+                            ? Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  IconButton(
+                                      onPressed: () {
+                                        setState(() {
+                                          isExpanded = !isExpanded;
+                                        });
+                                      },
+                                      icon: const Icon(
+                                        Icons.keyboard_arrow_down,
+                                        color: Colors.white,
+                                      ))
+                                ],
+                              )
+                            : const SizedBox(width: 0, height: 0),
+                        Row(
                           children: [
-                            SizedBox(
-                              width: 130.0,
-                              height: 50.0,
-                              child: Text(allFavoritePlaces[index]['name'],
-                                  style: Styles.maptitle),
-                            ),
-                            RatingStars(
-                              value: allFavoritePlaces[index]['rating']
-                                          .runtimeType ==
-                                      int
-                                  ? allFavoritePlaces[index]['rating'] * 1.0
-                                  : allFavoritePlaces[index]['rating'] ?? 0.0,
-                              starCount: 5,
-                              starSize: 20,
-                              starColor: Colors.white,
-                              starOffColor: const Color(0xff9b9b9b),
-                              valueLabelColor: const Color(0xff9b9b9b),
-                              valueLabelTextStyle: const TextStyle(
-                                  color: Colors.white,
-                                  fontFamily: 'WorkSans',
-                                  fontWeight: FontWeight.w400,
-                                  fontStyle: FontStyle.normal,
-                                  fontSize: 12.0),
-                              valueLabelRadius: 10,
-                              maxValue: 5,
-                              starSpacing: 2,
-                              maxValueVisibility: false,
-                              //TODO Demokratie abstimmung mit text an sternen oder nicht !!!!!!!!!!!
-                              valueLabelVisibility: false,
-                              animationDuration:
-                                  const Duration(milliseconds: 3000),
-                              valueLabelPadding: const EdgeInsets.symmetric(
-                                  vertical: 1, horizontal: 8),
-                              valueLabelMargin: const EdgeInsets.only(right: 8),
+                            _pageController.position.haveDimensions
+                                ? _pageController.page!.toInt() == index
+                                    ? Container(
+                                        height: 90.0,
+                                        width: 90.0,
+                                        decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(10.0),
+                                            image: DecorationImage(
+                                                image: NetworkImage(placeImg !=
+                                                        ''
+                                                    //TODO erstes bild in map wird nicht angezeigt und immer default kamera
+                                                    ? 'https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=$placeImg&key=$key'
+                                                    : 'https://pic.onlinewebfonts.com/svg/img_546302.png'), //TODO anderes Bild für Default nehmen sonst so ähnlich
+                                                fit: BoxFit.cover),
+                                            border: Border.all(
+                                              color: Colors.white,
+                                              width: 4,
+                                            )),
+                                      )
+                                    : Container(
+                                        height: 90.0,
+                                        width: 10.0,
+                                        decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(5.0),
+                                            color: Colors.white),
+                                      )
+                                : Container(),
+                            const SizedBox(width: 15.0),
+                            Column(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                SizedBox(
+                                  width: 130.0,
+                                  height: 50.0,
+                                  child: Text(allFavoritePlaces[index]['name'],
+                                      style: Styles.maptitle),
+                                ),
+                                RatingStars(
+                                  value: allFavoritePlaces[index]['rating']
+                                              .runtimeType ==
+                                          int
+                                      ? allFavoritePlaces[index]['rating'] * 1.0
+                                      : allFavoritePlaces[index]['rating'] ??
+                                          0.0,
+                                  starCount: 5,
+                                  starSize: 20,
+                                  starColor: Colors.white,
+                                  starOffColor: const Color(0xff9b9b9b),
+                                  valueLabelColor: const Color(0xff9b9b9b),
+                                  valueLabelTextStyle: const TextStyle(
+                                      color: Colors.white,
+                                      fontFamily: 'WorkSans',
+                                      fontWeight: FontWeight.w400,
+                                      fontStyle: FontStyle.normal,
+                                      fontSize: 12.0),
+                                  valueLabelRadius: 10,
+                                  maxValue: 5,
+                                  starSpacing: 2,
+                                  maxValueVisibility: false,
+                                  //TODO Demokratie abstimmung mit text an sternen oder nicht !!!!!!!!!!!
+                                  valueLabelVisibility: false,
+                                  animationDuration:
+                                      const Duration(milliseconds: 3000),
+                                  valueLabelPadding: const EdgeInsets.symmetric(
+                                      vertical: 1, horizontal: 8),
+                                  valueLabelMargin:
+                                      const EdgeInsets.only(right: 8),
+                                ),
+                              ],
                             ),
                           ],
                         ),
+                        isExpanded ? const SizedBox(height: 10.0) : Container(),
+                        isExpanded
+                            ? Container(
+                                child: const Row(
+                                  children: [
+                                    Text(
+                                      'Address: ',
+                                      style: TextStyle(
+                                          fontFamily: 'WorkSans',
+                                          fontSize: 12.0,
+                                          fontWeight: FontWeight.w500,
+                                          color: Colors.white),
+                                    ),
+                                    SizedBox(
+                                        width: 105.0,
+                                        child: Text("Hello", //TODO: hier noch änder
+                                          style: TextStyle(
+                                              fontFamily: 'WorkSans',
+                                              fontSize: 11.0,
+                                              fontWeight: FontWeight.w400,
+                                              color: Colors.white),
+                                        ))
+                                  ],
+                                ),
+                              )
+                            : Container(),
+                        isExpanded
+                            ? Container(
+                                child: const Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Contact: ',
+                                      style: TextStyle(
+                                          fontFamily: 'WorkSans',
+                                          fontSize: 12.0,
+                                          fontWeight: FontWeight.w500,
+                                          color: Colors.white),
+                                    ),
+                                    SizedBox(
+                                        width: 105.0,
+                                        child: Text("Hello", //TODO: hier noch änder
+                                          style: TextStyle(
+                                              fontFamily: 'WorkSans',
+                                              fontSize: 11.0,
+                                              fontWeight: FontWeight.w400,
+                                              color: Colors.white),
+                                        ))
+                                  ],
+                                ),
+                              )
+                            : Container(),
                       ],
                     ),
                   ),
