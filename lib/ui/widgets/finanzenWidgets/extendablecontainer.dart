@@ -1,18 +1,18 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:internet_praktikum/ui/widgets/finanzenWidgets/slidablebutton.dart';
 
 class ExpandableContainer extends StatefulWidget {
-  const ExpandableContainer({
-    Key? key,
-    required this.name,
-    required this.items,
-    required this.sum,
-  }) : super(key: key);
-
-  final String name;
   final List<String> items;
   final double sum;
+  DocumentSnapshot currentUser;
+  ExpandableContainer({
+    Key? key,
+    required this.items,
+    required this.sum,
+    required this.currentUser,
+  }) : super(key: key);
 
   @override
   State<ExpandableContainer> createState() => _ExpandableContainerState();
@@ -20,16 +20,10 @@ class ExpandableContainer extends StatefulWidget {
 
 class _ExpandableContainerState extends State<ExpandableContainer> {
   bool isExpanded = false;
-  User? currentUser;
 
   @override
   void initState() {
     super.initState();
-    FirebaseAuth.instance.authStateChanges().listen((User? user) {
-      setState(() {
-        currentUser = user;
-      });
-    });
   }
 
   double calculateHeight(double height) {
@@ -93,8 +87,13 @@ class _ExpandableContainerState extends State<ExpandableContainer> {
                               children: [
                                 CircleAvatar(
                                   radius: 25,
-                                  backgroundImage: currentUser?.photoURL != null
-                                      ? NetworkImage(currentUser!.photoURL!)
+                                  backgroundImage: (widget.currentUser.data()!
+                                                  as Map<String, dynamic>)[
+                                              "profilePicture"] !=
+                                          null
+                                      ? NetworkImage((widget.currentUser.data()!
+                                              as Map<String, dynamic>)[
+                                          "profilePicture"])
                                       : const AssetImage(
                                               'assets/Personavatar.png')
                                           as ImageProvider<Object>,
@@ -102,7 +101,11 @@ class _ExpandableContainerState extends State<ExpandableContainer> {
                                 Padding(
                                   padding: const EdgeInsets.only(left: 10.0),
                                   child: Text(
-                                    widget.name,
+                                    (widget.currentUser.data()! as Map<String,
+                                            dynamic>)["prename"] +
+                                        " " +
+                                        (widget.currentUser.data()! as Map<
+                                            String, dynamic>)["lastname"],
                                     style: const TextStyle(
                                       fontSize: 20.0,
                                       fontWeight: FontWeight.bold,
