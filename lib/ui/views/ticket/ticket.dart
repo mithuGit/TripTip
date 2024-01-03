@@ -40,6 +40,15 @@ class _TicketState extends State<Ticket> {
                 FutureBuilder(
                     future: getSelectedtrip(),
                     builder: (context, selectedTrip) {
+                      if (selectedTrip.connectionState ==
+                          ConnectionState.waiting) {
+                        return const Center(
+                            child: CircularProgressIndicator());
+                      }
+                      if (selectedTrip.hasError) {
+                        return const Center(
+                            child: Text("Error while fetching Selectedtrip"));
+                      }
                       DocumentReference trip = firestore
                           .collection("trips")
                           .doc(selectedTrip.data as String);
