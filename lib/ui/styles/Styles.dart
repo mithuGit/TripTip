@@ -112,22 +112,22 @@ class Styles {
       color: Colors.white);
   static const mapadress = TextStyle(
       fontFamily: 'fonts/Ubuntu-Regular.ttf',
-      fontSize: 12,
+      fontSize: 15,
       fontWeight: FontWeight.bold,
       color: Colors.white);
     static const mapadressformatted = TextStyle(
       fontFamily: 'fonts/Ubuntu-Regular.ttf',
-      fontSize: 11,
+      fontSize: 14,
       fontWeight: FontWeight.bold,
       color: Colors.white);
       static const mapcontact = TextStyle(
       fontFamily: 'fonts/Ubuntu-Regular.ttf',
-      fontSize: 12,
+      fontSize: 15,
       fontWeight: FontWeight.bold,
       color: Colors.white);
       static const mapcontactformatted = TextStyle(
       fontFamily: 'fonts/Ubuntu-Regular.ttf',
-      fontSize: 11,
+      fontSize: 14,
       fontWeight: FontWeight.bold,
       color: Colors.white);
       static const mapreviewstext = TextStyle(
@@ -150,6 +150,12 @@ class Styles {
       fontSize: 11,
       fontWeight: FontWeight.bold,
       color: Colors.white);
+      static const warningmap = TextStyle(
+      fontFamily: 'fonts/Ubuntu-Regular.ttf',
+      fontSize: 14,
+      fontWeight: FontWeight.w600,
+      color: Colors.black);
+    
     
 }
 
