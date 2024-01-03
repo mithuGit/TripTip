@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:internet_praktikum/core/services/init_pushnotifications.dart';
 import 'package:internet_praktikum/core/services/placeApiProvider.dart';
 import 'package:internet_praktikum/ui/widgets/datepicker.dart';
 import 'package:internet_praktikum/ui/widgets/errorSnackbar.dart';
@@ -173,6 +174,9 @@ class _TripCreateState extends State<CreateTrip> {
                             onTap: connectPhotosAlbum,
                             imagePath: 'assets/googlephotos.png',
                             text: 'Create Photos Album'), */
+                        MyButton(onTap: () {
+                          PushNotificationService().initialise();
+                        }, text: 'Push Notifications'),    
                         MyButton(
                             margin: const EdgeInsets.only(top: 20),
                             onTap: create_trip,

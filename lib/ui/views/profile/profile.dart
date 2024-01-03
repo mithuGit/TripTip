@@ -5,8 +5,10 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:internet_praktikum/core/services/init_pushnotifications.dart';
 import 'package:internet_praktikum/ui/widgets/headerWidgets/topbar.dart';
 import 'package:internet_praktikum/ui/widgets/profileWidgets/profileButton.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class ProfilePage extends StatefulWidget {
   ProfilePage({Key? key}) : super(key: key);
@@ -127,10 +129,6 @@ class _ProfilePageState extends State<ProfilePage> {
                           child: const Text('Edit Profile',
                               style: TextStyle(color: Colors.black)))),
                   const SizedBox(height: 25),
-                  const Divider(
-                    color: Colors.black,
-                  ),
-                  const SizedBox(height: 25),
                   Center(
                     child: Padding(
                       padding: const EdgeInsets.only(
@@ -152,6 +150,46 @@ class _ProfilePageState extends State<ProfilePage> {
                                   textcolor: Colors.white,
                                   onTap: () => context.go("/info"),
                                 ),
+                                FutureBuilder(
+                                    future: PushNotificationService()
+                                        .checkIfNotificationIsEnabled(),
+                                    builder: (context, snapshot) {
+                                      if (snapshot.connectionState ==
+                                          ConnectionState.waiting) {
+                                        return const Center(
+                                          child: CircularProgressIndicator(),
+                                        );
+                                      }
+                                      if (snapshot.hasError) {
+                                        return const Center(
+                                          child: Text('An error occured!'),
+                                        );
+                                      }
+                                      return ProfileButton(
+                                        title: snapshot.data!
+                                            ? "Disable PushNotifications"
+                                            : "Enable PushNotifications",
+                                        icon: Icons.notifications,
+                                        textcolor: Colors.white,
+                                        onTap: () async {
+                                          if (snapshot.data!) {
+                                            await PushNotificationService()
+                                                .disable();
+                                          } else {
+                                            var status = await Permission
+                                                .notification.status;
+                                            if (status.isDenied ||
+                                                status.isPermanentlyDenied) {
+                                              await _openSettings();
+                                            } else {
+                                              await PushNotificationService()
+                                                  .initialise();
+                                            }
+                                          }
+                                          setState(() {});
+                                        },
+                                      );
+                                    }),
                                 ProfileButton(
                                   title: "Billing Details",
                                   icon: Icons.wallet,
@@ -187,6 +225,43 @@ class _ProfilePageState extends State<ProfilePage> {
               )),
         ],
       ),
+    );
+  }
+
+  // Ask if user wants to open settings to enalbe push notifications
+  Future<void> _openSettings() async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Urgent Actions required!'),
+          content: const SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                Text('Push Notifications are disabled!'),
+                Text(
+                    'To Enable them, please go to Settings, and allow them! and reopen app after enabling them!'),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Open Android Settings'),
+              onPressed: () {
+                openAppSettings();
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: const Text('not now'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 }

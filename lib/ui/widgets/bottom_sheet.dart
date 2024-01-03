@@ -19,7 +19,7 @@ class CustomBottomSheet {
         return Padding(
           padding: MediaQuery.of(context).viewInsets,
           child: Container(
-            height: MediaQuery.of(context).size.height * 0.7,
+            height: MediaQuery.of(context).size.height * 0.6,
             decoration: const BoxDecoration(
               color: Colors.transparent,
             ),
@@ -36,7 +36,8 @@ class CustomBottomSheet {
                 ),
                 padding: const EdgeInsets.all(16.0),
                 child: Scaffold(
-                  backgroundColor: Colors.transparent, 
+                  backgroundColor: Colors.transparent,
+                  resizeToAvoidBottomInset: false,
                   body: Padding(
                     padding: const EdgeInsets.only(top: 8.0),
                     child: Column(
@@ -47,10 +48,17 @@ class CustomBottomSheet {
                           children: [
                             GestureDetector(
                               onTap: () => Navigator.pop(context),
-                              child: Image.asset(
-                                'assets/moveModalDown.png',
-                                width: 80,
-                                height: 10,),
+                              child: Container(
+                                color: Colors.transparent,
+                                height: 20,
+                                width: 100,
+                                child: Center(
+                                  child: Image.asset(
+                                    'assets/moveModalDown.png',
+                                    width: 80,
+                                    height: 10,),
+                                ),
+                              ),
                             )
                           ],
                         ),

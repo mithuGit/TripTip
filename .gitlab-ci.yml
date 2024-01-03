@@ -1,14 +1,15 @@
 image: ghcr.io/cirruslabs/flutter:latest
 stages:
-  - tests
-unit tests:
-  stage: tests
+  - build
+build: # Build the app for android
+  stage: build
+  before_script:
+    - flutter packages get
+    - flutter clean
   script:
-    - flutter test --coverage ./lib
-    - lcov -r coverage/lcov.info '*/__test*__/*' -o coverage/lcov_cleaned.info
-    - genhtml coverage/lcov_cleaned.info --output=coverage
-  tags:
-    - flutter
+    - flutter build appbundle
   artifacts:
     paths:
-      - coverage
+      - build/app/outputs/apk/release/app-release.apk  
+  tags:
+    - docker      

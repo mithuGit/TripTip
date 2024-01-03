@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -45,11 +47,10 @@ class _DashBoardState extends State<DashBoard> {
   }
 
   // A function that returns the current day for the Widget list and also saves it in the currentDay variable for later use
-  Future<DocumentReference> getCurrentDay() async {
+  Future<DocumentReference> getCurrentDaySubCollection() async {
     final userCollection = FirebaseFirestore.instance.collection('users');
     final userDoc = await userCollection.doc(user.uid).get();
-    if (userDoc.data()?['selectedtrip'] == null)
-      throw Exception('No trip selected');
+    if (userDoc.data()?['selectedtrip'] == null) throw Exception('No trip selected');
 
     final tripId = userDoc.data()?['selectedtrip'];
     try {
@@ -60,47 +61,50 @@ class _DashBoardState extends State<DashBoard> {
       throw Exception('Trip does not exist anymore');
     }
 
-    final currentTrip =
-        await FirebaseFirestore.instance.collection('trips').doc(tripId).get();
-    Map<String, dynamic>? currentTripdata = currentTrip.data();
-    if (currentTripdata!['days'] == null) {
-      print('The Days Parameter in the Document is null');
-      DocumentReference day =
-          await FirebaseFirestore.instance.collection('days').add({
-        'starttime': Timestamp.fromDate(selectedDay!),
-        'active': {},
+    final currentTrip = FirebaseFirestore.instance.collection('trips').doc(tripId);
+    // issue: that the day doesnt starts at 0:00, thats why we need to filter the day
+    final filteredDay = Timestamp.fromDate(DateTime(selectedDay!.year,selectedDay!.month,selectedDay!.day));
+
+    QuerySnapshot currentDay = await currentTrip
+        .collection("days")
+        .where("starttime", isEqualTo: filteredDay)
+        .get();
+    if (currentDay.docs.isEmpty) {
+      // if there is no day yet, create one
+      // every Day has a starttime, active and archive
+      // the first widget is the diary, wiche is always active and cant be deleted
+      DateTime diaryTime = await calculateDiaryTime(selectedDay!);
+      DocumentReference day = await currentTrip.collection("days").add({
+        'starttime': filteredDay,
+        'active': {
+          'diary': {
+            'key' : 'diary',
+            'index': 0,
+            'title': 'Your daily Diary',
+            'dontEdit': true,
+            'dontDelete': true,
+            'diaryStartTime': diaryTime,
+            'diaryEndTime': diaryTime.add(const Duration(hours: 2)),
+            'type': 'diary',
+            'due': 'Diary',
+          },
+        },
         'archive': {},
       });
-      await FirebaseFirestore.instance.collection('trips').doc(tripId).update({
-        'days': FieldValue.arrayUnion([
-          {'starttime': Timestamp.fromDate(selectedDay!), 'ref': day}
-        ])
+      await FirebaseFirestore.instance.collection("tasks").add({
+        'performAt': diaryTime,
+        'status': 'pending',
+        'worker': 'WriteDiaryNotification',
+        'options': {
+          'day': day,
+          'trip': currentTrip,
+        },
       });
+
       return day;
+    } else {
+      return currentDay.docs.first.reference;
     }
-    List<dynamic> days = currentTripdata['days'].toList();
-    Iterable<dynamic> filtered = days.where((el) =>
-        (el['starttime'] as Timestamp).toDate().day == selectedDay!.day &&
-        (el['starttime'] as Timestamp).toDate().month == selectedDay!.month &&
-        (el['starttime'] as Timestamp).toDate().year == selectedDay!.year);
-    if (filtered.isEmpty) {
-      print('No day found');
-      DocumentReference day =
-          await FirebaseFirestore.instance.collection('days').add({
-        'starttime': Timestamp.fromDate(selectedDay!),
-        'active': {},
-        'archive': {},
-      });
-      await FirebaseFirestore.instance.collection('trips').doc(tripId).update({
-        'days': FieldValue.arrayUnion([
-          {'starttime': Timestamp.fromDate(selectedDay!), 'ref': day}
-        ])
-      });
-      return day;
-    }
-    Map<String, dynamic>? day = filtered.first;
-    currentDay = day!['ref'];
-    return currentDay!;
   }
 
   @override
@@ -115,24 +119,27 @@ class _DashBoardState extends State<DashBoard> {
                 title: "Add new Widget to your Dashboard",
                 content: [
                   FutureBuilder(
-                  future: Future.wait([
-                    getUserData(),
-                    getCurrentDay(),
-                  ]),
-                  builder: (context, AsyncSnapshot<List<dynamic>> snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(
-                        child: CircularProgressIndicator(),
-                      );
-                    }
-                    if (snapshot.hasError) {
-                      return const Center(
-                        child: Text('An error occured!'),
-                      );
-                    }
-                    return CreateNewWidgetOnDashboard(
-                        day: snapshot.data![1], userdata: snapshot.data![0]);
-                  }) 
+                      future: Future.wait([
+                        getUserData(),
+                        getCurrentDaySubCollection(),
+                      ]),
+                      builder:
+                          (context, AsyncSnapshot<List<dynamic>> snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const Center(
+                            child: CircularProgressIndicator(),
+                          );
+                        }
+                        if (snapshot.hasError) {
+                          return const Center(
+                            child: Text('An error occured!'),
+                          );
+                        }
+                        return CreateNewWidgetOnDashboard(
+                            day: snapshot.data![1],
+                            userdata: snapshot.data![0]);
+                      })
                 ]);
           }),
       body: Stack(
@@ -148,7 +155,6 @@ class _DashBoardState extends State<DashBoard> {
             ),
             child: Column(children: [
               Calendar(onDateSelected: (date) {
-                print("onDateSelected");
                 setState(() {
                   selectedDay = date;
                 });
@@ -156,7 +162,7 @@ class _DashBoardState extends State<DashBoard> {
               FutureBuilder(
                   future: Future.wait([
                     getUserData(),
-                    getCurrentDay(),
+                    getCurrentDaySubCollection(),
                   ]),
                   builder: (context, AsyncSnapshot<List<dynamic>> snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
@@ -167,7 +173,7 @@ class _DashBoardState extends State<DashBoard> {
                     if (snapshot.hasError) {
                       print(snapshot.error);
                       return const Center(
-                        child: Text('An error occured!'),
+                        child: Text('An error occured while fetching data! check your internet connection!'),
                       );
                     }
                     return ScrollViewWidget(
@@ -179,4 +185,14 @@ class _DashBoardState extends State<DashBoard> {
       ),
     );
   }
+}
+
+Future<DateTime> calculateDiaryTime(DateTime starttime) {
+  int randomHour = Random().nextInt(14);
+  // since People are not awake at 0:00, we add 8 hours to the randomHour
+  // and people shoud go to bed at 22:00, so we substract 2 hours
+  randomHour = randomHour + 8;
+  int randomMinute = Random().nextInt(61);
+  DateTime diaryTime = DateTime(starttime.year, starttime.month, starttime.day, randomHour, randomMinute, 0, 0);
+  return Future.value(diaryTime);
 }

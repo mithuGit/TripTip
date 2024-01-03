@@ -36,7 +36,7 @@ class _AddNoteWidgetToDashboardState extends State<AddNoteWidgetToDashboard> {
   @override
   Widget build(BuildContext context) {
     Future<void> createOrUpdateNote() async {
-      if(note.text.isEmpty || nameOfNote.text.isEmpty) {
+      if (note.text.isEmpty || nameOfNote.text.isEmpty) {
         ErrorSnackbar.showErrorSnackbar(context, "Please fill out all fields");
         return;
       }
@@ -49,7 +49,8 @@ class _AddNoteWidgetToDashboardState extends State<AddNoteWidgetToDashboard> {
           .collection('users')
           .doc(widget.userdata!["uid"]);
       if (widget.data == null) {
-        await ManageDashboardWidged().addWidget(widget.day!, by, data);
+        await ManageDashboardWidged()
+            .addWidget(day: widget.day!, user: by, data: data);
       } else {
         await ManageDashboardWidged()
             .updateWidget(widget.day!, by, data, widget.data!["key"]);

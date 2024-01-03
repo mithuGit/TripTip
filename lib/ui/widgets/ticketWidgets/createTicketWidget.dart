@@ -13,9 +13,11 @@ import 'package:file_picker/file_picker.dart';
 import 'package:pdf_render/pdf_render.dart';
 import 'package:pdf_render/pdf_render_widgets.dart';
 import 'package:internet_praktikum/ui/widgets/errorSnackbar.dart';
+import 'package:uuid/uuid.dart';
 
 class CreateTicketsWidget extends StatefulWidget {
-  const CreateTicketsWidget({super.key});
+  final DocumentReference? selectedTrip;
+  const CreateTicketsWidget({super.key, required this.selectedTrip});
 
   @override
   State<CreateTicketsWidget> createState() => _CreateTicketsWidgetState();
@@ -40,14 +42,7 @@ class _CreateTicketsWidgetState extends State<CreateTicketsWidget> {
     } else {
       file = File(pickedFile!.path!);
     }
-
-    final auth = FirebaseAuth.instance.currentUser!;
-    final DocumentSnapshot<Map<String, dynamic>> userDoc =
-        await FirebaseFirestore.instance
-            .collection('users')
-            .doc(auth.uid)
-            .get();
-    final String tripId = userDoc.data()!['selectedtrip'].toString();
+    final tripId = widget.selectedTrip!.id;
 
     String titleOfTicketText = titleOfTicket.text;
 
@@ -56,7 +51,8 @@ class _CreateTicketsWidgetState extends State<CreateTicketsWidget> {
     String path;
 
     fileName = file.path.split('/').last;
-    path = "files/$tripId/$titleOfTicketText/$fileName";
+    String uuid = const Uuid().v4();
+    path = "files/$tripId/$uuid/$fileName";
 
     bool fileExists = await doesFileExist(tripId, titleOfTicketText);
 
@@ -66,10 +62,22 @@ class _CreateTicketsWidgetState extends State<CreateTicketsWidget> {
           context, "File with title $titleOfTicketText already exists ");
     } else {
       final ref = FirebaseStorage.instance.ref().child(path);
-      setState(() {
-        uploadTask = ref.putFile(file);
+
+      uploadTask = ref.putFile(file);
+      // TODU catch error while upluading
+      uploadTask!.whenComplete(() {
+          FirebaseFirestore.instance
+              .collection("trips")
+              .doc(tripId)
+              .collection("tickets")
+              .add({
+            "title": titleOfTicketText,
+            "url": ref.fullPath,
+            "createdBy": FirebaseAuth.instance.currentUser!.uid,
+            "createdAt": DateTime.now(),
+          });
+        
       });
-      
       await uploadTask!.whenComplete(() {});
 
       // Only for testing

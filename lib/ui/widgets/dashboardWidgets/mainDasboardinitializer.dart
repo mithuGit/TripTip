@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:internet_praktikum/ui/styles/Styles.dart';
 import 'package:internet_praktikum/ui/widgets/dashboardWidgets/appointment.dart';
+import 'package:internet_praktikum/ui/widgets/dashboardWidgets/diaryWidget.dart';
 import 'package:internet_praktikum/ui/widgets/dashboardWidgets/simpleNoteWidget.dart';
 import 'package:internet_praktikum/ui/widgets/dashboardWidgets/survey.dart';
 import 'package:provider/provider.dart';
@@ -55,41 +56,35 @@ class _MainDasboardinitializerState extends State<MainDasboardinitializer> {
             child: Column(
               children: [
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      super.widget.title,
-                      textAlign: TextAlign.left,
-                      style: Styles.mainDasboardinitializerTitle,
-                    ),
-                    if (widget.data?["addAble"] != null &&
-                        widget.data?["addAble"] == true)
-                      GestureDetector(
-                        onTap: () {},
-                        child: const Icon(
-                          Icons.add,
-                          color: Colors.white,
-                          size: 40,
-                        ),
-                      ),
-                  ],
-                ),
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        super.widget.title,
+                        textAlign: TextAlign.left,
+                        style: Styles.mainDasboardinitializerTitle,
+                      )
+                    ]),
                 LayoutBuilder(builder: (context, constraints) {
-                  if (widget.data?["type"] == null) {
+                  if (widget.data["type"] == null) {
                     return const Text("No type is specified");
                   } else {
-                    if (widget.data?["type"] == "note") {
+                    if (widget.data["type"] == "note") {
                       return SimpleNoteWidget(
                         data: widget.data,
                       );
-                    } else if (widget.data?["type"] == "list") {
+                    } else if (widget.data["type"] == "list") {
                       return SimpleNoteWidget(
                         data: widget.data,
                       );
-                    } else if (widget.data?["type"] == "appointment") {
+                    } else if (widget.data["type"] == "appointment") {
                       return AppointmentWidget(data: widget.data);
-                    } else if (widget.data?["type"] == "survey") {
-                      return SurveyWidget(data: widget.data, userdata: widget.userdata, day: widget.day);
+                    } else if (widget.data["type"] == "survey") {
+                      return SurveyWidget(
+                          data: widget.data,
+                          userdata: widget.userdata,
+                          day: widget.day);
+                    } else if (widget.data["type"] == "diary") {
+                      return DiaryWidget(data: widget.data, day: widget.day);
                     } else {
                       return const Text("No type is specified");
                     }

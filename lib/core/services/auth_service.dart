@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:internet_praktikum/core/services/init_pushnotifications.dart';
 
 // Google Sign In
 Future<UserCredential> signInWithGoogle() async {
@@ -34,6 +35,7 @@ Future<UserCredential> signInWithGoogle() async {
         'dateOfBirth': null
       });
     }
+    await PushNotificationService().initialise();
   }
   // finally, lets sign in the user
   return await FirebaseAuth.instance.signInWithCredential(credential);
@@ -64,6 +66,7 @@ Future<void> signInWithFacebook() async {
         'dateOfBirth': null
       });
     }
+    await PushNotificationService().initialise();
   }
 
   await FirebaseAuth.instance.signInWithCredential(credential);
