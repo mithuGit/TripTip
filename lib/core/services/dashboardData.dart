@@ -50,7 +50,7 @@ class DashBoardData {
         FirebaseFirestore.instance.collection('trips').doc(tripId);
     // issue: that the day doesnt starts at 0:00, thats why we need to filter the day
     final filteredDay = Timestamp.fromDate(DateTime(
-        selectedDay!.year, selectedDay!.month, selectedDay!.day, 0, 0, 0));
+        selectedDay.year, selectedDay.month, selectedDay.day, 0, 0, 0));
 
     QuerySnapshot currentDay = await currentTrip
         .collection("days")
@@ -60,7 +60,7 @@ class DashBoardData {
       // if there is no day yet, create one
       // every Day has a starttime, active and archive
       // the first widget is the diary, wiche is always active and cant be deleted
-      DateTime diaryTime = await calculateDiaryTime(selectedDay!);
+      DateTime diaryTime = await calculateDiaryTime(selectedDay);
       DocumentReference day = await currentTrip.collection("days").add({
         'starttime': filteredDay,
         'active': {},
@@ -70,7 +70,7 @@ class DashBoardData {
           (await currentTrip.get()).data()!['startdate'].toDate();
       DateTime tripEnd = (await currentTrip.get()).data()!['enddate'].toDate();
       // only within the trip duration a diary widget will be created
-      if (selectedDay!.isAfter(tripStart) && selectedDay!.isBefore(tripEnd)) {
+      if (selectedDay.isAfter(tripStart) && selectedDay.isBefore(tripEnd)) {
         day.update({
           'active': {
             'diary': {
