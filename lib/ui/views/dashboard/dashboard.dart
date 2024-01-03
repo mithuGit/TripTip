@@ -18,7 +18,6 @@ class _DashBoardState extends State<DashBoard> {
   final user = FirebaseAuth.instance.currentUser!;
   DateTime? selectedDay;
   bool showSomething = false;
-  DocumentReference? currentDay;
 
   // A function that automatecly loads the data from the user and fetches the profilepicture
 
@@ -30,7 +29,7 @@ class _DashBoardState extends State<DashBoard> {
           icon: Icons.menu_rounded,
           onTapForIconWidget: () {
             // Hier muss Bürge Menü rein und in diesem Menü soll das was unten steht über ein Add Widget Button aufgerufen werden
-            if (currentDay != null) {
+            if (selectedDay != null) {
               CustomBottomSheet.show(context,
                   title: "Add new Widget to your Dashboard",
                   content: [

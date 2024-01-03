@@ -48,6 +48,10 @@ class DashBoardData {
 
     final currentTrip =
         FirebaseFirestore.instance.collection('trips').doc(tripId);
+    final DateTime tripStart =
+        (await currentTrip.get()).data()!['startdate'].toDate();
+    final DateTime tripEnd =
+        (await currentTrip.get()).data()!['enddate'].toDate();
     // issue: that the day doesnt starts at 0:00, thats why we need to filter the day
     final filteredDay = Timestamp.fromDate(DateTime(
         selectedDay.year, selectedDay.month, selectedDay.day, 0, 0, 0));
@@ -66,9 +70,7 @@ class DashBoardData {
         'active': {},
         'archive': {},
       });
-      DateTime tripStart =
-          (await currentTrip.get()).data()!['startdate'].toDate();
-      DateTime tripEnd = (await currentTrip.get()).data()!['enddate'].toDate();
+
       // only within the trip duration a diary widget will be created
       if (selectedDay.isAfter(tripStart) && selectedDay.isBefore(tripEnd)) {
         day.update({
@@ -99,7 +101,39 @@ class DashBoardData {
 
       return day;
     } else {
-      return currentDay.docs.first.reference;
+      DocumentReference day = currentDay.docs.first.reference;
+      if (selectedDay.isAfter(tripStart) && selectedDay.isBefore(tripEnd)) {
+        Map<String, dynamic> active =
+            ((await day.get()).data()! as Map<String, dynamic>)["active"];
+        if (active["diary"] == null) {
+          DateTime diaryTime = await calculateDiaryTime(selectedDay);
+          day.update({
+            'active': {
+              'diary': {
+                'key': 'diary',
+                'index': 0,
+                'title': 'Your daily Diary',
+                'dontEdit': true,
+                'dontDelete': true,
+                'diaryStartTime': diaryTime,
+                'diaryEndTime': diaryTime.add(const Duration(hours: 2)),
+                'type': 'diary',
+                'due': 'Diary',
+              },
+            }
+          });
+          await FirebaseFirestore.instance.collection("tasks").add({
+            'performAt': diaryTime,
+            'status': 'pending',
+            'worker': 'WriteDiaryNotification',
+            'options': {
+              'day': day,
+              'trip': currentTrip,
+            },
+          });
+        }
+      }
+      return day;
     }
   }
 
