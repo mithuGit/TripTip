@@ -38,20 +38,11 @@ class DashBoardData {
       throw Exception('No trip selected');
 
     final tripId = userDoc.data()?['selectedtrip'];
-    try {
-      await FirebaseFirestore.instance.collection('trips').doc(tripId).get();
-    } catch (e) {
-      print('Trip does not exist anymore');
-      await userCollection.doc(user.uid).update({'selectedtrip': null});
-      throw Exception('Trip does not exist anymore');
-    }
-
     final currentTrip =
         FirebaseFirestore.instance.collection('trips').doc(tripId);
-    final DateTime tripStart =
-        (await currentTrip.get()).data()!['startdate'].toDate();
-    final DateTime tripEnd =
-        (await currentTrip.get()).data()!['enddate'].toDate();
+    Map<String, dynamic> currentTripdata = (await currentTrip.get()).data()!;
+    final DateTime tripStart = currentTripdata['startdate'].toDate();
+    final DateTime tripEnd = currentTripdata['enddate'].toDate();
     // issue: that the day doesnt starts at 0:00, thats why we need to filter the day
     final filteredDay = Timestamp.fromDate(DateTime(
         selectedDay.year, selectedDay.month, selectedDay.day, 0, 0, 0));
