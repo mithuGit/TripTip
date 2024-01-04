@@ -1,6 +1,9 @@
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:internet_praktikum/ui/styles/Styles.dart';
 import 'package:internet_praktikum/ui/widgets/bottom_sheet.dart';
 import 'package:internet_praktikum/ui/widgets/centerText.dart';
 import 'package:internet_praktikum/ui/widgets/headerWidgets/topbar.dart';
@@ -43,7 +46,7 @@ class _FinanzenState extends State<Finanzen> {
         icon: Icons.add,
         onTapForIconWidget: () {
           CustomBottomSheet.show(context,
-              title: "Add a receipt and set the other embers dues.",
+              title: "Add a receipt and send the other members dues.",
               content: [
                 Builder(
                   builder: (context) {
@@ -77,6 +80,7 @@ class _FinanzenState extends State<Finanzen> {
                   return const CenterText(
                       text: "Error while fetching Groupmembers");
                 }
+
                 return StreamBuilder<QuerySnapshot>(
                     stream: selectedtrip!.collection("payments").snapshots(),
                     builder: (context, snapshot) {
@@ -91,8 +95,7 @@ class _FinanzenState extends State<Finanzen> {
                       List<DocumentSnapshot> payments = snapshot.data!.docs;
                       Map<String, List<Map<String, dynamic>>>
                           openRefundsPerUser = {};
-                      Map<String, double>
-                          sumsPerUser = {};    
+                      Map<String, double> sumsPerUser = {};
                       for (int i = 0; i < members.data!.length; i++) {
                         openRefundsPerUser[members.data![i].id] = [];
                         sumsPerUser[members.data![i].id] = 0;
@@ -102,35 +105,69 @@ class _FinanzenState extends State<Finanzen> {
                         Map<String, dynamic> paymentData =
                             payment.data()! as Map<String, dynamic>;
                         if (paymentData["to"] != null) {
-                          List to = (paymentData["to"] as List);
-                          for (int i = 0; i < to.length; i++) {
-                            if (to[i]["status"] == "open") {
-                              to[i]["title"] = paymentData["title"];
-                              to[i]["request"] = payment;
-                              openRefundsPerUser[to[i]["user"].id]!.add(to[i]);
-                              sumsPerUser[to[i]["user"].id] =
-                                  sumsPerUser[to[i]["user"].id]! +
-                                      to[i]["amount"];
-                            }
+                          List<dynamic> to = (paymentData["to"] as List);
+                          Map<String, dynamic> fundtome = to.firstWhere(
+                              (element) => element["user"].id == user.uid);
+                          if (fundtome.isNotEmpty &&
+                              fundtome["status"] == "open") {
+                            openRefundsPerUser[
+                                    (payment["createdBy"] as DocumentReference)
+                                        .id]!
+                                .add({
+                              "title": paymentData["title"],
+                              "request": payment,
+                              "amount": fundtome["amount"],
+                            });
+                            sumsPerUser[(payment["createdBy"]
+                                    as DocumentReference)
+                                .id] = sumsPerUser[
+                                    (payment["createdBy"] as DocumentReference)
+                                        .id]! +
+                                fundtome["amount"];
                           }
                         }
                       }
-                      debugPrint(openRefundsPerUser.toString());
+
+                      List<Widget> peopleYouOwe = [];
+                      for (String key in openRefundsPerUser.keys) {
+                        if (key == user.uid) {
+                          continue;
+                        }
+                        if (openRefundsPerUser[key]!.isEmpty) {
+                          continue;
+                        }
+                        peopleYouOwe.add(Padding(
+                            padding: const EdgeInsets.only(bottom: 0, right: 5),
+                            child: ExpandableContainer(
+                              currentUser: members.data!
+                                  .firstWhere((element) => element.id == key),
+                              openRefunds: openRefundsPerUser[key]!,
+                              sum: sumsPerUser[key]!,
+                            )));
+                      }
 
                       return Padding(
                         padding: const EdgeInsets.only(bottom: 50),
-                        child: ListView(
-                          padding: const EdgeInsets.only(
-                              top: 20, left: 20, right: 20, bottom: 20),
-                          children: members.data!.map((e) {
-                            Map<String, dynamic> userdata =
-                                e.data()! as Map<String, dynamic>;
-                            return ExpandableContainer(
-                              currentUser: e,
-                              openRefunds: openRefundsPerUser[e.id]!,
-                              sum: sumsPerUser[e.id]!,
-                            );
-                          }).toList(),
+                        child: CustomScrollView(
+                          slivers: [
+                            SliverList(
+                              delegate: SliverChildBuilderDelegate(
+                                  (BuildContext context, int index) {
+                                return Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: ExpansionTile(
+                                    initiallyExpanded: true,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(0),
+                                    ),
+                                    
+                                    title: Text("You owe "),
+                                    children: peopleYouOwe,
+                                  ),
+                                );
+                              }, childCount: peopleYouOwe.length),
+                            ),
+                          ],
                         ),
                       );
                     });

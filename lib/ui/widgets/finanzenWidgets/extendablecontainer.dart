@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -129,7 +131,8 @@ class _ExpandableContainerState extends State<ExpandableContainer> {
                         itemCount: widget.openRefunds.length,
                         itemBuilder: (BuildContext context, int index) {
                           String title = widget.openRefunds[index]["title"];
-                          double amount = widget.openRefunds[index]["amount"];
+                          double amount = widget.openRefunds[index]["amount"].toDouble();
+
                           return Padding(
                             padding: const EdgeInsets.only(bottom: 0, right: 5),
                             child: ListTile(
