@@ -89,20 +89,33 @@ class _FinanzenState extends State<Finanzen> {
                             text: "Error while fetching Payments");
                       }
                       List<DocumentSnapshot> payments = snapshot.data!.docs;
-                      Map<String, dynamic> users = {};
+                      Map<String, List<Map<String, dynamic>>>
+                          openRefundsPerUser = {};
+                      Map<String, double>
+                          sumsPerUser = {};    
                       for (int i = 0; i < members.data!.length; i++) {
-                        users[members.data![i].id] = [];
+                        openRefundsPerUser[members.data![i].id] = [];
+                        sumsPerUser[members.data![i].id] = 0;
                       }
 
-                      for (int i = 0; i < payments.length; i++) {
-                        Map<String, dynamic> payment =
-                            payments[i].data()! as Map<String, dynamic>;
-                        if (payment["to"] != null) {
-                          if ((payment["to"] as List).contains(user.uid)) {
-                            users[user.uid].add(payment);
+                      for (DocumentSnapshot payment in payments) {
+                        Map<String, dynamic> paymentData =
+                            payment.data()! as Map<String, dynamic>;
+                        if (paymentData["to"] != null) {
+                          List to = (paymentData["to"] as List);
+                          for (int i = 0; i < to.length; i++) {
+                            if (to[i]["status"] == "open") {
+                              to[i]["title"] = paymentData["title"];
+                              to[i]["request"] = payment;
+                              openRefundsPerUser[to[i]["user"].id]!.add(to[i]);
+                              sumsPerUser[to[i]["user"].id] =
+                                  sumsPerUser[to[i]["user"].id]! +
+                                      to[i]["amount"];
+                            }
                           }
                         }
                       }
+                      debugPrint(openRefundsPerUser.toString());
 
                       return Padding(
                         padding: const EdgeInsets.only(bottom: 50),
@@ -114,11 +127,8 @@ class _FinanzenState extends State<Finanzen> {
                                 e.data()! as Map<String, dynamic>;
                             return ExpandableContainer(
                               currentUser: e,
-                              items: [
-                                'Activity 1: 20.00',
-                                'Activity 2: 10.00',
-                              ],
-                              sum: 45,
+                              openRefunds: openRefundsPerUser[e.id]!,
+                              sum: sumsPerUser[e.id]!,
                             );
                           }).toList(),
                         ),
