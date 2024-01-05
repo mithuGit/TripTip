@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:flip_card/flip_card.dart';
-import 'package:flip_card/flip_card_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -44,6 +43,8 @@ class _MapPageState extends State<MapPage> {
   Set<Marker> _markers = <Marker>{};
 
   int markerIdCounter = 1;
+
+  //TODO
 
   //places
   List allFavoritePlaces = []; //TODO: Name ändern
@@ -421,6 +422,9 @@ class _MapPageState extends State<MapPage> {
                                                   'none';
                                           _markers = {};
                                           for (var element in placesWithin) {
+                                            /* bool isRecommened =
+                                                getRecommend(element['types']);
+                                            if (isRecommened) { */
                                             _setNearMarker(
                                               LatLng(
                                                   element['geometry']
@@ -432,7 +436,9 @@ class _MapPageState extends State<MapPage> {
                                               element['business_status'] ??
                                                   'not available',
                                             );
+                                            //}
                                           }
+                                          //filterDefaultMarker(_markers);
                                           pressedNear = true;
                                           if (allFavoritePlaces[1]['photos'] !=
                                               null) {
@@ -466,6 +472,9 @@ class _MapPageState extends State<MapPage> {
                                                 'none';
 
                                             for (var element in placesWithin) {
+                                              /*  bool isRecommened = getRecommend(
+                                                  element['types']);
+                                              if (isRecommened) { */
                                               _setNearMarker(
                                                 LatLng(
                                                     element['geometry']
@@ -477,7 +486,9 @@ class _MapPageState extends State<MapPage> {
                                                 element['business_status'] ??
                                                     'not available',
                                               );
+                                              //}
                                             }
+                                            // filterDefaultMarker(_markers);
                                           } else {
                                             ErrorSnackbar.showErrorSnackbar(
                                                 context,
@@ -680,13 +691,13 @@ class _MapPageState extends State<MapPage> {
 
     final Uint8List markerIcon;
 
-    if (types.contains('bars')) {
+    if (types.contains('bar')) {
       markerIcon = await GoogleMapService()
           .getBytesFromAsset('assets/map_icon/bars.png', 75);
     } else if (types.contains('breakfast')) {
       markerIcon = await GoogleMapService()
           .getBytesFromAsset('assets/map_icon/breakfast-n-brunch.png', 75);
-    } else if (types.contains('cake')) {
+    } else if (types.contains('bakery')) {
       markerIcon = await GoogleMapService()
           .getBytesFromAsset('assets/map_icon/cake-shop.png', 75);
     } else if (types.contains('clothings')) {
@@ -695,7 +706,7 @@ class _MapPageState extends State<MapPage> {
     } else if (types.contains('clubs')) {
       markerIcon = await GoogleMapService()
           .getBytesFromAsset('assets/map_icon/clubs.png', 75);
-    } else if (types.contains('coffee')) {
+    } else if (types.contains('cafe')) {
       markerIcon = await GoogleMapService()
           .getBytesFromAsset('assets/map_icon/coffee-n-tea.png', 75);
     } else if (types.contains('commercial ')) {
@@ -710,7 +721,7 @@ class _MapPageState extends State<MapPage> {
     } else if (types.contains('dance clubs')) {
       markerIcon = await GoogleMapService()
           .getBytesFromAsset('assets/map_icon/dance-clubs.png', 75);
-    } else if (types.contains('doctors')) {
+    } else if (types.contains('doctor')) {
       markerIcon = await GoogleMapService()
           .getBytesFromAsset('assets/map_icon/doctors.png', 75);
     } else if (types.contains('entertainment ')) {
@@ -743,7 +754,7 @@ class _MapPageState extends State<MapPage> {
     } else if (types.contains('health medical')) {
       markerIcon = await GoogleMapService()
           .getBytesFromAsset('assets/map_icon/health-medical.png', 75);
-    } else if (types.contains('hotel')) {
+    } else if (types.contains('lodging')) {
       markerIcon = await GoogleMapService()
           .getBytesFromAsset('assets/map_icon/hotels.png', 75);
     } else if (types.contains('internet')) {
@@ -779,28 +790,29 @@ class _MapPageState extends State<MapPage> {
     } else if (types.contains('pizza')) {
       markerIcon = await GoogleMapService()
           .getBytesFromAsset('assets/map_icon/pizza.png', 75);
-    } else if (types.contains('places')) {
+    } /* else if (types.contains('places')) {
       markerIcon = await GoogleMapService()
           .getBytesFromAsset('assets/map_icon/places.png', 75);
-    } else if (types.contains('pool haals')) {
+    } */
+    else if (types.contains('pool haals')) {
       markerIcon = await GoogleMapService()
           .getBytesFromAsset('assets/map_icon/pool-haals.png', 75);
     } else if (types.contains('restaurants')) {
       markerIcon = await GoogleMapService()
           .getBytesFromAsset('assets/map_icon/restaurants.png', 75);
-    } else if (types.contains('retail stores')) {
+    } else if (types.contains('store')) {
       markerIcon = await GoogleMapService()
           .getBytesFromAsset('assets/map_icon/retail-stores.png', 75);
     } else if (types.contains('saloon')) {
       markerIcon = await GoogleMapService()
           .getBytesFromAsset('assets/map_icon/saloon.png', 75);
-    } else if (types.contains('schools')) {
+    } else if (types.contains('school')) {
       markerIcon = await GoogleMapService()
           .getBytesFromAsset('assets/map_icon/schools.png', 75);
     } else if (types.contains('shopping')) {
       markerIcon = await GoogleMapService()
           .getBytesFromAsset('assets/map_icon/shopping.png', 75);
-    } else if (types.contains('sports')) {
+    } else if (types.contains('gym')) {
       markerIcon = await GoogleMapService()
           .getBytesFromAsset('assets/map_icon/sports.png', 75);
     } else if (types.contains('swimming pools')) {
@@ -826,6 +838,28 @@ class _MapPageState extends State<MapPage> {
     setState(() {
       _markers.add(marker);
     });
+  }
+
+  Future<void> filterDefaultMarker(Set<Marker> markers) async {
+    //TODO: Funktioniert noch nicht, es soll die default marker entfernen
+    Uint8List markerIcon = await GoogleMapService()
+        .getBytesFromAsset('assets/map_icon/places.png', 75);
+
+    for (var element in markers) {
+      if (element.icon == BitmapDescriptor.fromBytes(markerIcon)) {
+        markers.remove(element);
+      }
+    }
+  }
+
+  bool getRecommend(List<dynamic> element) {
+    for (var type in element) {
+      if (type == 'bar') {
+        print(type);
+        return true;
+      }
+    }
+    return false;
   }
 
   void _addMarker(LatLng pos) async {
@@ -1022,7 +1056,7 @@ class _MapPageState extends State<MapPage> {
                             ],
                           ),
                           isExpanded
-                              ? const SizedBox(height: 30.0)
+                              ? const SizedBox(height: 20.0)
                               : Container(),
                           isExpanded
                               ? Container(
@@ -1099,6 +1133,19 @@ class _MapPageState extends State<MapPage> {
                                         'Availability: ',
                                         style: Styles.mapcontact,
                                       ),
+                                      //TODO: Hier nur da wegen types testen
+                                      /*        Text(
+                                        allFavoritePlaces[0]['types'][0],
+                                        style: TextStyle(
+                                            color: allFavoritePlaces[index]
+                                                        ['business_status'] ==
+                                                    'OPERATIONAL'
+                                                ? Colors.green
+                                                : Colors.red,
+                                            fontSize: 15.0,
+                                            fontWeight: FontWeight.bold,
+                                            fontFamily: 'Ubuntu'),
+                                      ), */
                                       SizedBox(
                                         width: 150.0,
                                         child: Text(
