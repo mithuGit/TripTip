@@ -55,9 +55,7 @@ class _ProfilePageState extends State<ProfilePage> {
     return Scaffold(
       extendBody: true,
       appBar: const TopBar(
-        icon: null,
         title: "Profile",
-        onTapForIconWidget: null,
       ),
       body: Stack(
         children: [

@@ -60,6 +60,7 @@ class _TripCreateState extends State<CreateTrip> {
 
       members.add(widget.auth.currentUser?.uid);
       print("Create Trip: $destination $selectedStartDate $selectedEndDate");
+
       DocumentReference trip = await trips.add({
         'city': destination?.cityName,
         'placedetails': destination?.placeDetails,
@@ -72,8 +73,10 @@ class _TripCreateState extends State<CreateTrip> {
           .collection("users")
           .doc(_auth.currentUser?.uid)
           .update({"selectedtrip": trip.id});
+
       if (context.mounted) {
-        context.go("/");
+        context.goNamed("sharetrip",
+            pathParameters: {"tripId": trip.id, "afterCreate":"true"});
       }
     } catch (e) {
       if (context.mounted) {
@@ -174,9 +177,11 @@ class _TripCreateState extends State<CreateTrip> {
                             onTap: connectPhotosAlbum,
                             imagePath: 'assets/googlephotos.png',
                             text: 'Create Photos Album'), */
-                        MyButton(onTap: () {
-                          PushNotificationService().initialise();
-                        }, text: 'Push Notifications'),    
+                        MyButton(
+                            onTap: () {
+                              PushNotificationService().initialise();
+                            },
+                            text: 'Push Notifications'),
                         MyButton(
                             margin: const EdgeInsets.only(top: 20),
                             onTap: create_trip,
