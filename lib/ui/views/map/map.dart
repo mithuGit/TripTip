@@ -1,7 +1,5 @@
 import 'dart:async';
-import 'dart:ui' as ui;
 import 'package:flip_card/flip_card.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -16,7 +14,6 @@ import 'package:internet_praktikum/ui/widgets/errorSnackbar.dart';
 import 'package:flutter_rating_stars/flutter_rating_stars.dart';
 import 'package:internet_praktikum/ui/widgets/mapWidgets/smallButton.dart';
 import 'package:internet_praktikum/ui/widgets/my_button.dart';
-import 'package:location/location.dart';
 //import 'package:internet_praktikum/ui/widgets/inputfield_search_lookahead.dart';
 
 class MapPage extends StatefulWidget {
@@ -29,6 +26,8 @@ class MapPage extends StatefulWidget {
 class _MapPageState extends State<MapPage> {
   //TODO: Das Close / X Button in Slider wird wahrscheinlich von Card überlappt: Einmal mit WidgetInspector durchgehen
   //TODO: Soll MAP Title lieber in Mitte oder doch lieber ganz links
+  //TODO: CAmera Position bei Card Review etwas höher stellen
+  //TODO: Wenn man marker Place als PNG hat, wird das übersprungen
   final Completer<GoogleMapController> _googleMapController = Completer();
   static const key = "AIzaSyBUh4YsufaUkM8XQqdO8TSXKpBf_3dJOmA";
 
@@ -148,58 +147,6 @@ class _MapPageState extends State<MapPage> {
     }
   }
 
-  Future<void> getCurrentLocation() async {
-    bool serviceEnabled;
-    PermissionStatus permissionGranted;
-
-    try {
-      serviceEnabled = await Location().serviceEnabled();
-      if (!serviceEnabled) {
-        serviceEnabled = await Location().requestService();
-        if (!serviceEnabled) {
-          return;
-        }
-      }
-
-      permissionGranted = await Location().hasPermission();
-      if (permissionGranted == PermissionStatus.denied) {
-        permissionGranted = await Location().requestPermission();
-        if (permissionGranted != PermissionStatus.granted) {
-          return;
-        }
-      }
-
-      LocationData currentPosition = await Location().getLocation();
-      var latitude = currentPosition.latitude!;
-      var longitude = currentPosition.longitude!;
-
-      final Uint8List markerIcon = await getBytesFromAsset(
-          'assets/my_location.png',
-          100); //TODO: ICON auf Blau machen, also die PNG Datei ändern
-
-      setState(() {
-        currentLocation = Marker(
-            markerId: const MarkerId('myLocation'),
-            infoWindow: const InfoWindow(
-              title: 'My Current Location',
-            ),
-            position: LatLng(latitude, longitude),
-            icon: BitmapDescriptor.fromBytes(markerIcon));
-      });
-
-      var controller = await _googleMapController.future;
-      controller.animateCamera(
-        CameraUpdate.newCameraPosition(
-          CameraPosition(target: LatLng(latitude, longitude), zoom: 15),
-        ),
-      );
-    } catch (e) {
-      if (kDebugMode) {
-        print(e);
-      }
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -243,7 +190,13 @@ class _MapPageState extends State<MapPage> {
           leading: IconButton(
             icon: const Icon(Icons.my_location, color: Colors.black, size: 30),
             onPressed: () async {
-              await getCurrentLocation();
+              currentLocation = await GoogleMapService()
+                  .getCurrentLocation(_googleMapController);
+              setState(() {
+                currentLocation!.position.latitude == 0
+                    ? currentLocation = null
+                    : currentLocation = currentLocation;
+              });
             },
           ),
           actions: [
@@ -419,9 +372,9 @@ class _MapPageState extends State<MapPage> {
                                 MySmallButton(
                                   iconData: Icons.close,
                                   borderColor: Colors.red,
-                                  onTap: () => setState(() => {
-                                        currentLocation = null,
-                                      }),
+                                  onTap: () => setState(
+                                    () => currentLocation = null,
+                                  ),
                                 ),
                               ],
                             ),
@@ -589,19 +542,6 @@ class _MapPageState extends State<MapPage> {
                     : Container(),
               ],
             ),
-      /*  floatingActionButton: FloatingActionButton(
-        backgroundColor: Theme.of(context).primaryColor,
-        foregroundColor: Colors.black,
-        onPressed: () async {
-          var controller = await _googleMapController.future;
-          controller.animateCamera(
-            _info != null
-                ? CameraUpdate.newLatLngBounds(_info!.bounds, 100.0)
-                : CameraUpdate.newCameraPosition(_initialCameraPosition!),
-          );
-        },
-        child: const Icon(Icons.center_focus_strong),
-      ),*/
     );
   }
 
@@ -765,108 +705,140 @@ class _MapPageState extends State<MapPage> {
     final Uint8List markerIcon;
 
     if (types.contains('bars')) {
-      markerIcon = await getBytesFromAsset('assets/map_icon/bars.png', 75);
+      markerIcon = await GoogleMapService()
+          .getBytesFromAsset('assets/map_icon/bars.png', 75);
     } else if (types.contains('breakfast')) {
-      markerIcon =
-          await getBytesFromAsset('assets/map_icon/breakfast-n-brunch.png', 75);
+      markerIcon = await GoogleMapService()
+          .getBytesFromAsset('assets/map_icon/breakfast-n-brunch.png', 75);
     } else if (types.contains('cake')) {
-      markerIcon = await getBytesFromAsset('assets/map_icon/cake-shop.png', 75);
+      markerIcon = await GoogleMapService()
+          .getBytesFromAsset('assets/map_icon/cake-shop.png', 75);
     } else if (types.contains('clothings')) {
-      markerIcon = await getBytesFromAsset('assets/map_icon/clothings.png', 75);
+      markerIcon = await GoogleMapService()
+          .getBytesFromAsset('assets/map_icon/clothings.png', 75);
     } else if (types.contains('clubs')) {
-      markerIcon = await getBytesFromAsset('assets/map_icon/clubs.png', 75);
+      markerIcon = await GoogleMapService()
+          .getBytesFromAsset('assets/map_icon/clubs.png', 75);
     } else if (types.contains('coffee')) {
-      markerIcon =
-          await getBytesFromAsset('assets/map_icon/coffee-n-tea.png', 75);
+      markerIcon = await GoogleMapService()
+          .getBytesFromAsset('assets/map_icon/coffee-n-tea.png', 75);
     } else if (types.contains('commercial ')) {
-      markerIcon =
-          await getBytesFromAsset('assets/map_icon/commercial-places.png', 75);
+      markerIcon = await GoogleMapService()
+          .getBytesFromAsset('assets/map_icon/commercial-places.png', 75);
     } else if (types.contains('computers ')) {
-      markerIcon = await getBytesFromAsset('assets/map_icon/computers.png', 75);
+      markerIcon = await GoogleMapService()
+          .getBytesFromAsset('assets/map_icon/computers.png', 75);
     } else if (types.contains('concerts')) {
-      markerIcon = await getBytesFromAsset('assets/map_icon/concerts.png', 75);
+      markerIcon = await GoogleMapService()
+          .getBytesFromAsset('assets/map_icon/concerts.png', 75);
     } else if (types.contains('dance clubs')) {
-      markerIcon =
-          await getBytesFromAsset('assets/map_icon/dance-clubs.png', 75);
+      markerIcon = await GoogleMapService()
+          .getBytesFromAsset('assets/map_icon/dance-clubs.png', 75);
     } else if (types.contains('doctors')) {
-      markerIcon = await getBytesFromAsset('assets/map_icon/doctors.png', 75);
+      markerIcon = await GoogleMapService()
+          .getBytesFromAsset('assets/map_icon/doctors.png', 75);
     } else if (types.contains('entertainment ')) {
-      markerIcon =
-          await getBytesFromAsset('assets/map_icon/entertainment.png', 75);
+      markerIcon = await GoogleMapService()
+          .getBytesFromAsset('assets/map_icon/entertainment.png', 75);
     } else if (types.contains('event')) {
-      markerIcon = await getBytesFromAsset('assets/map_icon/event.png', 75);
+      markerIcon = await GoogleMapService()
+          .getBytesFromAsset('assets/map_icon/event.png', 75);
     } else if (types.contains('exhibitions ')) {
-      markerIcon =
-          await getBytesFromAsset('assets/map_icon/exhibitions.png', 75);
+      markerIcon = await GoogleMapService()
+          .getBytesFromAsset('assets/map_icon/exhibitions.png', 75);
     } else if (types.contains('fashion')) {
-      markerIcon = await getBytesFromAsset('assets/map_icon/fashion.png', 75);
+      markerIcon = await GoogleMapService()
+          .getBytesFromAsset('assets/map_icon/fashion.png', 75);
     } else if (types.contains('festivals')) {
-      markerIcon = await getBytesFromAsset('assets/map_icon/festivals.png', 75);
+      markerIcon = await GoogleMapService()
+          .getBytesFromAsset('assets/map_icon/festivals.png', 75);
     } else if (types.contains('financial ')) {
-      markerIcon =
-          await getBytesFromAsset('assets/map_icon/financial-services.png', 75);
+      markerIcon = await GoogleMapService()
+          .getBytesFromAsset('assets/map_icon/financial-services.png', 75);
     } else if (types.contains('food')) {
-      markerIcon = await getBytesFromAsset('assets/map_icon/food.png', 75);
+      markerIcon = await GoogleMapService()
+          .getBytesFromAsset('assets/map_icon/food.png', 75);
     } else if (types.contains('games')) {
-      markerIcon = await getBytesFromAsset('assets/map_icon/games.png', 75);
+      markerIcon = await GoogleMapService()
+          .getBytesFromAsset('assets/map_icon/games.png', 75);
     } else if (types.contains('halloween')) {
-      markerIcon = await getBytesFromAsset('assets/map_icon/halloween.png', 75);
+      markerIcon = await GoogleMapService()
+          .getBytesFromAsset('assets/map_icon/halloween.png', 75);
     } else if (types.contains('health medical')) {
-      markerIcon =
-          await getBytesFromAsset('assets/map_icon/health-medical.png', 75);
+      markerIcon = await GoogleMapService()
+          .getBytesFromAsset('assets/map_icon/health-medical.png', 75);
     } else if (types.contains('hotels')) {
-      markerIcon = await getBytesFromAsset('assets/map_icon/hotels.png', 75);
+      markerIcon = await GoogleMapService()
+          .getBytesFromAsset('assets/map_icon/hotels.png', 75);
     } else if (types.contains('internet')) {
-      markerIcon = await getBytesFromAsset('assets/map_icon/internet.png', 75);
+      markerIcon = await GoogleMapService()
+          .getBytesFromAsset('assets/map_icon/internet.png', 75);
     } else if (types.contains('karaoke')) {
-      markerIcon = await getBytesFromAsset('assets/map_icon/karaoke.png', 75);
+      markerIcon = await GoogleMapService()
+          .getBytesFromAsset('assets/map_icon/karaoke.png', 75);
     } else if (types.contains('libraries')) {
-      markerIcon = await getBytesFromAsset('assets/map_icon/libraries.png', 75);
+      markerIcon = await GoogleMapService()
+          .getBytesFromAsset('assets/map_icon/libraries.png', 75);
     } else if (types.contains('massage')) {
-      markerIcon =
-          await getBytesFromAsset('assets/map_icon/massage-therapy.png', 75);
+      markerIcon = await GoogleMapService()
+          .getBytesFromAsset('assets/map_icon/massage-therapy.png', 75);
     } else if (types.contains('medical')) {
-      markerIcon = await getBytesFromAsset('assets/map_icon/medical.png', 75);
+      markerIcon = await GoogleMapService()
+          .getBytesFromAsset('assets/map_icon/medical.png', 75);
     } else if (types.contains('medical')) {
-      markerIcon = await getBytesFromAsset('assets/map_icon/medical.png', 75);
+      markerIcon = await GoogleMapService()
+          .getBytesFromAsset('assets/map_icon/medical.png', 75);
     } else if (types.contains('movies')) {
-      markerIcon = await getBytesFromAsset('assets/map_icon/movies.png', 75);
+      markerIcon = await GoogleMapService()
+          .getBytesFromAsset('assets/map_icon/movies.png', 75);
     } else if (types.contains('museums')) {
-      markerIcon = await getBytesFromAsset('assets/map_icon/museums.png', 75);
+      markerIcon = await GoogleMapService()
+          .getBytesFromAsset('assets/map_icon/museums.png', 75);
     } else if (types.contains('nightlife ')) {
-      markerIcon = await getBytesFromAsset('assets/map_icon/nightlife.png', 75);
+      markerIcon = await GoogleMapService()
+          .getBytesFromAsset('assets/map_icon/nightlife.png', 75);
     } else if (types.contains('parties')) {
-      markerIcon = await getBytesFromAsset('assets/map_icon/parties.png', 75);
+      markerIcon = await GoogleMapService()
+          .getBytesFromAsset('assets/map_icon/parties.png', 75);
     } else if (types.contains('pizza')) {
-      markerIcon = await getBytesFromAsset('assets/map_icon/pizza.png', 75);
+      markerIcon = await GoogleMapService()
+          .getBytesFromAsset('assets/map_icon/pizza.png', 75);
     } else if (types.contains('places')) {
-      markerIcon = await getBytesFromAsset('assets/map_icon/places.png', 75);
+      markerIcon = await GoogleMapService()
+          .getBytesFromAsset('assets/map_icon/places.png', 75);
     } else if (types.contains('pool haals')) {
-      markerIcon =
-          await getBytesFromAsset('assets/map_icon/pool-haals.png', 75);
+      markerIcon = await GoogleMapService()
+          .getBytesFromAsset('assets/map_icon/pool-haals.png', 75);
     } else if (types.contains('restaurants')) {
-      markerIcon =
-          await getBytesFromAsset('assets/map_icon/restaurants.png', 75);
+      markerIcon = await GoogleMapService()
+          .getBytesFromAsset('assets/map_icon/restaurants.png', 75);
     } else if (types.contains('retail stores')) {
-      markerIcon =
-          await getBytesFromAsset('assets/map_icon/retail-stores.png', 75);
+      markerIcon = await GoogleMapService()
+          .getBytesFromAsset('assets/map_icon/retail-stores.png', 75);
     } else if (types.contains('saloon')) {
-      markerIcon = await getBytesFromAsset('assets/map_icon/saloon.png', 75);
+      markerIcon = await GoogleMapService()
+          .getBytesFromAsset('assets/map_icon/saloon.png', 75);
     } else if (types.contains('schools')) {
-      markerIcon = await getBytesFromAsset('assets/map_icon/schools.png', 75);
+      markerIcon = await GoogleMapService()
+          .getBytesFromAsset('assets/map_icon/schools.png', 75);
     } else if (types.contains('shopping')) {
-      markerIcon = await getBytesFromAsset('assets/map_icon/shopping.png', 75);
+      markerIcon = await GoogleMapService()
+          .getBytesFromAsset('assets/map_icon/shopping.png', 75);
     } else if (types.contains('sports')) {
-      markerIcon = await getBytesFromAsset('assets/map_icon/sports.png', 75);
+      markerIcon = await GoogleMapService()
+          .getBytesFromAsset('assets/map_icon/sports.png', 75);
     } else if (types.contains('swimming pools')) {
-      markerIcon =
-          await getBytesFromAsset('assets/map_icon/swimming-pools.png', 75);
+      markerIcon = await GoogleMapService()
+          .getBytesFromAsset('assets/map_icon/swimming-pools.png', 75);
     } else if (types.contains('tickets')) {
-      markerIcon = await getBytesFromAsset('assets/map_icon/tickets.png', 75);
+      markerIcon = await GoogleMapService()
+          .getBytesFromAsset('assets/map_icon/tickets.png', 75);
     } else if (types.contains('tours')) {
-      markerIcon = await getBytesFromAsset('assets/map_icon/tours.png', 75);
+      markerIcon = await GoogleMapService()
+          .getBytesFromAsset('assets/map_icon/tours.png', 75);
     } else {
-      markerIcon = await getBytesFromAsset('assets/map_icon/places.png', 75);
+      markerIcon = await GoogleMapService()
+          .getBytesFromAsset('assets/map_icon/places.png', 75);
     }
 
     final Marker marker = Marker(
@@ -878,17 +850,6 @@ class _MapPageState extends State<MapPage> {
     setState(() {
       _markers.add(marker);
     });
-  }
-
-  Future<Uint8List> getBytesFromAsset(String path, int width) async {
-    ByteData data = await rootBundle.load(path);
-
-    ui.Codec codec = await ui.instantiateImageCodec(data.buffer.asUint8List(),
-        targetWidth: width);
-    ui.FrameInfo fi = await codec.getNextFrame();
-    return (await fi.image.toByteData(format: ui.ImageByteFormat.png))!
-        .buffer
-        .asUint8List();
   }
 
   void _addMarker(LatLng pos) async {
