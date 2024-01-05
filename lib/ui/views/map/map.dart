@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flip_card/flip_card.dart';
+import 'package:flip_card/flip_card_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -26,7 +27,7 @@ class MapPage extends StatefulWidget {
 class _MapPageState extends State<MapPage> {
   //TODO: Wenn noch Zeit fixen das beim swipe daten in realtime aktualisert werden !!!
   //TODO: BACK FLIPCARD darf nicht swipen sonst kommt ein Fehler, vor swipen wird back auf front gesetzt.
-
+  //TODO autoklicker bei den Swipes d,h, damit GestureDetector von allein getriggert wird
   final Completer<GoogleMapController> _googleMapController = Completer();
   static const key = "AIzaSyBUh4YsufaUkM8XQqdO8TSXKpBf_3dJOmA";
 
@@ -52,7 +53,6 @@ class _MapPageState extends State<MapPage> {
   Set<Circle> _circles = <Circle>{};
   var radiusValue = 3000.0;
   dynamic tappedPoint; //TODO: Name ändern
-  Timer? _debounce; //TODO: Name ändern
 
   //Toggling UI as we need;
   bool radiusSlider = false;
@@ -85,7 +85,12 @@ class _MapPageState extends State<MapPage> {
       ..addListener(_swipe);
   }
 
-  //TODO height des COntainer bei den Reviews muss angepasst werden
+  @override
+  void dispose() {
+    _pageController.removeListener(_swipe);
+    _pageController.dispose();
+    super.dispose();
+  }
 
   void _swipe() {
     if (_pageController.page!.toInt() != prevPage) {
@@ -160,7 +165,7 @@ class _MapPageState extends State<MapPage> {
                       padding: const EdgeInsets.symmetric(),
                       child: origin == null
                           ? const Text(
-                              'Tap to see personilized recomendations \nLong press to set origin and destination',
+                              'Tap to see personilized recomendations OR Long press to set origin and destination',
                               style: Styles.warningmap,
                               textAlign: TextAlign.center,
                             )
@@ -190,7 +195,8 @@ class _MapPageState extends State<MapPage> {
                 var controller = await _googleMapController.future;
                 controller.animateCamera(
                   infoDistanceAndDuration != null
-                      ? CameraUpdate.newLatLngBounds(infoDistanceAndDuration!.bounds, 100.0)
+                      ? CameraUpdate.newLatLngBounds(
+                          infoDistanceAndDuration!.bounds, 100.0)
                       : CameraUpdate.newCameraPosition(_initialCameraPosition!),
                 );
               },
@@ -376,7 +382,7 @@ class _MapPageState extends State<MapPage> {
                                       .withOpacity(0.90)),
                               width: 50,
                               height: MediaQuery.of(context).size.height *
-                                  0.28, //TODO: Falss Navbar ändert sich, dann hier auch ändern wahrscheinlich
+                                  0.28, //TODO: Falls Navbar ändert sich, dann hier auch ändern wahrscheinlich
                               child: Column(children: [
                                 Expanded(
                                     child: RotatedBox(
@@ -399,28 +405,66 @@ class _MapPageState extends State<MapPage> {
                                 )),
                                 !pressedNear
                                     ? IconButton(
-                                        onPressed: () {
-                                          if (_debounce?.isActive ?? false) {
-                                            _debounce?.cancel();
+                                        onPressed: () async {
+                                          var placesResult =
+                                              await GoogleMapService()
+                                                  .getPlaceDetails(tappedPoint,
+                                                      radiusValue.toInt());
+
+                                          List<dynamic> placesWithin =
+                                              placesResult['results'] as List;
+
+                                          allFavoritePlaces = placesWithin;
+
+                                          tokenKey =
+                                              placesResult['next_page_token'] ??
+                                                  'none';
+                                          _markers = {};
+                                          for (var element in placesWithin) {
+                                            _setNearMarker(
+                                              LatLng(
+                                                  element['geometry']
+                                                      ['location']['lat'],
+                                                  element['geometry']
+                                                      ['location']['lng']),
+                                              element['name'],
+                                              element['types'],
+                                              element['business_status'] ??
+                                                  'not available',
+                                            );
                                           }
-                                          _debounce =
-                                              Timer(const Duration(seconds: 2),
-                                                  () async {
+                                          pressedNear = true;
+                                          if (allFavoritePlaces[1]['photos'] !=
+                                              null) {
+                                            setState(() {
+                                              placeImg = allFavoritePlaces[1]
+                                                      ['photos'][0]
+                                                  ['photo_reference'];
+                                            });
+                                          }
+                                        },
+                                        icon: const Icon(
+                                          Icons.near_me,
+                                          color: Colors.blue,
+                                        ))
+                                    : IconButton(
+                                        onPressed: () async {
+                                          if (tokenKey != 'none') {
                                             var placesResult =
                                                 await GoogleMapService()
-                                                    .getPlaceDetails(
-                                                        tappedPoint,
-                                                        radiusValue.toInt());
+                                                    .getMorePlaceDetails(
+                                                        tokenKey);
 
                                             List<dynamic> placesWithin =
                                                 placesResult['results'] as List;
 
-                                            allFavoritePlaces = placesWithin;
+                                            allFavoritePlaces
+                                                .addAll(placesWithin);
 
                                             tokenKey = placesResult[
                                                     'next_page_token'] ??
                                                 'none';
-                                            _markers = {};
+
                                             for (var element in placesWithin) {
                                               _setNearMarker(
                                                 LatLng(
@@ -434,67 +478,11 @@ class _MapPageState extends State<MapPage> {
                                                     'not available',
                                               );
                                             }
-                                            pressedNear = true;
-                                            if (allFavoritePlaces[1]
-                                                    ['photos'] !=
-                                                null) {
-                                              setState(() {
-                                                placeImg = allFavoritePlaces[1]
-                                                        ['photos'][0]
-                                                    ['photo_reference'];
-                                              });
-                                            }
-                                          });
-                                        },
-                                        icon: const Icon(
-                                          Icons.near_me,
-                                          color: Colors.blue,
-                                        ))
-                                    : IconButton(
-                                        onPressed: () {
-                                          if (_debounce?.isActive ?? false) {
-                                            _debounce?.cancel();
+                                          } else {
+                                            ErrorSnackbar.showErrorSnackbar(
+                                                context,
+                                                "No more places available");
                                           }
-                                          _debounce =
-                                              Timer(const Duration(seconds: 2),
-                                                  () async {
-                                            if (tokenKey != 'none') {
-                                              var placesResult =
-                                                  await GoogleMapService()
-                                                      .getMorePlaceDetails(
-                                                          tokenKey);
-
-                                              List<dynamic> placesWithin =
-                                                  placesResult['results']
-                                                      as List;
-
-                                              allFavoritePlaces
-                                                  .addAll(placesWithin);
-
-                                              tokenKey = placesResult[
-                                                      'next_page_token'] ??
-                                                  'none';
-
-                                              for (var element
-                                                  in placesWithin) {
-                                                _setNearMarker(
-                                                  LatLng(
-                                                      element['geometry']
-                                                          ['location']['lat'],
-                                                      element['geometry']
-                                                          ['location']['lng']),
-                                                  element['name'],
-                                                  element['types'],
-                                                  element['business_status'] ??
-                                                      'not available',
-                                                );
-                                              }
-                                            } else {
-                                              ErrorSnackbar.showErrorSnackbar(
-                                                  context,
-                                                  "No more places available");
-                                            }
-                                          });
                                         },
                                         icon: const Icon(Icons.more_time,
                                             color: Colors.blue)),
@@ -519,9 +507,7 @@ class _MapPageState extends State<MapPage> {
                     ? Positioned(
                         bottom: 20.0,
                         child: SizedBox(
-                          height: isExpanded
-                              ? 500.0
-                              : 200.0, // TODO: Hier kann man die Höhe der Karte einstellen
+                          height: isExpanded ? 500.0 : 200.0,
                           width: MediaQuery.of(context).size.width,
                           child: PageView.builder(
                               controller: _pageController,
@@ -916,11 +902,13 @@ class _MapPageState extends State<MapPage> {
                 }
               },
               child: FlipCard(
+                //TODO: vlt die FlipDirection auf Vertoical ändern tim entscheidet
+
                 flipOnTouch: isExpanded ? true : false,
                 front: AnimatedContainer(
                   duration: const Duration(milliseconds: 500),
                   curve: Curves.easeInOut,
-                  height: isExpanded ? 900.0 : 125.0,
+                  height: isExpanded ? 500.0 : 125.0,
                   width: 325.0,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(34.5),
@@ -929,7 +917,8 @@ class _MapPageState extends State<MapPage> {
                   ),
                   child: SingleChildScrollView(
                     child: Padding(
-                      padding: const EdgeInsets.all(16),
+                      padding: const EdgeInsets.only(
+                          left: 18, right: 18, top: 18, bottom: 16),
                       child: Column(
                         children: [
                           isExpanded
@@ -1144,79 +1133,85 @@ class _MapPageState extends State<MapPage> {
                 back: AnimatedContainer(
                   duration: const Duration(milliseconds: 500),
                   curve: Curves.easeInOut,
-                  height: isExpanded ? 900.0 : 125.0,
+                  height: isExpanded ? 500.0 : 125.0,
                   width: 325.0,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(34.5),
                     color:
                         const Color.fromARGB(255, 43, 43, 43).withOpacity(0.90),
                   ),
-                  child: isExpanded
-                      ? Column(
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.all(16.0),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceEvenly,
-                                children: [
-                                  MySmallButton(
-                                      onTap: () {
-                                        setState(() {
-                                          isReviews = true;
-                                          isPhotos = false;
-                                        });
-                                      },
-                                      text: 'Review'),
-                                  MySmallButton(
-                                      onTap: () {
-                                        setState(() {
-                                          isReviews = false;
-                                          isPhotos = true;
-                                        });
-                                      },
-                                      text: 'Photos'),
-                                ],
-                              ),
-                            ),
-                            isExpanded
-                                ? SizedBox(
-                                    height: MediaQuery.of(context).size.height *
-                                        0.4,
-                                    child: tappedPlaceDetail != null
-                                        ? isReviews
-                                            ? ListView(
-                                                children: [
-                                                  if (isReviews &&
-                                                      tappedPlaceDetail[
-                                                              'reviews'] !=
-                                                          null)
-                                                    ...tappedPlaceDetail[
-                                                            'reviews']!
-                                                        .map((e) {
-                                                      return _showReview(e);
-                                                    })
-                                                ],
-                                              )
-                                            : showPhoto(
-                                                tappedPlaceDetail['photos'] ??
+                  child: SingleChildScrollView(
+                    child: Padding(
+                      padding: const EdgeInsets.all(8),
+                      child: isExpanded
+                          ? Column(
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceEvenly,
+                                    children: [
+                                      MySmallButton(
+                                          onTap: () {
+                                            setState(() {
+                                              isReviews = true;
+                                              isPhotos = false;
+                                            });
+                                          },
+                                          text: 'Review'),
+                                      MySmallButton(
+                                          onTap: () {
+                                            setState(() {
+                                              isReviews = false;
+                                              isPhotos = true;
+                                            });
+                                          },
+                                          text: 'Photos'),
+                                    ],
+                                  ),
+                                ),
+                                isExpanded
+                                    ? SizedBox(
+                                        height:
+                                            MediaQuery.of(context).size.height *
+                                                0.4,
+                                        child: tappedPlaceDetail != null
+                                            ? isReviews
+                                                ? ListView(
+                                                    children: [
+                                                      if (isReviews &&
+                                                          tappedPlaceDetail[
+                                                                  'reviews'] !=
+                                                              null)
+                                                        ...tappedPlaceDetail[
+                                                                'reviews']!
+                                                            .map((e) {
+                                                          return _showReview(e);
+                                                        })
+                                                    ],
+                                                  )
+                                                : showPhoto(tappedPlaceDetail[
+                                                        'photos'] ??
                                                     [])
-                                        : const Column(
-                                            children: [
-                                              Center(
-                                                  child:
-                                                      CircularProgressIndicator())
-                                            ],
-                                          ),
-                                  )
-                                : Container(),
-                          ],
-                        )
-                      : Container(),
+                                            : const Column(
+                                                children: [
+                                                  Center(
+                                                      child:
+                                                          CircularProgressIndicator())
+                                                ],
+                                              ),
+                                      )
+                                    : Container(),
+                              ],
+                            )
+                          : Container(),
+                    ),
+                  ),
                 ),
               ),
             ),
-          ),
+          )
         ],
       ),
     );

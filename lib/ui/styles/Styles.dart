@@ -152,7 +152,7 @@ class Styles {
       color: Colors.white);
   static const warningmap = TextStyle(
       fontFamily: 'fonts/Ubuntu-Regular.ttf',
-      fontSize: 8,
+      fontSize: 10,
       fontWeight: FontWeight.w600,
       color: Colors.black);
   static const smallButtonStyle = TextStyle(
