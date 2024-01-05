@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:internet_praktikum/calendar.dart';
 import 'package:internet_praktikum/ui/widgets/bottom_sheet.dart';
 import 'package:internet_praktikum/ui/views/dashboard/scrollview.dart';
@@ -50,7 +51,8 @@ class _DashBoardState extends State<DashBoard> {
   Future<DocumentReference> getCurrentDaySubCollection() async {
     final userCollection = FirebaseFirestore.instance.collection('users');
     final userDoc = await userCollection.doc(user.uid).get();
-    if (userDoc.data()?['selectedtrip'] == null) throw Exception('No trip selected');
+    if (userDoc.data()?['selectedtrip'] == null)
+      throw Exception('No trip selected');
 
     final tripId = userDoc.data()?['selectedtrip'];
     try {
@@ -61,9 +63,11 @@ class _DashBoardState extends State<DashBoard> {
       throw Exception('Trip does not exist anymore');
     }
 
-    final currentTrip = FirebaseFirestore.instance.collection('trips').doc(tripId);
+    final currentTrip =
+        FirebaseFirestore.instance.collection('trips').doc(tripId);
     // issue: that the day doesnt starts at 0:00, thats why we need to filter the day
-    final filteredDay = Timestamp.fromDate(DateTime(selectedDay!.year,selectedDay!.month,selectedDay!.day));
+    final filteredDay = Timestamp.fromDate(
+        DateTime(selectedDay!.year, selectedDay!.month, selectedDay!.day));
 
     QuerySnapshot currentDay = await currentTrip
         .collection("days")
@@ -78,7 +82,7 @@ class _DashBoardState extends State<DashBoard> {
         'starttime': filteredDay,
         'active': {
           'diary': {
-            'key' : 'diary',
+            'key': 'diary',
             'index': 0,
             'title': 'Your daily Diary',
             'dontEdit': true,
@@ -112,10 +116,13 @@ class _DashBoardState extends State<DashBoard> {
     return Scaffold(
       appBar: TopBar(
           isDash: true,
-          icon: Icons.menu_rounded,
-          onTapForIconWidget: () {
-            // Hier muss Bürge Menü rein und in diesem Menü soll das was unten steht über ein Add Widget Button aufgerufen werden
-            CustomBottomSheet.show(context,
+          popupButton: PopupMenuButton(
+            icon: const Icon(Icons.menu_rounded),
+            onSelected: (value) => {
+              switch(value) {
+                "changeTrip" => {context.goNamed("changeTrip")},
+                "createWidget" => {
+                  CustomBottomSheet.show(context,
                 title: "Add new Widget to your Dashboard",
                 content: [
                   FutureBuilder(
@@ -140,11 +147,21 @@ class _DashBoardState extends State<DashBoard> {
                             day: snapshot.data![1],
                             userdata: snapshot.data![0]);
                       })
-                ]);
-          }),
+                ])
+                },
+                _ => (),
+              }
+            },
+            itemBuilder: (BuildContext c) {
+              return const [
+                PopupMenuItem(value: "changeTrip", child: Text("Change Trip"),),
+                PopupMenuItem(value: "createWidget", child: Text("Create Widget"), )];
+            },
+          )),
+
       body: Stack(
         children: [
-          Container(
+          Container( 
             width: MediaQuery.of(context).size.width,
             decoration: const BoxDecoration(
               image: DecorationImage(
@@ -173,7 +190,8 @@ class _DashBoardState extends State<DashBoard> {
                     if (snapshot.hasError) {
                       print(snapshot.error);
                       return const Center(
-                        child: Text('An error occured while fetching data! check your internet connection!'),
+                        child: Text(
+                            'An error occured while fetching data! check your internet connection!'),
                       );
                     }
                     return ScrollViewWidget(
@@ -193,6 +211,7 @@ Future<DateTime> calculateDiaryTime(DateTime starttime) {
   // and people shoud go to bed at 22:00, so we substract 2 hours
   randomHour = randomHour + 8;
   int randomMinute = Random().nextInt(61);
-  DateTime diaryTime = DateTime(starttime.year, starttime.month, starttime.day, randomHour, randomMinute, 0, 0);
+  DateTime diaryTime = DateTime(starttime.year, starttime.month, starttime.day,
+      randomHour, randomMinute, 0, 0);
   return Future.value(diaryTime);
 }
