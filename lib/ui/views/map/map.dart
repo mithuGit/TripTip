@@ -30,10 +30,10 @@ class _MapPageState extends State<MapPage> {
   final Completer<GoogleMapController> _googleMapController = Completer();
   static const key = "AIzaSyBUh4YsufaUkM8XQqdO8TSXKpBf_3dJOmA";
 
-  Marker? _origin;
-  Marker? _destination;
+  Marker? origin;
+  Marker? destination;
   Marker? currentLocation;
-  Directions? _info;
+  Directions? infoDistanceAndDuration;
   LatLng? latLng;
   PlaceDetails? placeDetails;
 
@@ -45,22 +45,22 @@ class _MapPageState extends State<MapPage> {
   int markerIdCounter = 1;
 
   //places
-  List allFavoritePlaces = [];
+  List allFavoritePlaces = []; //TODO: Name ändern
   String tokenKey = '';
 
   //Circle
   Set<Circle> _circles = <Circle>{};
   var radiusValue = 3000.0;
-  dynamic tappedPoint;
-  Timer? _debounce;
+  dynamic tappedPoint; //TODO: Name ändern
+  Timer? _debounce; //TODO: Name ändern
 
   //Toggling UI as we need;
   bool radiusSlider = false;
-  bool pressedNear = false;
+  bool pressedNear = false; //TODO: Name ändern
 
   //page Controller
   late PageController _pageController;
-  int prevPage = 0;
+  int prevPage = 0; //TODO: Name ändern
   var tappedPlaceDetail;
   String placeImg = '';
   var photoGalleryIndex = 0;
@@ -151,14 +151,14 @@ class _MapPageState extends State<MapPage> {
               preferredSize: const Size.fromHeight(1.0),
               child: Column(
                 children: [
-                  if (_info == null &&
+                  if (infoDistanceAndDuration == null &&
                       !radiusSlider &&
                       !pressedNear &&
                       !isExpanded &&
-                      _destination == null)
+                      destination == null)
                     Container(
                       padding: const EdgeInsets.symmetric(),
-                      child: _origin == null
+                      child: origin == null
                           ? const Text(
                               'Tap to see personilized recomendations \nLong press to set origin and destination',
                               style: Styles.warningmap,
@@ -189,8 +189,8 @@ class _MapPageState extends State<MapPage> {
               onPressed: () async {
                 var controller = await _googleMapController.future;
                 controller.animateCamera(
-                  _info != null
-                      ? CameraUpdate.newLatLngBounds(_info!.bounds, 100.0)
+                  infoDistanceAndDuration != null
+                      ? CameraUpdate.newLatLngBounds(infoDistanceAndDuration!.bounds, 100.0)
                       : CameraUpdate.newCameraPosition(_initialCameraPosition!),
                 );
               },
@@ -219,18 +219,18 @@ class _MapPageState extends State<MapPage> {
                       _googleMapController.complete(controller);
                     },
                     markers: {
-                      if (_origin != null) _origin!,
-                      if (_destination != null) _destination!,
+                      if (origin != null) origin!,
+                      if (destination != null) destination!,
                       if (currentLocation != null) currentLocation!,
                       ..._markers,
                     },
                     polylines: {
-                      if (_info != null)
+                      if (infoDistanceAndDuration != null)
                         Polyline(
                           polylineId: const PolylineId('overview_polyline'),
                           color: Colors.red,
                           width: 4,
-                          points: _info!.polylinePoints
+                          points: infoDistanceAndDuration!.polylinePoints
                               .map((e) => LatLng(e.latitude, e.longitude))
                               .toList(),
                         ),
@@ -243,7 +243,7 @@ class _MapPageState extends State<MapPage> {
                     },
                   ),
                 ),
-                if (_info != null)
+                if (infoDistanceAndDuration != null)
                   Positioned(
                     top: 50.0,
                     child: Container(
@@ -257,7 +257,7 @@ class _MapPageState extends State<MapPage> {
                         borderRadius: BorderRadius.circular(20.0),
                       ),
                       child: Text(
-                        '${_info!.totalDistance}, ${_info!.totalDuration}',
+                        '${infoDistanceAndDuration!.totalDistance}, ${infoDistanceAndDuration!.totalDuration}',
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 14.0,
@@ -266,14 +266,14 @@ class _MapPageState extends State<MapPage> {
                       ),
                     ),
                   ),
-                if (_origin != null || currentLocation != null)
+                if (origin != null || currentLocation != null)
                   Positioned(
                       top: 90.0,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          if (_origin != null)
+                          if (origin != null)
                             Row(
                               children: [
                                 MySmallButton(
@@ -285,7 +285,7 @@ class _MapPageState extends State<MapPage> {
                                     controller.animateCamera(
                                       CameraUpdate.newCameraPosition(
                                         CameraPosition(
-                                          target: _origin!.position,
+                                          target: origin!.position,
                                           zoom: 14.5,
                                           tilt: 50.0,
                                         ),
@@ -297,14 +297,14 @@ class _MapPageState extends State<MapPage> {
                                   iconData: Icons.close,
                                   borderColor: Colors.red,
                                   onTap: () => setState(() => {
-                                        _origin = null,
-                                        _destination = null,
-                                        _info = null,
+                                        origin = null,
+                                        destination = null,
+                                        infoDistanceAndDuration = null,
                                       }),
                                 ),
                               ],
                             ),
-                          if (_destination != null)
+                          if (destination != null)
                             Row(
                               children: [
                                 MySmallButton(
@@ -316,7 +316,7 @@ class _MapPageState extends State<MapPage> {
                                       controller.animateCamera(
                                         CameraUpdate.newCameraPosition(
                                           CameraPosition(
-                                            target: _destination!.position,
+                                            target: destination!.position,
                                             zoom: 14.5,
                                             tilt: 50.0,
                                           ),
@@ -327,8 +327,8 @@ class _MapPageState extends State<MapPage> {
                                   iconData: Icons.close,
                                   borderColor: Colors.red,
                                   onTap: () => setState(() => {
-                                        _destination = null,
-                                        _info = null,
+                                        destination = null,
+                                        infoDistanceAndDuration = null,
                                       }),
                                 ),
                               ],
@@ -607,6 +607,7 @@ class _MapPageState extends State<MapPage> {
         child: Text(
           'No Photos',
           style: TextStyle(
+              color: Colors.white,
               fontFamily: 'WorkSans',
               fontSize: 12.0,
               fontWeight: FontWeight.w500),
@@ -842,11 +843,11 @@ class _MapPageState extends State<MapPage> {
   }
 
   void _addMarker(LatLng pos) async {
-    if (_origin == null || (_origin != null && _destination != null)) {
+    if (origin == null || (origin != null && destination != null)) {
       // Origin is not set OR Origin/Destination are both set
       // Set origin
       setState(() {
-        _origin = Marker(
+        origin = Marker(
           markerId: const MarkerId('origin'),
           infoWindow: const InfoWindow(title: 'Start Location'),
           icon: BitmapDescriptor.defaultMarkerWithHue(
@@ -854,16 +855,16 @@ class _MapPageState extends State<MapPage> {
           ),
           position: pos,
         );
-        _destination = null;
+        destination = null;
 
         // Reset info
-        _info = null;
+        infoDistanceAndDuration = null;
       });
     } else {
       // Origin is already set
       // Set destination
       setState(() {
-        _destination = Marker(
+        destination = Marker(
           markerId: const MarkerId('destination'),
           infoWindow: const InfoWindow(title: 'Destination'),
           icon: BitmapDescriptor.defaultMarkerWithHue(
@@ -875,8 +876,8 @@ class _MapPageState extends State<MapPage> {
 
       // Get directions
       final directions = await DirectionsRepository()
-          .getDirection(origin: _origin!.position, destination: pos);
-      setState(() => _info = directions);
+          .getDirection(origin: origin!.position, destination: pos);
+      setState(() => infoDistanceAndDuration = directions);
     }
   }
 
@@ -1219,21 +1220,5 @@ class _MapPageState extends State<MapPage> {
         ],
       ),
     );
-  }
-
-  Future<void> moveCameraSlightly() async {
-    final GoogleMapController controller = await _googleMapController.future;
-
-    controller.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
-        target: LatLng(
-            allFavoritePlaces[_pageController.page!.toInt()]['geometry']
-                    ['location']['lat'] +
-                0.0125,
-            allFavoritePlaces[_pageController.page!.toInt()]['geometry']
-                    ['location']['lng'] +
-                0.005),
-        zoom: 14.0,
-        bearing: 45.0,
-        tilt: 45.0)));
   }
 }
