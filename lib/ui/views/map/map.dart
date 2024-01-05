@@ -1,12 +1,12 @@
 import 'dart:async';
 import 'dart:ui' as ui;
 import 'package:flip_card/flip_card.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:internet_praktikum/core/services/placeApiProvider.dart';
 import 'package:internet_praktikum/ui/styles/Styles.dart';
-import 'package:internet_praktikum/ui/views/dashboard/dashboard.dart';
 import 'package:internet_praktikum/ui/views/map/directions.dart';
 import 'package:internet_praktikum/ui/views/map/directions_repository.dart';
 import 'package:internet_praktikum/core/services/map_service.dart';
@@ -14,7 +14,9 @@ import 'package:internet_praktikum/ui/widgets/bottom_sheet.dart';
 import 'package:internet_praktikum/ui/widgets/dashboardWidgets/createNewWidgetOnDashboard.dart';
 import 'package:internet_praktikum/ui/widgets/errorSnackbar.dart';
 import 'package:flutter_rating_stars/flutter_rating_stars.dart';
+import 'package:internet_praktikum/ui/widgets/mapWidgets/smallButton.dart';
 import 'package:internet_praktikum/ui/widgets/my_button.dart';
+import 'package:location/location.dart';
 //import 'package:internet_praktikum/ui/widgets/inputfield_search_lookahead.dart';
 
 class MapPage extends StatefulWidget {
@@ -25,11 +27,14 @@ class MapPage extends StatefulWidget {
 }
 
 class _MapPageState extends State<MapPage> {
+  //TODO: Das Close / X Button in Slider wird wahrscheinlich von Card überlappt: Einmal mit WidgetInspector durchgehen
+  //TODO: Soll MAP Title lieber in Mitte oder doch lieber ganz links
   final Completer<GoogleMapController> _googleMapController = Completer();
   static const key = "AIzaSyBUh4YsufaUkM8XQqdO8TSXKpBf_3dJOmA";
 
   Marker? _origin;
   Marker? _destination;
+  Marker? currentLocation;
   Directions? _info;
   LatLng? latLng;
   bool mapIsActiv = true;
@@ -86,9 +91,9 @@ class _MapPageState extends State<MapPage> {
       ..addListener(_swipe);
   }
 
-    //TODO Kamera position in der Map ändern
-    //TODO default kamera wegmachen bei dem ersten Bild ist buggy
-    //TODO height des COntainer bei den Reviews muss angepasst werden 
+  //TODO Kamera position in der Map ändern
+  //TODO default kamera wegmachen bei dem ersten Bild ist buggy
+  //TODO height des COntainer bei den Reviews muss angepasst werden
   @override
   void dispose() {
     //_googleMapController?.dispose(); //TODO: brauch ich das?
@@ -121,7 +126,9 @@ class _MapPageState extends State<MapPage> {
         selectedPlace['business_status'] ?? 'none');
 
     controller.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
-        target: LatLng(selectedPlace['geometry']['location']['lat'] + 0.015,
+        target: LatLng(
+            selectedPlace['geometry']['location']['lat'] +
+                0.015, //TODO: Kamera Position ändern
             selectedPlace['geometry']['location']['lng']),
         zoom: 14.0,
         bearing: 45.0,
@@ -141,12 +148,64 @@ class _MapPageState extends State<MapPage> {
     }
   }
 
+  Future<void> getCurrentLocation() async {
+    bool serviceEnabled;
+    PermissionStatus permissionGranted;
+
+    try {
+      serviceEnabled = await Location().serviceEnabled();
+      if (!serviceEnabled) {
+        serviceEnabled = await Location().requestService();
+        if (!serviceEnabled) {
+          return;
+        }
+      }
+
+      permissionGranted = await Location().hasPermission();
+      if (permissionGranted == PermissionStatus.denied) {
+        permissionGranted = await Location().requestPermission();
+        if (permissionGranted != PermissionStatus.granted) {
+          return;
+        }
+      }
+
+      LocationData currentPosition = await Location().getLocation();
+      var latitude = currentPosition.latitude!;
+      var longitude = currentPosition.longitude!;
+
+      final Uint8List markerIcon = await getBytesFromAsset(
+          'assets/my_location.png',
+          100); //TODO: ICON auf Blau machen, also die PNG Datei ändern
+
+      setState(() {
+        currentLocation = Marker(
+            markerId: const MarkerId('myLocation'),
+            infoWindow: const InfoWindow(
+              title: 'My Current Location',
+            ),
+            position: LatLng(latitude, longitude),
+            icon: BitmapDescriptor.fromBytes(markerIcon));
+      });
+
+      var controller = await _googleMapController.future;
+      controller.animateCamera(
+        CameraUpdate.newCameraPosition(
+          CameraPosition(target: LatLng(latitude, longitude), zoom: 15),
+        ),
+      );
+    } catch (e) {
+      if (kDebugMode) {
+        print(e);
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       extendBody: true,
       appBar: AppBar(
-          centerTitle: false,
+          centerTitle: true,
           title: const Text(
             'Map',
             style: TextStyle(
@@ -155,50 +214,49 @@ class _MapPageState extends State<MapPage> {
             ),
           ),
           backgroundColor: Colors.transparent,
+          bottom: PreferredSize(
+              preferredSize: const Size.fromHeight(1.0),
+              child: Column(
+                children: [
+                  if (_info == null &&
+                      !radiusSlider &&
+                      !pressedNear &&
+                      !cardTapped &&
+                      !isExpanded &&
+                      _destination == null)
+                    Container(
+                      padding: const EdgeInsets.symmetric(),
+                      child: _origin == null
+                          ? const Text(
+                              'Tap to see personilized recomendations \nLong press to set origin and destination',
+                              style: Styles.warningmap,
+                              textAlign: TextAlign.center,
+                            )
+                          : const Text(
+                              'Long press again to set destination',
+                              style: Styles.warningmap,
+                              textAlign: TextAlign.center,
+                            ),
+                    ),
+                ],
+              )),
+          leading: IconButton(
+            icon: const Icon(Icons.my_location, color: Colors.black, size: 30),
+            onPressed: () async {
+              await getCurrentLocation();
+            },
+          ),
           actions: [
-            if (_origin != null)
-              TextButton(
-                  onPressed: () async {
-                    var controller = await _googleMapController.future;
-                    controller.animateCamera(
-                      CameraUpdate.newCameraPosition(
-                        CameraPosition(
-                          target: _origin!.position,
-                          zoom: 14.5,
-                          tilt: 50.0,
-                        ),
-                      ),
-                    );
-                  },
-                  style: TextButton.styleFrom(
-                    foregroundColor: Colors.green,
-                    textStyle: const TextStyle(fontWeight: FontWeight.w600),
-                  ),
-                  child: const Text("Origin")),
-            if (_destination != null)
-              TextButton(
-                  onPressed: () async {
-                    var controller = await _googleMapController.future;
-                    controller.animateCamera(
-                      CameraUpdate.newCameraPosition(
-                        CameraPosition(
-                          target: _destination!.position,
-                          zoom: 14.5,
-                          tilt: 50.0,
-                        ),
-                      ),
-                    );
-                  },
-                  style: TextButton.styleFrom(
-                    foregroundColor: Colors.red,
-                    textStyle: const TextStyle(fontWeight: FontWeight.w600),
-                  ),
-                  child: const Text("Destination")),
             IconButton(
-              icon: const Icon(Icons.search, color: Colors.black, size: 30),
-              onPressed: () {
-                //search in map
+              onPressed: () async {
+                var controller = await _googleMapController.future;
+                controller.animateCamera(
+                  _info != null
+                      ? CameraUpdate.newLatLngBounds(_info!.bounds, 100.0)
+                      : CameraUpdate.newCameraPosition(_initialCameraPosition!),
+                );
               },
+              icon: const Icon(Icons.center_focus_strong),
             ),
           ]),
       body: _initialCameraPosition == null
@@ -226,6 +284,7 @@ class _MapPageState extends State<MapPage> {
                     markers: {
                       if (_origin != null) _origin!,
                       if (_destination != null) _destination!,
+                      if (currentLocation != null) currentLocation!,
                       ..._markers,
                     },
                     polylines: {
@@ -247,40 +306,6 @@ class _MapPageState extends State<MapPage> {
                     },
                   ),
                 ),
-                if (_info == null &&
-                    !radiusSlider &&
-                    !pressedNear &&
-                    !cardTapped &&
-                    !isExpanded &&
-                    _destination == null)
-                  Center(
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 6.0,
-                        horizontal: 12.0,
-                      ),
-                      decoration: BoxDecoration(
-                        color: const ui.Color.fromARGB(255, 208, 206, 206)
-                            .withOpacity(0.8), // TODO: Farbe anpassen
-                        borderRadius: BorderRadius.circular(20.0),
-                        border: Border.all(
-                          color: Colors.black,
-                          width: 2,
-                        ),
-                      ),
-                      child: _origin == null
-                          ? const Text(
-                              'Tap to see personilized recomendations \nLong press to set origin and destination',
-                              style: Styles.warningmap,
-                              textAlign: TextAlign.center,
-                            )
-                          : const Text(
-                              'Long press again to set destination',
-                              style: Styles.warningmap,
-                              textAlign: TextAlign.center,
-                            ),
-                    ),
-                  ),
                 if (_info != null)
                   Positioned(
                     top: 50.0,
@@ -298,54 +323,108 @@ class _MapPageState extends State<MapPage> {
                         '${_info!.totalDistance}, ${_info!.totalDuration}',
                         style: const TextStyle(
                           color: Colors.white,
-                          fontSize: 18.0,
+                          fontSize: 14.0,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
                     ),
                   ),
-                if (_origin != null)
+                if (_origin != null || currentLocation != null)
                   Positioned(
                       top: 90.0,
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           if (_origin != null)
-                            MyButton(
-                                colors: Colors.green,
-                                onTap: () async {
-                                  var controller =
-                                      await _googleMapController.future;
-                                  controller.animateCamera(
-                                    CameraUpdate.newCameraPosition(
-                                      CameraPosition(
-                                        target: _origin!.position,
-                                        zoom: 14.5,
-                                        tilt: 50.0,
+                            Row(
+                              children: [
+                                MySmallButton(
+                                  colors: Colors.green,
+                                  text: "Ori",
+                                  onTap: () async {
+                                    var controller =
+                                        await _googleMapController.future;
+                                    controller.animateCamera(
+                                      CameraUpdate.newCameraPosition(
+                                        CameraPosition(
+                                          target: _origin!.position,
+                                          zoom: 14.5,
+                                          tilt: 50.0,
+                                        ),
                                       ),
-                                    ),
-                                  );
-                                },
-                                text: "Ori"),
-
-                          if (_destination != null)
-                            MyButton(
-                            colors: Colors.red,
-                            onTap: () async {
-                              var controller =
-                                  await _googleMapController.future;
-                              controller.animateCamera(
-                                CameraUpdate.newCameraPosition(
-                                  CameraPosition(
-                                    target: _destination!.position,
-                                    zoom: 14.5,
-                                    tilt: 50.0,
-                                  ),
+                                    );
+                                  },
                                 ),
-                              );
-                            },
-                            text: "Des")
+                                MySmallButton(
+                                  iconData: Icons.close,
+                                  borderColor: Colors.red,
+                                  onTap: () => setState(() => {
+                                        _origin = null,
+                                        _destination = null,
+                                        _info = null,
+                                      }),
+                                ),
+                              ],
+                            ),
+                          if (_destination != null)
+                            Row(
+                              children: [
+                                MySmallButton(
+                                    colors: Colors.red,
+                                    text: "Des",
+                                    onTap: () async {
+                                      var controller =
+                                          await _googleMapController.future;
+                                      controller.animateCamera(
+                                        CameraUpdate.newCameraPosition(
+                                          CameraPosition(
+                                            target: _destination!.position,
+                                            zoom: 14.5,
+                                            tilt: 50.0,
+                                          ),
+                                        ),
+                                      );
+                                    }),
+                                MySmallButton(
+                                  iconData: Icons.close,
+                                  borderColor: Colors.red,
+                                  onTap: () => setState(() => {
+                                        _destination = null,
+                                        _info = null,
+                                      }),
+                                ),
+                              ],
+                            ),
+                          if (currentLocation != null)
+                            Row(
+                              children: [
+                                MySmallButton(
+                                  colors: Colors.blue,
+                                  text: "Cur",
+                                  onTap: () async {
+                                    var controller =
+                                        await _googleMapController.future;
+                                    controller.animateCamera(
+                                      CameraUpdate.newCameraPosition(
+                                        CameraPosition(
+                                          target: currentLocation!.position,
+                                          zoom: 14.5,
+                                          tilt: 50.0,
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
+                                MySmallButton(
+                                  iconData: Icons.close,
+                                  borderColor: Colors.red,
+                                  onTap: () => setState(() => {
+                                        currentLocation = null,
+                                      }),
+                                ),
+                              ],
+                            ),
                         ],
                       )),
                 radiusSlider
@@ -477,6 +556,7 @@ class _MapPageState extends State<MapPage> {
                                 IconButton(
                                     onPressed: () {
                                       setState(() {
+                                        isExpanded = false;
                                         radiusSlider = false;
                                         pressedNear = false;
                                         cardTapped = false;
@@ -621,7 +701,10 @@ class _MapPageState extends State<MapPage> {
                       fit: BoxFit.cover))),
           const SizedBox(height: 15.0),
           Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
-            MyButton(
+            MySmallButton(
+                borderColor: photoGalleryIndex == 0
+                    ? Colors.red
+                    : Colors.green, //TODO: Abstimmen ob das cool ist
                 onTap: () {
                   setState(() {
                     if (photoGalleryIndex != 0) {
@@ -640,7 +723,10 @@ class _MapPageState extends State<MapPage> {
                   fontSize: 12.0,
                   fontWeight: FontWeight.w500),
             ),
-            MyButton(
+            MySmallButton(
+                borderColor: photoGalleryIndex == photoElement.length - 1
+                    ? Colors.red
+                    : Colors.green, //TODO: Abstimmen ob das cool ist
                 onTap: () {
                   setState(() {
                     if (photoGalleryIndex != photoElement.length - 1) {
@@ -812,7 +898,7 @@ class _MapPageState extends State<MapPage> {
       setState(() {
         _origin = Marker(
           markerId: const MarkerId('origin'),
-          infoWindow: const InfoWindow(title: 'Current Location'),
+          infoWindow: const InfoWindow(title: 'Start Location'),
           icon: BitmapDescriptor.defaultMarkerWithHue(
             BitmapDescriptor.hueGreen,
           ),
@@ -1118,7 +1204,7 @@ class _MapPageState extends State<MapPage> {
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceEvenly,
                                 children: [
-                                  MyButton(
+                                  MySmallButton(
                                       onTap: () {
                                         setState(() {
                                           isReviews = true;
@@ -1126,7 +1212,7 @@ class _MapPageState extends State<MapPage> {
                                         });
                                       },
                                       text: 'Review'),
-                                  MyButton(
+                                  MySmallButton(
                                       onTap: () {
                                         setState(() {
                                           isReviews = false;
