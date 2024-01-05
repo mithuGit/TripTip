@@ -24,10 +24,9 @@ class MapPage extends StatefulWidget {
 }
 
 class _MapPageState extends State<MapPage> {
-  //TODO: Das Close / X Button in Slider wird wahrscheinlich von Card überlappt: Einmal mit WidgetInspector durchgehen
-  //TODO: Soll MAP Title lieber in Mitte oder doch lieber ganz links
-  //TODO: CAmera Position bei Card Review etwas höher stellen
-  //TODO: Wenn man marker Place als PNG hat, wird das übersprungen
+  //TODO: Wenn noch Zeit fixen das beim swipe daten in realtime aktualisert werden !!!
+  //TODO: BACK FLIPCARD darf nicht swipen sonst kommt ein Fehler, vor swipen wird back auf front gesetzt.
+
   final Completer<GoogleMapController> _googleMapController = Completer();
   static const key = "AIzaSyBUh4YsufaUkM8XQqdO8TSXKpBf_3dJOmA";
 
@@ -36,14 +35,12 @@ class _MapPageState extends State<MapPage> {
   Marker? currentLocation;
   Directions? _info;
   LatLng? latLng;
-  bool mapIsActiv = true;
   PlaceDetails? placeDetails;
 
   CameraPosition? _initialCameraPosition;
 
-//Marker
+  //Marker
   Set<Marker> _markers = <Marker>{};
-  //Set<Marker> _markersDupe = Set<Marker>();
 
   int markerIdCounter = 1;
 
@@ -59,13 +56,12 @@ class _MapPageState extends State<MapPage> {
 
   //Toggling UI as we need;
   bool radiusSlider = false;
-  bool cardTapped = false;
   bool pressedNear = false;
 
   //page Controller
   late PageController _pageController;
   int prevPage = 0;
-  dynamic tappedPlaceDetail;
+  var tappedPlaceDetail;
   String placeImg = '';
   var photoGalleryIndex = 0;
   bool showBlankCard = false;
@@ -77,7 +73,6 @@ class _MapPageState extends State<MapPage> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     GoogleMapService().getLatLng().then((value) => setState(() {
           latLng = value;
@@ -90,21 +85,14 @@ class _MapPageState extends State<MapPage> {
       ..addListener(_swipe);
   }
 
-  //TODO Kamera position in der Map ändern
-  //TODO default kamera wegmachen bei dem ersten Bild ist buggy
   //TODO height des COntainer bei den Reviews muss angepasst werden
-  @override
-  void dispose() {
-    //_googleMapController?.dispose(); //TODO: brauch ich das?
-    super.dispose();
-  }
 
   void _swipe() {
     if (_pageController.page!.toInt() != prevPage) {
       prevPage = _pageController.page!.toInt();
-      cardTapped = false;
       photoGalleryIndex = 1;
       showBlankCard = false;
+      isExpanded = false;
       goToTappedPlace();
       fetchImage();
     }
@@ -125,12 +113,10 @@ class _MapPageState extends State<MapPage> {
         selectedPlace['business_status'] ?? 'none');
 
     controller.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
-        target: LatLng(
-            selectedPlace['geometry']['location']['lat'] +
-                0.015, //TODO: Kamera Position ändern
+        target: LatLng(selectedPlace['geometry']['location']['lat'] + 0.015,
             selectedPlace['geometry']['location']['lng']),
         zoom: 14.0,
-        bearing: 45.0,
+        bearing: 180.0,
         tilt: 45.0)));
   }
 
@@ -168,7 +154,6 @@ class _MapPageState extends State<MapPage> {
                   if (_info == null &&
                       !radiusSlider &&
                       !pressedNear &&
-                      !cardTapped &&
                       !isExpanded &&
                       _destination == null)
                     Container(
@@ -214,7 +199,6 @@ class _MapPageState extends State<MapPage> {
           ]),
       body: _initialCameraPosition == null
           ? const Column(
-              //TODO: maybe ein Bild mit Animation für Loading Screen
               children: [
                 SizedBox(height: 100),
                 Center(child: CircularProgressIndicator()),
@@ -224,9 +208,9 @@ class _MapPageState extends State<MapPage> {
             )
           : Stack(
               children: [
-                Container(
-                  //height: MediaQuery.of(context).size.height * 0.5,
-                  //width: MediaQuery.of(context).size.width,
+                SizedBox(
+                  height: MediaQuery.of(context).size.height,
+                  width: MediaQuery.of(context).size.width,
                   child: GoogleMap(
                     myLocationButtonEnabled: false,
                     zoomControlsEnabled: false,
@@ -245,7 +229,7 @@ class _MapPageState extends State<MapPage> {
                         Polyline(
                           polylineId: const PolylineId('overview_polyline'),
                           color: Colors.red,
-                          width: 5,
+                          width: 4,
                           points: _info!.polylinePoints
                               .map((e) => LatLng(e.latitude, e.longitude))
                               .toList(),
@@ -382,7 +366,7 @@ class _MapPageState extends State<MapPage> {
                       )),
                 radiusSlider
                     ? Padding(
-                        padding: const EdgeInsets.fromLTRB(15, 30, 15, 0),
+                        padding: const EdgeInsets.fromLTRB(15, 15, 15, 0),
                         child: Align(
                             alignment: Alignment.topRight,
                             child: Container(
@@ -450,8 +434,16 @@ class _MapPageState extends State<MapPage> {
                                                     'not available',
                                               );
                                             }
-                                            //_markersDupe = _markers;
                                             pressedNear = true;
+                                            if (allFavoritePlaces[1]
+                                                    ['photos'] !=
+                                                null) {
+                                              setState(() {
+                                                placeImg = allFavoritePlaces[1]
+                                                        ['photos'][0]
+                                                    ['photo_reference'];
+                                              });
+                                            }
                                           });
                                         },
                                         icon: const Icon(
@@ -512,7 +504,6 @@ class _MapPageState extends State<MapPage> {
                                         isExpanded = false;
                                         radiusSlider = false;
                                         pressedNear = false;
-                                        cardTapped = false;
                                         radiusValue = 3000.0;
                                         _circles = {};
                                         _markers = {};
@@ -642,9 +633,7 @@ class _MapPageState extends State<MapPage> {
           const SizedBox(height: 15.0),
           Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
             MySmallButton(
-                borderColor: photoGalleryIndex == 0
-                    ? Colors.red
-                    : Colors.green, //TODO: Abstimmen ob das cool ist
+                borderColor: photoGalleryIndex == 0 ? Colors.red : Colors.green,
                 onTap: () {
                   setState(() {
                     if (photoGalleryIndex != 0) {
@@ -666,7 +655,7 @@ class _MapPageState extends State<MapPage> {
             MySmallButton(
                 borderColor: photoGalleryIndex == photoElement.length - 1
                     ? Colors.red
-                    : Colors.green, //TODO: Abstimmen ob das cool ist
+                    : Colors.green,
                 onTap: () {
                   setState(() {
                     if (photoGalleryIndex != photoElement.length - 1) {
@@ -916,11 +905,13 @@ class _MapPageState extends State<MapPage> {
             child: GestureDetector(
               onTap: () async {
                 isExpanded = !isExpanded;
-                cardTapped = !cardTapped;
-                if (cardTapped) {
+                goToTappedPlace();
+                if (isExpanded) {
                   tappedPlaceDetail = await GoogleMapService()
                       .getPlace(allFavoritePlaces[index]['place_id']);
-                  setState(() {});
+                  setState(() {
+                    fetchImage();
+                  });
                 }
               },
               child: FlipCard(
@@ -968,11 +959,14 @@ class _MapPageState extends State<MapPage> {
                                               borderRadius:
                                                   BorderRadius.circular(10.0),
                                               image: DecorationImage(
-                                                  image: NetworkImage(placeImg !=
-                                                          ''
-                                                      //TODO erstes bild in map wird nicht angezeigt und immer default kamera
-                                                      ? 'https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=$placeImg&key=$key'
-                                                      : 'https://pic.onlinewebfonts.com/svg/img_546302.png'), //TODO anderes Bild für Default nehmen sonst so ähnlich
+                                                  image: placeImg != ''
+                                                      ? NetworkImage(
+                                                          'https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=$placeImg&key=$key')
+                                                      : Image.asset(
+                                                              height: 80.0,
+                                                              width: 80.0,
+                                                              "assets/no_camera.png")
+                                                          .image,
                                                   fit: BoxFit.cover),
                                               border: Border.all(
                                                 color: Colors.white,
