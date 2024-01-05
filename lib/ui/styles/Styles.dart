@@ -117,7 +117,7 @@ class Styles {
       color: Colors.white);
   static const mapadressformatted = TextStyle(
       fontFamily: 'fonts/Ubuntu-Regular.ttf',
-      fontSize: 14,
+      fontSize: 15,
       fontWeight: FontWeight.bold,
       color: Colors.white);
   static const mapcontact = TextStyle(
@@ -127,7 +127,7 @@ class Styles {
       color: Colors.white);
   static const mapcontactformatted = TextStyle(
       fontFamily: 'fonts/Ubuntu-Regular.ttf',
-      fontSize: 14,
+      fontSize: 15,
       fontWeight: FontWeight.bold,
       color: Colors.white);
   static const mapreviewstext = TextStyle(

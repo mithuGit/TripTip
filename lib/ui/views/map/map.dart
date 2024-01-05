@@ -743,7 +743,7 @@ class _MapPageState extends State<MapPage> {
     } else if (types.contains('health medical')) {
       markerIcon = await GoogleMapService()
           .getBytesFromAsset('assets/map_icon/health-medical.png', 75);
-    } else if (types.contains('hotels')) {
+    } else if (types.contains('hotel')) {
       markerIcon = await GoogleMapService()
           .getBytesFromAsset('assets/map_icon/hotels.png', 75);
     } else if (types.contains('internet')) {
@@ -1022,7 +1022,7 @@ class _MapPageState extends State<MapPage> {
                             ],
                           ),
                           isExpanded
-                              ? const SizedBox(height: 40.0)
+                              ? const SizedBox(height: 30.0)
                               : Container(),
                           isExpanded
                               ? Container(
@@ -1089,7 +1089,49 @@ class _MapPageState extends State<MapPage> {
                                 )
                               : Container(),
                           isExpanded
-                              ? const SizedBox(height: 40.0)
+                              ? Container(
+                                  padding: const EdgeInsets.all(7.0),
+                                  child: Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      const Text(
+                                        'Availability: ',
+                                        style: Styles.mapcontact,
+                                      ),
+                                      SizedBox(
+                                        width: 150.0,
+                                        child: Text(
+                                          allFavoritePlaces[index]
+                                                      ['business_status'] ==
+                                                  'OPERATIONAL'
+                                              ? 'Open '
+                                              : allFavoritePlaces[index]
+                                                          ['business_status'] ==
+                                                      'CLOSED_TEMPORARILY'
+                                                  ? "Closed temporarily"
+                                                  : allFavoritePlaces[index][
+                                                              'business_status'] ==
+                                                          'CLOSED_PERMANENTLY'
+                                                      ? "Closed permanently"
+                                                      : 'None given',
+                                          style: TextStyle(
+                                              color: allFavoritePlaces[index]
+                                                          ['business_status'] ==
+                                                      'OPERATIONAL'
+                                                  ? Colors.green
+                                                  : Colors.red,
+                                              fontSize: 15.0,
+                                              fontWeight: FontWeight.bold,
+                                              fontFamily: 'Ubuntu'),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                )
+                              : Container(),
+                          isExpanded
+                              ? const SizedBox(height: 20.0)
                               : Container(),
                           isExpanded
                               ? MyButton(
