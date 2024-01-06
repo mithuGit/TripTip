@@ -8,6 +8,34 @@ import 'package:http/http.dart' as http;
 import 'dart:convert' as convert;
 import 'package:location/location.dart';
 
+class Place {
+  final String name;
+  final List<dynamic> types;
+  final String primaryType;
+  final LatLng location;
+  final String placeId;
+  final List<dynamic> photos;
+  final String formattedAddress;
+  final String internationalPhoneNumber;
+  final String buisnessStatus;
+  final double rating;
+  final List<dynamic> reviews;
+  get typesString => types.join(", ");
+
+  Place(
+      {required this.name,
+      required this.types,
+      required this.primaryType,
+      required this.location,
+      required this.placeId,
+      required this.photos,
+      required this.formattedAddress,
+      required this.internationalPhoneNumber,
+      required this.buisnessStatus,
+      required this.rating,
+      required this.reviews});
+}
+
 class GoogleMapService {
   static const key = "AIzaSyBUh4YsufaUkM8XQqdO8TSXKpBf_3dJOmA";
 
@@ -19,10 +47,54 @@ class GoogleMapService {
         'https://maps.googleapis.com/maps/api/place/nearbysearch/json?&location=$lat,$lng&radius=$radius&key=$key';
 
     var response = await http.get(Uri.parse(url));
-
     var json = convert.jsonDecode(response.body);
-
     return json;
+  }
+
+  Future<dynamic> getPlacesNew(LatLng coords, int radius) async {
+    var lat = coords.latitude;
+    var lng = coords.longitude;
+
+    const String url = 'https://places.googleapis.com/v1/places:searchNearby';
+
+    var apiRequest = await http.post(Uri.parse(url),
+        body: convert.jsonEncode({
+          "locationRestriction": {
+            "circle": {
+              "center": {"latitude": "$lat", "longitude": "$lng"},
+              "radius": "$radius"
+            }
+          },
+          "maxResultCount": "10",
+        }),
+        headers: {
+          //  "Content-Type": "application/json",
+          // "Accept": "application/json",
+          "X-Goog-Api-Key": key,
+          "X-Goog-FieldMask":
+              "places.displayName,places.types,places.location,places.photos,places.id,places.formattedAddress,places.internationalPhoneNumber,places.businessStatus,places.rating,places.reviews,places.primaryType"
+        });
+    var json = convert.jsonDecode(apiRequest.body);
+
+    List<dynamic> places = json["places"];
+    List<Place> placeList = [];
+    for (var place in places) {
+      placeList.add(Place(
+        name: place["displayName"]["text"],
+        types: place["types"],
+        location: LatLng(
+            place["location"]["latitude"], place["location"]["longitude"]),
+        placeId: place["id"],
+        photos: place["photos"],
+        formattedAddress: place["formattedAddress"] ?? "",
+        internationalPhoneNumber: place["internationalPhoneNumber"] ?? "",
+        buisnessStatus: place["businessStatus"],
+        rating: place["rating"] * 1.0,
+        primaryType: place["primaryType"] ?? "",
+        reviews: place["reviews"],
+      ));
+    }
+    return placeList;
   }
 
   Future<dynamic> getPlaceDetailsType(
@@ -87,7 +159,7 @@ class GoogleMapService {
     return latLng;
   }
 
-  Future<Map<String, dynamic>> getPlace(String? input) async {
+  Future<Map<String, dynamic>> getDetailsForPlace(String? input) async {
     final String url =
         'https://maps.googleapis.com/maps/api/place/details/json?place_id=$input&key=$key';
 

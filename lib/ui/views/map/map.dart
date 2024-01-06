@@ -46,7 +46,7 @@ class _MapPageState extends State<MapPage> {
   int markerIdCounter = 1;
 
   //places
-  List allFavoritePlaces = []; //TODO: Name ändern
+  List<Place> allFavoritePlaces = []; //TODO: Name ändern
   String tokenKey = '';
 
   //Circle
@@ -113,15 +113,14 @@ class _MapPageState extends State<MapPage> {
     var selectedPlace = allFavoritePlaces[_pageController.page!.toInt()];
 
     _setNearMarker(
-      LatLng(selectedPlace['geometry']['location']['lat'],
-          selectedPlace['geometry']['location']['lng']),
-      selectedPlace['name'] ?? 'no name',
-      selectedPlace['types'],
+      LatLng(selectedPlace.location.latitude, selectedPlace.location.longitude),
+      selectedPlace.name,
+      selectedPlace.types,
     );
 
     controller.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
-        target: LatLng(selectedPlace['geometry']['location']['lat'] + 0.015,
-            selectedPlace['geometry']['location']['lng']),
+        target: LatLng(selectedPlace.location.latitude + 0.015,
+            selectedPlace.location.longitude),
         zoom: 14.0,
         bearing: 180.0,
         tilt: 45.0)));
@@ -129,12 +128,9 @@ class _MapPageState extends State<MapPage> {
 
   void fetchImage() async {
     if (_pageController.page != null) {
-      if (allFavoritePlaces[_pageController.page!.toInt()]['photos'] != null) {
-        setState(() {
-          placeImage = allFavoritePlaces[_pageController.page!.toInt()]
-              ['photos'][0]['photo_reference'];
-        });
-      }
+      setState(() {
+        placeImage = allFavoritePlaces[_pageController.page!.toInt()].photos[0]['name'];
+      });
     } else {
       placeImage = '';
     }
@@ -425,91 +421,26 @@ class _MapPageState extends State<MapPage> {
                                           final interests = userCollection
                                               .data()!['interests'];
 
-                                          for (var type in interests) {
-                                            var placesResult =
-                                                await GoogleMapService()
-                                                    .getPlaceDetailsType(
-                                                        tappedPointInCircle,
-                                                        radiusValue.toInt(),
-                                                        type);
-
-                                            List<dynamic> placesWithin =
-                                                placesResult['results'] as List;
-
-                                            allFavoritePlaces
-                                                .addAll(placesWithin);
-
-                                            tokenKey = placesResult[
-                                                    'next_page_token'] ??
-                                                'none';
-
-                                            for (var element in placesWithin) {
-                                              /*  bool isRecommened = getRecommend(
-                                                  element['types']);
-                                              if (isRecommened) { */
-                                              _setNearMarker(
-                                                LatLng(
-                                                    element['geometry']
-                                                        ['location']['lat'],
-                                                    element['geometry']
-                                                        ['location']['lng']),
-                                                element['name'],
-                                                element['types'],
-                                              );
-                                              //}
-                                            }
-                                            // filterDefaultMarker(markers);
-                                          }
-                                          pressToGetRecommend = true;
-                                          if (allFavoritePlaces[1]['photos'] !=
-                                              null) {
-                                            setState(() {
-                                              placeImage = allFavoritePlaces[1]
-                                                      ['photos'][0]
-                                                  ['photo_reference'];
-                                            });
-                                          }
-
-                                          ///AB HIER IST NORMALER CODE
-                                          /*  var placesResult =
+                                          List<Place> places =
                                               await GoogleMapService()
-                                                  .getPlaceDetails(tappedPointInCircle,
+                                                  .getPlacesNew(
+                                                      tappedPointInCircle,
                                                       radiusValue.toInt());
-
-                                          List<dynamic> placesWithin =
-                                              placesResult['results'] as List;
-
-                                          allFavoritePlaces = placesWithin;
-
-                                          tokenKey =
-                                              placesResult['next_page_token'] ??
-                                                  'none';
-                                          markers = {};
-                                          for (var element in placesWithin) {
-                                            /* bool isRecommened =
-                                                getRecommend(element['types']);
-                                            if (isRecommened) { */
+                                          print(places);
+                                          for (var place in places) {
                                             _setNearMarker(
-                                              LatLng(
-                                                  element['geometry']
-                                                      ['location']['lat'],
-                                                  element['geometry']
-                                                      ['location']['lng']),
-                                              element['name'],
-                                              element['types'],
+                                              place.location,
+                                              place.name,
+                                              place.types,
                                             );
-                                            //}
                                           }
-                                          //filterDefaultMarker(markers);
+                                          allFavoritePlaces = places;
                                           pressToGetRecommend = true;
-                                          if (allFavoritePlaces[1]['photos'] !=
-                                              null) {
-                                            setState(() {
-                                              placeImage = allFavoritePlaces[1]
-                                                      ['photos'][0]
-                                                  ['photo_reference'];
-                                            });
-                                          } */
+
+                                          setState(() {
+                                            placeImage =
+                                                places[1].photos[0]['name'];
+                                          });
                                         },
                                         icon: const Icon(
                                           Icons.near_me,
@@ -526,17 +457,14 @@ class _MapPageState extends State<MapPage> {
                                             List<dynamic> placesWithin =
                                                 placesResult['results'] as List;
 
-                                            allFavoritePlaces
-                                                .addAll(placesWithin);
+                                            //   allFavoritePlaces
+                                            //      .addAll(placesWithin);
 
                                             tokenKey = placesResult[
                                                     'next_page_token'] ??
                                                 'none';
 
                                             for (var element in placesWithin) {
-                                              /*  bool isRecommened = getRecommend(
-                                                  element['types']);
-                                              if (isRecommened) { */
                                               _setNearMarker(
                                                 LatLng(
                                                     element['geometry']
@@ -546,9 +474,7 @@ class _MapPageState extends State<MapPage> {
                                                 element['name'],
                                                 element['types'],
                                               );
-                                              //}
                                             }
-                                            // filterDefaultMarker(markers);
                                           } else {
                                             ErrorSnackbar.showErrorSnackbar(
                                                 context,
@@ -959,7 +885,7 @@ class _MapPageState extends State<MapPage> {
                 goToTappedPlace();
                 if (isExpanded) {
                   tappedPlaceDetail = await GoogleMapService()
-                      .getPlace(allFavoritePlaces[index]['place_id']);
+                      .getDetailsForPlace(allFavoritePlaces[index].placeId);
                   setState(() {
                     fetchImage();
                   });
@@ -1044,18 +970,11 @@ class _MapPageState extends State<MapPage> {
                                   SizedBox(
                                     width: 130.0,
                                     height: 50.0,
-                                    child: Text(
-                                        allFavoritePlaces[index]['name'],
+                                    child: Text(allFavoritePlaces[index].name,
                                         style: Styles.maptitle),
                                   ),
                                   RatingStars(
-                                    value: allFavoritePlaces[index]['rating']
-                                                .runtimeType ==
-                                            int
-                                        ? allFavoritePlaces[index]['rating'] *
-                                            1.0
-                                        : allFavoritePlaces[index]['rating'] ??
-                                            0.0,
+                                    value: allFavoritePlaces[index].rating,
                                     starCount: 5,
                                     starSize: 20,
                                     starColor: Colors.white,
@@ -1179,21 +1098,21 @@ class _MapPageState extends State<MapPage> {
                                         width: 150.0,
                                         child: Text(
                                           allFavoritePlaces[index]
-                                                      ['business_status'] ==
+                                                      .buisnessStatus ==
                                                   'OPERATIONAL'
                                               ? 'Open '
                                               : allFavoritePlaces[index]
-                                                          ['business_status'] ==
+                                                          .buisnessStatus ==
                                                       'CLOSED_TEMPORARILY'
                                                   ? "Closed temporarily"
-                                                  : allFavoritePlaces[index][
-                                                              'business_status'] ==
+                                                  : allFavoritePlaces[index]
+                                                              .buisnessStatus ==
                                                           'CLOSED_PERMANENTLY'
                                                       ? "Closed permanently"
                                                       : 'None given',
                                           style: TextStyle(
                                               color: allFavoritePlaces[index]
-                                                          ['business_status'] ==
+                                                          .buisnessStatus ==
                                                       'OPERATIONAL'
                                                   ? Colors.green
                                                   : Colors.red,
@@ -1382,21 +1301,12 @@ class _MapPageState extends State<MapPage> {
                                             width: 130.0,
                                             height: 50.0,
                                             child: Text(
-                                                allFavoritePlaces[index]
-                                                    ['name'],
+                                                allFavoritePlaces[index].name,
                                                 style: Styles.maptitle),
                                           ),
                                           RatingStars(
-                                            value: allFavoritePlaces[index]
-                                                            ['rating']
-                                                        .runtimeType ==
-                                                    int
-                                                ? allFavoritePlaces[index]
-                                                        ['rating'] *
-                                                    1.0
-                                                : allFavoritePlaces[index]
-                                                        ['rating'] ??
-                                                    0.0,
+                                            value:
+                                                allFavoritePlaces[index].rating,
                                             starCount: 5,
                                             starSize: 20,
                                             starColor: Colors.white,
