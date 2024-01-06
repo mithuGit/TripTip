@@ -25,6 +25,21 @@ class GoogleMapService {
     return json;
   }
 
+  Future<dynamic> getPlaceDetailsType(
+      LatLng coords, int radius, String type) async {
+    var lat = coords.latitude;
+    var lng = coords.longitude;
+
+    final String url =
+        'https://maps.googleapis.com/maps/api/place/nearbysearch/json?&location=$lat,$lng&radius=$radius&type=$type&key=$key';
+
+    var response = await http.get(Uri.parse(url));
+
+    var json = convert.jsonDecode(response.body);
+
+    return json;
+  }
+
   Future<dynamic> getMorePlaceDetails(String token) async {
     final String url =
         'https://maps.googleapis.com/maps/api/place/nearbysearch/json?&pagetoken=$token&key=$key';

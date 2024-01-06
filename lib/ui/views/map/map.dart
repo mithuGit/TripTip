@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flip_card/flip_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -24,9 +26,9 @@ class MapPage extends StatefulWidget {
 }
 
 class _MapPageState extends State<MapPage> {
+  
   //TODO: Wenn noch Zeit fixen das beim swipe daten in realtime aktualisert werden !!!
-  //TODO: BACK FLIPCARD darf nicht swipen sonst kommt ein Fehler, vor swipen wird back auf front gesetzt.
-  //TODO autoklicker bei den Swipes d,h, damit GestureDetector von allein getriggert wird
+  
   final Completer<GoogleMapController> _googleMapController = Completer();
   static const key = "AIzaSyBUh4YsufaUkM8XQqdO8TSXKpBf_3dJOmA";
 
@@ -40,11 +42,9 @@ class _MapPageState extends State<MapPage> {
   CameraPosition? _initialCameraPosition;
 
   //Marker
-  Set<Marker> _markers = <Marker>{};
+  Set<Marker> markers = <Marker>{};
 
   int markerIdCounter = 1;
-
-  //TODO
 
   //places
   List allFavoritePlaces = []; //TODO: Name ändern
@@ -53,17 +53,19 @@ class _MapPageState extends State<MapPage> {
   //Circle
   Set<Circle> _circles = <Circle>{};
   var radiusValue = 3000.0;
-  dynamic tappedPoint; //TODO: Name ändern
+  dynamic tappedPointInCircle; 
 
   //Toggling UI as we need;
   bool radiusSlider = false;
-  bool pressedNear = false; //TODO: Name ändern
+  
+  bool pressToGetRecommend = false; 
 
   //page Controller
   late PageController _pageController;
-  int prevPage = 0; //TODO: Name ändern
-  var tappedPlaceDetail;
-  String placeImg = '';
+  int previewCard = 0; 
+  dynamic tappedPlaceDetail;
+  
+  String placeImage = '';
   var photoGalleryIndex = 0;
   bool showBlankCard = false;
   bool isReviews = true;
@@ -94,8 +96,8 @@ class _MapPageState extends State<MapPage> {
   }
 
   void _swipe() {
-    if (_pageController.page!.toInt() != prevPage) {
-      prevPage = _pageController.page!.toInt();
+    if (_pageController.page!.toInt() != previewCard) {
+      previewCard = _pageController.page!.toInt();
       photoGalleryIndex = 1;
       showBlankCard = false;
       isExpanded = false;
@@ -107,7 +109,7 @@ class _MapPageState extends State<MapPage> {
   Future<void> goToTappedPlace() async {
     final GoogleMapController controller = await _googleMapController.future;
 
-    _markers = {};
+    markers = {};
 
     var selectedPlace = allFavoritePlaces[_pageController.page!.toInt()];
 
@@ -130,12 +132,12 @@ class _MapPageState extends State<MapPage> {
     if (_pageController.page != null) {
       if (allFavoritePlaces[_pageController.page!.toInt()]['photos'] != null) {
         setState(() {
-          placeImg = allFavoritePlaces[_pageController.page!.toInt()]['photos']
+          placeImage = allFavoritePlaces[_pageController.page!.toInt()]['photos']
               [0]['photo_reference'];
         });
       }
     } else {
-      placeImg = '';
+      placeImage = '';
     }
   }
 
@@ -159,7 +161,7 @@ class _MapPageState extends State<MapPage> {
                 children: [
                   if (infoDistanceAndDuration == null &&
                       !radiusSlider &&
-                      !pressedNear &&
+                      !pressToGetRecommend &&
                       !isExpanded &&
                       destination == null)
                     Container(
@@ -229,7 +231,7 @@ class _MapPageState extends State<MapPage> {
                       if (origin != null) origin!,
                       if (destination != null) destination!,
                       if (currentLocation != null) currentLocation!,
-                      ..._markers,
+                      ...markers,
                     },
                     polylines: {
                       if (infoDistanceAndDuration != null)
@@ -245,7 +247,7 @@ class _MapPageState extends State<MapPage> {
                     onLongPress: _addMarker,
                     circles: _circles,
                     onTap: (point) {
-                      tappedPoint = point;
+                      tappedPointInCircle = point;
                       _setCircle(point);
                     },
                   ),
@@ -396,20 +398,83 @@ class _MapPageState extends State<MapPage> {
                                     onChanged: (newValue) {
                                       setState(() {
                                         radiusValue = newValue;
-                                        pressedNear = false;
-                                        if (tappedPoint != null) {
-                                          _setCircle(tappedPoint!);
+                                        pressToGetRecommend = false;
+                                        if (tappedPointInCircle != null) {
+                                          _setCircle(tappedPointInCircle!);
                                         }
                                       });
                                     },
                                   ),
                                 )),
-                                !pressedNear
+                                !pressToGetRecommend
                                     ? IconButton(
                                         onPressed: () async {
-                                          var placesResult =
+                                          final user = FirebaseAuth
+                                              .instance.currentUser!;
+                                          final userCollection =
+                                              await FirebaseFirestore.instance
+                                                  .collection('users')
+                                                  .doc(user.uid)
+                                                  .get();
+
+                                          if (userCollection.exists == false) {
+                                            return ErrorSnackbar
+                                                .showErrorSnackbar(context,
+                                                    "No interests selected");
+                                          }
+
+                                          final interests = userCollection
+                                              .data()!['interests'];
+
+                                          for (var type in interests) {
+                                            var placesResult =
+                                                await GoogleMapService()
+                                                    .getPlaceDetailsType(
+                                                        tappedPointInCircle,
+                                                        radiusValue.toInt(),
+                                                        type);
+
+                                            List<dynamic> placesWithin =
+                                                placesResult['results'] as List;
+
+                                            allFavoritePlaces
+                                                .addAll(placesWithin);
+
+                                            tokenKey = placesResult[
+                                                    'next_page_token'] ??
+                                                'none';
+
+                                            for (var element in placesWithin) {
+                                              /*  bool isRecommened = getRecommend(
+                                                  element['types']);
+                                              if (isRecommened) { */
+                                              _setNearMarker(
+                                                LatLng(
+                                                    element['geometry']
+                                                        ['location']['lat'],
+                                                    element['geometry']
+                                                        ['location']['lng']),
+                                                element['name'],
+                                                element['types'],
+                                              );
+                                              //}
+                                            }
+                                            // filterDefaultMarker(markers);
+                                          }
+                                          pressToGetRecommend = true;
+                                          if (allFavoritePlaces[1]['photos'] !=
+                                              null) {
+                                            setState(() {
+                                              placeImage = allFavoritePlaces[1]
+                                                      ['photos'][0]
+                                                  ['photo_reference'];
+                                            });
+                                          }
+
+                                          ///AB HIER IST NORMALER CODE
+                                          /*  var placesResult =
                                               await GoogleMapService()
-                                                  .getPlaceDetails(tappedPoint,
+                                                  .getPlaceDetails(tappedPointInCircle,
                                                       radiusValue.toInt());
 
                                           List<dynamic> placesWithin =
@@ -420,7 +485,7 @@ class _MapPageState extends State<MapPage> {
                                           tokenKey =
                                               placesResult['next_page_token'] ??
                                                   'none';
-                                          _markers = {};
+                                          markers = {};
                                           for (var element in placesWithin) {
                                             /* bool isRecommened =
                                                 getRecommend(element['types']);
@@ -436,16 +501,16 @@ class _MapPageState extends State<MapPage> {
                                             );
                                             //}
                                           }
-                                          //filterDefaultMarker(_markers);
-                                          pressedNear = true;
+                                          //filterDefaultMarker(markers);
+                                          pressToGetRecommend = true;
                                           if (allFavoritePlaces[1]['photos'] !=
                                               null) {
                                             setState(() {
-                                              placeImg = allFavoritePlaces[1]
+                                              placeImage = allFavoritePlaces[1]
                                                       ['photos'][0]
                                                   ['photo_reference'];
                                             });
-                                          }
+                                          } */
                                         },
                                         icon: const Icon(
                                           Icons.near_me,
@@ -484,7 +549,7 @@ class _MapPageState extends State<MapPage> {
                                               );
                                               //}
                                             }
-                                            // filterDefaultMarker(_markers);
+                                            // filterDefaultMarker(markers);
                                           } else {
                                             ErrorSnackbar.showErrorSnackbar(
                                                 context,
@@ -498,10 +563,10 @@ class _MapPageState extends State<MapPage> {
                                       setState(() {
                                         isExpanded = false;
                                         radiusSlider = false;
-                                        pressedNear = false;
+                                        pressToGetRecommend = false;
                                         radiusValue = 3000.0;
                                         _circles = {};
-                                        _markers = {};
+                                        markers = {};
                                         allFavoritePlaces = [];
                                       });
                                     },
@@ -510,7 +575,7 @@ class _MapPageState extends State<MapPage> {
                               ]),
                             )))
                     : Container(),
-                pressedNear
+                pressToGetRecommend
                     ? Positioned(
                         bottom: 20.0,
                         child: SizedBox(
@@ -607,7 +672,7 @@ class _MapPageState extends State<MapPage> {
         ),
       );
     } else {
-      var placeImg = photoElement[photoGalleryIndex]['photo_reference'];
+      var placeImage = photoElement[photoGalleryIndex]['photo_reference'];
       var maxWidth = photoElement[photoGalleryIndex]['width'];
       var maxHeight = photoElement[photoGalleryIndex]['height'];
       var tempDisplayIndex = photoGalleryIndex + 1;
@@ -622,7 +687,7 @@ class _MapPageState extends State<MapPage> {
                   borderRadius: BorderRadius.circular(10.0),
                   image: DecorationImage(
                       image: NetworkImage(
-                          'https://maps.googleapis.com/maps/api/place/photo?maxwidth=$maxWidth&maxheight=$maxHeight&photo_reference=$placeImg&key=$key'),
+                          'https://maps.googleapis.com/maps/api/place/photo?maxwidth=$maxWidth&maxheight=$maxHeight&photo_reference=$placeImage&key=$key'),
                       fit: BoxFit.cover))),
           const SizedBox(height: 15.0),
           Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
@@ -724,10 +789,13 @@ class _MapPageState extends State<MapPage> {
     } else if (types.contains('food')) {
       markerIcon = await GoogleMapService()
           .getBytesFromAsset('assets/map_icon/food.png', 75);
-    } else if (types.contains('health') || types.contains('hospital')) {
+    } /* else if (types.contains('health') || types.contains('hospital')) { //TODO: Gym zählt auch ins health medical
+    //WIE problem BEHEBEN ?? da es nicht nur health medical ist
+    //z.B. bei Health medical zählt auch gym mit dazu aber wird nur als health medical png angezeigt statt ein eigenes gym png
       markerIcon = await GoogleMapService()
           .getBytesFromAsset('assets/map_icon/health-medical.png', 75);
-    } else if (types.contains('lodging')) {
+    }  */
+    else if (types.contains('lodging')) {
       markerIcon = await GoogleMapService()
           .getBytesFromAsset('assets/map_icon/hotels.png', 75);
     } else if (types.contains('library') || types.contains('book_store')) {
@@ -799,7 +867,7 @@ class _MapPageState extends State<MapPage> {
         icon: BitmapDescriptor.fromBytes(markerIcon));
 
     setState(() {
-      _markers.add(marker);
+      markers.add(marker);
     });
   }
 
@@ -900,7 +968,6 @@ class _MapPageState extends State<MapPage> {
               },
               child: FlipCard(
                 //TODO: vlt die FlipDirection auf Vertoical ändern tim entscheidet
-
                 flipOnTouch: isExpanded ? true : false,
                 front: AnimatedContainer(
                   duration: const Duration(milliseconds: 500),
@@ -946,9 +1013,9 @@ class _MapPageState extends State<MapPage> {
                                               borderRadius:
                                                   BorderRadius.circular(10.0),
                                               image: DecorationImage(
-                                                  image: placeImg != ''
+                                                  image: placeImage != ''
                                                       ? NetworkImage(
-                                                          'https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=$placeImg&key=$key')
+                                                          'https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=$placeImage&key=$key')
                                                       : Image.asset(
                                                               height: 80.0,
                                                               width: 80.0,
@@ -1194,7 +1261,9 @@ class _MapPageState extends State<MapPage> {
                   ),
                   child: SingleChildScrollView(
                     child: Padding(
-                      padding: const EdgeInsets.all(8),
+                      padding: isExpanded
+                          ? const EdgeInsets.all(8)
+                          : EdgeInsets.zero,
                       child: isExpanded
                           ? Column(
                               children: [
@@ -1257,7 +1326,111 @@ class _MapPageState extends State<MapPage> {
                                     : Container(),
                               ],
                             )
-                          : Container(),
+                          : Padding(
+                              // Here is the back side of the FlipCard, which is not expanded. It is exactly the same as the front (not expanded) side.
+                              padding: const EdgeInsets.only(
+                                  left: 18, right: 18, top: 18, bottom: 16),
+                              child: Column(
+                                children: [
+                                  Row(
+                                    children: [
+                                      _pageController.position.haveDimensions
+                                          ? _pageController.page!.toInt() ==
+                                                  index
+                                              ? Container(
+                                                  height: 90.0,
+                                                  width: 90.0,
+                                                  decoration: BoxDecoration(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              10.0),
+                                                      image: DecorationImage(
+                                                          image: placeImage != ''
+                                                              ? NetworkImage(
+                                                                  'https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=$placeImage&key=$key')
+                                                              : Image.asset(
+                                                                      height:
+                                                                          80.0,
+                                                                      width:
+                                                                          80.0,
+                                                                      "assets/no_camera.png")
+                                                                  .image,
+                                                          fit: BoxFit.cover),
+                                                      border: Border.all(
+                                                        color: Colors.white,
+                                                        width: 4,
+                                                      )),
+                                                )
+                                              : Container(
+                                                  height: 90.0,
+                                                  width: 10.0,
+                                                  decoration: BoxDecoration(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              5.0),
+                                                      color: Colors.white),
+                                                )
+                                          : Container(),
+                                      const SizedBox(width: 15.0),
+                                      Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceEvenly,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          SizedBox(
+                                            width: 130.0,
+                                            height: 50.0,
+                                            child: Text(
+                                                allFavoritePlaces[index]
+                                                    ['name'],
+                                                style: Styles.maptitle),
+                                          ),
+                                          RatingStars(
+                                            value: allFavoritePlaces[index]
+                                                            ['rating']
+                                                        .runtimeType ==
+                                                    int
+                                                ? allFavoritePlaces[index]
+                                                        ['rating'] *
+                                                    1.0
+                                                : allFavoritePlaces[index]
+                                                        ['rating'] ??
+                                                    0.0,
+                                            starCount: 5,
+                                            starSize: 20,
+                                            starColor: Colors.white,
+                                            starOffColor:
+                                                const Color(0xff9b9b9b),
+                                            valueLabelColor:
+                                                const Color(0xff9b9b9b),
+                                            valueLabelTextStyle:
+                                                const TextStyle(
+                                                    color: Colors.white,
+                                                    fontFamily: 'WorkSans',
+                                                    fontWeight: FontWeight.w400,
+                                                    fontStyle: FontStyle.normal,
+                                                    fontSize: 12.0),
+                                            valueLabelRadius: 10,
+                                            maxValue: 5,
+                                            starSpacing: 2,
+                                            maxValueVisibility: false,
+                                            valueLabelVisibility: false,
+                                            animationDuration: const Duration(
+                                                milliseconds: 3000),
+                                            valueLabelPadding:
+                                                const EdgeInsets.symmetric(
+                                                    vertical: 1, horizontal: 8),
+                                            valueLabelMargin:
+                                                const EdgeInsets.only(right: 8),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
                     ),
                   ),
                 ),
