@@ -26,9 +26,8 @@ class MapPage extends StatefulWidget {
 }
 
 class _MapPageState extends State<MapPage> {
-  
   //TODO: Wenn noch Zeit fixen das beim swipe daten in realtime aktualisert werden !!!
-  
+
   final Completer<GoogleMapController> _googleMapController = Completer();
   static const key = "AIzaSyBUh4YsufaUkM8XQqdO8TSXKpBf_3dJOmA";
 
@@ -53,18 +52,18 @@ class _MapPageState extends State<MapPage> {
   //Circle
   Set<Circle> _circles = <Circle>{};
   var radiusValue = 3000.0;
-  dynamic tappedPointInCircle; 
+  dynamic tappedPointInCircle;
 
   //Toggling UI as we need;
   bool radiusSlider = false;
-  
-  bool pressToGetRecommend = false; 
+
+  bool pressToGetRecommend = false;
 
   //page Controller
   late PageController _pageController;
-  int previewCard = 0; 
+  int previewCard = 0;
   dynamic tappedPlaceDetail;
-  
+
   String placeImage = '';
   var photoGalleryIndex = 0;
   bool showBlankCard = false;
@@ -132,8 +131,8 @@ class _MapPageState extends State<MapPage> {
     if (_pageController.page != null) {
       if (allFavoritePlaces[_pageController.page!.toInt()]['photos'] != null) {
         setState(() {
-          placeImage = allFavoritePlaces[_pageController.page!.toInt()]['photos']
-              [0]['photo_reference'];
+          placeImage = allFavoritePlaces[_pageController.page!.toInt()]
+              ['photos'][0]['photo_reference'];
         });
       }
     } else {
@@ -1345,7 +1344,8 @@ class _MapPageState extends State<MapPage> {
                                                           BorderRadius.circular(
                                                               10.0),
                                                       image: DecorationImage(
-                                                          image: placeImage != ''
+                                                          image: placeImage !=
+                                                                  ''
                                                               ? NetworkImage(
                                                                   'https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=$placeImage&key=$key')
                                                               : Image.asset(
