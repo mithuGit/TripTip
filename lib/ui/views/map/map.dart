@@ -112,11 +112,11 @@ class _MapPageState extends State<MapPage> {
     var selectedPlace = allFavoritePlaces[_pageController.page!.toInt()];
 
     _setNearMarker(
-        LatLng(selectedPlace['geometry']['location']['lat'],
-            selectedPlace['geometry']['location']['lng']),
-        selectedPlace['name'] ?? 'no name',
-        selectedPlace['types'],
-        selectedPlace['business_status'] ?? 'none');
+      LatLng(selectedPlace['geometry']['location']['lat'],
+          selectedPlace['geometry']['location']['lng']),
+      selectedPlace['name'] ?? 'no name',
+      selectedPlace['types'],
+    );
 
     controller.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
         target: LatLng(selectedPlace['geometry']['location']['lat'] + 0.015,
@@ -433,8 +433,6 @@ class _MapPageState extends State<MapPage> {
                                                       ['location']['lng']),
                                               element['name'],
                                               element['types'],
-                                              element['business_status'] ??
-                                                  'not available',
                                             );
                                             //}
                                           }
@@ -483,8 +481,6 @@ class _MapPageState extends State<MapPage> {
                                                         ['location']['lng']),
                                                 element['name'],
                                                 element['types'],
-                                                element['business_status'] ??
-                                                    'not available',
                                               );
                                               //}
                                             }
@@ -686,7 +682,7 @@ class _MapPageState extends State<MapPage> {
     });
   }
 
-  _setNearMarker(LatLng point, String label, List types, String status) async {
+  _setNearMarker(LatLng point, String name, List types) async {
     var counter = markerIdCounter++;
 
     final Uint8List markerIcon;
@@ -694,143 +690,110 @@ class _MapPageState extends State<MapPage> {
     if (types.contains('bar')) {
       markerIcon = await GoogleMapService()
           .getBytesFromAsset('assets/map_icon/bars.png', 75);
-    } else if (types.contains('breakfast')) {
-      markerIcon = await GoogleMapService()
-          .getBytesFromAsset('assets/map_icon/breakfast-n-brunch.png', 75);
     } else if (types.contains('bakery')) {
       markerIcon = await GoogleMapService()
           .getBytesFromAsset('assets/map_icon/cake-shop.png', 75);
-    } else if (types.contains('clothings')) {
+    } else if (types.contains('clothing_store')) {
       markerIcon = await GoogleMapService()
           .getBytesFromAsset('assets/map_icon/clothings.png', 75);
-    } else if (types.contains('clubs')) {
-      markerIcon = await GoogleMapService()
-          .getBytesFromAsset('assets/map_icon/clubs.png', 75);
     } else if (types.contains('cafe')) {
       markerIcon = await GoogleMapService()
           .getBytesFromAsset('assets/map_icon/coffee-n-tea.png', 75);
-    } else if (types.contains('commercial ')) {
-      markerIcon = await GoogleMapService()
-          .getBytesFromAsset('assets/map_icon/commercial-places.png', 75);
-    } else if (types.contains('computers ')) {
+    } else if (types.contains('electronics_store')) {
       markerIcon = await GoogleMapService()
           .getBytesFromAsset('assets/map_icon/computers.png', 75);
-    } else if (types.contains('concerts')) {
-      markerIcon = await GoogleMapService()
-          .getBytesFromAsset('assets/map_icon/concerts.png', 75);
-    } else if (types.contains('dance clubs')) {
+    } else if (types.contains('night_club')) {
       markerIcon = await GoogleMapService()
           .getBytesFromAsset('assets/map_icon/dance-clubs.png', 75);
     } else if (types.contains('doctor')) {
       markerIcon = await GoogleMapService()
           .getBytesFromAsset('assets/map_icon/doctors.png', 75);
-    } else if (types.contains('entertainment ')) {
+    } else if (types.contains('bowling_alley ') ||
+        types.contains('zoo') ||
+        types.contains('amusement_park')) {
       markerIcon = await GoogleMapService()
-          .getBytesFromAsset('assets/map_icon/entertainment.png', 75);
-    } else if (types.contains('event')) {
-      markerIcon = await GoogleMapService()
-          .getBytesFromAsset('assets/map_icon/event.png', 75);
-    } else if (types.contains('exhibitions ')) {
+          .getBytesFromAsset('assets/map_icon/karaoke.png', 75);
+    } else if (types.contains('art_gallery ')) {
       markerIcon = await GoogleMapService()
           .getBytesFromAsset('assets/map_icon/exhibitions.png', 75);
-    } else if (types.contains('fashion')) {
-      markerIcon = await GoogleMapService()
-          .getBytesFromAsset('assets/map_icon/fashion.png', 75);
-    } else if (types.contains('festivals')) {
-      markerIcon = await GoogleMapService()
-          .getBytesFromAsset('assets/map_icon/festivals.png', 75);
-    } else if (types.contains('financial ')) {
+    } else if (types.contains('bank') ||
+        types.contains('atm') ||
+        types.contains('finance')) {
       markerIcon = await GoogleMapService()
           .getBytesFromAsset('assets/map_icon/financial-services.png', 75);
     } else if (types.contains('food')) {
       markerIcon = await GoogleMapService()
           .getBytesFromAsset('assets/map_icon/food.png', 75);
-    } else if (types.contains('games')) {
-      markerIcon = await GoogleMapService()
-          .getBytesFromAsset('assets/map_icon/games.png', 75);
-    } else if (types.contains('halloween')) {
-      markerIcon = await GoogleMapService()
-          .getBytesFromAsset('assets/map_icon/halloween.png', 75);
-    } else if (types.contains('health medical')) {
+    } else if (types.contains('health') || types.contains('hospital')) {
       markerIcon = await GoogleMapService()
           .getBytesFromAsset('assets/map_icon/health-medical.png', 75);
     } else if (types.contains('lodging')) {
       markerIcon = await GoogleMapService()
           .getBytesFromAsset('assets/map_icon/hotels.png', 75);
-    } else if (types.contains('internet')) {
-      markerIcon = await GoogleMapService()
-          .getBytesFromAsset('assets/map_icon/internet.png', 75);
-    } else if (types.contains('karaoke')) {
-      markerIcon = await GoogleMapService()
-          .getBytesFromAsset('assets/map_icon/karaoke.png', 75);
-    } else if (types.contains('libraries')) {
+    } else if (types.contains('library') || types.contains('book_store')) {
       markerIcon = await GoogleMapService()
           .getBytesFromAsset('assets/map_icon/libraries.png', 75);
-    } else if (types.contains('massage')) {
+    } else if (types.contains('spa')) {
       markerIcon = await GoogleMapService()
           .getBytesFromAsset('assets/map_icon/massage-therapy.png', 75);
-    } else if (types.contains('medical')) {
+    } else if (types.contains('pharmacy') ||
+        types.contains("physiotherapist")) {
       markerIcon = await GoogleMapService()
           .getBytesFromAsset('assets/map_icon/medical.png', 75);
-    } else if (types.contains('medical')) {
-      markerIcon = await GoogleMapService()
-          .getBytesFromAsset('assets/map_icon/medical.png', 75);
-    } else if (types.contains('movies')) {
+    } else if (types.contains('movie_rental') ||
+        types.contains('movie_theater')) {
       markerIcon = await GoogleMapService()
           .getBytesFromAsset('assets/map_icon/movies.png', 75);
-    } else if (types.contains('museums')) {
+    } else if (types.contains('museum')) {
       markerIcon = await GoogleMapService()
           .getBytesFromAsset('assets/map_icon/museums.png', 75);
-    } else if (types.contains('nightlife ')) {
-      markerIcon = await GoogleMapService()
-          .getBytesFromAsset('assets/map_icon/nightlife.png', 75);
-    } else if (types.contains('parties')) {
-      markerIcon = await GoogleMapService()
-          .getBytesFromAsset('assets/map_icon/parties.png', 75);
-    } else if (types.contains('pizza')) {
-      markerIcon = await GoogleMapService()
-          .getBytesFromAsset('assets/map_icon/pizza.png', 75);
-    } /* else if (types.contains('places')) {
+    } else if (types.contains('park')) {
       markerIcon = await GoogleMapService()
           .getBytesFromAsset('assets/map_icon/places.png', 75);
-    } */
-    else if (types.contains('pool haals')) {
-      markerIcon = await GoogleMapService()
-          .getBytesFromAsset('assets/map_icon/pool-haals.png', 75);
-    } else if (types.contains('restaurants')) {
+    } else if (types.contains('restaurant')) {
       markerIcon = await GoogleMapService()
           .getBytesFromAsset('assets/map_icon/restaurants.png', 75);
-    } else if (types.contains('store')) {
+    } else if (types.contains('store') || types.contains('shoe_store')) {
       markerIcon = await GoogleMapService()
           .getBytesFromAsset('assets/map_icon/retail-stores.png', 75);
-    } else if (types.contains('saloon')) {
+    } else if (types.contains('beauty_salon') || types.contains('hair_care')) {
       markerIcon = await GoogleMapService()
           .getBytesFromAsset('assets/map_icon/saloon.png', 75);
-    } else if (types.contains('school')) {
+    } else if (types.contains('school') ||
+        types.contains('secondary_school') ||
+        types.contains('university')) {
       markerIcon = await GoogleMapService()
           .getBytesFromAsset('assets/map_icon/schools.png', 75);
-    } else if (types.contains('shopping')) {
+    } else if (types.contains('supermarket') ||
+        types.contains('convenience_store') ||
+        types.contains('shopping_mall')) {
       markerIcon = await GoogleMapService()
           .getBytesFromAsset('assets/map_icon/shopping.png', 75);
-    } else if (types.contains('gym')) {
+    } else if (types.contains('gym') || types.contains('stadium')) {
       markerIcon = await GoogleMapService()
           .getBytesFromAsset('assets/map_icon/sports.png', 75);
-    } else if (types.contains('swimming pools')) {
-      markerIcon = await GoogleMapService()
-          .getBytesFromAsset('assets/map_icon/swimming-pools.png', 75);
-    } else if (types.contains('tickets')) {
+    } else if (types.contains('train_station') ||
+        types.contains('travel_agency')) {
       markerIcon = await GoogleMapService()
           .getBytesFromAsset('assets/map_icon/tickets.png', 75);
-    } else if (types.contains('tours')) {
+    } else if (types.contains('tourist_attraction')) {
       markerIcon = await GoogleMapService()
           .getBytesFromAsset('assets/map_icon/tours.png', 75);
+    } else if (types.contains('mosque') ||
+        types.contains('church') ||
+        types.contains('hindu_temple') ||
+        types.contains('synagogue') ||
+        types.contains('place_of_worship')) {
+      markerIcon = await GoogleMapService()
+          .getBytesFromAsset('assets/map_icon/religious.png', 75);
     } else {
       markerIcon = await GoogleMapService()
-          .getBytesFromAsset('assets/map_icon/places.png', 75);
+          .getBytesFromAsset('assets/map_icon/default.png', 75);
     }
 
     final Marker marker = Marker(
         markerId: MarkerId('marker_$counter'),
+        infoWindow: InfoWindow(title: name),
         position: point,
         onTap: () {},
         icon: BitmapDescriptor.fromBytes(markerIcon));
@@ -843,7 +806,7 @@ class _MapPageState extends State<MapPage> {
   Future<void> filterDefaultMarker(Set<Marker> markers) async {
     //TODO: Funktioniert noch nicht, es soll die default marker entfernen
     Uint8List markerIcon = await GoogleMapService()
-        .getBytesFromAsset('assets/map_icon/places.png', 75);
+        .getBytesFromAsset('assets/map_icon/default.png', 75);
 
     for (var element in markers) {
       if (element.icon == BitmapDescriptor.fromBytes(markerIcon)) {
