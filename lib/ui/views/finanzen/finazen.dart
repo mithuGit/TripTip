@@ -32,7 +32,7 @@ class _FinanzenState extends State<Finanzen> {
     List<DocumentSnapshot> groupmembersSnaps = [];
     for (int i = 0; i < groupmembers.length; i++) {
       groupmembersSnaps
-          .add(await firestore.collection("users").doc(groupmembers[i]).get());
+          .add(await groupmembers[i].get());
     }
     return groupmembersSnaps;
   }
