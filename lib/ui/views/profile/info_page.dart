@@ -44,7 +44,7 @@ class InfoPage extends StatelessWidget {
                     CharakterContainer(
                       name: "Thai Binh Nguyen",
                       description: "Co Founder, CEO",
-                      link: "https://pub.dev/packages/url_launcher",
+                      link: "https://www.linkedin.com/in/thai-binh-nguyen-454951224/",
                       image: "assets/character_pic/thai.png",
                       color: Colors.purple,
                     ),

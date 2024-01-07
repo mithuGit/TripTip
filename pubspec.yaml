@@ -118,6 +118,7 @@ flutter:
     - assets/votingbutton_pic/
     - assets/character_pic/
     - assets/map_icon/
+    - assets/interests_pic/
 
   fonts:
     - family: Ubuntu

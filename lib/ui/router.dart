@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:internet_praktikum/ui/views/account/account_details.dart';
+import 'package:internet_praktikum/ui/views/account/setInterestsPage.dart';
 import 'package:internet_praktikum/ui/views/dashboard/readDiary.dart';
 import 'package:internet_praktikum/ui/views/dashboard/writeDiary.dart';
 import 'package:internet_praktikum/ui/views/finanzen/creditcard.dart';
@@ -38,7 +39,9 @@ class MyRouter {
       GlobalKey<NavigatorState>(debugLabel: 'shellProfile');
 
   static final router = GoRouter(
-    initialLocation: '/',
+
+    //TODO einfach nur ein / am anfang 
+    initialLocation: '/setinterests',
     navigatorKey: _rootNavigatorKey,
     routes: <RouteBase>[
       // HomePage Route
@@ -193,6 +196,13 @@ class MyRouter {
         builder: (context, state) => Account(
           key: state.pageKey,
           isEditProfile: true,
+        ),
+      ),
+      GoRoute(
+        name: 'setInterests',
+        path: '/setinterests',
+        builder: (context, state) => SetInterestsPage(
+          key: state.pageKey,
         ),
       ),
       GoRoute(

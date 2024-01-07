@@ -12,8 +12,8 @@ import 'package:internet_praktikum/ui/views/map/directions_repository.dart';
 import 'package:internet_praktikum/core/services/map_service.dart';
 import 'package:internet_praktikum/ui/widgets/bottom_sheet.dart';
 import 'package:internet_praktikum/ui/widgets/dashboardWidgets/createNewWidgetOnDashboard.dart';
-import 'package:internet_praktikum/ui/widgets/errorSnackbar.dart';
 import 'package:flutter_rating_stars/flutter_rating_stars.dart';
+import 'package:internet_praktikum/ui/widgets/errorSnackbar.dart';
 import 'package:internet_praktikum/ui/widgets/mapWidgets/smallButton.dart';
 import 'package:internet_praktikum/ui/widgets/my_button.dart';
 //import 'package:internet_praktikum/ui/widgets/inputfield_search_lookahead.dart';
@@ -29,7 +29,6 @@ class _MapPageState extends State<MapPage> {
   //TODO: Wenn noch Zeit fixen das beim swipe daten in realtime aktualisert werden !!!
 
   final Completer<GoogleMapController> _googleMapController = Completer();
-  static const key = "AIzaSyBUh4YsufaUkM8XQqdO8TSXKpBf_3dJOmA";
 
   Marker? origin;
   Marker? destination;
@@ -62,7 +61,6 @@ class _MapPageState extends State<MapPage> {
   //page Controller
   late PageController _pageController;
   int previewCard = 0;
-  dynamic tappedPlaceDetail;
 
   String placeImage = '';
   var photoGalleryIndex = 0;
@@ -99,15 +97,12 @@ class _MapPageState extends State<MapPage> {
       previewCard = _pageController.page!.toInt();
       photoGalleryIndex = 1;
       showBlankCard = false;
-      isExpanded = false;
       goToTappedPlace();
-      fetchImage();
     }
   }
 
   Future<void> goToTappedPlace() async {
     final GoogleMapController controller = await _googleMapController.future;
-
     markers = {};
 
     var selectedPlace = allFavoritePlaces[_pageController.page!.toInt()];
@@ -124,16 +119,6 @@ class _MapPageState extends State<MapPage> {
         zoom: 14.0,
         bearing: 180.0,
         tilt: 45.0)));
-  }
-
-  void fetchImage() async {
-    if (_pageController.page != null) {
-      setState(() {
-        placeImage = allFavoritePlaces[_pageController.page!.toInt()].photos[0]['name'];
-      });
-    } else {
-      placeImage = '';
-    }
   }
 
   @override
@@ -421,11 +406,16 @@ class _MapPageState extends State<MapPage> {
                                           final interests = userCollection
                                               .data()!['interests'];
 
+                                          final notInterests = userCollection
+                                              .data()!['nointerests'];
+
                                           List<Place> places =
                                               await GoogleMapService()
                                                   .getPlacesNew(
                                                       tappedPointInCircle,
-                                                      radiusValue.toInt());
+                                                      radiusValue.toInt(),
+                                                      interests,
+                                                      notInterests);
                                           print(places);
                                           for (var place in places) {
                                             _setNearMarker(
@@ -447,40 +437,7 @@ class _MapPageState extends State<MapPage> {
                                           color: Colors.blue,
                                         ))
                                     : IconButton(
-                                        onPressed: () async {
-                                          if (tokenKey != 'none') {
-                                            var placesResult =
-                                                await GoogleMapService()
-                                                    .getMorePlaceDetails(
-                                                        tokenKey);
-
-                                            List<dynamic> placesWithin =
-                                                placesResult['results'] as List;
-
-                                            //   allFavoritePlaces
-                                            //      .addAll(placesWithin);
-
-                                            tokenKey = placesResult[
-                                                    'next_page_token'] ??
-                                                'none';
-
-                                            for (var element in placesWithin) {
-                                              _setNearMarker(
-                                                LatLng(
-                                                    element['geometry']
-                                                        ['location']['lat'],
-                                                    element['geometry']
-                                                        ['location']['lng']),
-                                                element['name'],
-                                                element['types'],
-                                              );
-                                            }
-                                          } else {
-                                            ErrorSnackbar.showErrorSnackbar(
-                                                context,
-                                                "No more places available");
-                                          }
-                                        },
+                                        onPressed: () async {}, //TODO: Funktion noch hinzufügen, soll man weitere Orten bekommen, oder wie machen wir das?
                                         icon: const Icon(Icons.more_time,
                                             color: Colors.blue)),
                                 IconButton(
@@ -533,14 +490,16 @@ class _MapPageState extends State<MapPage> {
                 decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     image: DecorationImage(
-                        image: NetworkImage(review['profile_photo_url']),
+                        image: NetworkImage(
+                            review['authorAttribution']['photoUri']),
                         fit: BoxFit.cover)),
               ),
               const SizedBox(width: 4.0),
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 SizedBox(
                   width: 160.0,
-                  child: Text(review['author_name'], style: Styles.autorreview),
+                  child: Text(review['authorAttribution']['displayName'],
+                      style: Styles.autorreview),
                 ),
                 const SizedBox(height: 3.0),
                 RatingStars(
@@ -574,7 +533,7 @@ class _MapPageState extends State<MapPage> {
         Padding(
           padding: const EdgeInsets.all(12.0),
           child: Text(
-            review['text'],
+            review['text']['text'],
             style: Styles.reviewtext,
           ),
         ),
@@ -583,8 +542,8 @@ class _MapPageState extends State<MapPage> {
     );
   }
 
-  showPhoto(photoElement) {
-    if (photoElement == null || photoElement.length == 0) {
+  showPhoto(List<PlacePhoto> photoElement) {
+    if (photoElement.isEmpty) {
       showBlankCard = true;
       return const Center(
         child: Text(
@@ -597,10 +556,7 @@ class _MapPageState extends State<MapPage> {
         ),
       );
     } else {
-      var placeImage = photoElement[photoGalleryIndex]['photo_reference'];
-      var maxWidth = photoElement[photoGalleryIndex]['width'];
-      var maxHeight = photoElement[photoGalleryIndex]['height'];
-      var tempDisplayIndex = photoGalleryIndex + 1;
+      var tempDisplayIndex = photoGalleryIndex;
 
       return Column(
         children: [
@@ -611,8 +567,7 @@ class _MapPageState extends State<MapPage> {
               decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(10.0),
                   image: DecorationImage(
-                      image: NetworkImage(
-                          'https://maps.googleapis.com/maps/api/place/photo?maxwidth=$maxWidth&maxheight=$maxHeight&photo_reference=$placeImage&key=$key'),
+                      image: photoElement[tempDisplayIndex].imageProvider,
                       fit: BoxFit.cover))),
           const SizedBox(height: 15.0),
           Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
@@ -883,13 +838,6 @@ class _MapPageState extends State<MapPage> {
               onTap: () async {
                 isExpanded = !isExpanded;
                 goToTappedPlace();
-                if (isExpanded) {
-                  tappedPlaceDetail = await GoogleMapService()
-                      .getDetailsForPlace(allFavoritePlaces[index].placeId);
-                  setState(() {
-                    fetchImage();
-                  });
-                }
               },
               child: FlipCard(
                 //TODO: vlt die FlipDirection auf Vertoical ändern tim entscheidet
@@ -939,8 +887,9 @@ class _MapPageState extends State<MapPage> {
                                                   BorderRadius.circular(10.0),
                                               image: DecorationImage(
                                                   image: placeImage != ''
-                                                      ? NetworkImage(
-                                                          'https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=$placeImage&key=$key')
+                                                      ? allFavoritePlaces[index]
+                                                          .firstImage
+                                                          .imageProvider
                                                       : Image.asset(
                                                               height: 80.0,
                                                               width: 80.0,
@@ -1017,23 +966,13 @@ class _MapPageState extends State<MapPage> {
                                         'Address: ',
                                         style: Styles.mapadress,
                                       ),
-                                      tappedPlaceDetail != null
-                                          ? SizedBox(
-                                              width: 150.0,
-                                              child: Text(
-                                                tappedPlaceDetail[
-                                                        'formatted_address'] ??
-                                                    'none given',
-                                                style:
-                                                    Styles.mapadressformatted,
-                                              ))
-                                          : const Column(
-                                              children: [
-                                                Center(
-                                                    child:
-                                                        CircularProgressIndicator()),
-                                              ],
-                                            ),
+                                      SizedBox(
+                                          width: 150.0,
+                                          child: Text(
+                                            allFavoritePlaces[index]
+                                                .formattedAddress,
+                                            style: Styles.mapadressformatted,
+                                          ))
                                     ],
                                   ),
                                 )
@@ -1049,23 +988,13 @@ class _MapPageState extends State<MapPage> {
                                         'Contact: ',
                                         style: Styles.mapcontact,
                                       ),
-                                      tappedPlaceDetail != null
-                                          ? SizedBox(
-                                              width: 150.0,
-                                              child: Text(
-                                                tappedPlaceDetail[
-                                                        'formatted_phone_number'] ??
-                                                    'none given',
-                                                style:
-                                                    Styles.mapcontactformatted,
-                                              ))
-                                          : const Column(
-                                              children: [
-                                                Center(
-                                                    child:
-                                                        CircularProgressIndicator()),
-                                              ],
-                                            ),
+                                      SizedBox(
+                                          width: 150.0,
+                                          child: Text(
+                                            allFavoritePlaces[index]
+                                                .internationalPhoneNumber,
+                                            style: Styles.mapcontactformatted,
+                                          ))
                                     ],
                                   ),
                                 )
@@ -1081,26 +1010,13 @@ class _MapPageState extends State<MapPage> {
                                         'Availability: ',
                                         style: Styles.mapcontact,
                                       ),
-                                      //TODO: Hier nur da wegen types testen
-                                      /*        Text(
-                                        allFavoritePlaces[0]['types'][0],
-                                        style: TextStyle(
-                                            color: allFavoritePlaces[index]
-                                                        ['business_status'] ==
-                                                    'OPERATIONAL'
-                                                ? Colors.green
-                                                : Colors.red,
-                                            fontSize: 15.0,
-                                            fontWeight: FontWeight.bold,
-                                            fontFamily: 'Ubuntu'),
-                                      ), */
                                       SizedBox(
                                         width: 150.0,
                                         child: Text(
                                           allFavoritePlaces[index]
                                                       .buisnessStatus ==
                                                   'OPERATIONAL'
-                                              ? 'Open '
+                                              ? 'Operational '
                                               : allFavoritePlaces[index]
                                                           .buisnessStatus ==
                                                       'CLOSED_TEMPORARILY'
@@ -1215,32 +1131,19 @@ class _MapPageState extends State<MapPage> {
                                         height:
                                             MediaQuery.of(context).size.height *
                                                 0.4,
-                                        child: tappedPlaceDetail != null
-                                            ? isReviews
-                                                ? ListView(
-                                                    children: [
-                                                      if (isReviews &&
-                                                          tappedPlaceDetail[
-                                                                  'reviews'] !=
-                                                              null)
-                                                        ...tappedPlaceDetail[
-                                                                'reviews']!
-                                                            .map((e) {
-                                                          return _showReview(e);
-                                                        })
-                                                    ],
-                                                  )
-                                                : showPhoto(tappedPlaceDetail[
-                                                        'photos'] ??
-                                                    [])
-                                            : const Column(
+                                        child: isReviews
+                                            ? ListView(
                                                 children: [
-                                                  Center(
-                                                      child:
-                                                          CircularProgressIndicator())
+                                                  if (isReviews)
+                                                    ...allFavoritePlaces[index]
+                                                        .reviews
+                                                        .map((e) {
+                                                      return _showReview(e);
+                                                    })
                                                 ],
-                                              ),
-                                      )
+                                              )
+                                            : showPhoto(allFavoritePlaces[index]
+                                                .photosElements))
                                     : Container(),
                               ],
                             )
@@ -1265,8 +1168,10 @@ class _MapPageState extends State<MapPage> {
                                                       image: DecorationImage(
                                                           image: placeImage !=
                                                                   ''
-                                                              ? NetworkImage(
-                                                                  'https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=$placeImage&key=$key')
+                                                              ? allFavoritePlaces[
+                                                                      index]
+                                                                  .firstImage
+                                                                  .imageProvider
                                                               : Image.asset(
                                                                       height:
                                                                           80.0,

@@ -2,11 +2,35 @@ import 'dart:async';
 import 'dart:ui' as ui;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert' as convert;
 import 'package:location/location.dart';
+
+class PlacePhoto {
+  final String name;
+  int widthPx;
+  int heightPx;
+  static const _key = "AIzaSyBUh4YsufaUkM8XQqdO8TSXKpBf_3dJOmA";
+
+  ImageProvider get imageProvider => NetworkImage(
+        "https://places.googleapis.com/v1/$name/media?maxHeightPx=$heightPx&maxWidthPx=$widthPx&key=$_key",
+      );
+  PlacePhoto({
+    required this.name,
+    required this.heightPx,
+    required this.widthPx,
+  }) {
+    if (widthPx >= 4800) {
+      widthPx = 4800;
+    }
+    if (heightPx >= 4800) {
+      heightPx = 4800;
+    }
+  }
+}
 
 class Place {
   final String name;
@@ -21,7 +45,14 @@ class Place {
   final double rating;
   final List<dynamic> reviews;
   get typesString => types.join(", ");
-
+  get photosElements => photos.map((photo) {
+        return PlacePhoto(
+          name: photo["name"],
+          heightPx: photo["widthPx"],
+          widthPx: photo["heightPx"],
+        );
+      }).toList();
+  PlacePhoto get firstImage => photosElements.first;
   Place(
       {required this.name,
       required this.types,
@@ -39,19 +70,8 @@ class Place {
 class GoogleMapService {
   static const key = "AIzaSyBUh4YsufaUkM8XQqdO8TSXKpBf_3dJOmA";
 
-  Future<dynamic> getPlaceDetails(LatLng coords, int radius) async {
-    var lat = coords.latitude;
-    var lng = coords.longitude;
-
-    final String url =
-        'https://maps.googleapis.com/maps/api/place/nearbysearch/json?&location=$lat,$lng&radius=$radius&key=$key';
-
-    var response = await http.get(Uri.parse(url));
-    var json = convert.jsonDecode(response.body);
-    return json;
-  }
-
-  Future<dynamic> getPlacesNew(LatLng coords, int radius) async {
+  Future<dynamic> getPlacesNew(LatLng coords, int radius,
+      List<String> interests, List<String> notInterests) async {
     var lat = coords.latitude;
     var lng = coords.longitude;
 
@@ -66,10 +86,10 @@ class GoogleMapService {
             }
           },
           "maxResultCount": "10",
+          "includedTypes": interests,
+          "excludedTypes": notInterests,
         }),
         headers: {
-          //  "Content-Type": "application/json",
-          // "Accept": "application/json",
           "X-Goog-Api-Key": key,
           "X-Goog-FieldMask":
               "places.displayName,places.types,places.location,places.photos,places.id,places.formattedAddress,places.internationalPhoneNumber,places.businessStatus,places.rating,places.reviews,places.primaryType"
@@ -86,8 +106,8 @@ class GoogleMapService {
             place["location"]["latitude"], place["location"]["longitude"]),
         placeId: place["id"],
         photos: place["photos"],
-        formattedAddress: place["formattedAddress"] ?? "",
-        internationalPhoneNumber: place["internationalPhoneNumber"] ?? "",
+        formattedAddress: place["formattedAddress"] ?? "Non given",
+        internationalPhoneNumber: place["internationalPhoneNumber"] ?? "Non given",
         buisnessStatus: place["businessStatus"],
         rating: place["rating"] * 1.0,
         primaryType: place["primaryType"] ?? "",
@@ -95,32 +115,6 @@ class GoogleMapService {
       ));
     }
     return placeList;
-  }
-
-  Future<dynamic> getPlaceDetailsType(
-      LatLng coords, int radius, String type) async {
-    var lat = coords.latitude;
-    var lng = coords.longitude;
-
-    final String url =
-        'https://maps.googleapis.com/maps/api/place/nearbysearch/json?&location=$lat,$lng&radius=$radius&type=$type&key=$key';
-
-    var response = await http.get(Uri.parse(url));
-
-    var json = convert.jsonDecode(response.body);
-
-    return json;
-  }
-
-  Future<dynamic> getMorePlaceDetails(String token) async {
-    final String url =
-        'https://maps.googleapis.com/maps/api/place/nearbysearch/json?&pagetoken=$token&key=$key';
-
-    var response = await http.get(Uri.parse(url));
-
-    var json = convert.jsonDecode(response.body);
-
-    return json;
   }
 
   Future<LatLng> getLatLng() async {
@@ -157,19 +151,6 @@ class GoogleMapService {
     LatLng latLng = LatLng(double.parse(lat), double.parse(long));
     // print( "latLng: " + latLng.toString());
     return latLng;
-  }
-
-  Future<Map<String, dynamic>> getDetailsForPlace(String? input) async {
-    final String url =
-        'https://maps.googleapis.com/maps/api/place/details/json?place_id=$input&key=$key';
-
-    var response = await http.get(Uri.parse(url));
-
-    var json = convert.jsonDecode(response.body);
-
-    var results = json['result'] as Map<String, dynamic>;
-
-    return results;
   }
 
   Future<Marker> getCurrentLocation(
