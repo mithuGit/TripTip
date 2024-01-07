@@ -36,7 +36,7 @@ class _LoginPageState extends State<LoginPage> {
         password: passwordController.text,
       );
       if (context.mounted) {
-        GoRouter.of(context).go('/');
+        context.go("/");
       }
     } on FirebaseAuthException catch (e) {
       print(e.code);

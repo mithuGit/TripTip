@@ -1,6 +1,6 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:internet_praktikum/calendar.dart';
 import 'package:internet_praktikum/core/services/dashboardData.dart';
 import 'package:internet_praktikum/ui/widgets/bottom_sheet.dart';
@@ -19,46 +19,62 @@ class _DashBoardState extends State<DashBoard> {
   DateTime? selectedDay;
   bool showSomething = false;
 
-  // A function that automatecly loads the data from the user and fetches the profilepicture
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: TopBar(
           isDash: true,
-          icon: Icons.menu_rounded,
-          onTapForIconWidget: () {
-            // Hier muss Bürge Menü rein und in diesem Menü soll das was unten steht über ein Add Widget Button aufgerufen werden
-            if (selectedDay != null) {
-              CustomBottomSheet.show(context,
-                  title: "Add new Widget to your Dashboard",
-                  content: [
-                    FutureBuilder(
-                        future: Future.wait([
-                          DashBoardData.getUserData(selectedDay!),
-                          DashBoardData.getCurrentDaySubCollection(
-                              selectedDay!),
-                        ]),
-                        builder:
-                            (context, AsyncSnapshot<List<dynamic>> snapshot) {
-                          if (snapshot.connectionState ==
-                              ConnectionState.waiting) {
-                            return const Center(
-                              child: CircularProgressIndicator(),
-                            );
-                          }
-                          if (snapshot.hasError) {
-                            return const Center(
-                              child: Text('An error occured!'),
-                            );
-                          }
-                          return CreateNewWidgetOnDashboard(
-                              day: snapshot.data![1],
-                              userdata: snapshot.data![0]);
-                        })
-                  ]);
-            }
-          }),
+          popupButton: PopupMenuButton(
+            icon: const Icon(Icons.menu_rounded),
+            onSelected: (value) => {
+              switch (value) {
+                "changeTrip" => {context.goNamed("changeTrip")},
+                "createWidget" => {
+                    // Hier muss Bürge Menü rein und in diesem Menü soll das was unten steht über ein Add Widget Button aufgerufen werden
+                    CustomBottomSheet.show(context,
+                        title: "Add new Widget to your Dashboard",
+                        content: [
+                          FutureBuilder(
+                              future: Future.wait([
+                                DashBoardData.getUserData(selectedDay!),
+                                DashBoardData.getCurrentDaySubCollection(
+                                    selectedDay!),
+                              ]),
+                              builder: (context,
+                                  AsyncSnapshot<List<dynamic>> snapshot) {
+                                if (snapshot.connectionState ==
+                                    ConnectionState.waiting) {
+                                  return const Center(
+                                    child: CircularProgressIndicator(),
+                                  );
+                                }
+                                if (snapshot.hasError) {
+                                  return const Center(
+                                    child: Text('An error occured!'),
+                                  );
+                                }
+                                return CreateNewWidgetOnDashboard(
+                                    day: snapshot.data![1],
+                                    userdata: snapshot.data![0]);
+                              })
+                        ])
+                  },
+                _ => (),
+              }
+            },
+            itemBuilder: (BuildContext c) {
+              return const [
+                PopupMenuItem(
+                  value: "changeTrip",
+                  child: Text("Change Trip"),
+                ),
+                PopupMenuItem(
+                  value: "createWidget",
+                  child: Text("Create Widget"),
+                )
+              ];
+            },
+          )),
       body: Stack(
         children: [
           Container(
@@ -76,28 +92,28 @@ class _DashBoardState extends State<DashBoard> {
                   selectedDay = date;
                 });
               }),
-              if(selectedDay != null)
-              FutureBuilder(
-                  future: Future.wait([
-                    DashBoardData.getUserData(selectedDay!),
-                    DashBoardData.getCurrentDaySubCollection(selectedDay!),
-                  ]),
-                  builder: (context, AsyncSnapshot<List<dynamic>> snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(
-                        child: CircularProgressIndicator(),
-                      );
-                    }
-                    if (snapshot.hasError) {
-                      print(snapshot.error);
-                      return const Center(
-                        child: Text(
-                            'An error occured while fetching data! check your internet connection!'),
-                      );
-                    }
-                    return ScrollViewWidget(
-                        day: snapshot.data![1], userdata: snapshot.data![0]);
-                  })
+              if (selectedDay != null)
+                FutureBuilder(
+                    future: Future.wait([
+                      DashBoardData.getUserData(selectedDay!),
+                      DashBoardData.getCurrentDaySubCollection(selectedDay!),
+                    ]),
+                    builder: (context, AsyncSnapshot<List<dynamic>> snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(
+                          child: CircularProgressIndicator(),
+                        );
+                      }
+                      if (snapshot.hasError) {
+                        print(snapshot.error);
+                        return const Center(
+                          child: Text(
+                              'An error occured while fetching data! check your internet connection!'),
+                        );
+                      }
+                      return ScrollViewWidget(
+                          day: snapshot.data![1], userdata: snapshot.data![0]);
+                    })
             ]),
           ),
         ],
