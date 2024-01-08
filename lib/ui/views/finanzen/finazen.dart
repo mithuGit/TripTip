@@ -225,9 +225,12 @@ class _FinanzenState extends State<Finanzen> {
                         padding: const EdgeInsets.only(bottom: 50),
                         child: CustomScrollView(
                           slivers: [
-                            SliverToBoxAdapter(
-                                child: Wallet(
-                                    user: myUser.reference, balance: balance)),
+                            SliverPadding(
+                                padding: const EdgeInsets.all(20),
+                                sliver: SliverToBoxAdapter(
+                                  child: Wallet(
+                                      user: myUser.reference, balance: balance),
+                                )),
                             SliverList(
                               delegate: SliverChildBuilderDelegate(
                                   (context, index) => Padding(
