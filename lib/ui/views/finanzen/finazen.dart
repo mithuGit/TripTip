@@ -3,10 +3,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:internet_praktikum/ui/styles/Styles.dart';
 import 'package:internet_praktikum/ui/widgets/bottom_sheet.dart';
 import 'package:internet_praktikum/ui/widgets/centerText.dart';
+import 'package:internet_praktikum/ui/widgets/finanzenWidgets/wallet.dart';
 import 'package:internet_praktikum/ui/widgets/headerWidgets/topbar.dart';
+import 'package:slide_to_act/slide_to_act.dart';
 import '../../widgets/finanzenWidgets/extendablecontainer.dart';
 
 class Finanzen extends StatefulWidget {
@@ -31,8 +34,7 @@ class _FinanzenState extends State<Finanzen> {
         ((await selectedtrip!.get()).data() as Map<String, dynamic>)["members"];
     List<DocumentSnapshot> groupmembersSnaps = [];
     for (int i = 0; i < groupmembers.length; i++) {
-      groupmembersSnaps
-          .add(await groupmembers[i].get());
+      groupmembersSnaps.add(await groupmembers[i].get());
     }
     return groupmembersSnaps;
   }
@@ -101,6 +103,7 @@ class _FinanzenState extends State<Finanzen> {
                         sumsPerUser[members.data![i].id] = 0;
                       }
 
+                      // for every payment check if there is a refund for you
                       for (DocumentSnapshot payment in payments) {
                         Map<String, dynamic> paymentData =
                             payment.data()! as Map<String, dynamic>;
@@ -127,7 +130,7 @@ class _FinanzenState extends State<Finanzen> {
                           }
                         }
                       }
-
+                      // List of all Requests that are open for you
                       List<Widget> peopleYouOwe = [];
                       for (String key in openRefundsPerUser.keys) {
                         if (key == user.uid) {
@@ -136,20 +139,111 @@ class _FinanzenState extends State<Finanzen> {
                         if (openRefundsPerUser[key]!.isEmpty) {
                           continue;
                         }
-                        peopleYouOwe.add(Padding(
-                            padding: const EdgeInsets.only(bottom: 0, right: 5),
-                            child: ExpandableContainer(
-                              currentUser: members.data!
-                                  .firstWhere((element) => element.id == key),
-                              openRefunds: openRefundsPerUser[key]!,
-                              sum: sumsPerUser[key]!,
-                            )));
+                        peopleYouOwe.add(ExpandableContainer(
+                          currentUser: members.data!
+                              .firstWhere((element) => element.id == key),
+                          openRefunds: openRefundsPerUser[key]!,
+                          sum: sumsPerUser[key]!,
+                        ));
                       }
 
+                      List<Widget> yourRequests = [];
+                      List<QueryDocumentSnapshot> myRequests = snapshot
+                          .data!.docs
+                          .where((el) => el.get("createdBy").id == user.uid)
+                          .toList();
+
+                      // add for every Request a Widget
+                      for (QueryDocumentSnapshot request in myRequests) {
+                        yourRequests.add(Slidable(
+                            key: Key(request.id),
+                            endActionPane: ActionPane(
+                              motion: const ScrollMotion(),
+                              children: [
+                                SlidableAction(
+                                  onPressed: (sdf) async {},
+                                  backgroundColor: Colors.transparent,
+                                  foregroundColor: Colors.red,
+                                  icon: Icons.delete,
+                                  label: 'Delete Request',
+                                )
+                              ],
+                            ),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: const Color(0xE51E1E1E),
+                                border:
+                                    Border.all(color: const Color(0xE51E1E1E)),
+                                borderRadius: BorderRadius.circular(34.5),
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.only(
+                                    top: 18.0,
+                                    left: 25,
+                                    right: 25,
+                                    bottom: 15.0),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Flexible(
+                                      child: Text(
+                                        request.get("title"),
+                                        overflow: TextOverflow.ellipsis,
+                                        softWrap: true,
+                                        style: const TextStyle(
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ),
+                                    Text(
+                                        request.get("amount").toString() + " €",
+                                        style: const TextStyle(
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white,
+                                        ))
+                                  ],
+                                ),
+                              ),
+                            )));
+                      }
+                      // get your wallet
+                      double balance = 0;
+                      final myUser = members.data!
+                          .firstWhere((element) => element.id == user.uid);
+                      if ((myUser.data()! as Map<String, dynamic>)["balance"] !=
+                          null) {
+                        balance =
+                            (myUser.data()! as Map<String, dynamic>)["balance"];
+                      }
+
+                      // Build the List
                       return Padding(
                         padding: const EdgeInsets.only(bottom: 50),
                         child: CustomScrollView(
                           slivers: [
+                            SliverToBoxAdapter(
+                                child: Wallet(
+                                    user: myUser.reference, balance: balance)),
+                            SliverList(
+                              delegate: SliverChildBuilderDelegate(
+                                  (context, index) => Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: ExpansionTile(
+                                          initiallyExpanded: true,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(0),
+                                          ),
+                                          title: Text("Your Requests"),
+                                          children: yourRequests,
+                                        ),
+                                      ),
+                                  childCount: 1),
+                            ),
                             SliverList(
                               delegate: SliverChildBuilderDelegate(
                                   (BuildContext context, int index) {
@@ -160,7 +254,6 @@ class _FinanzenState extends State<Finanzen> {
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(0),
                                     ),
-                                    
                                     title: Text("You owe "),
                                     children: peopleYouOwe,
                                   ),

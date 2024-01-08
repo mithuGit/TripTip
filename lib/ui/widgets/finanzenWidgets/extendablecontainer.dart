@@ -55,6 +55,7 @@ class _ExpandableContainerState extends State<ExpandableContainer> {
         });
       },
       child: AnimatedContainer(
+        width: double.infinity,
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
         height: isExpanded

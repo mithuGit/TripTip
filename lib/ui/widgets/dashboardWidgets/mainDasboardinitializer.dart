@@ -8,7 +8,6 @@ import 'package:internet_praktikum/ui/widgets/dashboardWidgets/diaryWidget.dart'
 import 'package:internet_praktikum/ui/widgets/dashboardWidgets/simpleNoteWidget.dart';
 import 'package:internet_praktikum/ui/widgets/dashboardWidgets/survey.dart';
 
-
 class MainDasboardinitializer extends StatefulWidget {
   double elevation = 0;
   final String title;
@@ -42,17 +41,18 @@ class _MainDasboardinitializerState extends State<MainDasboardinitializer> {
               const EdgeInsets.only(top: 20, bottom: 20, left: 20, right: 20),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start, 
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      super.widget.title,
-                      textAlign: TextAlign.left,
-                      style: Styles.mainDasboardinitializerTitle,
-                    )
-                  ]),
+              Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                Flexible(
+                  child: Text(
+                    super.widget.title,
+                    style: Styles.mainDasboardinitializerTitle,
+                    textAlign: TextAlign.left,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                )
+              ]),
               LayoutBuilder(builder: (context, constraints) {
                 if (widget.data["type"] == null) {
                   return const Text("No type is specified");
