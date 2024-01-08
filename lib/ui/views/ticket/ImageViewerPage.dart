@@ -15,16 +15,23 @@ class _ImageViewerPageState extends State<ImageViewerPage> {
     return Scaffold(
         appBar: AppBar(
           title: Text(widget.title),
+          centerTitle: true,
+          backgroundColor: Colors.white,
         ),
-        body: Center(
-          //für zoom in und zoom raus
-          child: InteractiveViewer(
-              maxScale: double.infinity,
-              minScale: 0.5,
-              panEnabled: true,
-              scaleEnabled: true,
-              trackpadScrollCausesScale: false,
-              child: widget.image),
+        body: Container(
+          decoration: const BoxDecoration(
+            color: Colors.white,
+          ),
+          child: Center(
+            //für zoom in und zoom raus
+            child: InteractiveViewer(
+                maxScale: double.infinity,
+                minScale: 0.5,
+                panEnabled: true,
+                scaleEnabled: true,
+                trackpadScrollCausesScale: false,
+                child: widget.image),
+          ),
         ));
   }
 }

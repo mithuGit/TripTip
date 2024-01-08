@@ -104,7 +104,7 @@ class Styles {
       fontFamily: 'fonts/Ubuntu-Regular.ttf',
       fontSize: 14,
       fontWeight: FontWeight.w400,
-      color: Colors.white);    
+      color: Colors.white);
   static const maptitle = TextStyle(
       fontFamily: 'fonts/Ubuntu-Regular.ttf',
       fontSize: 16,
@@ -116,5 +116,56 @@ class Styles {
       fontWeight: FontWeight.w400,
       color: Colors.white
   );    
+  static const mapadress = TextStyle(
+      fontFamily: 'fonts/Ubuntu-Regular.ttf',
+      fontSize: 15,
+      fontWeight: FontWeight.bold,
+      color: Colors.white);
+  static const mapadressformatted = TextStyle(
+      fontFamily: 'fonts/Ubuntu-Regular.ttf',
+      fontSize: 15,
+      fontWeight: FontWeight.bold,
+      color: Colors.white);
+  static const mapcontact = TextStyle(
+      fontFamily: 'fonts/Ubuntu-Regular.ttf',
+      fontSize: 15,
+      fontWeight: FontWeight.bold,
+      color: Colors.white);
+  static const mapcontactformatted = TextStyle(
+      fontFamily: 'fonts/Ubuntu-Regular.ttf',
+      fontSize: 15,
+      fontWeight: FontWeight.bold,
+      color: Colors.white);
+  static const mapreviewstext = TextStyle(
+      fontFamily: 'fonts/Ubuntu-Regular.ttf',
+      fontSize: 12,
+      fontWeight: FontWeight.bold,
+      color: Colors.white);
+  static const mapreviewstext2 = TextStyle(
+      fontFamily: 'fonts/Ubuntu-Regular.ttf',
+      fontSize: 12,
+      fontWeight: FontWeight.bold,
+      color: Colors.white);
+  static const autorreview = TextStyle(
+      fontFamily: 'fonts/Ubuntu-Regular.ttf',
+      fontSize: 12,
+      fontWeight: FontWeight.bold,
+      color: Colors.white);
+  static const reviewtext = TextStyle(
+      fontFamily: 'fonts/Ubuntu-Regular.ttf',
+      fontSize: 11,
+      fontWeight: FontWeight.bold,
+      color: Colors.white);
+  static const warningmap = TextStyle(
+      fontFamily: 'fonts/Ubuntu-Regular.ttf',
+      fontSize: 10,
+      fontWeight: FontWeight.w600,
+      color: Colors.black);
+  static const smallButtonStyle = TextStyle(
+    color: Colors.white,
+    fontSize: 12,
+    fontFamily: 'Ubuntu',
+    fontWeight: FontWeight.w500,
+  );
 }
 
