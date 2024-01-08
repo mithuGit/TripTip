@@ -120,7 +120,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       child: ElevatedButton(
                           onPressed: () {
                             context.pushReplacement(
-                                "/accountdetails-isEditProfile");
+                                "/accountdetails/:isEditProfile");
                           },
                           style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.grey[300],

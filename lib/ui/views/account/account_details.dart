@@ -12,8 +12,8 @@ import 'package:go_router/go_router.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 
 class Account extends StatefulWidget {
-  final bool? isEditProfile;
-  const Account({super.key, this.isEditProfile});
+  final bool isEditProfile;
+  const Account({super.key, required this.isEditProfile});
 
   @override
   State<Account> createState() => _AccountState();

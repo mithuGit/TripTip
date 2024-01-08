@@ -141,10 +141,14 @@ class MyRouter {
               )),
       GoRoute(
         name: 'accountdetails',
-        path: '/accountdetails',
-        builder: (context, state) => Account(
-          key: state.pageKey,
-        ),
+        path: '/accountdetails/:isEditProfile',
+        builder: (context, state) {
+          final isEditProfile = state.pathParameters['isEditProfile'];
+          return Account(
+            key: state.pageKey,
+            isEditProfile: isEditProfile == "true",
+          );
+        },
       ),
       GoRoute(
         name: 'createtrip',
@@ -188,14 +192,6 @@ class MyRouter {
         path: '/payment',
         builder: (context, state) => CardFormScreen(
           key: state.pageKey,
-        ),
-      ),
-      GoRoute(
-        name: 'accountdetails-isEditProfile',
-        path: '/accountdetails-isEditProfile',
-        builder: (context, state) => Account(
-          key: state.pageKey,
-          isEditProfile: true,
         ),
       ),
       GoRoute(

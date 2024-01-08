@@ -183,7 +183,7 @@ class _LoginPageState extends State<LoginPage> {
                           }
 
                           if (isDateOfBirth == false) {
-                            if (context.mounted) context.go('/accountdetails');
+                            if (context.mounted) context.go('/accountdetails/:isEditProfile');
                           } else {
                             if (context.mounted) context.go('/');
                           }
@@ -220,7 +220,7 @@ class _LoginPageState extends State<LoginPage> {
                           }
 
                           if (isDateOfBirth == false) {
-                            if (context.mounted) context.go('/accountdetails');
+                            if (context.mounted) context.go('/accountdetails/:isEditProfile');
                           } else {
                             if (context.mounted) context.go('/');
                           }

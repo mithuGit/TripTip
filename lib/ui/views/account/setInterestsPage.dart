@@ -64,7 +64,7 @@ class _SetInterestsPageState extends State<SetInterestsPage> {
                           children: interests
                               .map((interest) => ImageContainer(
                                     image: interest,
-                                    setVal: (val) {
+                                    setInterested: (val) {
                                       selectedInterests.addAll(val);
                                     },
                                     unInterestetset: (value) {
@@ -76,7 +76,7 @@ class _SetInterestsPageState extends State<SetInterestsPage> {
                                         uninterestedInterests.add(el);
                                       }
                                     },
-                                    unsetVal: (val) {
+                                    unsetInterested: (val) {
                                       for (final el in val) {
                                         selectedInterests.remove(el);
                                         uninterestedInterests.add(el);

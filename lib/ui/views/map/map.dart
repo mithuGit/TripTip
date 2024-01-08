@@ -407,15 +407,16 @@ class _MapPageState extends State<MapPage> {
                                               .data()!['interests'];
 
                                           final notInterests = userCollection
-                                              .data()!['nointerests'];
+                                                  .data()!['uninterested'];
 
                                           List<Place> places =
                                               await GoogleMapService()
                                                   .getPlacesNew(
                                                       tappedPointInCircle,
                                                       radiusValue.toInt(),
-                                                      interests,
-                                                      notInterests);
+                                                      interests.cast<String>(),
+                                                      notInterests
+                                                          .cast<String>());
                                           print(places);
                                           for (var place in places) {
                                             _setNearMarker(
@@ -437,7 +438,8 @@ class _MapPageState extends State<MapPage> {
                                           color: Colors.blue,
                                         ))
                                     : IconButton(
-                                        onPressed: () async {}, //TODO: Funktion noch hinzufügen, soll man weitere Orten bekommen, oder wie machen wir das?
+                                        onPressed:
+                                            () async {}, //TODO: Funktion noch hinzufügen, soll man weitere Orten bekommen, oder wie machen wir das?
                                         icon: const Icon(Icons.more_time,
                                             color: Colors.blue)),
                                 IconButton(

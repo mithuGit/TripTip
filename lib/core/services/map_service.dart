@@ -77,7 +77,27 @@ class GoogleMapService {
 
     const String url = 'https://places.googleapis.com/v1/places:searchNearby';
 
-    var apiRequest = await http.post(Uri.parse(url),
+    List<String> interestsList1 = [];
+    List<String> interestsList2 = [];
+    List<String> notInterestsList1 = [];
+    List<String> notInterestsList2 = [];
+
+    for (var i = 0; i < interests.length; i++) {
+      if (i <= 50) {
+        interestsList1.add(interests[i]);
+      } else {
+        interestsList2.add(interests[i]);
+      }
+    }
+    for (var i = 0; i < notInterests.length; i++) {
+      if (i <= 50) {
+        notInterestsList1.add(notInterests[i]);
+      } else {
+        notInterestsList2.add(notInterests[i]);
+      }
+    }
+
+    var apiRequest1 = await http.post(Uri.parse(url),
         body: convert.jsonEncode({
           "locationRestriction": {
             "circle": {
@@ -85,18 +105,45 @@ class GoogleMapService {
               "radius": "$radius"
             }
           },
-          "maxResultCount": "10",
-          "includedTypes": interests,
-          "excludedTypes": notInterests,
+          "maxResultCount": "5",
+          "includedTypes": interestsList1,
+          "excludedTypes": notInterestsList1,
         }),
         headers: {
           "X-Goog-Api-Key": key,
           "X-Goog-FieldMask":
               "places.displayName,places.types,places.location,places.photos,places.id,places.formattedAddress,places.internationalPhoneNumber,places.businessStatus,places.rating,places.reviews,places.primaryType"
         });
-    var json = convert.jsonDecode(apiRequest.body);
+    var json2;
+    if (interestsList2.isEmpty && notInterestsList2.isEmpty) {
+      var apiRequest2 = await http.post(Uri.parse(url),
+          body: convert.jsonEncode({
+            "locationRestriction": {
+              "circle": {
+                "center": {"latitude": "$lat", "longitude": "$lng"},
+                "radius": "$radius"
+              }
+            },
+            "maxResultCount": "5",
+            "includedTypes": interestsList2,
+            "excludedTypes": notInterestsList2,
+          }),
+          headers: {
+            "X-Goog-Api-Key": key,
+            "X-Goog-FieldMask":
+                "places.displayName,places.types,places.location,places.photos,places.id,places.formattedAddress,places.internationalPhoneNumber,places.businessStatus,places.rating,places.reviews,places.primaryType"
+          });
+      json2 = convert.jsonDecode(apiRequest2.body);
+    }
 
-    List<dynamic> places = json["places"];
+    var json1 = convert.jsonDecode(apiRequest1.body);
+    List<dynamic> places;
+    if (json2 != null) {
+      places = [...json1["places"], ...json2["places"]];
+    } else {
+      places = json1["places"];
+    }
+
     List<Place> placeList = [];
     for (var place in places) {
       placeList.add(Place(
@@ -107,7 +154,8 @@ class GoogleMapService {
         placeId: place["id"],
         photos: place["photos"],
         formattedAddress: place["formattedAddress"] ?? "Non given",
-        internationalPhoneNumber: place["internationalPhoneNumber"] ?? "Non given",
+        internationalPhoneNumber:
+            place["internationalPhoneNumber"] ?? "Non given",
         buisnessStatus: place["businessStatus"],
         rating: place["rating"] * 1.0,
         primaryType: place["primaryType"] ?? "",
