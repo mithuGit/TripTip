@@ -1,13 +1,15 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:internet_praktikum/ui/widgets/container.dart';
 import 'package:internet_praktikum/ui/widgets/my_button.dart';
 import 'package:internet_praktikum/ui/widgets/profileWidgets/imageContainer.dart';
 import 'package:internet_praktikum/ui/widgets/usernamebagageCreateTrip.dart';
 
 class SetInterestsPage extends StatefulWidget {
-  const SetInterestsPage({super.key});
+  final bool isCreate;
+  const SetInterestsPage({super.key, required this.isCreate});
   @override
   _SetInterestsPageState createState() => _SetInterestsPageState();
 }
@@ -35,8 +37,14 @@ class _SetInterestsPageState extends State<SetInterestsPage> {
         'interests': selectedInterests,
         'uninterested': uninterestedInterests
       });
+      if (context.mounted) {
+        widget.isCreate == true
+            ? context.go('/createtrip')
+            : context.go('/profile');
+      }
     }
 
+    //TODO: Was soll passieren wenn nix angedrückt wird ?
     return Scaffold(
         backgroundColor: const Color(0xFFCBEFFF),
         resizeToAvoidBottomInset: true,

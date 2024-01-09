@@ -135,7 +135,7 @@ class _ProfilePageState extends State<ProfilePage> {
                               backgroundColor: Colors.grey[300],
                               side: BorderSide.none,
                               shape: const StadiumBorder()),
-                          child: const Text('Edit Profile',
+                          child: const Text('Edit Profile or Interests',
                               style: TextStyle(color: Colors.black)))),
                   const SizedBox(height: 15),
                   Center(

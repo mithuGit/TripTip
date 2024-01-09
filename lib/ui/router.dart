@@ -39,8 +39,7 @@ class MyRouter {
       GlobalKey<NavigatorState>(debugLabel: 'shellProfile');
 
   static final router = GoRouter(
-
-    //TODO einfach nur ein / am anfang 
+    //TODO einfach nur ein / am anfang
     initialLocation: '/',
     navigatorKey: _rootNavigatorKey,
     routes: <RouteBase>[
@@ -196,10 +195,14 @@ class MyRouter {
       ),
       GoRoute(
         name: 'setInterests',
-        path: '/setinterests',
-        builder: (context, state) => SetInterestsPage(
-          key: state.pageKey,
-        ),
+        path: '/setinterests/:isCreate',
+        builder: (context, state) {
+          final isCreate = state.pathParameters['isCreate'];
+          return SetInterestsPage(
+            key: state.pageKey,
+            isCreate: isCreate == "true",
+          );
+        },
       ),
       GoRoute(
         name: 'info',
