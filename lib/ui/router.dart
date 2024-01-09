@@ -42,7 +42,7 @@ class MyRouter {
   static final router = GoRouter(
 
     //TODO einfach nur ein / am anfang 
-    initialLocation: '/setinterests',
+    initialLocation: '/',
     navigatorKey: _rootNavigatorKey,
     routes: <RouteBase>[
       // HomePage Route

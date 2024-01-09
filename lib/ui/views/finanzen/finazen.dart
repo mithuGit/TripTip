@@ -229,7 +229,7 @@ class _FinanzenState extends State<Finanzen> {
                                 padding: const EdgeInsets.all(20),
                                 sliver: SliverToBoxAdapter(
                                   child: Wallet(
-                                      user: myUser.reference, balance: balance),
+                                      user: myUser, balance: balance),
                                 )),
                             SliverList(
                               delegate: SliverChildBuilderDelegate(
