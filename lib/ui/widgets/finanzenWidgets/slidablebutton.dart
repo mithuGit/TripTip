@@ -6,9 +6,10 @@ import 'package:slide_to_act/slide_to_act.dart';
 class SlideButton extends StatelessWidget {
   final String buttonText;
   final EdgeInsets? margin;
+  final Future<dynamic> Function() onSubmit;
 
   // Constructor to receive the text when creating an instance
-  const SlideButton({Key? key, required this.buttonText, this.margin})
+  const SlideButton({Key? key, required this.buttonText, required this.onSubmit ,this.margin})
       : super(key: key);
 
   @override
@@ -33,10 +34,7 @@ class SlideButton extends StatelessWidget {
         // Icon dreht sich wenn true
         sliderRotate: true,
         height: 50,
-        onSubmit: () {
-          context.go("/payment");
-          return null;
-        },
+        onSubmit: onSubmit,
       ),
     );
   }

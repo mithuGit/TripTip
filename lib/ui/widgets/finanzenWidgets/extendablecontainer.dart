@@ -3,17 +3,20 @@ import 'dart:ffi';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:internet_praktikum/core/services/paymentsHandeler.dart';
 import 'package:internet_praktikum/ui/widgets/finanzenWidgets/slidablebutton.dart';
 
 class ExpandableContainer extends StatefulWidget {
   final double sum;
   DocumentSnapshot currentUser;
+  DocumentReference me;
   List<Map<String, dynamic>> openRefunds = [];
   ExpandableContainer({
     Key? key,
     required this.sum,
     required this.currentUser,
     required this.openRefunds,
+    required this.me,
   }) : super(key: key);
 
   @override
@@ -169,13 +172,15 @@ class _ExpandableContainerState extends State<ExpandableContainer> {
               ),
             ),
             if (isExpanded)
-              const Positioned(
+              Positioned(
                 left: 15,
                 right: 15,
                 bottom: 5,
                 child: SlideButton(
+                  onSubmit: () => PaymentsHandeler().payOpenRefundsPerUser(
+                      widget.openRefunds, widget.currentUser.reference, widget.me),
                   buttonText: 'Slide to Pay',
-                  margin: EdgeInsets.only(bottom: 8),
+                  margin: const EdgeInsets.only(bottom: 8),
                 ),
               ),
           ],

@@ -5,26 +5,27 @@ import 'package:flutter_stripe/flutter_stripe.dart';
 
 class PaymentsHandeler {
   FirebaseFunctions functions = FirebaseFunctions.instance;
-  Future<String> createAccoutAndAddPaymentsMethode(DocumentReference user) async {
+  Future<String> createAccoutAndAddPaymentsMethode(
+      DocumentReference user) async {
     final result = await FirebaseFunctions.instance
         .httpsCallable('stripeAddPaymentsMethode')
         .call();
 
     final _response = result.data;
 
-    if(_response["success"]) {
+    if (_response["success"]) {
       final _setupIntent = _response["setupIntent"];
       final _ephemeralKey = _response["ephemeralKey"];
       final _customer = _response["customer"];
       try {
         await Stripe.instance.initPaymentSheet(
-          paymentSheetParameters: SetupPaymentSheetParameters(
-            setupIntentClientSecret: _setupIntent,
-            merchantDisplayName: 'TipTrip',
-            customerId: _customer,
-            customerEphemeralKeySecret: _ephemeralKey,
-          ));
-          await Stripe.instance.presentPaymentSheet();
+            paymentSheetParameters: SetupPaymentSheetParameters(
+          setupIntentClientSecret: _setupIntent,
+          merchantDisplayName: 'TipTrip',
+          customerId: _customer,
+          customerEphemeralKeySecret: _ephemeralKey,
+        ));
+        await Stripe.instance.presentPaymentSheet();
       } catch (e) {
         print(e);
       }
@@ -44,19 +45,18 @@ class PaymentsHandeler {
     }
     //TDOD: CHeck if more than 50Cent
     try {
-       final result = await FirebaseFunctions.instance
-        .httpsCallable('stripeRefund')
-        .call(
-      {
-        "customer": _stripeId,
-        "amount": 100,
-      },
-    );
-    final _response = result.data;
-    print(_response);
-    await Stripe.instance.initPaymentSheet(
-          paymentSheetParameters:  SetupPaymentSheetParameters(
-            paymentIntentClientSecret: _response["paymentIntent"],
+      final result =
+          await FirebaseFunctions.instance.httpsCallable('stripeRefund').call(
+        {
+          "customer": _stripeId,
+          "amount": 100,
+        },
+      );
+      final _response = result.data;
+      print(_response);
+      await Stripe.instance.initPaymentSheet(
+          paymentSheetParameters: SetupPaymentSheetParameters(
+        paymentIntentClientSecret: _response["paymentIntent"],
         merchantDisplayName: 'TipTrip',
         customerId: _stripeId,
         customerEphemeralKeySecret: _response["ephemeralKey"],
@@ -65,16 +65,12 @@ class PaymentsHandeler {
       // Start Payment
       await Stripe.instance.presentPaymentSheet();
     } on FirebaseFunctionsException catch (error) {
-      print(error.code);
-      print(error.details);
-      print(error.message);
+
     } on StripeException catch (error) {
       debugPrint("StripeException");
-      print(error);
+      
     } catch (error) {
-      print(error);
     }
-
   }
 
   Future<void> bookToBankAccount() async {
@@ -88,5 +84,30 @@ class PaymentsHandeler {
     );
     final _response = result.data as String;
     print(_response);
+  }
+
+  Future<void> payOpenRefundsPerUser(
+      List<Map<String, dynamic>> openRefunds, DocumentReference theotherUser, DocumentReference me) async {
+    double sumOfRefunds = 0;
+    for (final refund in openRefunds) {
+      final QueryDocumentSnapshot request = refund["request"];
+      List<dynamic> to = (request.data()! as Map<String, dynamic>)["to"];
+      to[refund["indexInArray"]] = {
+        "amount": refund["amount"],
+        "user": me,
+        "status": "paid",
+      };
+      sumOfRefunds += refund["amount"] * 1.0;
+      await request.reference.update({
+        "to": to,
+      });
+    }
+    await theotherUser.update({
+      "balance": FieldValue.increment(sumOfRefunds),
+    });
+    await me.update({
+      "balance": FieldValue.increment(-sumOfRefunds),
+    });
+    
   }
 }

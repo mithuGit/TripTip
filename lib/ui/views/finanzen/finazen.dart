@@ -111,6 +111,7 @@ class _FinanzenState extends State<Finanzen> {
                           List<dynamic> to = (paymentData["to"] as List);
                           Map<String, dynamic> fundtome = to.firstWhere(
                               (element) => element["user"].id == user.uid);
+                          int index = to.indexOf(fundtome);    
                           if (fundtome.isNotEmpty &&
                               fundtome["status"] == "open") {
                             openRefundsPerUser[
@@ -118,6 +119,7 @@ class _FinanzenState extends State<Finanzen> {
                                         .id]!
                                 .add({
                               "title": paymentData["title"],
+                              "indexInArray": index,
                               "request": payment,
                               "amount": fundtome["amount"],
                             });
@@ -140,6 +142,7 @@ class _FinanzenState extends State<Finanzen> {
                           continue;
                         }
                         peopleYouOwe.add(ExpandableContainer(
+                          me: currentUser!.reference,
                           currentUser: members.data!
                               .firstWhere((element) => element.id == key),
                           openRefunds: openRefundsPerUser[key]!,
@@ -210,16 +213,7 @@ class _FinanzenState extends State<Finanzen> {
                               ),
                             )));
                       }
-                      // get your wallet
-                      double balance = 0;
-                      final myUser = members.data!
-                          .firstWhere((element) => element.id == user.uid);
-                      if ((myUser.data()! as Map<String, dynamic>)["balance"] !=
-                          null) {
-                        balance =
-                            (myUser.data()! as Map<String, dynamic>)["balance"];
-                      }
-
+                     
                       // Build the List
                       return Padding(
                         padding: const EdgeInsets.only(bottom: 50),
@@ -229,7 +223,7 @@ class _FinanzenState extends State<Finanzen> {
                                 padding: const EdgeInsets.all(20),
                                 sliver: SliverToBoxAdapter(
                                   child: Wallet(
-                                      user: myUser, balance: balance),
+                                      user: currentUser!.reference,),
                                 )),
                             SliverList(
                               delegate: SliverChildBuilderDelegate(

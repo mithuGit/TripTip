@@ -6,7 +6,6 @@ import 'package:internet_praktikum/ui/views/account/account_details.dart';
 import 'package:internet_praktikum/ui/views/account/setInterestsPage.dart';
 import 'package:internet_praktikum/ui/views/dashboard/readDiary.dart';
 import 'package:internet_praktikum/ui/views/dashboard/writeDiary.dart';
-import 'package:internet_praktikum/ui/views/finanzen/creditcard.dart';
 import 'package:internet_praktikum/ui/views/finanzen/finazen.dart';
 import 'package:internet_praktikum/ui/views/dashboard/dashboard.dart';
 import 'package:internet_praktikum/ui/views/map/map.dart';
@@ -199,13 +198,7 @@ class MyRouter {
           key: state.pageKey,
         ),
       ),
-      GoRoute(
-        name: 'payment',
-        path: '/payment',
-        builder: (context, state) => CardFormScreen(
-          key: state.pageKey,
-        ),
-      ),
+    
       GoRoute(
         name: 'accountdetails-isEditProfile',
         path: '/accountdetails-isEditProfile',
