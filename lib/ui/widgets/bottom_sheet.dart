@@ -40,36 +40,17 @@ class CustomBottomSheet {
                   resizeToAvoidBottomInset: false,
                   body: Padding(
                     padding: const EdgeInsets.only(top: 8.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            GestureDetector(
-                              onTap: () => Navigator.pop(context),
-                              child: Container(
-                                color: Colors.transparent,
-                                height: 20,
-                                width: 100,
-                                child: Center(
-                                  child: Image.asset(
-                                    'assets/moveModalDown.png',
-                                    width: 80,
-                                    height: 10,),
-                                ),
-                              ),
-                            )
-                          ],
-                        ),
-                        const SizedBox(height: 8.0),
-                        Text(
-                          title,
-                          style: Styles
-                              .title, // Hier wird die title-Methode aus der Styles-Klasse verwendet
-                        ),
-                        const SizedBox(height: 8.0),
-                        ...content,
+                    child: CustomScrollView(
+                      slivers: [
+                        SliverPersistentHeader(
+                            pinned: true,
+                            delegate: ListHeader(
+                          title: title,
+                          onActionTap: () => Navigator.pop(context),
+                        )),
+                        SliverList.list(children: [
+                          ...content,
+                        ])
                       ],
                     ),
                   ),
@@ -80,5 +61,67 @@ class CustomBottomSheet {
         );
       },
     );
+  }
+}
+
+class ListHeader extends SliverPersistentHeaderDelegate {
+  final double _maxExtent = 70;
+  final VoidCallback onActionTap;
+  final String title;
+
+  ListHeader({
+    required this.onActionTap,
+    required this.title,
+  });
+  @override
+  Widget build(
+      BuildContext context, double shrinkOffset, bool overlapsContent) {
+    debugPrint(shrinkOffset.toString());
+    return Container(
+      color: Colors.white,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              GestureDetector(
+                onTap: onActionTap,
+                child: Container(
+                  color: Colors.transparent,
+                  height: 20,
+                  width: 100,
+                  child: Center(
+                    child: Image.asset(
+                      'assets/moveModalDown.png',
+                      width: 80,
+                      height: 10,
+                    ),
+                  ),
+                ),
+              )
+            ],
+          ),
+          Text(
+            title,
+            style: Styles
+                .title, // Hier wird die title-Methode aus der Styles-Klasse verwendet
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  double get maxExtent => _maxExtent;
+
+
+
+  @override
+  double get minExtent => kToolbarHeight;
+
+  @override
+  bool shouldRebuild(covariant ListHeader oldDelegate) {
+    return oldDelegate != this;
   }
 }

@@ -324,7 +324,7 @@ class AddSurveyWidgetToDashboardState
             },
           ),
         ),
-        const SizedBox(height: 5),
+        const SizedBox(height: 100),
         if (_optionList.length >= 2)
           MyButton(
               colors: Colors.blue,
