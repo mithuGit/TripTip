@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../styles/Styles.dart';
 
@@ -11,6 +12,7 @@ class InputField extends StatelessWidget {
   final Color? borderColor;
   final Color? focusedBorderColor;
   final bool? multiline;
+  final bool? numberField;
 
   const InputField(
       {super.key,
@@ -19,7 +21,7 @@ class InputField extends StatelessWidget {
       required this.obscureText,
       this.margin,
       this.multiline,
-      this.focusNode, this.borderColor, this.focusedBorderColor});
+      this.focusNode, this.borderColor, this.focusedBorderColor, this.numberField});
 
   bool isValidEmail(String email) {
     String emailRegex =
@@ -52,7 +54,7 @@ class InputField extends StatelessWidget {
         cursorColor: Colors.grey.shade400,
         cursorWidth: 1.5,
         maxLines: multiline == true ? 5 : 1,
-        keyboardType: multiline == true ? TextInputType.multiline : TextInputType.text,
+        keyboardType: multiline == true ? TextInputType.multiline : numberField == true ? TextInputType.number : TextInputType.text,
         decoration: InputDecoration(
             enabledBorder: OutlineInputBorder(
               borderSide: borderColor != null ? BorderSide(color: borderColor!) : const BorderSide(color: Colors.white),

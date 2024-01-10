@@ -84,7 +84,7 @@ class InfoPage extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     CharakterContainer(
-                      name: "David Henn",
+                      name: "Felix Bauer",
                       description: "Co Founder, CEO",
                       link: "https://www.instagram.com/xfelix001?igsh=MWcwcW45amNuc3Nycw%3D%3D&utm_source=qr",
                       linkname: "Instagram",
