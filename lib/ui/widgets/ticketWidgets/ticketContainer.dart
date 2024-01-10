@@ -158,6 +158,7 @@ class _TicketContainerState extends State<TicketContainer> {
       ),
     );
   }
+  
 
   void openPDF(BuildContext context, File file, String title) =>
       Navigator.of(context).push(MaterialPageRoute(
