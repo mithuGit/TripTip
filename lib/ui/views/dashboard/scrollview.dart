@@ -17,7 +17,7 @@ class ScrollViewWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     FirebaseFirestore firestore = FirebaseFirestore.instance;
-
+    
     if (day == null) {
       return const CircularProgressIndicator();
     }

@@ -120,47 +120,45 @@ class _TicketContainerState extends State<TicketContainer> {
             ),
           ]);
         },
+        // Ticket Widget on dashboard
         child: Container(
           decoration: BoxDecoration(
             color: const Color(0xE51E1E1E),
             border: Border.all(color: const Color(0xE51E1E1E)),
             borderRadius: BorderRadius.circular(34.5),
           ),
-          child: Stack(
-            children: [
-              SingleChildScrollView(
-                child: Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(
-                          top: 18.0, left: 25, right: 25, bottom: 15.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            data!["title"],
-                            style: const TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
-                          ),
-                          const ImageIcon(
-                            AssetImage('assets/docs.png'),
-                            color: Colors.white,
-                          ),
-                        ],
-                      ),
+          child: Padding(
+            padding: const EdgeInsets.only(
+                top: 18.0, left: 25, right: 25, bottom: 15.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Flexible(
+                  flex: 1,
+                  child: Text(
+                    data!["title"],
+                    overflow: TextOverflow.ellipsis,
+                    softWrap: true,
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                      
                     ),
-                  ],
+                  ),
                 ),
-              ),
-            ],
+                const ImageIcon(
+                  AssetImage('assets/docs.png'),
+                  color: Colors.white,
+                ),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
+  
 
   void openPDF(BuildContext context, File file, String title) =>
       Navigator.of(context).push(MaterialPageRoute(

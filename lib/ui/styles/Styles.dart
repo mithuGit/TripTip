@@ -168,3 +168,4 @@ class Styles {
     fontWeight: FontWeight.w500,
   );
 }
+

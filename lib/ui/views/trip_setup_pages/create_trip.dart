@@ -57,8 +57,10 @@ class _TripCreateState extends State<CreateTrip> {
           selectedStartDate!.millisecondsSinceEpoch) {
         throw Exception("End date must be after start date!");
       }
-
-      members.add(widget.auth.currentUser?.uid);
+      DocumentReference user = widget.firestore
+          .collection("users")
+          .doc(widget.auth.currentUser?.uid);
+      members.add(user);
       print("Create Trip: $destination $selectedStartDate $selectedEndDate");
 
       DocumentReference trip = await trips.add({
@@ -76,7 +78,7 @@ class _TripCreateState extends State<CreateTrip> {
 
       if (context.mounted) {
         context.goNamed("sharetrip",
-            pathParameters: {"tripId": trip.id, "afterCreate":"true"});
+            pathParameters: {"tripId": trip.id, "afterCreate": "true"});
       }
     } catch (e) {
       if (context.mounted) {
