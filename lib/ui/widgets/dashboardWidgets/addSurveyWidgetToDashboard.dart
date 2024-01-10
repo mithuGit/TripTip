@@ -42,11 +42,11 @@ class SelectedDate extends SelectedOption {
 class SelectedQuestion extends SelectedOption {
   TextEditingController question = TextEditingController();
   @override
-  bool get isNotEmpty => true;
+  bool get isNotEmpty => question.text.isNotEmpty;
   @override
   Map toMap() => {"string": question.text, "voters": []};
   @override
-  Object? get value => question;
+  Object? get value => question.text;
   @override
   set value(Object? value) => question.text = value as String;
   @override
@@ -180,6 +180,7 @@ class AddSurveyWidgetToDashboardState
         onDismissed: (direction) {
           setState(() {
             _optionList.removeAt(index);
+            print("removed");
           });
         },
         background: Container(color: Colors.red),
@@ -284,10 +285,10 @@ class AddSurveyWidgetToDashboardState
             IconButton(
                 onPressed: () => {
                       if (_optionList
-                          .where((element) => element == selectedOption)
+                          .where((element) => element.value == selectedOption.value)
                           .isEmpty)
                         {
-                          if (selectedOption.value != null &&
+                          if (selectedOption.isNotEmpty &&
                               _optionList.length <= 5)
                             {
                               setState(() {
@@ -307,7 +308,7 @@ class AddSurveyWidgetToDashboardState
           ],
         ),
         ConstrainedBox(
-          constraints: const BoxConstraints(maxHeight: 200),
+          constraints: const BoxConstraints(maxHeight: 180),
           child: ReorderableListView.builder(
             shrinkWrap: true,
             itemCount: _optionList.length,
@@ -324,7 +325,7 @@ class AddSurveyWidgetToDashboardState
             },
           ),
         ),
-        const SizedBox(height: 100),
+        const SizedBox(height: 10),
         if (_optionList.length >= 2)
           MyButton(
               colors: Colors.blue,
