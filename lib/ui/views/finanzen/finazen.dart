@@ -111,9 +111,10 @@ class _FinanzenState extends State<Finanzen> {
                           List<dynamic> to = (paymentData["to"] as List);
                           Map<String, dynamic> fundtome = to.firstWhere(
                               (element) => element["user"].id == user.uid);
-                          int index = to.indexOf(fundtome);    
+                       
                           if (fundtome.isNotEmpty &&
                               fundtome["status"] == "open") {
+                                int index = to.indexOf(fundtome);    
                             openRefundsPerUser[
                                     (payment["createdBy"] as DocumentReference)
                                         .id]!
