@@ -12,8 +12,8 @@ import 'package:go_router/go_router.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 
 class Account extends StatefulWidget {
-  final bool? isEditProfile;
-  const Account({super.key, this.isEditProfile});
+  final bool isEditProfile;
+  const Account({super.key, required this.isEditProfile});
 
   @override
   State<Account> createState() => _AccountState();
@@ -31,9 +31,11 @@ class _AccountState extends State<Account> {
   final dateOfBirthController = TextEditingController();
   final passwordController = TextEditingController();
 
+  XFile? pickedFile;
+
   //sonst late inizalisiert fehler
   String selectedDate = '';
-  late ImageProvider<Object>? imageProvider;
+  ImageProvider<Object>? imageProvider;
 
   String imageURL = '';
   //set and updates Userdata in the FirebaseCollestion users
@@ -57,7 +59,9 @@ class _AccountState extends State<Account> {
     await currentUser.reauthenticateWithCredential(credential).then((value) {
       currentUser.updateEmail(newEmail);
     }).catchError((e) {
-      print(e.toString());
+      if (kDebugMode) {
+        print(e.toString());
+      }
     });
   }
 
@@ -75,55 +79,65 @@ class _AccountState extends State<Account> {
   @override
   void initState() {
     super.initState();
-    userCollection.doc(currentUser.uid).get().then((snapshot) {
-      if (snapshot.exists) {
-        Map<String, dynamic> userData = snapshot.data() as Map<String, dynamic>;
-        if (userData.containsKey('dateOfBirth') &&
-            userData['dateOfBirth'] != null) {
-          setState(() {
-            selectedDate = userData['dateOfBirth'];
-          });
-        }
-      //  if (userData.containsKey('profilepicture') &&
-       //     userData['profilepicture'] != null) {
-       //   setState(() {
-           // imageProvider = DocumentSnapshot userdata = await FirebaseFirestore.instance.doc(data?["createdBy"].path).get();
-      //    });
-     //   }
-        if(userData['prename'] != null) prenameController.text = userData['prename'];
-        if(userData['lastname'] != null) lastnameController.text = userData['lastname'];
-      } else {
-        currentUser.photoURL != null
-            ? imageProvider = NetworkImage(currentUser.photoURL!)
-            : imageProvider = const AssetImage('assets/Personavatar.png');
-        emailController.text = currentUser.email!;
-        if (currentUser.displayName != null &&
-            currentUser.displayName!.isNotEmpty) {
-          List<String> displayNameParts = currentUser.displayName!.split(' ');
-          if (displayNameParts.length == 2) {
-            prenameController.text = displayNameParts[0];
-            lastnameController.text = displayNameParts[1];
-          }
-        }
+    getUserData();
+
+    //TODO: damit kann man irgendwie das Bild in Avatr sehen,
+    //TODO: check aber nicht so ganz wieso? Ich glaub es liegt daran, dass es sonst nicht inizalisiert ist
+    //TODO: und currentUser-photoUrl das gleiche ist wie profilepicture in der DB
+    currentUser.photoURL != null
+        ? imageProvider = NetworkImage(currentUser.photoURL!)
+        : imageProvider = const AssetImage('assets/Personavatar.png');
+  }
+
+  Future<void> getUserData() async {
+    var collection = userCollection.doc(currentUser.uid);
+    DocumentSnapshot userdata = await collection.get();
+    if (!userdata.exists) {
+      throw Exception('Document does not exist!');
+    }
+    if (kDebugMode) {
+      print('Document data: ${userdata.data()}');
+    }
+    Map<String, dynamic> userData = userdata.data()! as Map<String, dynamic>;
+
+    if (userData['prename'] != null) {
+      setState(() {
+        prenameController.text = userData['prename'];
+      });
+    }
+    if (userData['lastname'] != null) {
+      setState(() {
+        lastnameController.text = userData['lastname'];
+      });
+    }
+    if (userData.containsKey('profilepicture') &&
+        userData['profilepicture'] != null) {
+      setState(() {
+        imageURL = userData['profilepicture'];
+      });
+    } else {
+      setState(() {
+        imageURL = '';
+      });
+    }
+    emailController.text = currentUser.email!;
+    if (currentUser.displayName != null &&
+        currentUser.displayName!.isNotEmpty) {
+      List<String> displayNameParts = currentUser.displayName!.split(' ');
+      if (displayNameParts.length == 2) {
+        setState(() {
+          prenameController.text = displayNameParts[0];
+          lastnameController.text = displayNameParts[1];
+        });
       }
-    });
+    }
+    if (userData.containsKey('dateOfBirth') &&
+        userData['dateOfBirth'] != null) {
+      setState(() {
+        selectedDate = userData['dateOfBirth'];
+      });
+    }
   }
-  /*
-  Future<Map<String, dynamic>> getUserData() async {
-    
-    DocumentSnapshot userdata =
-        await FirebaseFirestore.instance.doc().get();
-
-    if (!userdata.exists)
-      throw Exception("Document does not exist on the database");
-
-    print('Document data: ${userdata.data()}');
-    Map<String, dynamic> _userData = userdata.data()! as Map<String, dynamic>;
-
-    return _userData;
-    
-  }
-  */
 
   @override
   Widget build(BuildContext context) {
@@ -159,7 +173,7 @@ class _AccountState extends State<Account> {
                               onTap: () async {
                                 // Pick image from gallery
                                 ImagePicker imagePicker = ImagePicker();
-                                XFile? pickedFile = await imagePicker.pickImage(
+                                pickedFile = await imagePicker.pickImage(
                                     source: ImageSource.gallery);
                                 //get reference to storage root
                                 Reference referenceRoot =
@@ -175,19 +189,21 @@ class _AccountState extends State<Account> {
                                 try {
                                   if (pickedFile != null) {
                                     await referenceImageToUpload
-                                        .putFile(File(pickedFile.path));
+                                        .putFile(File(pickedFile!.path));
                                   }
                                   imageURL = await referenceImageToUpload
                                       .getDownloadURL();
                                 } catch (e) {
-                                  print(e);
+                                  if (kDebugMode) {
+                                    print(e);
+                                  }
                                 }
                                 setState(() {
-                                  imageProvider = (pickedFile != null
-                                          ? FileImage(File(pickedFile.path))
+                                  imageProvider = ((pickedFile != null
+                                          ? FileImage(File(pickedFile!.path))
                                           : const AssetImage(
                                               'assets/Personavatar.png'))
-                                      as ImageProvider<Object>?;
+                                      as ImageProvider<Object>?)!;
                                 });
                               },
                               child: CircleAvatar(
@@ -266,11 +282,11 @@ class _AccountState extends State<Account> {
 
                             if (context.mounted) {
                               widget.isEditProfile == true
-                                  ? context.go('/profile')
-                                  : context.go('/createTrip');
+                                  ? context.go('/setinterests/false')
+                                  : context.go('/setinterests/true');
                             }
                           },
-                          text: 'Finish',
+                          text: widget.isEditProfile == true ? "Show my Interests" : 'Finish',
                         ),
                       ],
                     ),

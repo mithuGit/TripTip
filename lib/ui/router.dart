@@ -39,8 +39,7 @@ class MyRouter {
       GlobalKey<NavigatorState>(debugLabel: 'shellProfile');
 
   static final router = GoRouter(
-
-    //TODO einfach nur ein / am anfang 
+    //TODO einfach nur ein / am anfang
     initialLocation: '/',
     navigatorKey: _rootNavigatorKey,
     routes: <RouteBase>[
@@ -141,10 +140,14 @@ class MyRouter {
               )),
       GoRoute(
         name: 'accountdetails',
-        path: '/accountdetails',
-        builder: (context, state) => Account(
-          key: state.pageKey,
-        ),
+        path: '/accountdetails/:isEditProfile',
+        builder: (context, state) {
+          final isEditProfile = state.pathParameters['isEditProfile'];
+          return Account(
+            key: state.pageKey,
+            isEditProfile: isEditProfile == "true",
+          );
+        },
       ),
       GoRoute(
         name: 'createtrip',
@@ -198,7 +201,7 @@ class MyRouter {
           key: state.pageKey,
         ),
       ),
-    
+
       GoRoute(
         name: 'accountdetails-isEditProfile',
         path: '/accountdetails-isEditProfile',
@@ -209,10 +212,14 @@ class MyRouter {
       ),
       GoRoute(
         name: 'setInterests',
-        path: '/setinterests',
-        builder: (context, state) => SetInterestsPage(
-          key: state.pageKey,
-        ),
+        path: '/setinterests/:isCreate',
+        builder: (context, state) {
+          final isCreate = state.pathParameters['isCreate'];
+          return SetInterestsPage(
+            key: state.pageKey,
+            isCreate: isCreate == "true",
+          );
+        },
       ),
       GoRoute(
         name: 'info',

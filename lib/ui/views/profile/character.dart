@@ -7,6 +7,7 @@ class CharakterContainer extends StatelessWidget {
   final String name;
   final String description;
   final String link;
+  final String linkname;
   final String image;
   final Color? color;
   final bool? fill;
@@ -16,6 +17,7 @@ class CharakterContainer extends StatelessWidget {
       required this.name,
       required this.description,
       required this.link,
+      required this.linkname,
       required this.image,
       this.color,
       this.fill});
@@ -53,7 +55,7 @@ class CharakterContainer extends StatelessWidget {
           // Link von LinkedIn
           RichText(
             text: TextSpan(
-              text: 'LinkedIn',
+              text: linkname,
               style: const TextStyle(color: Colors.blue),
               recognizer: TapGestureRecognizer()
                 ..onTap = () async {

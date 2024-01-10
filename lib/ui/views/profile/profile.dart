@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -41,9 +42,16 @@ class _ProfilePageState extends State<ProfilePage> {
   final storage = FirebaseStorage.instance;
   late ImageProvider<Object>? imageProvider;
 
+  XFile? pickedFile;
+
+  void updateProfilepicture(String image) async {
+    await userCollection.doc(currentUser.uid).update({
+      'profilepicture': image,
+    });
+  }
+
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     currentUser.photoURL != null
         ? imageProvider = NetworkImage(currentUser.photoURL!)
@@ -73,7 +81,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     onTap: () async {
                       // Pick image from gallery
                       ImagePicker imagePicker = ImagePicker();
-                      XFile? pickedFile = await imagePicker.pickImage(
+                      pickedFile = await imagePicker.pickImage(
                           source: ImageSource.gallery);
                       //get reference to storage root
                       Reference referenceRoot = FirebaseStorage.instance.ref();
@@ -88,20 +96,22 @@ class _ProfilePageState extends State<ProfilePage> {
                       try {
                         if (pickedFile != null) {
                           await referenceImageToUpload
-                              .putFile(File(pickedFile.path));
+                              .putFile(File(pickedFile!.path));
                         }
                         imageURL =
                             await referenceImageToUpload.getDownloadURL();
                       } catch (e) {
-                        print(e);
+                        if (kDebugMode) {
+                          print(e);
+                        }
                       }
                       setState(() {
-                        imageProvider = (pickedFile != null
-                                ? FileImage(File(pickedFile.path))
+                        imageProvider = ((pickedFile != null
+                                ? FileImage(File(pickedFile!.path))
                                 : const AssetImage('assets/Personavatar.png'))
-                            as ImageProvider<Object>?;
-                        currentUser.updatePhotoURL(imageURL);
+                            as ImageProvider<Object>?)!;
                       });
+                      updateProfilepicture(imageURL);
                     },
                     child: CircleAvatar(
                       radius: 37.5,
@@ -112,21 +122,20 @@ class _ProfilePageState extends State<ProfilePage> {
                   Text('Welcome ${user.displayName}',
                       style: const TextStyle(
                           fontSize: 20, fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 15),
                   SizedBox(
                       width: 200,
                       child: ElevatedButton(
                           onPressed: () {
-                            context.pushReplacement(
-                                "/accountdetails-isEditProfile");
+                            context.pushReplacement("/accountdetails/true");
                           },
                           style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.grey[300],
                               side: BorderSide.none,
                               shape: const StadiumBorder()),
-                          child: const Text('Edit Profile',
+                          child: const Text('Edit Profile or Interests',
                               style: TextStyle(color: Colors.black)))),
-                  const SizedBox(height: 25),
+                  const SizedBox(height: 15),
                   Center(
                     child: Padding(
                       padding: const EdgeInsets.only(
