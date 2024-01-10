@@ -229,6 +229,8 @@ class _MapPageState extends State<MapPage> {
                     onTap: (point) {
                       tappedPointInCircle = point;
                       _setCircle(point);
+                      markers = {};
+                      pressToGetRecommend = false;
                     },
                   ),
                 ),
@@ -398,6 +400,7 @@ class _MapPageState extends State<MapPage> {
                                                   .get();
 
                                           if (userCollection.exists == false) {
+                                            // ignore: use_build_context_synchronously
                                             return ErrorSnackbar
                                                 .showErrorSnackbar(context,
                                                     "No interests selected");
@@ -407,7 +410,7 @@ class _MapPageState extends State<MapPage> {
                                               .data()!['interests'];
 
                                           final notInterests = userCollection
-                                                  .data()!['uninterested'];
+                                              .data()!['uninterested'];
 
                                           List<Place> places =
                                               await GoogleMapService()
@@ -417,7 +420,16 @@ class _MapPageState extends State<MapPage> {
                                                       interests.cast<String>(),
                                                       notInterests
                                                           .cast<String>());
-                                          print(places);
+
+                                          if (places.isEmpty) {
+                                            pressToGetRecommend = false;
+                                            markers = {};
+                                            // ignore: use_build_context_synchronously
+                                            return ErrorSnackbar
+                                                .showErrorSnackbar(
+                                                    context, "No places found");
+                                          }
+
                                           for (var place in places) {
                                             _setNearMarker(
                                               place.location,
@@ -434,7 +446,7 @@ class _MapPageState extends State<MapPage> {
                                           });
                                         },
                                         icon: const Icon(
-                                          Icons.near_me,
+                                          Icons.recommend,
                                           color: Colors.blue,
                                         ))
                                     : IconButton(
@@ -535,7 +547,7 @@ class _MapPageState extends State<MapPage> {
         Padding(
           padding: const EdgeInsets.all(12.0),
           child: Text(
-            review['text']['text'] ?? "",
+            review['text']['text'] ?? '',
             style: Styles.reviewtext,
           ),
         ),

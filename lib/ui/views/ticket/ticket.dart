@@ -108,7 +108,7 @@ class _TicketState extends State<Ticket> {
                                     Map<String, dynamic> data =
                                         (document.data() as Map<String, dynamic>);
                                     if(data["url"] != null){
-                                      Reference doc = FirebaseStorage.instance.ref(data!["url"]);
+                                      Reference doc = FirebaseStorage.instance.ref(data["url"]);
                                       await doc.delete();
                                     }
                                     document.reference.delete();

@@ -4,12 +4,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:internet_praktikum/ui/styles/Styles.dart';
 import 'package:internet_praktikum/ui/widgets/bottom_sheet.dart';
 import 'package:internet_praktikum/ui/widgets/centerText.dart';
+import 'package:internet_praktikum/ui/widgets/finanzenWidgets/CreateDebts.dart';
 import 'package:internet_praktikum/ui/widgets/finanzenWidgets/wallet.dart';
 import 'package:internet_praktikum/ui/widgets/headerWidgets/topbar.dart';
-import 'package:slide_to_act/slide_to_act.dart';
 import '../../widgets/finanzenWidgets/extendablecontainer.dart';
 
 class Finanzen extends StatefulWidget {
@@ -25,6 +24,7 @@ class _FinanzenState extends State<Finanzen> {
 
   DocumentReference? selectedtrip;
   DocumentSnapshot? currentUser;
+
   Future<List<DocumentSnapshot>> getGroupmembers() async {
     currentUser = await firestore.collection("users").doc(user.uid).get();
     String selecttripString =
@@ -50,13 +50,12 @@ class _FinanzenState extends State<Finanzen> {
           CustomBottomSheet.show(context,
               title: "Add a receipt and send the other members dues.",
               content: [
-                Builder(
-                  builder: (context) {
-                    return const Center(
-                        // hier kommt noch die Schuldenüsetzung und Beleg hinzufügen über Galerie oder Foto
-                        );
-                  },
-                ),
+                Builder(builder: (context) {
+                  if (selectedtrip == null) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  return CreateDebts(selectedTrip: selectedtrip!);
+                })
               ]);
         },
         title: "Payments",
@@ -109,12 +108,23 @@ class _FinanzenState extends State<Finanzen> {
                             payment.data()! as Map<String, dynamic>;
                         if (paymentData["to"] != null) {
                           List<dynamic> to = (paymentData["to"] as List);
+                          if (to.isEmpty) {
+                            continue;
+                          }
+                          if (to
+                              .where(
+                                  (element) => element["user"].id == user.uid)
+                              .isEmpty) {
+                            continue;
+                          }
                           Map<String, dynamic> fundtome = to.firstWhere(
                               (element) => element["user"].id == user.uid);
-                       
+                          if (fundtome.isEmpty) {
+                            continue;
+                          }
                           if (fundtome.isNotEmpty &&
-                              fundtome["status"] == "open") {
-                                int index = to.indexOf(fundtome);    
+                              fundtome[0]["status"] == "open") {
+                            int index = to.indexOf(fundtome);
                             openRefundsPerUser[
                                     (payment["createdBy"] as DocumentReference)
                                         .id]!
@@ -122,14 +132,14 @@ class _FinanzenState extends State<Finanzen> {
                               "title": paymentData["title"],
                               "indexInArray": index,
                               "request": payment,
-                              "amount": fundtome["amount"],
+                              "amount": fundtome[0]["amount"],
                             });
                             sumsPerUser[(payment["createdBy"]
                                     as DocumentReference)
                                 .id] = sumsPerUser[
                                     (payment["createdBy"] as DocumentReference)
                                         .id]! +
-                                fundtome["amount"];
+                                fundtome[0]["amount"];
                           }
                         }
                       }
@@ -202,8 +212,7 @@ class _FinanzenState extends State<Finanzen> {
                                         ),
                                       ),
                                     ),
-                                    Text(
-                                        request.get("amount").toString() + " €",
+                                    Text("${request.get("amount")} €",
                                         style: const TextStyle(
                                           fontSize: 20,
                                           fontWeight: FontWeight.bold,
@@ -214,7 +223,7 @@ class _FinanzenState extends State<Finanzen> {
                               ),
                             )));
                       }
-                     
+
                       // Build the List
                       return Padding(
                         padding: const EdgeInsets.only(bottom: 50),
@@ -224,7 +233,8 @@ class _FinanzenState extends State<Finanzen> {
                                 padding: const EdgeInsets.all(20),
                                 sliver: SliverToBoxAdapter(
                                   child: Wallet(
-                                      user: currentUser!.reference,),
+                                    user: currentUser!.reference,
+                                  ),
                                 )),
                             SliverList(
                               delegate: SliverChildBuilderDelegate(
