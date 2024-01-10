@@ -25,7 +25,7 @@ class _CreateDebtsState extends State<CreateDebts> {
 
   var members = [];
 
-  bool allowmultipleAnswers = false;
+  bool shareEqually = false;
 
   final user = FirebaseAuth.instance.currentUser!;
   final firestore = FirebaseFirestore.instance;
@@ -39,6 +39,9 @@ class _CreateDebtsState extends State<CreateDebts> {
     selectedtrip = firestore.collection("trips").doc(selecttripString);
     members =
         ((await selectedtrip!.get()).data() as Map<String, dynamic>)["members"];
+        setState(() {
+          
+        });
   }
 
   String membersName = "";
@@ -58,7 +61,7 @@ class _CreateDebtsState extends State<CreateDebts> {
     }
     if (userData['lastname'] != null) {
       setState(() {
-        prename = userData['lastname'];
+        lastname = userData['lastname'];
       });
     }
     membersName = "$prename $lastname";
@@ -70,6 +73,8 @@ class _CreateDebtsState extends State<CreateDebts> {
     // TODO: implement initState
     super.initState();
     getGroupmembers();
+    print("HIER WIRD MEMBERS LENGTH ANGEZEIG");
+    print(members.length);
   }
 
   @override
@@ -77,7 +82,7 @@ class _CreateDebtsState extends State<CreateDebts> {
     return SingleChildScrollView(
       child: Column(
         children: [
-          /* InputField(
+      /*      InputField(
               controller: title,
               hintText: "Title of Payment",
               focusedBorderColor: const Color.fromARGB(255, 84, 113, 255),
@@ -113,50 +118,48 @@ class _CreateDebtsState extends State<CreateDebts> {
                     style: Styles.inputField,
                   ),
                   Checkbox(
-                      value: allowmultipleAnswers,
+                      value: shareEqually,
                       onChanged: (value) {
                         setState(() {
-                          allowmultipleAnswers = value!;
+                          shareEqually = value!;
                         });
                       }),
                 ],
               ),
             ],
-          ), */
+          ),  */
           const SizedBox(height: 10),
-          for (int i = 0; i < members.length; i++)
+          Text('Number of Members: ${members.length}',
+            style:Styles.inputField,
+          ),
+   for (int i = 0; i < members.length; i++)
             FutureBuilder(
                 future: getMembersName(members[i]),
-                builder: (context, members) {
-                  if (members.connectionState == ConnectionState.waiting) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
-                  if (members.hasError) {
-                    debugPrint(members.error.toString());
-                    return const CenterText(
-                        text: "Error while fetching Payments");
-                  }
-                  return Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        members.toString(),
-                        style: Styles.inputField,
-                      ),
-                      SizedBox(
-                        width: 150,
-                        child: InputField(
-                          controller: TextEditingController(),
-                          hintText: "Enter the amount",
-                          obscureText: false,
-                          numberField: true,
-                          focusedBorderColor:
-                              const Color.fromARGB(255, 84, 113, 255),
-                          borderColor: Colors.grey.shade400,
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    return Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          snapshot.data.toString(),
+                          style: Styles.inputField,
                         ),
-                      ),
-                    ],
-                  );
+                        SizedBox(
+                            width: 150,
+                            child: InputField(
+                              controller: amount,
+                              hintText: "Enter the amount",
+                              obscureText: false,
+                              numberField: true,
+                              focusedBorderColor:
+                                  const Color.fromARGB(255, 84, 113, 255),
+                              borderColor: Colors.grey.shade400,
+                            )),
+                      ],
+                    );
+                  } else {
+                    return CenterText(text: "Loading...");
+                  }
                 }),
           const SizedBox(height: 10),
         ],
