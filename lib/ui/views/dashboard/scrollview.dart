@@ -139,21 +139,17 @@ class ScrollViewWidget extends StatelessWidget {
                         // if you shhoud use a left pane, use this:
                         //    dismissible: DismissiblePane(onDismissed: () {}),
                         children: [
+                          if(con["dontEdit"] == null)
                           SlidableAction(
                             onPressed: (sdf) {
-                              UpdateWidgetListeners().updateWidget(
-                                con["key"],
-                                con!,
-                                day!,
-                                userdata!,
-                                context,
-                              );
+                              UpdateWidgetListeners().updateWidget(con["key"], con!, day!,userdata!,context,);
                             },
                             backgroundColor: Colors.transparent,
                             foregroundColor: Colors.blue,
                             icon: Icons.edit,
                             label: 'Edit',
                           ),
+                          if(con["dontDelete"] == null)
                           SlidableAction(
                             onPressed: (s) async {
                               Map<String, dynamic> archive = ((await day!.get())
@@ -178,6 +174,13 @@ class ScrollViewWidget extends StatelessWidget {
                             foregroundColor: Colors.red,
                             icon: Icons.delete,
                             label: 'Delete',
+                          ),
+                          if(con["dontDelete"] != null)
+                          SlidableAction(
+                            onPressed: (s) async {},
+                            backgroundColor: Colors.transparent,
+                            foregroundColor: Colors.red,
+                            label: "Can't delete this",
                           ),
                         ],
                       ),

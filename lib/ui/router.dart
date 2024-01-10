@@ -18,6 +18,7 @@ import 'package:internet_praktikum/ui/views/login_register_pages/login_or_regist
 import 'package:internet_praktikum/ui/views/trip_setup_pages/change_trip.dart';
 import 'package:internet_praktikum/ui/views/trip_setup_pages/create_trip.dart';
 import 'package:internet_praktikum/ui/views/trip_setup_pages/join_trip.dart';
+import 'package:internet_praktikum/ui/views/trip_setup_pages/share_trip.dart';
 import 'package:internet_praktikum/ui/views/trip_setup_pages/select_trip.dart';
 import 'package:internet_praktikum/ui/views/verification/OTP_form.dart';
 import 'package:internet_praktikum/ui/views/weather/weather_page.dart';
@@ -171,6 +172,21 @@ class MyRouter {
         builder: (context, state) => JoinTrip(
           key: state.pageKey,
         ),
+      ),
+      GoRoute(
+        name: 'sharetrip',
+        path: '/sharetrip/:tripId/:afterCreate',
+        builder: (context, state) {
+          if (state.pathParameters.isEmpty) {
+            return ShareTrip(key: state.pageKey, tripId: "Something went Wrong!", afterCreate: "f",);
+          } else {
+            return ShareTrip(
+              key: state.pageKey,
+              tripId: state.pathParameters["tripId"]!,
+              afterCreate: state.pathParameters["afterCreate"]!,
+            );
+          }
+        },
       ),
       GoRoute(
         name: 'weatherpage',

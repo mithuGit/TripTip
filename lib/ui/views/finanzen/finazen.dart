@@ -1,5 +1,11 @@
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:internet_praktikum/ui/styles/Styles.dart';
 import 'package:internet_praktikum/ui/widgets/bottom_sheet.dart';
+import 'package:internet_praktikum/ui/widgets/centerText.dart';
 import 'package:internet_praktikum/ui/widgets/headerWidgets/topbar.dart';
 import '../../widgets/finanzenWidgets/extendablecontainer.dart';
 
@@ -11,80 +17,25 @@ class Finanzen extends StatefulWidget {
 }
 
 class _FinanzenState extends State<Finanzen> {
-  /* Future<void> initPaymentSheet() async {
-    try {
-      // 1. create payment intent on the server
-      // final data = await _createTestPaymentSheet();
+  final user = FirebaseAuth.instance.currentUser!;
+  final firestore = FirebaseFirestore.instance;
 
-      // create some billingdetails
-      final billingDetails = BillingDetails(
-        name: 'Flutter Stripe',
-        email: 'email@stripe.com',
-        phone: '+48888000888',
-        address: Address(
-          city: 'Houston',
-          country: 'US',
-          line1: '1459  Circle Drive',
-          line2: '',
-          state: 'Texas',
-          postalCode: '77063',
-        ),
-      ); // mocked data for tests
-
-      // 2. initialize the payment sheet
-      await Stripe.instance.initPaymentSheet(
-        paymentSheetParameters: SetupPaymentSheetParameters(
-          // Main params
-          paymentIntentClientSecret: "testSecret",
-          merchantDisplayName: 'Flutter Stripe Store Demo',
-          // Customer params
-          customerId: "testCustomerId",
-          customerEphemeralKeySecret: "testSecret",
-
-          // Extra params
-          primaryButtonLabel: 'Pay now',
-          // applePay: PaymentSheetApplePay(
-          //   merchantCountryCode: 'DE',
-          // ),
-          googlePay: PaymentSheetGooglePay(
-            merchantCountryCode: 'DE',
-            testEnv: true,
-          ),
-          style: ThemeMode.dark,
-          appearance: PaymentSheetAppearance(
-            colors: PaymentSheetAppearanceColors(
-              background: Colors.lightBlue,
-              primary: Colors.blue,
-              componentBorder: Colors.red,
-            ),
-            shapes: PaymentSheetShape(
-              borderWidth: 4,
-              shadow: PaymentSheetShadowParams(color: Colors.red),
-            ),
-            primaryButton: PaymentSheetPrimaryButtonAppearance(
-              shapes: PaymentSheetPrimaryButtonShape(blurRadius: 8),
-              colors: PaymentSheetPrimaryButtonTheme(
-                light: PaymentSheetPrimaryButtonThemeColors(
-                  background: Color.fromARGB(255, 231, 235, 30),
-                  text: Color.fromARGB(255, 235, 92, 30),
-                  border: Color.fromARGB(255, 235, 92, 30),
-                ),
-              ),
-            ),
-          ),
-          billingDetails: billingDetails,
-        ),
-      );
-      // setState(() {
-      //   step = 1;
-      // });
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $e')),
-      );
-      rethrow;
+  DocumentReference? selectedtrip;
+  DocumentSnapshot? currentUser;
+  Future<List<DocumentSnapshot>> getGroupmembers() async {
+    currentUser = await firestore.collection("users").doc(user.uid).get();
+    String selecttripString =
+        (currentUser!.data() as Map<String, dynamic>)["selectedtrip"];
+    selectedtrip = firestore.collection("trips").doc(selecttripString);
+    List groupmembers =
+        ((await selectedtrip!.get()).data() as Map<String, dynamic>)["members"];
+    List<DocumentSnapshot> groupmembersSnaps = [];
+    for (int i = 0; i < groupmembers.length; i++) {
+      groupmembersSnaps
+          .add(await firestore.collection("users").doc(groupmembers[i]).get());
     }
-  }*/
+    return groupmembersSnaps;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -94,18 +45,19 @@ class _FinanzenState extends State<Finanzen> {
         isFinanz: true,
         icon: Icons.add,
         onTapForIconWidget: () {
-          CustomBottomSheet
-              .show(context, title: "Add a receipt and set the other members dues.", content: [
-            Builder(
-              builder: (context) {
-                return const Center(
-                  // hier kommt noch die Schuldenüsetzung und Beleg hinzufügen über Galerie oder Foto
-                );
-              },
-            ), 
-          ]);
+          CustomBottomSheet.show(context,
+              title: "Add a receipt and send the other members dues.",
+              content: [
+                Builder(
+                  builder: (context) {
+                    return const Center(
+                        // hier kommt noch die Schuldenüsetzung und Beleg hinzufügen über Galerie oder Foto
+                        );
+                  },
+                ),
+              ]);
         },
-        title: "Finanzübersicht",
+        title: "Payments",
       ),
       body: Stack(
         children: [
@@ -117,61 +69,109 @@ class _FinanzenState extends State<Finanzen> {
               ),
             ),
           ),
-          const Padding(
-            padding: EdgeInsets.only(bottom: 50),
-            child: Padding(
-              padding:
-                  EdgeInsets.only(top: 50, left: 20, right: 20, bottom: 40),
-              child: SingleChildScrollView(
-                physics: BouncingScrollPhysics(),
-                child: Column(
-                  children: [
-                    Padding(
-                      padding: EdgeInsets.only(bottom: 25),
-                      child: ExpandableContainer(
-                        name: 'Test0',
-                        items: [
-                          'Activity 1: 10.00 ',
-                          'Activity 2: 10.00 ',
-                        ],
-                        sum: 45,
-                      ),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(bottom: 25),
-                      child: ExpandableContainer(
-                        name: 'Test1',
-                        items: [
-                          'Activity 1: 10.00 ',
-                          'Activity 2: 20.00 ',
-                          'Activity 3: 15.00 ',
-                          'Activity 4: 15.00 ',
-                          'Activity 5: 15.00 ',
-                          'Activity 6: 15.00 ',
-                          'Activity 7: 15.00 ',
-                          'Activity 8: 15.00 ',
-                          'Activity 9: 15.00 ',
-                        ],
-                        sum: 45,
-                      ),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(bottom: 25),
-                      child: ExpandableContainer(
-                        name: 'Test2',
-                        items: [
-                          'Activity 1: 10.00 ',
-                          'Activity 2: 20.00 ',
-                          'Activity 3: 15.00 ',
-                        ],
-                        sum: 45,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
+          FutureBuilder(
+              future: getGroupmembers(),
+              builder: (context, members) {
+                if (members.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                if (members.hasError) {
+                  debugPrint(members.error.toString());
+                  return const CenterText(
+                      text: "Error while fetching Groupmembers");
+                }
+
+                return StreamBuilder<QuerySnapshot>(
+                    stream: selectedtrip!.collection("payments").snapshots(),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+                      if (snapshot.hasError) {
+                        debugPrint(snapshot.error.toString());
+                        return const CenterText(
+                            text: "Error while fetching Payments");
+                      }
+                      List<DocumentSnapshot> payments = snapshot.data!.docs;
+                      Map<String, List<Map<String, dynamic>>>
+                          openRefundsPerUser = {};
+                      Map<String, double> sumsPerUser = {};
+                      for (int i = 0; i < members.data!.length; i++) {
+                        openRefundsPerUser[members.data![i].id] = [];
+                        sumsPerUser[members.data![i].id] = 0;
+                      }
+
+                      for (DocumentSnapshot payment in payments) {
+                        Map<String, dynamic> paymentData =
+                            payment.data()! as Map<String, dynamic>;
+                        if (paymentData["to"] != null) {
+                          List<dynamic> to = (paymentData["to"] as List);
+                          Map<String, dynamic> fundtome = to.firstWhere(
+                              (element) => element["user"].id == user.uid);
+                          if (fundtome.isNotEmpty &&
+                              fundtome["status"] == "open") {
+                            openRefundsPerUser[
+                                    (payment["createdBy"] as DocumentReference)
+                                        .id]!
+                                .add({
+                              "title": paymentData["title"],
+                              "request": payment,
+                              "amount": fundtome["amount"],
+                            });
+                            sumsPerUser[(payment["createdBy"]
+                                    as DocumentReference)
+                                .id] = sumsPerUser[
+                                    (payment["createdBy"] as DocumentReference)
+                                        .id]! +
+                                fundtome["amount"];
+                          }
+                        }
+                      }
+
+                      List<Widget> peopleYouOwe = [];
+                      for (String key in openRefundsPerUser.keys) {
+                        if (key == user.uid) {
+                          continue;
+                        }
+                        if (openRefundsPerUser[key]!.isEmpty) {
+                          continue;
+                        }
+                        peopleYouOwe.add(Padding(
+                            padding: const EdgeInsets.only(bottom: 0, right: 5),
+                            child: ExpandableContainer(
+                              currentUser: members.data!
+                                  .firstWhere((element) => element.id == key),
+                              openRefunds: openRefundsPerUser[key]!,
+                              sum: sumsPerUser[key]!,
+                            )));
+                      }
+
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 50),
+                        child: CustomScrollView(
+                          slivers: [
+                            SliverList(
+                              delegate: SliverChildBuilderDelegate(
+                                  (BuildContext context, int index) {
+                                return Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: ExpansionTile(
+                                    initiallyExpanded: true,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(0),
+                                    ),
+                                    
+                                    title: Text("You owe "),
+                                    children: peopleYouOwe,
+                                  ),
+                                );
+                              }, childCount: peopleYouOwe.length),
+                            ),
+                          ],
+                        ),
+                      );
+                    });
+              }),
         ],
       ),
     );

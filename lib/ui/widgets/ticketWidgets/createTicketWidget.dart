@@ -1,6 +1,7 @@
 // ignore_for_file: avoid_print
 
 import 'dart:io';
+import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -8,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:internet_praktikum/ui/styles/Styles.dart';
 import 'package:internet_praktikum/ui/widgets/inputfield.dart';
+import 'package:internet_praktikum/ui/widgets/modalButton.dart';
 import 'package:internet_praktikum/ui/widgets/my_button.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:pdf_render/pdf_render.dart';
@@ -66,17 +68,16 @@ class _CreateTicketsWidgetState extends State<CreateTicketsWidget> {
       uploadTask = ref.putFile(file);
       // TODU catch error while upluading
       uploadTask!.whenComplete(() {
-          FirebaseFirestore.instance
-              .collection("trips")
-              .doc(tripId)
-              .collection("tickets")
-              .add({
-            "title": titleOfTicketText,
-            "url": ref.fullPath,
-            "createdBy": FirebaseAuth.instance.currentUser!.uid,
-            "createdAt": DateTime.now(),
-          });
-        
+        FirebaseFirestore.instance
+            .collection("trips")
+            .doc(tripId)
+            .collection("tickets")
+            .add({
+          "title": titleOfTicketText,
+          "url": ref.fullPath,
+          "createdBy": FirebaseAuth.instance.currentUser!.uid,
+          "createdAt": DateTime.now(),
+        });
       });
       await uploadTask!.whenComplete(() {});
 
@@ -169,36 +170,49 @@ class _CreateTicketsWidgetState extends State<CreateTicketsWidget> {
       children: [
         InputField(
             controller: titleOfTicket,
-            borderColor: Colors.grey.shade400,
+            borderColor: Theme.of(context).colorScheme.primary.withOpacity(0.2),
             focusedBorderColor: const Color.fromARGB(255, 84, 113, 255),
-            hintText: "Title of Ticket or Receipt",
+            hintText: "Title of Ticket",
             obscureText: false),
         const SizedBox(height: 20),
-
-        //Ticket or Receip Upload
-        Container(
-          decoration: BoxDecoration(
-            border: Border.all(
-              width: 1,
-              color: Theme.of(context).colorScheme.primary.withOpacity(0.2),
-            ),
+        if (pickedFile == null && selectedImage == null) ...[
+          GridView.count(
+            shrinkWrap: true,
+            crossAxisCount: 2,
+            crossAxisSpacing: 10,
+            mainAxisSpacing: 10,
+            padding: const EdgeInsets.all(10),
+            children: [
+              ModalButton(onTap: takePicture, icon: Icons.photo_camera , text: "Take a Picture"),
+              ModalButton(onTap: selectedFile,icon: Icons.picture_as_pdf , text: "Upload a PDF"),
+            ],
           ),
-          height: 250,
-          width: double.infinity,
-          alignment: Alignment.center,
-          child: selectedImage != null
-              ? GestureDetector(
-                  // Nochmal neues Bild erstellen, wenn man drauf klickt
-                  onTap: () => takePicture(),
-                  child: Image.file(
-                    selectedImage!,
-                    fit: BoxFit.cover,
-                    width: double.infinity,
-                    height: double.infinity,
-                  ),
-                )
-              : pickedFile != null
+        ] else
+          //Ticket or Receip Upload
+          Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(
+                  width: 1,
+                  color: Theme.of(context).colorScheme.primary.withOpacity(0.2),
+                ),
+              ),
+              height: 250,
+              width: double.infinity,
+              alignment: Alignment.center,
+              child: selectedImage != null
                   ? GestureDetector(
+                      // Nochmal neues Bild erstellen, wenn man drauf klickt
+                      onTap: () => takePicture(),
+                      child: Image.file(
+                        
+                        selectedImage!,
+                        fit: BoxFit.cover,
+                        width: double.infinity,
+                        height: double.infinity,
+                      ),
+                    )
+                  : GestureDetector(
                       // Nochmal neues File erstellen, wenn man drauf klickt
                       onTap: () => selectedFile(),
                       child: isPdf
@@ -229,41 +243,7 @@ class _CreateTicketsWidgetState extends State<CreateTicketsWidget> {
                               width: double.infinity,
                               height: double.infinity,
                             ),
-                    )
-                  : GestureDetector(
-                      onTap: () => showAlertDialog(context),
-                      child: const Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.camera_alt,
-                                size: 50,
-                              ),
-                              SizedBox(width: 10),
-                              Text("Or"),
-                              SizedBox(width: 10),
-                              Icon(
-                                Icons.upload_file_outlined,
-                                size: 50,
-                              ),
-                            ],
-                          ),
-                          SizedBox(height: 10),
-                          Text(
-                            "Upload Ticket or Receipt",
-                            style: TextStyle(
-                              color: Color.fromARGB(255, 84, 113, 255),
-                              fontSize: 20,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-        ),
-
+                    )),
         const SizedBox(height: 10),
         MyButton(
           borderColor: Colors.black,
@@ -288,7 +268,7 @@ class _CreateTicketsWidgetState extends State<CreateTicketsWidget> {
               }
             }
           },
-          text: "Upload Ticket or Receipt",
+          text: "Upload Ticket",
         ),
       ],
     );

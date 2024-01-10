@@ -7,16 +7,7 @@ import 'package:internet_praktikum/ui/widgets/dashboardWidgets/appointment.dart'
 import 'package:internet_praktikum/ui/widgets/dashboardWidgets/diaryWidget.dart';
 import 'package:internet_praktikum/ui/widgets/dashboardWidgets/simpleNoteWidget.dart';
 import 'package:internet_praktikum/ui/widgets/dashboardWidgets/survey.dart';
-import 'package:provider/provider.dart';
 
-class AddButton extends ChangeNotifier {
-  bool _addButton = false;
-  bool get addButton => _addButton;
-  void setAddButton(bool value) {
-    _addButton = value;
-    notifyListeners();
-  }
-}
 
 class MainDasboardinitializer extends StatefulWidget {
   double elevation = 0;
@@ -46,52 +37,49 @@ class _MainDasboardinitializerState extends State<MainDasboardinitializer> {
           borderRadius: BorderRadius.circular(34.4),
         ),
         color: const Color(0xE51E1E1E),
-        child: MultiProvider(
-          providers: [
-            ChangeNotifierProvider(create: (_) => AddButton()),
-          ],
-          child: Container(
-            padding:
-                const EdgeInsets.only(top: 20, bottom: 20, left: 20, right: 20),
-            child: Column(
-              children: [
-                Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        super.widget.title,
-                        textAlign: TextAlign.left,
-                        style: Styles.mainDasboardinitializerTitle,
-                      )
-                    ]),
-                LayoutBuilder(builder: (context, constraints) {
-                  if (widget.data["type"] == null) {
-                    return const Text("No type is specified");
+        child: Container(
+          padding:
+              const EdgeInsets.only(top: 20, bottom: 20, left: 20, right: 20),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start, 
+            children: [
+              Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      super.widget.title,
+                      textAlign: TextAlign.left,
+                      style: Styles.mainDasboardinitializerTitle,
+                    )
+                  ]),
+              LayoutBuilder(builder: (context, constraints) {
+                if (widget.data["type"] == null) {
+                  return const Text("No type is specified");
+                } else {
+                  if (widget.data["type"] == "note") {
+                    return SimpleNoteWidget(
+                      data: widget.data,
+                    );
+                  } else if (widget.data["type"] == "list") {
+                    return SimpleNoteWidget(
+                      data: widget.data,
+                    );
+                  } else if (widget.data["type"] == "appointment") {
+                    return AppointmentWidget(data: widget.data);
+                  } else if (widget.data["type"] == "survey") {
+                    return SurveyWidget(
+                        data: widget.data,
+                        userdata: widget.userdata,
+                        day: widget.day);
+                  } else if (widget.data["type"] == "diary") {
+                    return DiaryWidget(data: widget.data, day: widget.day);
                   } else {
-                    if (widget.data["type"] == "note") {
-                      return SimpleNoteWidget(
-                        data: widget.data,
-                      );
-                    } else if (widget.data["type"] == "list") {
-                      return SimpleNoteWidget(
-                        data: widget.data,
-                      );
-                    } else if (widget.data["type"] == "appointment") {
-                      return AppointmentWidget(data: widget.data);
-                    } else if (widget.data["type"] == "survey") {
-                      return SurveyWidget(
-                          data: widget.data,
-                          userdata: widget.userdata,
-                          day: widget.day);
-                    } else if (widget.data["type"] == "diary") {
-                      return DiaryWidget(data: widget.data, day: widget.day);
-                    } else {
-                      return const Text("No type is specified");
-                    }
+                    return const Text("No type is specified");
                   }
-                }),
-              ],
-            ),
+                }
+              }),
+            ],
           ),
         ));
   }

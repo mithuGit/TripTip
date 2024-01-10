@@ -1,18 +1,20 @@
+import 'dart:ffi';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:internet_praktikum/ui/widgets/finanzenWidgets/slidablebutton.dart';
 
 class ExpandableContainer extends StatefulWidget {
-  const ExpandableContainer({
-    Key? key,
-    required this.name,
-    required this.items,
-    required this.sum,
-  }) : super(key: key);
-
-  final String name;
-  final List<String> items;
   final double sum;
+  DocumentSnapshot currentUser;
+  List<Map<String, dynamic>> openRefunds = [];
+  ExpandableContainer({
+    Key? key,
+    required this.sum,
+    required this.currentUser,
+    required this.openRefunds,
+  }) : super(key: key);
 
   @override
   State<ExpandableContainer> createState() => _ExpandableContainerState();
@@ -20,31 +22,25 @@ class ExpandableContainer extends StatefulWidget {
 
 class _ExpandableContainerState extends State<ExpandableContainer> {
   bool isExpanded = false;
-  User? currentUser;
 
   @override
   void initState() {
     super.initState();
-    FirebaseAuth.instance.authStateChanges().listen((User? user) {
-      setState(() {
-        currentUser = user;
-      });
-    });
   }
 
   double calculateHeight(double height) {
-    if (widget.items.length >= 4 || widget.items.length == 3) {
+    if (widget.openRefunds.length >= 4 || widget.openRefunds.length == 3) {
       return height * 0.38;
-    } else if (widget.items.length == 2) {
+    } else if (widget.openRefunds.length == 2) {
       return height * 0.30;
     }
     return height * 0.24;
   }
 
   double calculateHeightSmallList(double containerWidth) {
-    if (widget.items.length >= 4 || widget.items.length == 3) {
+    if (widget.openRefunds.length >= 4 || widget.openRefunds.length == 3) {
       return containerWidth * 0.58;
-    } else if (widget.items.length == 2) {
+    } else if (widget.openRefunds.length == 2) {
       return containerWidth * 0.40;
     }
     return containerWidth * 0.24;
@@ -76,57 +72,50 @@ class _ExpandableContainerState extends State<ExpandableContainer> {
                 children: [
                   Padding(
                     padding: const EdgeInsets.only(
-                      top: 5.0,
+                      top: 7.0,
                       left: 10,
                       right: 25,
                       bottom: 5.0,
                     ),
                     child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Align(
-                          alignment: Alignment.centerLeft,
-                          child: Padding(
-                            padding:
-                                const EdgeInsets.only(top: 2.0, bottom: 2.0),
-                            child: Row(
-                              children: [
-                                CircleAvatar(
-                                  radius: 25,
-                                  backgroundImage: currentUser?.photoURL != null
-                                      ? NetworkImage(currentUser!.photoURL!)
-                                      : const AssetImage(
-                                              'assets/Personavatar.png')
-                                          as ImageProvider<Object>,
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.only(left: 10.0),
-                                  child: Text(
-                                    widget.name,
-                                    style: const TextStyle(
-                                      fontSize: 20.0,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
+                        CircleAvatar(
+                          radius: 25,
+                          backgroundImage: (widget.currentUser.data()!
+                                          as Map<String, dynamic>)[
+                                      "profilePicture"] !=
+                                  null
+                              ? NetworkImage((widget.currentUser.data()!
+                                      as Map<String, dynamic>)[
+                                  "profilePicture"])
+                              : const AssetImage(
+                                      'assets/Personavatar.png')
+                                  as ImageProvider<Object>,
+                        ),
+                        const SizedBox(
+                          width: 10,
+                        ),
+                        Text(
+                          (widget.currentUser.data()! as Map<String,
+                                  dynamic>)["prename"] +
+                              " " +
+                              (widget.currentUser.data()! as Map<
+                                  String, dynamic>)["lastname"],
+                          style: const TextStyle(
+                            fontSize: 20.0,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
                           ),
                         ),
-                        Align(
-                          alignment: Alignment.centerRight,
-                          child: Padding(
-                            padding: const EdgeInsets.only(
-                                top: 5.0, left: 140, right: 5),
-                            child: Text(
-                              '${widget.sum} €',
-                              style: const TextStyle(
-                                fontSize: 20.0,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                            ),
+                        const Spacer(),
+                        Text(
+                          '${widget.sum} €',
+                          style: const TextStyle(
+                            fontSize: 20.0,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
                           ),
                         ),
                       ],
@@ -139,12 +128,11 @@ class _ExpandableContainerState extends State<ExpandableContainer> {
                           calculateHeight(MediaQuery.of(context).size.height)),
                       child: ListView.builder(
                         shrinkWrap: true,
-                        itemCount: widget.items.length,
+                        itemCount: widget.openRefunds.length,
                         itemBuilder: (BuildContext context, int index) {
-                          List<String> itemParts =
-                              widget.items[index].split(':');
-                          String activity = itemParts[0];
-                          String price = itemParts[1];
+                          String title = widget.openRefunds[index]["title"];
+                          double amount = widget.openRefunds[index]["amount"].toDouble();
+
                           return Padding(
                             padding: const EdgeInsets.only(bottom: 0, right: 5),
                             child: ListTile(
@@ -153,7 +141,7 @@ class _ExpandableContainerState extends State<ExpandableContainer> {
                                     MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
-                                    activity,
+                                    title,
                                     style: const TextStyle(
                                       fontSize: 20.0,
                                       fontWeight: FontWeight.bold,
@@ -161,7 +149,7 @@ class _ExpandableContainerState extends State<ExpandableContainer> {
                                     ),
                                   ),
                                   Text(
-                                    '$price€',
+                                    '$amount€',
                                     style: const TextStyle(
                                       fontSize: 20.0,
                                       fontWeight: FontWeight.bold,

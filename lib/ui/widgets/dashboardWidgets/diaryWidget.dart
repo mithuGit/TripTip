@@ -137,7 +137,7 @@ class DiaryWidgetState extends State<DiaryWidget> {
             )
           ]
         ] else ...[
-          Text(
+          const Text(
               "Soon someone randomly will be\nchoosed to write a diary of the Day!\nYou will be notifiyed if you are the lucky one!",
               style: Styles.noteTextstyle),
         ]

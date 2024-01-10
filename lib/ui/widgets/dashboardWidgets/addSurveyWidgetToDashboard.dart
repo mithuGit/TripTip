@@ -116,6 +116,9 @@ class AddSurveyWidgetToDashboardState
   }
 
   Future<void> createorUpdateSurvey() async {
+    if (nameofSurvey.text.isEmpty) {
+      throw Exception("Please enter a title for this survey");
+    }
     Map<String, dynamic> data = {
       "type": "survey",
       "title": nameofSurvey.text,
