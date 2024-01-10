@@ -3,9 +3,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:internet_praktikum/ui/styles/Styles.dart';
 import 'package:internet_praktikum/ui/widgets/bottom_sheet.dart';
 import 'package:internet_praktikum/ui/widgets/centerText.dart';
+import 'package:internet_praktikum/ui/widgets/finanzenWidgets/CreateDebts.dart';
 import 'package:internet_praktikum/ui/widgets/headerWidgets/topbar.dart';
 import '../../widgets/finanzenWidgets/extendablecontainer.dart';
 
@@ -22,6 +22,7 @@ class _FinanzenState extends State<Finanzen> {
 
   DocumentReference? selectedtrip;
   DocumentSnapshot? currentUser;
+
   Future<List<DocumentSnapshot>> getGroupmembers() async {
     currentUser = await firestore.collection("users").doc(user.uid).get();
     String selecttripString =
@@ -48,13 +49,12 @@ class _FinanzenState extends State<Finanzen> {
           CustomBottomSheet.show(context,
               title: "Add a receipt and send the other members dues.",
               content: [
-                Builder(
-                  builder: (context) {
-                    return const Center(
-                        // hier kommt noch die Schuldenüsetzung und Beleg hinzufügen über Galerie oder Foto
-                        );
-                  },
-                ),
+                Builder(builder: (context) {
+                  if (selectedtrip == null) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  return CreateDebts(selectedTrip: selectedtrip!);
+                })
               ]);
         },
         title: "Payments",
@@ -160,7 +160,6 @@ class _FinanzenState extends State<Finanzen> {
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(0),
                                     ),
-                                    
                                     title: Text("You owe "),
                                     children: peopleYouOwe,
                                   ),

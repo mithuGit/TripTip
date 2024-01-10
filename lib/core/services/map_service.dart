@@ -138,13 +138,17 @@ class GoogleMapService {
 
     var json1 = convert.jsonDecode(apiRequest1.body);
     List<dynamic> places;
+    List<Place> placeList = [];
+
+    if (json1["places"] == null) {
+      return placeList;
+    }
     if (json2 != null) {
       places = [...json1["places"], ...json2["places"]];
     } else {
       places = json1["places"];
     }
 
-    List<Place> placeList = [];
     for (var place in places) {
       placeList.add(Place(
         name: place["displayName"]["text"],
