@@ -286,7 +286,9 @@ class _AccountState extends State<Account> {
                                   : context.go('/setinterests/true');
                             }
                           },
-                          text: widget.isEditProfile == true ? "Show my Interests" : 'Finish',
+                          text: widget.isEditProfile == true
+                              ? "Show my Interests"
+                              : 'Finish',
                         ),
                       ],
                     ),
