@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:internet_praktikum/ui/styles/Styles.dart';
+import 'package:internet_praktikum/ui/widgets/centerText.dart';
 import 'package:internet_praktikum/ui/widgets/inputfield.dart';
 
 class CreateDebts extends StatefulWidget {
@@ -40,19 +41,27 @@ class _CreateDebtsState extends State<CreateDebts> {
         ((await selectedtrip!.get()).data() as Map<String, dynamic>)["members"];
   }
 
-  String getMembersName(DocumentReference members) {
-    String membersName = "";
-    setState(() {
-      String prename = "";
-      String lastname = "";
+  String membersName = "";
 
-      // Hole den Namen des Users aus der Datenbank
-      var user = FirebaseFirestore.instance.collection('users').doc(members.id);
-      user.get().then((value) => prename = value.data()!['prename']);
-      user.get().then((value) => lastname = value.data()!['lastname']);
+  Future<String> getMembersName(DocumentReference members) async {
+    String prename = "";
+    String lastname = "";
+    // Hole den Namen des Users aus der Datenbank
+    var user = FirebaseFirestore.instance.collection('users');
+    var collection = user.doc(members.id);
+    DocumentSnapshot userData = await collection.get();
 
-      membersName = "$prename $lastname";
-    });
+    if (userData['prename'] != null) {
+      setState(() {
+        prename = userData['prename'];
+      });
+    }
+    if (userData['lastname'] != null) {
+      setState(() {
+        prename = userData['lastname'];
+      });
+    }
+    membersName = "$prename $lastname";
     return membersName;
   }
 
@@ -68,7 +77,7 @@ class _CreateDebtsState extends State<CreateDebts> {
     return SingleChildScrollView(
       child: Column(
         children: [
-          InputField(
+          /* InputField(
               controller: title,
               hintText: "Title of Payment",
               focusedBorderColor: const Color.fromARGB(255, 84, 113, 255),
@@ -113,29 +122,42 @@ class _CreateDebtsState extends State<CreateDebts> {
                 ],
               ),
             ],
-          ),
+          ), */
           const SizedBox(height: 10),
           for (int i = 0; i < members.length; i++)
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  getMembersName(members[i]),
-                  style: Styles.inputField,
-                ),
-                SizedBox(
-                  width: 150,
-                  child: InputField(
-                    controller: TextEditingController(),
-                    hintText: "Enter the amount",
-                    obscureText: false,
-                    numberField: true,
-                    focusedBorderColor: const Color.fromARGB(255, 84, 113, 255),
-                    borderColor: Colors.grey.shade400,
-                  ),
-                ),
-              ],
-            ),
+            FutureBuilder(
+                future: getMembersName(members[i]),
+                builder: (context, members) {
+                  if (members.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  if (members.hasError) {
+                    debugPrint(members.error.toString());
+                    return const CenterText(
+                        text: "Error while fetching Payments");
+                  }
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        members.toString(),
+                        style: Styles.inputField,
+                      ),
+                      SizedBox(
+                        width: 150,
+                        child: InputField(
+                          controller: TextEditingController(),
+                          hintText: "Enter the amount",
+                          obscureText: false,
+                          numberField: true,
+                          focusedBorderColor:
+                              const Color.fromARGB(255, 84, 113, 255),
+                          borderColor: Colors.grey.shade400,
+                        ),
+                      ),
+                    ],
+                  );
+                }),
           const SizedBox(height: 10),
         ],
       ),

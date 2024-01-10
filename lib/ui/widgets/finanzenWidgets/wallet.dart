@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:internet_praktikum/core/services/paymentsHandeler.dart';
 import 'package:internet_praktikum/ui/widgets/my_button.dart';
 
@@ -39,9 +38,14 @@ class _WalletState extends State<Wallet> {
                 child: Text("Error"),
               );
             }
-            double balance =
-                (snapshot.data!.data() as Map<String, dynamic>)["balance"] *
-                    1.0;
+            double balance = 0.0;
+            try {
+              balance =
+                  (snapshot.data!.data() as Map<String, dynamic>)["balance"] *
+                      1.0;
+            } catch (e) {
+              print(e);
+            }
             return Column(
               //    crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -71,7 +75,9 @@ class _WalletState extends State<Wallet> {
                 ),
                 if (loading) ...[
                   const Center(
-                    child: LinearProgressIndicator( color: Colors.blue,),
+                    child: LinearProgressIndicator(
+                      color: Colors.blue,
+                    ),
                   )
                 ] else ...[
                   if (balance < 0) ...[
