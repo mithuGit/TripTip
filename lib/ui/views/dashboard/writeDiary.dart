@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -26,10 +24,11 @@ class WriteDiaryState extends State<WriteDiary> {
   @override
   Widget build(BuildContext context) {
     Future<DocumentSnapshot> createDiary() async {
+      debugPrint("sdf");
       if ((await widget.day.collection("diary").get()).docs.isNotEmpty) {
         QuerySnapshot diary =
             await widget.day.collection("diary").limit(1).get();
-        diary.docs[0];
+        
 
         return await diary.docs[0].reference.get();
       } else {
@@ -70,11 +69,12 @@ class WriteDiaryState extends State<WriteDiary> {
               }
               Map<String, dynamic> data =
                   snapshot.data!.data() as Map<String, dynamic>;
-             /*  _controller = QuillController(
+               _controller = QuillController(
                   document: Document.fromJson(data["content"]),
-                  selection: const TextSelection.collapsed(offset: 0)); */
-              _controller.addListener(() {
-                snapshot.data!.reference.update(
+                  selection: const TextSelection.collapsed(offset: 0)); 
+              _controller.addListener(() async {
+                debugPrint("sdf");
+                await snapshot.data!.reference.update(
                     {"content": _controller.document.toDelta().toJson()});
               });
               return Column(children: [

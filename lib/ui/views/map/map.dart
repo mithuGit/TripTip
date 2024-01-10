@@ -535,7 +535,7 @@ class _MapPageState extends State<MapPage> {
         Padding(
           padding: const EdgeInsets.all(12.0),
           child: Text(
-            review['text']['text'],
+            review['text']['text'] ?? "",
             style: Styles.reviewtext,
           ),
         ),
