@@ -2,6 +2,12 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
+import 'package:internet_praktikum/ui/widgets/errorSnackbar.dart';
+
+class NoPayOutinformation implements Exception {
+  String cause;
+  NoPayOutinformation(this.cause);
+}
 
 class PaymentsHandeler {
   FirebaseFunctions functions = FirebaseFunctions.instance;
@@ -17,43 +23,37 @@ class PaymentsHandeler {
       final _setupIntent = _response["setupIntent"];
       final _ephemeralKey = _response["ephemeralKey"];
       final _customer = _response["customer"];
-      try {
-        await Stripe.instance.initPaymentSheet(
-            paymentSheetParameters: SetupPaymentSheetParameters(
-          setupIntentClientSecret: _setupIntent,
-          merchantDisplayName: 'TipTrip',
-          customerId: _customer,
-          customerEphemeralKeySecret: _ephemeralKey,
-        ));
-        await Stripe.instance.presentPaymentSheet();
-      } catch (e) {
-        print(e);
-      }
     } else {
       throw _response["error"];
     }
-    print(_response);
     return _response["customer"];
   }
 
   Future<void> refund(DocumentSnapshot user) async {
     String _stripeId = "";
     if ((user.data()! as Map<String, dynamic>)["stripeId"] == null) {
-      _stripeId = await createAccoutAndAddPaymentsMethode(user.reference);
+      try {
+        _stripeId = await createAccoutAndAddPaymentsMethode(user.reference);
+      } catch (e) {
+        throw "Error creating Account";
+      }
     } else {
       _stripeId = (user.data()! as Map<String, dynamic>)["stripeId"];
     }
-    //TDOD: CHeck if more than 50Cent
+    //TODO: CHeck if more than 50Cent
+
+    String? cachedPaymentIntend;
     try {
       final result =
           await FirebaseFunctions.instance.httpsCallable('stripeRefund').call(
         {
           "customer": _stripeId,
-          "amount": 100,
+          "amount": 23.4,
         },
       );
       final _response = result.data;
       print(_response);
+      cachedPaymentIntend = _response["paymentIntentId"];
       await Stripe.instance.initPaymentSheet(
           paymentSheetParameters: SetupPaymentSheetParameters(
         paymentIntentClientSecret: _response["paymentIntent"],
@@ -65,29 +65,47 @@ class PaymentsHandeler {
       // Start Payment
       await Stripe.instance.presentPaymentSheet();
     } on FirebaseFunctionsException catch (error) {
-
+      throw "Error creating refund";
     } on StripeException catch (error) {
       debugPrint("StripeException");
-      
-    } catch (error) {
-    }
+      debugPrint(error.toString());
+      if (error.error.code == FailureCode.Canceled) {
+        debugPrint("Canceled");
+        if (cachedPaymentIntend != null) {
+          final cancelResult = await FirebaseFunctions.instance
+              .httpsCallable("stripeCancelRefund")
+              .call(
+            {
+              "paymentIntentId": cachedPaymentIntend,
+              "customer": _stripeId,
+            },
+          );
+          debugPrint(cancelResult.data.toString());
+          if (cancelResult.data["success"]) {
+            debugPrint("success");
+          } else {
+            debugPrint("error");
+            throw "Error canceling refund";
+          }
+        }
+      }
+    } catch (error) {}
   }
 
-  Future<void> bookToBankAccount() async {
-    final result = await FirebaseFunctions.instanceFor(region: 'us-central1')
-        .httpsCallable('stripeCheckcostumerOrCreate')
-        .call(
-      {
-        "text": "text",
-        "push": true,
-      },
-    );
+  Future<void> bookToBankAccount(DocumentSnapshot myAccount) async {
+    Map<String, dynamic> data = myAccount.data()! as Map<String, dynamic>;
+    if (data["PayoutInformation"] == null) {
+      throw NoPayOutinformation("No Payout Information");
+    }
+    final result = await FirebaseFunctions.instance
+        .httpsCallable('bookToBankAccount')
+        .call();
     final _response = result.data as String;
     print(_response);
   }
 
-  Future<void> payOpenRefundsPerUser(
-      List<Map<String, dynamic>> openRefunds, DocumentReference theotherUser, DocumentReference me) async {
+  Future<void> payOpenRefundsPerUser(List<Map<String, dynamic>> openRefunds,
+      DocumentReference theotherUser, DocumentReference me) async {
     double sumOfRefunds = 0;
     for (final refund in openRefunds) {
       final QueryDocumentSnapshot request = refund["request"];
@@ -108,6 +126,5 @@ class PaymentsHandeler {
     await me.update({
       "balance": FieldValue.increment(-sumOfRefunds),
     });
-    
   }
 }
