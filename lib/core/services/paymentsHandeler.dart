@@ -94,7 +94,7 @@ class PaymentsHandeler {
 
   Future<void> bookToBankAccount(DocumentSnapshot myAccount) async {
     Map<String, dynamic> data = myAccount.data()! as Map<String, dynamic>;
-    if (data["PayoutInformation"] == null) {
+    if (data["payoutInformation"] == null) {
       throw NoPayOutinformation("No Payout Information");
     }
     final result = await FirebaseFunctions.instance

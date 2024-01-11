@@ -107,7 +107,7 @@ class _WalletState extends State<Wallet> {
                           });
                         },
                         text: "Recharge"),
-                  ] else ...[
+                  ] else if(balance > 0) ...[
                     MyButton(
                         onTap: () async {
                           setState(() {
