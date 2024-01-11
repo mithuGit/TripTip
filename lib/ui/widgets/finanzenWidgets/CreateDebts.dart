@@ -20,19 +20,29 @@ class CreateDebts extends StatefulWidget {
 }
 
 class _CreateDebtsState extends State<CreateDebts> {
+    //TODO Finanzenproblem wegen status ,,open" ist nicht da irgendwie ein debug point mal bei finanzen setzen
+    // ca. Zeile 126 bei finanzen.dart
   final title = TextEditingController();
   final description = TextEditingController();
   final totalAmount = TextEditingController();
   final myAmount = TextEditingController();
   List<TextEditingController> amountList = [];
 
-  //TODO Nach Share Equally funktioniert das Calculate my account nicht mehr und der betrag wird nicht ordentlich kalkuliert
+  //TODO Nach Share Equally funktioniert das Calculate my a
+
+  //TODO Buttons von Back und Finish konfigurieren
+  //TItel für die bottomsheets wechseln passenden namen finden 
+  //
+  //TODO Account nicht mehr und der betrag wird nicht ordentlich kalkuliert
   //wahrscheinlich weil die Liste ein Textfield zu viel hat
+  //TODO Eigentlicher CurrentUser aus der Liste soll aus der ,,TO "Liste in Firebase nicht mitübernommen wird 
 
   var members = [];
 
   bool shareEqually = false;
   bool calculateMyAmountDifference = false;
+
+  bool newBottomSheet = false;
 
   final user = FirebaseAuth.instance.currentUser!;
   final firestore = FirebaseFirestore.instance;
@@ -55,7 +65,6 @@ class _CreateDebtsState extends State<CreateDebts> {
   }
 
   Future<void> createDebt() async {
-
     List<dynamic> to = [];
 
     for (int i = 0; i < members.length; i++) {
@@ -138,93 +147,118 @@ class _CreateDebtsState extends State<CreateDebts> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        InputField(
-            controller: title,
-            hintText: "Title of Payment",
-            focusedBorderColor: const Color.fromARGB(255, 84, 113, 255),
-            borderColor: Colors.grey.shade400,
-            obscureText: false),
+        !newBottomSheet
+            ? InputField(
+                controller: title,
+                hintText: "Title of Payment",
+                focusedBorderColor: const Color.fromARGB(255, 84, 113, 255),
+                borderColor: Colors.grey.shade400,
+                obscureText: false)
+            : Container(),
         //      const SizedBox(height: 10),
-        const SizedBox(height: 10),
-        InputField(
-            controller: description,
-            hintText: "Description of Payment",
-            focusedBorderColor: const Color.fromARGB(255, 84, 113, 255),
-            borderColor: Colors.grey.shade400,
-            multiline: true,
-            obscureText: false),
-        const SizedBox(height: 10),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            SizedBox(
-                width: 150,
-                child: InputField(
-                  controller: totalAmount,
-                  hintText: "The total amount",
-                  obscureText: false,
-                  numberField: true,
-                  focusedBorderColor: const Color.fromARGB(255, 84, 113, 255),
-                  borderColor: Colors.grey.shade400,
-                )),
-            Row(
-              children: [
-                const Text(
-                  "Share Equally:",
-                  style: Styles.inputField,
-                ),
-                Checkbox(
-                    value: shareEqually,
-                    onChanged: (value) {
-                      setState(() {
-                        shareEqually = value!;
-                        if (!shareEqually && totalAmount.text != "") {
-                          bool allAmountsFilled = true;
+        !newBottomSheet ? const SizedBox(height: 15) : Container(),
+        !newBottomSheet
+            ? InputField(
+                controller: description,
+                hintText: "Description of Payment",
+                focusedBorderColor: const Color.fromARGB(255, 84, 113, 255),
+                borderColor: Colors.grey.shade400,
+                multiline: true,
+                obscureText: false)
+            : Container(),
+        !newBottomSheet ? const SizedBox(height: 15) : Container(),
+        !newBottomSheet
+            ? Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  SizedBox(
+                      width: 150,
+                      child: InputField(
+                        controller: totalAmount,
+                        hintText: "The total amount",
+                        obscureText: false,
+                        numberField: true,
+                        focusedBorderColor:
+                            const Color.fromARGB(255, 84, 113, 255),
+                        borderColor: Colors.grey.shade400,
+                      )),
+                  Row(
+                    children: [
+                      const Text(
+                        "Share Equally:",
+                        style: Styles.inputField,
+                      ),
+                      Checkbox(
+                          value: shareEqually,
+                          onChanged: (value) {
+                            setState(() {
+                              shareEqually = value!;
+                              if (!shareEqually && totalAmount.text != "") {
+                                bool allAmountsFilled = true;
 
-                          for (int i = 0; i < amountList.length - 1; i++) {
-                            if (amountList[i].text.isEmpty) {
-                              allAmountsFilled = false;
-                              break;
-                            }
-                          }
+                                for (int i = 0;
+                                    i < amountList.length - 1;
+                                    i++) {
+                                  if (amountList[i].text.isEmpty) {
+                                    allAmountsFilled = false;
+                                    break;
+                                  }
+                                }
 
-                          if (allAmountsFilled) {
-                            WidgetsBinding.instance.addPostFrameCallback((_) {
-                              calculateMyAmount();
+                                if (allAmountsFilled) {
+                                  WidgetsBinding.instance
+                                      .addPostFrameCallback((_) {
+                                    calculateMyAmount();
+                                  });
+                                } else {
+                                  ErrorSnackbar.showErrorSnackbar(
+                                      context, "Please enter all amounts");
+                                }
+                              } else if (shareEqually == true &&
+                                  totalAmount.text == "") {
+                                ErrorSnackbar.showErrorSnackbar(
+                                    context, "Please enter a Amount first");
+                              } else if (shareEqually == true &&
+                                  totalAmount.text != "") {
+                                for (int i = 0; i < amountList.length; i++) {
+                                  amountList[i].text =
+                                      (double.parse(totalAmount.text) /
+                                              amountList.length)
+                                          .toStringAsFixed(2);
+                                }
+                                myAmount.text =
+                                    (double.parse(totalAmount.text) /
+                                            amountList.length)
+                                        .toStringAsFixed(2);
+                              } else {
+                                for (int i = 0; i < amountList.length; i++) {
+                                  amountList[i].text = "";
+                                }
+                                myAmount.text = "";
+                              }
                             });
-                          } else {
-                            ErrorSnackbar.showErrorSnackbar(
-                                context, "Please enter all amounts");
-                          }
-                        } else if (shareEqually == true &&
-                            totalAmount.text == "") {
-                          ErrorSnackbar.showErrorSnackbar(
-                              context, "Please enter a Amount first");
-                        } else if (shareEqually == true &&
-                            totalAmount.text != "") {
-                          for (int i = 0; i < amountList.length; i++) {
-                            amountList[i].text =
-                                (double.parse(totalAmount.text) /
-                                        amountList.length)
-                                    .toStringAsFixed(2);
-                          }
-                          myAmount.text = (double.parse(totalAmount.text) /
-                                  amountList.length)
-                              .toStringAsFixed(2);
-                        } else {
-                          for (int i = 0; i < amountList.length; i++) {
-                            amountList[i].text = "";
-                          }
-                          myAmount.text = "";
-                        }
-                      });
-                    }),
-              ],
-            ),
-          ],
-        ),
-        const SizedBox(height: 10),
-        for (int i = 0; i < members.length; i++) ...{
+                          }),
+                    ],
+                  ),
+                ],
+              )
+            : Container(),
+        !newBottomSheet ? const SizedBox(height: 40) : Container(),
+
+        !newBottomSheet
+            ? MyButton(
+                borderColor: Colors.black,
+                textStyle: Styles.buttonFontStyleModal,
+                onTap: () {
+                  setState(() {
+                    newBottomSheet = true;
+                  });
+                }, //hhhhhh
+                text: "Next")
+            : Container(),
+
+        //hier soll alles in einem andern bottomsheet sein, heißt der obere teil bottom sheet verschwindet nach links und von rechts kommt mäßig ein neues bottom sheet rein
+        for (int i = 0; i < members.length && newBottomSheet == true; i++) ...{
           FutureBuilder(
               future: getMembersName(members[i]),
               builder: (context, members) {
@@ -286,82 +320,108 @@ class _CreateDebtsState extends State<CreateDebts> {
                 }
               }),
           if (i < members.length - 1 &&
-              (members[i] as DocumentReference).id != user.uid)
+              (members[i] as DocumentReference).id != user.uid &&
+              newBottomSheet)
             const SizedBox(height: 10),
         },
-        const SizedBox(height: 10),
-        const Divider(
-          height: 10,
-        ),
-        const SizedBox(height: 10),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const Text(
-              "Calculate my Amount:", // My amount will be calculated automatically
-              style: Styles.inputField,
-            ),
-            Checkbox(
-                value: calculateMyAmountDifference,
-                onChanged: (value) {
-                  setState(() {
-                    calculateMyAmountDifference = value!;
-                    calculateMyAmountDifference &&
-                            totalAmount.text != "" &&
-                            !shareEqually
-                        ? WidgetsBinding.instance.addPostFrameCallback((_) {
-                            calculateMyAmount();
-                          })
-                        : myAmount.text = "";
-                  });
-                }),
-          ],
-        ),
-        const SizedBox(height: 10),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Flexible(
-              child: Container(
-                width: 200,
-                height: 50,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(11.0),
-                  border: Border.all(color: Colors.grey.shade400, width: 1),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.only(
-                    left: 14,
+        newBottomSheet ? const SizedBox(height: 10) : Container(),
+        newBottomSheet
+            ? const Divider(
+                height: 10,
+              )
+            : Container(),
+        newBottomSheet ? const SizedBox(height: 10) : Container(),
+        newBottomSheet
+            ? Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    "Calculate my Amount:", // My amount will be calculated automatically
+                    style: Styles.inputField,
                   ),
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      currentUserName,
-                      style: Styles.inputField,
-                      overflow: TextOverflow.ellipsis,
+                  Checkbox(
+                      value: calculateMyAmountDifference,
+                      onChanged: (value) {
+                        setState(() {
+                          calculateMyAmountDifference = value!;
+                          calculateMyAmountDifference &&
+                                  totalAmount.text != "" &&
+                                  !shareEqually
+                              ? WidgetsBinding.instance
+                                  .addPostFrameCallback((_) {
+                                  calculateMyAmount();
+                                })
+                              : myAmount.text = "";
+                        });
+                      }),
+                ],
+              )
+            : Container(),
+        newBottomSheet ? const SizedBox(height: 10) : Container(),
+        newBottomSheet
+            ? Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Flexible(
+                    child: Container(
+                      width: 200,
+                      height: 50,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(11.0),
+                        border:
+                            Border.all(color: Colors.grey.shade400, width: 1),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.only(
+                          left: 14,
+                        ),
+                        child: Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            currentUserName,
+                            style: Styles.inputField,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ),
                     ),
                   ),
-                ),
-              ),
-            ),
-            SizedBox(
-                width: 150,
-                child: InputField(
-                  controller: myAmount,
-                  hintText: "Enter the amount",
-                  obscureText: false,
-                  numberField: true,
-                  focusedBorderColor: const Color.fromARGB(255, 84, 113, 255),
-                  borderColor: Colors.grey.shade400,
-                )),
-          ],
-        ),
-        const SizedBox(height: 15),
-        MyButton(
-            borderColor: Colors.black,
-            textStyle: Styles.buttonFontStyleModal,
-            onTap: createDebt, //hhhhhh
-            text: "Finish")
+                  SizedBox(
+                      width: 150,
+                      child: InputField(
+                        controller: myAmount,
+                        hintText: "Enter the amount",
+                        obscureText: false,
+                        numberField: true,
+                        focusedBorderColor:
+                            const Color.fromARGB(255, 84, 113, 255),
+                        borderColor: Colors.grey.shade400,
+                      )),
+                ],
+              )
+            : Container(),
+        newBottomSheet ? const SizedBox(height: 15) : Container(),
+        newBottomSheet
+            ? Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  MyButton(
+                      borderColor: Colors.black,
+                      textStyle: Styles.buttonFontStyleModal,
+                      onTap: () {
+                        setState(() {
+                          newBottomSheet = false;
+                        });
+                      }, //hhhhhh
+                      text: "Back"),
+                  MyButton(
+                      borderColor: Colors.black,
+                      textStyle: Styles.buttonFontStyleModal,
+                      onTap: createDebt, //hhhhhh
+                      text: "Finish"),
+                ],
+              )
+            : Container()
       ],
     );
   }
