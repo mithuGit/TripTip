@@ -54,6 +54,35 @@ class _CreateDebtsState extends State<CreateDebts> {
     });
   }
 
+  Future<void> createDebt() async {
+
+    List<dynamic> to = [];
+
+    for (int i = 0; i < members.length; i++) {
+      if (amountList[i].text.isNotEmpty) {
+        to.add({
+          "amount": double.parse(amountList[i].text),
+          "status": "open",
+          "user": members[i],
+        });
+      }
+    }
+
+    if (title.text.isNotEmpty &&
+        description.text.isNotEmpty &&
+        totalAmount.text.isNotEmpty &&
+        myAmount.text.isNotEmpty) {
+      widget.selectedTrip.collection("payments").add({
+        "title": title.text,
+        "description": description.text,
+        "amount": double.parse(totalAmount.text),
+        "to": to,
+        "createdBy": currentUser!.reference,
+        "timestamp": DateTime.now(),
+      });
+    }
+  }
+
   String membersName = "";
   String currentUserName = "";
 
@@ -331,7 +360,7 @@ class _CreateDebtsState extends State<CreateDebts> {
         MyButton(
             borderColor: Colors.black,
             textStyle: Styles.buttonFontStyleModal,
-            onTap: () {},
+            onTap: createDebt, //hhhhhh
             text: "Finish")
       ],
     );
