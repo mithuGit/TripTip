@@ -199,9 +199,10 @@ class _ProfilePageState extends State<ProfilePage> {
                                     }),
                                 ProfileButton(
                                   title: "Your Interests",
-                                  icon: Icons.favorite,
+                                  icon: Icons.stars,
                                   textcolor: Colors.white,
-                                  onTap: () => context.go('/setinterests/false'),
+                                  onTap: () =>
+                                      context.go('/setinterests/false'),
                                 ),
                                 ProfileButton(
                                   title: "Game: Choose a Loser ",

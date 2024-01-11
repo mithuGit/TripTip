@@ -1,8 +1,7 @@
+// ignore_for_file: file_names
 import 'dart:io';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:internet_praktikum/ui/views/ticket/ImageViewerPage.dart';
 import 'package:internet_praktikum/ui/views/ticket/PDFViewerPage.dart';
@@ -10,6 +9,7 @@ import 'package:internet_praktikum/ui/widgets/bottom_sheet.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf_render/pdf_render_widgets.dart';
 
+// ignore: must_be_immutable
 class TicketContainer extends StatefulWidget {
   DocumentSnapshot ticket;
 
@@ -52,7 +52,7 @@ class _TicketContainerState extends State<TicketContainer> {
     if (isPDF) {
       final Directory tempDir = await getTemporaryDirectory();
       pdfFile = File('${tempDir.path}/${data!["title"]}');
-      await FirebaseStorage.instance.ref(data!["url"]).writeToFile(pdfFile!);
+      await FirebaseStorage.instance.ref(data!["url"]).writeToFile(pdfFile);
 
       docWidget = PdfDocumentLoader.openFile(
         pdfFile.path,
@@ -91,30 +91,28 @@ class _TicketContainerState extends State<TicketContainer> {
                     children: [
                       const SizedBox(height: 20.0),
                       Container(
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                            width: 1,
-                            color: Theme.of(context)
-                                .colorScheme
-                                .primary
-                                .withOpacity(0.2),
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              width: 1,
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .primary
+                                  .withOpacity(0.2),
+                            ),
                           ),
-                        ),
-                        height: height,
-                        width: double.infinity,
-                        alignment: Alignment.center,
-                        child:GestureDetector(
-                                onTap: () {
-                                  file.data!.isPdf
-                                      ? (openPDF(
-                                          context, file.data!.pdf!, data!["title"]))
-                                      : (openImage(
-                                          context, file.data!.image, data!["title"]));
-                                },
-                                child: file.data!.widget,
-                              )
-  
-                      ),
+                          height: height,
+                          width: double.infinity,
+                          alignment: Alignment.center,
+                          child: GestureDetector(
+                            onTap: () {
+                              file.data!.isPdf
+                                  ? (openPDF(
+                                      context, file.data!.pdf!, data!["title"]))
+                                  : (openImage(context, file.data!.image,
+                                      data!["title"]));
+                            },
+                            child: file.data!.widget,
+                          )),
                     ]);
               },
             ),
@@ -143,7 +141,6 @@ class _TicketContainerState extends State<TicketContainer> {
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
-                      
                     ),
                   ),
                 ),
@@ -158,7 +155,6 @@ class _TicketContainerState extends State<TicketContainer> {
       ),
     );
   }
-  
 
   void openPDF(BuildContext context, File file, String title) =>
       Navigator.of(context).push(MaterialPageRoute(

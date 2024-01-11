@@ -26,8 +26,6 @@ class MapPage extends StatefulWidget {
 }
 
 class _MapPageState extends State<MapPage> {
-  //TODO: Wenn noch Zeit fixen das beim swipe daten in realtime aktualisert werden !!!
-
   final Completer<GoogleMapController> _googleMapController = Completer();
 
   Marker? origin;
@@ -45,7 +43,7 @@ class _MapPageState extends State<MapPage> {
   int markerIdCounter = 1;
 
   //places
-  List<Place> allFavoritePlaces = []; //TODO: Name ändern
+  List<Place> allFavoritePlaces = [];
   String tokenKey = '';
 
   //Circle
@@ -452,15 +450,25 @@ class _MapPageState extends State<MapPage> {
                                                 places[1].photos[0]['name'];
                                           });
                                         },
-                                        icon: const Icon(
-                                          Icons.recommend,
-                                          color: Colors.blue,
-                                        ))
+                                        icon: const ImageIcon(
+                                          AssetImage('assets/recommend_pic/recommend.png'),
+                                          color: Colors.white,
+                                          size: 30,
+                                        ),
+                                      )
                                     : IconButton(
-                                        onPressed:
-                                            () async {}, //TODO: Funktion noch hinzufügen, soll man weitere Orten bekommen, oder wie machen wir das?
-                                        icon: const Icon(Icons.more_time,
-                                            color: Colors.blue)),
+                                        onPressed: () {
+                                          setState(() {
+                                            markers = {};
+                                            allFavoritePlaces = [];
+                                            pressToGetRecommend = false;
+                                          });
+                                        },
+                                        icon: const ImageIcon(
+                                          AssetImage('assets/recommend_pic/delete_recommend.png'),
+                                          color: Colors.white,
+                                          size: 28,
+                                        ),),
                                 IconButton(
                                     onPressed: () {
                                       setState(() {
@@ -772,28 +780,6 @@ class _MapPageState extends State<MapPage> {
     });
   }
 
-  Future<void> filterDefaultMarker(Set<Marker> markers) async {
-    //TODO: Funktioniert noch nicht, es soll die default marker entfernen
-    Uint8List markerIcon = await GoogleMapService()
-        .getBytesFromAsset('assets/map_icon/default.png', 75);
-
-    for (var element in markers) {
-      if (element.icon == BitmapDescriptor.fromBytes(markerIcon)) {
-        markers.remove(element);
-      }
-    }
-  }
-
-  bool getRecommend(List<dynamic> element) {
-    for (var type in element) {
-      if (type == 'bar') {
-        print(type);
-        return true;
-      }
-    }
-    return false;
-  }
-
   void _addMarker(LatLng pos) async {
     if (origin == null || (origin != null && destination != null)) {
       // Origin is not set OR Origin/Destination are both set
@@ -861,7 +847,6 @@ class _MapPageState extends State<MapPage> {
                 goToTappedPlace();
               },
               child: FlipCard(
-                //TODO: vlt die FlipDirection auf Vertoical ändern tim entscheidet
                 flipOnTouch: isExpanded ? true : false,
                 front: AnimatedContainer(
                   duration: const Duration(milliseconds: 500),

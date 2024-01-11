@@ -213,8 +213,8 @@ class _CalendarState extends State<Calendar> {
                   child: const Padding(
                     padding: EdgeInsets.all(8.0),
                     child: Icon(
-                      Icons.calendar_today, // Verwende das gewünschte Icon
-                      size: 30.0,
+                      Icons.today, // Verwende das gewünschte Icon
+                      size: 32.5,
                       color: Colors.black, // Ändere die Farbe nach Bedarf
                     ),
                   ),
