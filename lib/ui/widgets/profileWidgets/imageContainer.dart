@@ -23,7 +23,7 @@ class _ImageContainerState extends State<ImageContainer> {
   bool isSelected = false;
   bool isNotinterested = false;
   Map<String, List<String>> available = {
-    "assets/interests_pic/auto.png": [
+    "assets/interests_pic/car.png": [
       "car_rental",
       "car_repair",
       "electric_vehicle_charging_station",
@@ -31,13 +31,12 @@ class _ImageContainerState extends State<ImageContainer> {
       "parking",
       "rest_stop"
     ],
-    "business": ["farm"],
     "assets/interests_pic/culture.png": [
       "art_gallery",
       "museum",
       "performing_arts_theater"
     ],
-    "education": [
+    "assets/interests_pic/education.png": [
       "library",
       "preschool",
       "primary_school",
@@ -45,7 +44,7 @@ class _ImageContainerState extends State<ImageContainer> {
       "secondary_school",
       "university"
     ],
-    "entertainment": [
+    "assets/interests_pic/entertainment.png": [
       "amusement_center",
       "amusement_park",
       "aquarium",
@@ -57,7 +56,7 @@ class _ImageContainerState extends State<ImageContainer> {
       "tourist_attraction",
       "zoo"
     ],
-    "finance": ["accounting", "atm", "bank"],
+    //"finance": ["accounting", "atm", "bank"], is now in services, because it is more fitting and less confusing
     'assets/interests_pic/food.png': [
       "bakery",
       "bar",
@@ -87,20 +86,25 @@ class _ImageContainerState extends State<ImageContainer> {
       "resort_hotel",
       "rv_park",
     ],
-    "Worship": ["church", "hindu_temple", "mosque", "synagogue"],
-    "Services": [
+    'assets/interests_pic/religion.png': [
+      "church",
+      "hindu_temple",
+      "mosque",
+      "synagogue"
+    ],
+    "assets/interests_pic/services.png": [
       "barber_shop",
       "beauty_salon",
       "courier_service",
       "hair_care",
       "hair_salon",
       "laundry",
-      "lawyer",
-      "locksmith",
-      "moving_company",
       "storage",
       "telecommunication_service_provider",
       "travel_agency",
+      "accounting",
+      "atm",
+      "bank"
     ],
     "assets/interests_pic/shopping.png": [
       "market",
@@ -166,22 +170,31 @@ class _ImageContainerState extends State<ImageContainer> {
           }
         });
       },
-      child: Container(
-        width: 80,
-        height: 80,
-        decoration: BoxDecoration(
-          border: Border.all(
-            color: isSelected
-                ? Colors.green
-                : (isNotinterested ? Colors.red : Colors.white),
-            width: 2,
+      child: Column(
+        children: [
+          Container(
+            width: 85,
+            height: 85,
+            decoration: BoxDecoration(
+              border: Border.all(
+                color: isSelected
+                    ? Colors.green
+                    : (isNotinterested ? Colors.red : Colors.white),
+                width: 2,
+              ),
+              borderRadius: BorderRadius.circular(14),
+              image: DecorationImage(
+                image: AssetImage(widget.image),
+                fit: BoxFit.cover,
+              ),
+            ),
           ),
-          borderRadius: BorderRadius.circular(14),
-          image: DecorationImage(
-            image: AssetImage(widget.image),
-            fit: BoxFit.cover,
+          Text(
+            widget.image.split("/").last.split(".").first[0].toUpperCase() +
+                widget.image.split("/").last.split(".").first.substring(1),
+            style: const TextStyle(color: Colors.white),
           ),
-        ),
+        ],
       ),
     );
   }

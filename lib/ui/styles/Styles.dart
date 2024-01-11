@@ -114,8 +114,7 @@ class Styles {
       fontFamily: 'fonts/Ubuntu-Regular.ttf',
       fontSize: 15,
       fontWeight: FontWeight.w400,
-      color: Colors.white
-  );    
+      color: Colors.white);
   static const mapadress = TextStyle(
       fontFamily: 'fonts/Ubuntu-Regular.ttf',
       fontSize: 15,
@@ -158,7 +157,7 @@ class Styles {
       color: Colors.white);
   static const warningmap = TextStyle(
       fontFamily: 'fonts/Ubuntu-Regular.ttf',
-      fontSize: 10,
+      fontSize: 13,
       fontWeight: FontWeight.w600,
       color: Colors.black);
   static const smallButtonStyle = TextStyle(
@@ -168,4 +167,3 @@ class Styles {
     fontWeight: FontWeight.w500,
   );
 }
-

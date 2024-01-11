@@ -26,7 +26,12 @@ class _SetInterestsPageState extends State<SetInterestsPage> {
       'assets/interests_pic/food.png',
       'assets/interests_pic/lodging.png',
       'assets/interests_pic/sports.png',
-      'assets/interests_pic/health.png'
+      'assets/interests_pic/health.png',
+      'assets/interests_pic/car.png',
+      'assets/interests_pic/education.png',
+      'assets/interests_pic/entertainment.png',
+      'assets/interests_pic/services.png',
+      'assets/interests_pic/religion.png',
     ];
 
     List<String> selectedInterests = [];
@@ -64,37 +69,53 @@ class _SetInterestsPageState extends State<SetInterestsPage> {
                     child: CustomContainer(
                       title: "Set your Interests",
                       children: [
-                        GridView.count(
-                          crossAxisCount: 3,
-                          mainAxisSpacing: 10,
-                          crossAxisSpacing: 10,
-                          shrinkWrap: true,
-                          children: interests
-                              .map((interest) => ImageContainer(
-                                    image: interest,
-                                    setInterested: (val) {
-                                      selectedInterests.addAll(val);
-                                    },
-                                    unInterestetset: (value) {
-                                      uninterestedInterests.addAll(value);
-                                    },
-                                    unInterestetunset: (val) {
-                                      for (final el in val) {
-                                        selectedInterests.remove(el);
-                                        uninterestedInterests.add(el);
-                                      }
-                                    },
-                                    unsetInterested: (val) {
-                                      for (final el in val) {
-                                        selectedInterests.remove(el);
-                                        uninterestedInterests.add(el);
-                                      }
-                                    },
-                                  ))
-                              .toList(),
+                        SingleChildScrollView(
+                          child: Column(
+                            children: [
+                              const Text(
+                                textAlign: TextAlign.center,
+                                "Select your interests by pressing a picture and longpress to make it uninterested",
+                                style: TextStyle(
+                                    fontFamily: 'Ubuntu',
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                    color: Colors.white),
+                              ),
+                              const SizedBox(height: 10),
+                              GridView.count(
+                                crossAxisCount: 3,
+                                mainAxisSpacing: 10,
+                                crossAxisSpacing: 10,
+                                shrinkWrap: true,
+                                children: interests
+                                    .map((interest) => ImageContainer(
+                                          image: interest,
+                                          setInterested: (val) {
+                                            selectedInterests.addAll(val);
+                                          },
+                                          unInterestetset: (value) {
+                                            uninterestedInterests.addAll(value);
+                                          },
+                                          unInterestetunset: (val) {
+                                            for (final el in val) {
+                                              selectedInterests.remove(el);
+                                              uninterestedInterests.add(el);
+                                            }
+                                          },
+                                          unsetInterested: (val) {
+                                            for (final el in val) {
+                                              selectedInterests.remove(el);
+                                              uninterestedInterests.add(el);
+                                            }
+                                          },
+                                        ))
+                                    .toList(),
+                              ),
+                              const SizedBox(height: 25),
+                              MyButton(onTap: updateInterests, text: "Finish"),
+                            ],
+                          ),
                         ),
-                        const SizedBox(height: 20),
-                        MyButton(onTap: updateInterests, text: "Finish"),
                       ],
                     )),
               ),

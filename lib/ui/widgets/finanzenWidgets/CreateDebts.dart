@@ -20,18 +20,14 @@ class CreateDebts extends StatefulWidget {
 }
 
 class _CreateDebtsState extends State<CreateDebts> {
-  
   final title = TextEditingController();
   final description = TextEditingController();
   final totalAmount = TextEditingController();
   final myAmount = TextEditingController();
   List<TextEditingController> amountList = [];
-  
 
-  //TODO Nach Share Equally funktioniert das Calculate my account nicht mehr und der betrag wird nicht ordentlich kalkuliert 
-  //wahrscheinlich weil die Liste ein Textfield zu viel hat 
-
-
+  //TODO Nach Share Equally funktioniert das Calculate my account nicht mehr und der betrag wird nicht ordentlich kalkuliert
+  //wahrscheinlich weil die Liste ein Textfield zu viel hat
 
   var members = [];
 
@@ -98,9 +94,10 @@ class _CreateDebtsState extends State<CreateDebts> {
     double totalAmountValue = double.parse(totalAmount.text);
     double sum = 0;
 
-    for (int i = 0; i < amountList.length - 1; i++) {
+    for (int i = 0; i < amountList.length; i++) {
       if (amountList[i].text.isNotEmpty) {
-        sum += double.parse(amountList[i].text); // TODO: man bekommt Fehler wenn man statt . ein , benutzt
+        sum += double.parse(amountList[i]
+            .text); // TODO: man bekommt Fehler wenn man statt . ein , benutzt
       }
     }
 
@@ -170,8 +167,8 @@ class _CreateDebtsState extends State<CreateDebts> {
                             ErrorSnackbar.showErrorSnackbar(
                                 context, "Please enter all amounts");
                           }
-                        } else  
-                        if (shareEqually == true && totalAmount.text == "") {
+                        } else if (shareEqually == true &&
+                            totalAmount.text == "") {
                           ErrorSnackbar.showErrorSnackbar(
                               context, "Please enter a Amount first");
                         } else if (shareEqually == true &&
@@ -280,7 +277,9 @@ class _CreateDebtsState extends State<CreateDebts> {
                 onChanged: (value) {
                   setState(() {
                     calculateMyAmountDifference = value!;
-                    calculateMyAmountDifference && totalAmount.text != "" && !shareEqually
+                    calculateMyAmountDifference &&
+                            totalAmount.text != "" &&
+                            !shareEqually
                         ? WidgetsBinding.instance.addPostFrameCallback((_) {
                             calculateMyAmount();
                           })

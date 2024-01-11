@@ -135,31 +135,6 @@ class _MapPageState extends State<MapPage> {
             ),
           ),
           backgroundColor: Colors.transparent,
-          bottom: PreferredSize(
-              preferredSize: const Size.fromHeight(1.0),
-              child: Column(
-                children: [
-                  if (infoDistanceAndDuration == null &&
-                      !radiusSlider &&
-                      !pressToGetRecommend &&
-                      !isExpanded &&
-                      destination == null)
-                    Container(
-                      padding: const EdgeInsets.symmetric(),
-                      child: origin == null
-                          ? const Text(
-                              'Tap to see personilized recomendations OR Long press to set origin and destination',
-                              style: Styles.warningmap,
-                              textAlign: TextAlign.center,
-                            )
-                          : const Text(
-                              'Long press again to set destination',
-                              style: Styles.warningmap,
-                              textAlign: TextAlign.center,
-                            ),
-                    ),
-                ],
-              )),
           leading: IconButton(
             icon: const Icon(Icons.my_location, color: Colors.black, size: 30),
             onPressed: () async {
@@ -233,6 +208,38 @@ class _MapPageState extends State<MapPage> {
                       pressToGetRecommend = false;
                     },
                   ),
+                ),
+                Column(
+                  children: [
+                    if (infoDistanceAndDuration == null &&
+                        !radiusSlider &&
+                        !pressToGetRecommend &&
+                        !isExpanded &&
+                        destination == null)
+                      Center(
+                        child: Container(
+                          width: MediaQuery.of(context).size.width * 0.65,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(34.5),
+                            color: const Color.fromARGB(255, 230, 229,
+                                    229) //TODO: Farbe ändern, wenn die Farbe nicht passt
+                                .withOpacity(0.90),
+                          ),
+                          padding: const EdgeInsets.symmetric(),
+                          child: origin == null
+                              ? const Text(
+                                  'Tap to see personilized recomendations \nLong press to set origin and destination',
+                                  style: Styles.warningmap,
+                                  textAlign: TextAlign.center,
+                                )
+                              : const Text(
+                                  'Long press again to set destination',
+                                  style: Styles.warningmap,
+                                  textAlign: TextAlign.center,
+                                ),
+                        ),
+                      ),
+                  ],
                 ),
                 if (infoDistanceAndDuration != null)
                   Positioned(
