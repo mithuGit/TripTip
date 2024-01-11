@@ -48,7 +48,7 @@ class _FinanzenState extends State<Finanzen> {
         icon: Icons.add,
         onTapForIconWidget: () {
           CustomBottomSheet.show(context,
-              title: "Add a receipt and send the other members dues.",
+              title: "Add Request:",
               content: [
                 Builder(builder: (context) {
                   if (selectedtrip == null) {

@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:internet_praktikum/core/services/paymentsHandeler.dart';
+import 'package:internet_praktikum/ui/widgets/bottom_sheet.dart';
+import 'package:internet_praktikum/ui/widgets/finanzenWidgets/collectPayoutInformation.dart';
 import 'package:internet_praktikum/ui/widgets/my_button.dart';
 
 class Wallet extends StatefulWidget {
@@ -13,11 +15,24 @@ class Wallet extends StatefulWidget {
 
 class _WalletState extends State<Wallet> {
   bool loading = false;
+  PaymentsHandeler paymentsHandeler = PaymentsHandeler();
   Future<void> recharge(DocumentSnapshot user) async {
-    await PaymentsHandeler().refund(user);
+    await paymentsHandeler.refund(user);
   }
 
-  Future<void> bookToBankAccount() async {}
+  Future<void> bookToBankAccount(
+      DocumentSnapshot user, BuildContext context) async {
+    try {
+      await paymentsHandeler.bookToBankAccount(user);
+    } on NoPayOutinformation catch (e) {
+      if (mounted) {
+        CustomBottomSheet.show(context,
+            title: "We need your Bankinformation:",
+            content: [CollectPayoutInformation(user: user)]);
+      }
+    } catch (e) {}
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -92,13 +107,13 @@ class _WalletState extends State<Wallet> {
                           });
                         },
                         text: "Recharge"),
-                  ] else ...[
+                  ] else if(balance > 0) ...[
                     MyButton(
                         onTap: () async {
                           setState(() {
                             loading = true;
                           });
-                          await recharge(snapshot.data!);
+                          await bookToBankAccount(snapshot.data!, context);
                           setState(() {
                             loading = false;
                           });

@@ -13,6 +13,7 @@ class InputField extends StatelessWidget {
   final Color? focusedBorderColor;
   final bool? multiline;
   final bool? numberField;
+  final String? Function(String?)? validator;
 
   const InputField(
       {super.key,
@@ -21,15 +22,11 @@ class InputField extends StatelessWidget {
       required this.obscureText,
       this.margin,
       this.multiline,
-      this.focusNode, this.borderColor, this.focusedBorderColor, this.numberField});
-
-  bool isValidEmail(String email) {
-    String emailRegex =
-        r'^[\w-]+(\.[\w-]+)*@([a-z\d-]+(\.[a-z\d-]+)*?\.[a-z]{2,6}|(\d{1,3}\.){3}\d{1,3})$';
-    RegExp regex = RegExp(emailRegex);
-    return regex.hasMatch(email);
-  }
-
+      this.focusNode,
+      this.borderColor,
+      this.focusedBorderColor,
+      this.numberField,
+      this.validator});
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -38,30 +35,28 @@ class InputField extends StatelessWidget {
         controller: controller,
         obscureText: obscureText,
         autovalidateMode: AutovalidateMode.onUserInteraction,
-        validator: (value) {
-          if (hintText == 'Email') {
-            // Validierung für die E-Mail-Adresse
-            if (value == null || value.isEmpty) {
-              return 'Please enter a email adress';
-            } else if (!isValidEmail(value)) {
-              return 'Please enter an valid email adress';
-            }
-          }
-          return null;
-        },
+        validator: validator,
         style: Styles.inputField,
         focusNode: focusNode,
         cursorColor: Colors.grey.shade400,
         cursorWidth: 1.5,
         maxLines: multiline == true ? 5 : 1,
-        keyboardType: multiline == true ? TextInputType.multiline : numberField == true ? TextInputType.number : TextInputType.text,
+        keyboardType: multiline == true
+            ? TextInputType.multiline
+            : numberField == true
+                ? TextInputType.number
+                : TextInputType.text,
         decoration: InputDecoration(
             enabledBorder: OutlineInputBorder(
-              borderSide: borderColor != null ? BorderSide(color: borderColor!) : const BorderSide(color: Colors.white),
+              borderSide: borderColor != null
+                  ? BorderSide(color: borderColor!)
+                  : const BorderSide(color: Colors.white),
               borderRadius: BorderRadius.circular(11.0),
             ),
             focusedBorder: OutlineInputBorder(
-              borderSide: focusedBorderColor != null ? BorderSide(color: focusedBorderColor!) : BorderSide(color: Colors.grey.shade400),
+              borderSide: focusedBorderColor != null
+                  ? BorderSide(color: focusedBorderColor!)
+                  : BorderSide(color: Colors.grey.shade400),
               borderRadius: BorderRadius.circular(11.0),
             ),
             fillColor: Colors.white,

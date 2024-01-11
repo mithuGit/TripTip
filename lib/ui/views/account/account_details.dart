@@ -255,6 +255,14 @@ class _AccountState extends State<Account> {
                         ),
                         InputField(
                           controller: emailController,
+                          validator: ((p0) {
+                            if (p0 == null || p0.isEmpty) {
+                              return 'Please enter a email adress';
+                            } else if (!isValidEmail(p0)) {
+                              return 'Please enter an valid email adress';
+                            }
+                            return null;
+                          }),
                           hintText: "Email",
                           obscureText: false,
                           margin: const EdgeInsets.only(bottom: 25),
@@ -309,4 +317,11 @@ class _AccountState extends State<Account> {
       ),
     );
   }
+}
+
+bool isValidEmail(String email) {
+  String emailRegex =
+      r'^[\w-]+(\.[\w-]+)*@([a-z\d-]+(\.[a-z\d-]+)*?\.[a-z]{2,6}|(\d{1,3}\.){3}\d{1,3})$';
+  RegExp regex = RegExp(emailRegex);
+  return regex.hasMatch(email);
 }
