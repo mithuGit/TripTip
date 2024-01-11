@@ -282,13 +282,13 @@ class _AccountState extends State<Account> {
 
                             if (context.mounted) {
                               widget.isEditProfile == true
-                                  ? context.go('/setinterests/false')
+                                  ? context.go('/profile')
                                   : context.go('/setinterests/true');
                             }
                           },
                           text: widget.isEditProfile == true
-                              ? "Show my Interests"
-                              : 'Finish',
+                              ? "Finish"
+                              : 'Select your Interests',
                         ),
                       ],
                     ),
