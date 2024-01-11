@@ -1001,6 +1001,7 @@ class _MapPageState extends State<MapPage> {
                                       const Text(
                                         'Contact: ',
                                         style: Styles.mapcontact,
+                                        overflow: TextOverflow.ellipsis,
                                       ),
                                       SizedBox(
                                           width: 150.0,
@@ -1008,6 +1009,7 @@ class _MapPageState extends State<MapPage> {
                                             allFavoritePlaces[index]
                                                 .internationalPhoneNumber,
                                             style: Styles.mapcontactformatted,
+                                            overflow: TextOverflow.ellipsis,
                                           ))
                                     ],
                                   ),
