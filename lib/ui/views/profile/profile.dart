@@ -133,7 +133,7 @@ class _ProfilePageState extends State<ProfilePage> {
                               backgroundColor: Colors.grey[300],
                               side: BorderSide.none,
                               shape: const StadiumBorder()),
-                          child: const Text('Edit Profile or Interests',
+                          child: const Text('Edit Profile',
                               style: TextStyle(color: Colors.black)))),
                   const SizedBox(height: 15),
                   Center(
@@ -198,10 +198,11 @@ class _ProfilePageState extends State<ProfilePage> {
                                       );
                                     }),
                                 ProfileButton(
-                                  title: "Billing Details",
-                                  icon: Icons.wallet,
+                                  title: "Your Interests",
+                                  icon: Icons.stars,
                                   textcolor: Colors.white,
-                                  onTap: () {},
+                                  onTap: () =>
+                                      context.go('/setinterests/false'),
                                 ),
                                 ProfileButton(
                                   title: "Game: Choose a Loser ",

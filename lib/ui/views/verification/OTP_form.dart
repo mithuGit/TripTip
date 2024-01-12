@@ -32,19 +32,18 @@ class _OTPFormState extends State<OTPForm> {
 
   Future checkEmailVerified() async {
     if (mounted) {
-  await FirebaseAuth.instance.currentUser!.reload();
-  
-  setState(() {
-    isEmailVerified = FirebaseAuth.instance.currentUser!.emailVerified;
-  });
-  
-  if (isEmailVerified) {
-    canResendEmail = false;
-    timer?.cancel();
-  }
-}
-  }
+      await FirebaseAuth.instance.currentUser!.reload();
 
+      setState(() {
+        isEmailVerified = FirebaseAuth.instance.currentUser!.emailVerified;
+      });
+
+      if (isEmailVerified) {
+        canResendEmail = false;
+        timer?.cancel();
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {

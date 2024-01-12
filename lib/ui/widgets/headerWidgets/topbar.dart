@@ -44,10 +44,12 @@ class _TopBarState extends State<TopBar> {
 
   Future<void> fetchWeather() async {
     // is not the same as in weather_info.dart
-    final weather = await _weatherHandler.fetchWeather();
-    setState(() {
-      actualWeather = weather;
-    });
+    if (mounted) {
+      final weather = await _weatherHandler.fetchWeather();
+      setState(() {
+        actualWeather = weather;
+      });
+    }
   }
 
   @override
@@ -109,15 +111,13 @@ class _TopBarState extends State<TopBar> {
                   )
                 : null,
         actions: widget.popupButton != null
-            ? [
-                widget.popupButton as Widget,
-                const SizedBox(width: 10)
-                ] : widget.icon != null  ? [
-                  HeaderButton(
-                  onTap: widget.onTapForIconWidget,
-                  icon: widget.icon
-                ),
-                const SizedBox(width: 10)
-                ] : null );
+            ? [widget.popupButton as Widget, const SizedBox(width: 10)]
+            : widget.icon != null
+                ? [
+                    HeaderButton(
+                        onTap: widget.onTapForIconWidget, icon: widget.icon),
+                    const SizedBox(width: 10)
+                  ]
+                : null);
   }
 }

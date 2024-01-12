@@ -31,7 +31,6 @@ class _AppNavigationState extends State<AppNavigation> {
   Widget build(BuildContext context) {
     bool isIndex2 = index == 2;
 
-
     return Scaffold(
         extendBody: true,
         body: SizedBox(
@@ -46,8 +45,10 @@ class _AppNavigationState extends State<AppNavigation> {
               surfaceTintColor: Colors.transparent,
               indicatorColor: Colors.transparent,
               height: 65,
-              backgroundColor:
-                  Colors.transparent, // const Color.fromARGB(255, 83, 211, 96),
+              backgroundColor: isIndex2
+                  ? Colors.white.withOpacity(0.6)
+                  : Colors
+                      .transparent, // const Color.fromARGB(255, 83, 211, 96),
               labelBehavior: NavigationDestinationLabelBehavior
                   .alwaysHide, //=> damit geht Text unter Icon weg
               animationDuration: const Duration(milliseconds: 200),
