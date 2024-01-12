@@ -22,13 +22,16 @@ class _SurveyWidgetState extends State<SurveyWidget> {
       if (widgetdata["options"][index]["voters"] == null) {
         widgetdata["options"][index]["voters"] = [];
       }
-      if(value) {
-        if(!widgetdata["options"][index]["voters"].contains(widget.userdata!["uid"])) {
+      if (value) {
+        if (!widgetdata["options"][index]["voters"]
+            .contains(widget.userdata!["uid"])) {
           widgetdata["options"][index]["voters"].add(widget.userdata!["uid"]);
         }
       } else {
-        if(widgetdata["options"][index]["voters"].contains(widget.userdata!["uid"])) {
-          widgetdata["options"][index]["voters"].remove(widget.userdata!["uid"]);
+        if (widgetdata["options"][index]["voters"]
+            .contains(widget.userdata!["uid"])) {
+          widgetdata["options"][index]["voters"]
+              .remove(widget.userdata!["uid"]);
         }
       }
     } else {
@@ -40,13 +43,14 @@ class _SurveyWidgetState extends State<SurveyWidget> {
           }
         }
       }
-      if(value) {
-        if(widgetdata["options"][index]["voters"] == null) {
+      if (value) {
+        if (widgetdata["options"][index]["voters"] == null) {
           widgetdata["options"][index]["voters"] = [];
         }
         widgetdata["options"][index]["voters"].add(widget.userdata!["uid"]);
       }
     }
+
     Map<String, dynamic> dayData =
         (await widget.day!.get()).data() as Map<String, dynamic>;
     Map<String, dynamic> widgets = dayData['active'];
@@ -71,7 +75,9 @@ class _SurveyWidgetState extends State<SurveyWidget> {
                     data: widget.data!,
                     day: widget.day,
                     userdata: widget.userdata,
-                    onTap: (bool value) {vote(i, value);}),
+                    onTap: (bool value) {
+                      vote(i, value);
+                    }),
             const SizedBox(
               height: 2,
             ),
