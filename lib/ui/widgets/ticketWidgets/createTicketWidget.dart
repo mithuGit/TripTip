@@ -1,0 +1,287 @@
+// ignore_for_file: file_names
+
+import 'dart:io';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:internet_praktikum/ui/styles/Styles.dart';
+import 'package:internet_praktikum/ui/widgets/inputfield.dart';
+import 'package:internet_praktikum/ui/widgets/modalButton.dart';
+import 'package:internet_praktikum/ui/widgets/my_button.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:pdf_render/pdf_render.dart';
+import 'package:pdf_render/pdf_render_widgets.dart';
+import 'package:internet_praktikum/ui/widgets/errorSnackbar.dart';
+import 'package:uuid/uuid.dart';
+
+class CreateTicketsWidget extends StatefulWidget {
+  final DocumentReference? selectedTrip;
+  const CreateTicketsWidget({super.key, required this.selectedTrip});
+
+  @override
+  State<CreateTicketsWidget> createState() => _CreateTicketsWidgetState();
+}
+
+class _CreateTicketsWidgetState extends State<CreateTicketsWidget> {
+  final titleOfTicket = TextEditingController();
+  File? selectedImage;
+  UploadTask? uploadTask;
+  PlatformFile? pickedFile;
+  bool isPdf = false;
+
+  Future uploadFile() async {
+    if (selectedImage == null && pickedFile == null) {
+      return;
+    }
+
+    File file;
+
+    if (selectedImage != null) {
+      file = File(selectedImage!.path);
+    } else {
+      file = File(pickedFile!.path!);
+    }
+    final tripId = widget.selectedTrip!.id;
+
+    String titleOfTicketText = titleOfTicket.text;
+
+    // Check if the title already exists in the specified path
+    String fileName;
+    String path;
+
+    fileName = file.path.split('/').last;
+    String uuid = const Uuid().v4();
+    path = "files/$tripId/$uuid/$fileName";
+
+    bool fileExists = await doesFileExist(tripId, titleOfTicketText);
+
+    if (fileExists) {
+      // ignore: use_build_context_synchronously
+      ErrorSnackbar.showErrorSnackbar(
+          context, "File with title $titleOfTicketText already exists ");
+    } else {
+      final ref = FirebaseStorage.instance.ref().child(path);
+
+      uploadTask = ref.putFile(file);
+      // TODU catch error while upluading
+      uploadTask!.whenComplete(() {
+        FirebaseFirestore.instance
+            .collection("trips")
+            .doc(tripId)
+            .collection("tickets")
+            .add({
+          "title": titleOfTicketText,
+          "url": ref.fullPath,
+          "createdBy": FirebaseAuth.instance.currentUser!.uid,
+          "createdAt": DateTime.now(),
+        });
+      });
+      await uploadTask!.whenComplete(() {});
+
+      // Only for testing
+      //final urlDownload = await snapshot.ref.getDownloadURL();
+      //print('Download-Link: $urlDownload');
+    }
+  }
+
+  Future selectedFile() async {
+    try {
+      final result = await FilePicker.platform.pickFiles(
+        allowMultiple: false,
+        //type: FileType.custom,
+        //allowedExtensions: ['jpg', 'pdf', 'png', 'jpeg'],
+      );
+      if (result == null) return;
+
+      setState(() {
+        isPdf = result.files.first.extension == 'pdf';
+        pickedFile = result.files.first;
+      });
+    } on Exception catch (e) {
+      print(e);
+    }
+  }
+
+  void takePicture() async {
+    try {
+      final imagePicker = ImagePicker();
+      final pickedImage = await imagePicker.pickImage(
+          source: ImageSource.camera, maxWidth: 600);
+
+      if (pickedImage == null) {
+        return;
+      }
+
+      setState(() {
+        selectedImage = File(pickedImage.path);
+      });
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  void showAlertDialog(BuildContext context,
+      {String? title = "Select an Option",
+      String? button1 = "Take a Picture",
+      bool? button2 = true}) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          actionsAlignment: MainAxisAlignment.center,
+          title: Text(title!),
+          titleTextStyle: const TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+            fontSize: 20,
+          ),
+          actionsOverflowButtonSpacing: 20,
+          actions: [
+            ElevatedButton(
+              onPressed: () {
+                button2! ? takePicture() : null;
+                Navigator.of(context).pop();
+              },
+              child: Text(button1!),
+            ),
+            button2!
+                ? ElevatedButton(
+                    onPressed: () {
+                      // Funktion File hin
+                      selectedFile();
+                      Navigator.of(context).pop();
+                    },
+                    child: const Text("Upload a File"))
+                : Container(
+                    width: 0,
+                  ), // hier muss width = 0, damit actionsAlignment: MainAxisAlignment.center,
+          ],
+        );
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        InputField(
+            controller: titleOfTicket,
+            borderColor: Theme.of(context).colorScheme.primary.withOpacity(0.2),
+            focusedBorderColor: const Color.fromARGB(255, 84, 113, 255),
+            hintText: "Title of Ticket",
+            obscureText: false),
+        const SizedBox(height: 20),
+        if (pickedFile == null && selectedImage == null) ...[
+          GridView.count(
+            shrinkWrap: true,
+            crossAxisCount: 2,
+            crossAxisSpacing: 10,
+            mainAxisSpacing: 10,
+            padding: const EdgeInsets.all(10),
+            children: [
+              ModalButton(onTap: takePicture, icon: Icons.photo_camera , text: "Take a Picture"),
+              ModalButton(onTap: selectedFile,icon: Icons.picture_as_pdf , text: "Upload a PDF"),
+            ],
+          ),
+        ] else
+          //Ticket or Receip Upload
+          Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(
+                  width: 1,
+                  color: Theme.of(context).colorScheme.primary.withOpacity(0.2),
+                ),
+              ),
+              height: 250,
+              width: double.infinity,
+              alignment: Alignment.center,
+              child: selectedImage != null
+                  ? GestureDetector(
+                      // Nochmal neues Bild erstellen, wenn man drauf klickt
+                      onTap: () => takePicture(),
+                      child: Image.file(
+                        
+                        selectedImage!,
+                        fit: BoxFit.cover,
+                        width: double.infinity,
+                        height: double.infinity,
+                      ),
+                    )
+                  : GestureDetector(
+                      // Nochmal neues File erstellen, wenn man drauf klickt
+                      onTap: () => selectedFile(),
+                      child: isPdf
+                          ? FutureBuilder<PdfDocument>(
+                              future: PdfDocument.openFile(pickedFile!.path!),
+                              builder: (context, snapshot) {
+                                if (snapshot.connectionState ==
+                                    ConnectionState.done) {
+                                  final pdfDocument = snapshot.data;
+                                  return pdfDocument != null
+                                      ? PdfDocumentLoader(
+                                          doc: pdfDocument,
+                                          pageNumber: 1,
+                                        )
+                                      : Container(); // Handle null document
+                                } else if (snapshot.hasError) {
+                                  // Handle error
+                                  return Container();
+                                } else {
+                                  // Display a loading indicator if needed
+                                  return const CircularProgressIndicator();
+                                }
+                              },
+                            )
+                          : Image.file(
+                              File(pickedFile!.path!),
+                              fit: BoxFit.cover,
+                              width: double.infinity,
+                              height: double.infinity,
+                            ),
+                    )),
+        const SizedBox(height: 10),
+        MyButton(
+          borderColor: Colors.black,
+          textStyle: Styles.buttonFontStyleModal,
+          onTap: () {
+            // TODO: Widget soll dann erstellt werden und dieser soll in Ticket direkt zu sehen sein.
+            if (titleOfTicket.text.isNotEmpty &&
+                (selectedImage != null || pickedFile != null)) {
+              uploadFile();
+              Navigator.of(context).pop();
+              setState(() {
+                uploadTask = null;
+              });
+            } else {
+              if (selectedImage == null && pickedFile == null) {
+                showAlertDialog(context);
+              } else {
+                showAlertDialog(context,
+                    title: "Please enter a title for your Ticket or Receipt",
+                    button1: "Ok",
+                    button2: false);
+              }
+            }
+          },
+          text: "Upload Ticket",
+        ),
+      ],
+    );
+  }
+
+  // Function to check if a file already exists in the specified path
+  Future<bool> doesFileExist(String tripId, String titleOfTicketText) async {
+    final pathToCheck = "files/$tripId/$titleOfTicketText";
+    final ref =
+        await FirebaseStorage.instance.ref().child(pathToCheck).listAll();
+    if (ref.items.isNotEmpty) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+}

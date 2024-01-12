@@ -1,75 +1,77 @@
 import 'package:flutter/material.dart';
+import 'package:internet_praktikum/ui/styles/Styles.dart';
 
 class MyButton extends StatelessWidget {
   final Function()? onTap;
   final String text;
   final IconData? iconData;
   final String? imagePath;
-  final bool? small;
+  final Color? colors;
+  final EdgeInsets? margin;
+  final Color? borderColor;
+  final TextStyle? textStyle;
 
-  const MyButton({
-    Key? key,
-    required this.onTap,
-    required this.text,
-    this.iconData,
-    this.imagePath,
-    this.small,
-  }) : super(key: key);
+  const MyButton(
+      {Key? key,
+      required this.onTap,
+      required this.text,
+      this.iconData,
+      this.imagePath,
+      this.colors,
+      this.margin,
+      this.borderColor,
+      this.textStyle})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(15),
-        margin: EdgeInsets.symmetric(horizontal: small == true ? 75 : 35),
-        decoration: BoxDecoration(
-          color: Colors.black,
-          borderRadius: BorderRadius.circular(11),
-          border: Border.all(color: Colors.white),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            if (iconData != null)
-              Icon(
-                iconData!, // nicht sicher ob hier ein ! kommt
+    return Container(
+        margin: margin,
+        child: OutlinedButton(
+            onPressed: onTap,
+            style: OutlinedButton.styleFrom(
+              backgroundColor: colors,
+              foregroundColor: const Color.fromARGB(100, 255, 255, 255),
+              padding: (iconData == null && imagePath == null)
+                  ? const EdgeInsets.all(16)
+                  : const EdgeInsets.only(
+                      top: 8, bottom: 8, left: 12, right: 12),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(11)),
+              side: BorderSide(
+                width: 1.5,
+                color: borderColor ?? Colors.white
               ),
-            if (imagePath != null)
-              Image.asset(
-                imagePath!, // nicht sicher ob hier ein ! kommt
-                height: 24,
-              ),
-            if (imagePath != null || iconData != null)
-              const SizedBox(width: 20),
-            Expanded(
-              child: iconData != null || imagePath != null
-                  ? Align(
-                      alignment: Alignment.topLeft,
-                      child: Text(
-                        text,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ),
-                      ),
-                    )
-                  : Align(
-                      alignment: Alignment.center,
-                      child: Text(
-                        text,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ),
-                      ),
-                    ),
-            )
-          ],
-        ),
-      ),
-    );
+            ),
+            child: Row(
+                mainAxisAlignment: (iconData == null && imagePath == null)
+                    ? MainAxisAlignment.center
+                    : MainAxisAlignment.start,
+                children: [
+                  if ((iconData != null || imagePath != null)) ...[
+                    if (imagePath != null) ...[
+                      if(imagePath!.startsWith("http") == true) ...[
+                        Image.network(
+                        imagePath!,
+                        width: 30,
+                        height: 30,
+                      )
+                       ] else ...[
+                        Image.asset(
+                          imagePath!,
+                          width: 30,
+                          height: 30,
+                        )
+                      ]
+                    ] else ...[
+                      Icon(iconData)
+                    ],
+                    const SizedBox(width: 20),
+                  ],
+                  Text(
+                    text,
+                    style: textStyle ?? Styles.buttonFontStyle,
+                  )
+                ])));
   }
 }
