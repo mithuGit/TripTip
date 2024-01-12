@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
@@ -109,7 +108,7 @@ class _ShareTrip extends State<ShareTrip> {
                                       .doc(widget.tripId)
                                       .update({
                                     "members": FieldValue.arrayUnion(
-                                        [widget.groupController.text])
+                                        [FirebaseFirestore.instance.doc("/users/" + widget.groupController.text)])
                                   });
                                   widget.groupController.clear();
                                 }

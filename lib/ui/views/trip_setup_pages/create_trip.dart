@@ -66,7 +66,7 @@ class _TripCreateState extends State<CreateTrip> {
         'placedetails': destination?.placeDetails,
         'startdate': selectedStartDate,
         'enddate': selectedEndDate,
-        'createdBy': widget.auth.currentUser?.uid,
+        'createdBy': FirebaseFirestore.instance.doc((widget.auth.currentUser?.uid).toString()),
         'members': members
       });
       FirebaseFirestore.instance

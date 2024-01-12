@@ -13,15 +13,15 @@ class MainDasboardinitializer extends StatefulWidget {
   double elevation = 0;
   final String title;
   Map<String, dynamic> data;
-  Map<String, dynamic> userdata;
+  Map<String, dynamic>? userdata;
   DocumentReference? day;
   MainDasboardinitializer({
     super.key,
     double? elevation,
     required this.title,
     required this.data,
-    required this.userdata,
-    required this.day,
+    this.userdata,
+    this.day,
   });
   @override
   State<MainDasboardinitializer> createState() =>
