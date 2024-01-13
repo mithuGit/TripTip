@@ -14,6 +14,7 @@ import 'package:internet_praktikum/ui/widgets/bottom_sheet.dart';
 import 'package:internet_praktikum/ui/widgets/dashboardWidgets/createNewWidgetOnDashboard.dart';
 import 'package:flutter_rating_stars/flutter_rating_stars.dart';
 import 'package:internet_praktikum/ui/widgets/errorSnackbar.dart';
+import 'package:internet_praktikum/ui/widgets/mapWidgets/mapButton.dart';
 import 'package:internet_praktikum/ui/widgets/mapWidgets/smallButton.dart';
 import 'package:internet_praktikum/ui/widgets/my_button.dart';
 //import 'package:internet_praktikum/ui/widgets/inputfield_search_lookahead.dart';
@@ -68,6 +69,11 @@ class _MapPageState extends State<MapPage> {
 
   //expandable container
   bool isExpanded = false;
+  bool isExpandedOrigin = false;
+  bool isExpandedDestination = false;
+  bool isExpandedCurrentLocation = false;
+
+  
 
   @override
   void initState() {
@@ -214,27 +220,27 @@ class _MapPageState extends State<MapPage> {
                         !pressToGetRecommend &&
                         !isExpanded &&
                         destination == null)
-                      Center(
-                        child: Container(
-                          width: MediaQuery.of(context).size.width * 0.65,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(34.5),
-                            color: const Color.fromARGB(255, 230, 229,
-                                    229) //TODO: Farbe ändern, wenn die Farbe nicht passt
-                                .withOpacity(0.90),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(0, 15, 0, 0),
+                        child: Center(
+                          child: Container(
+                            width: MediaQuery.of(context).size.width * 0.65,
+                            decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(34.5),
+                                color: Colors.white.withOpacity(0.9)),
+                            padding: const EdgeInsets.symmetric(),
+                            child: origin == null
+                                ? const Text(
+                                    'Tap to see personilized recomendations \nLong press to set origin and destination',
+                                    style: Styles.warningmap,
+                                    textAlign: TextAlign.center,
+                                  )
+                                : const Text(
+                                    'Long press again to set destination',
+                                    style: Styles.warningmap,
+                                    textAlign: TextAlign.center,
+                                  ),
                           ),
-                          padding: const EdgeInsets.symmetric(),
-                          child: origin == null
-                              ? const Text(
-                                  'Tap to see personilized recomendations \nLong press to set origin and destination',
-                                  style: Styles.warningmap,
-                                  textAlign: TextAlign.center,
-                                )
-                              : const Text(
-                                  'Long press again to set destination',
-                                  style: Styles.warningmap,
-                                  textAlign: TextAlign.center,
-                                ),
                         ),
                       ),
                   ],
@@ -250,7 +256,9 @@ class _MapPageState extends State<MapPage> {
                       decoration: BoxDecoration(
                         color: const Color.fromARGB(255, 43, 43, 43)
                             .withOpacity(0.90),
-                        borderRadius: BorderRadius.circular(20.0),
+                        borderRadius: const BorderRadius.only(
+                            topRight: Radius.circular(34.5),
+                            bottomRight: Radius.circular(34.5)),
                       ),
                       child: Text(
                         '${infoDistanceAndDuration!.totalDistance}, ${infoDistanceAndDuration!.totalDuration}',
@@ -270,9 +278,21 @@ class _MapPageState extends State<MapPage> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           if (origin != null)
-                            Row(
+                            Column(
                               children: [
-                                MySmallButton(
+                                MapButton(
+                                  icon: Icons.pin_drop,
+                                  makeSmaller: () {
+                                    setState(() {
+                                      isExpandedOrigin = false;
+                                    });
+                                  },
+                                  makeBigger: () {
+                                    setState(() {
+                                      isExpandedOrigin = true;
+                                    });
+                                  },
+                                  isExpandedButton: isExpandedOrigin,
                                   colors: Colors.green,
                                   text: "Ori",
                                   onTap: () async {
@@ -288,75 +308,89 @@ class _MapPageState extends State<MapPage> {
                                       ),
                                     );
                                   },
-                                ),
-                                MySmallButton(
-                                  iconData: Icons.close,
-                                  borderColor: Colors.red,
-                                  onTap: () => setState(() => {
+                                  onClose: () => setState(() => {
                                         origin = null,
                                         destination = null,
                                         infoDistanceAndDuration = null,
+                                        isExpandedOrigin = false,
                                       }),
                                 ),
+                                const SizedBox(height: 5.0),
                               ],
                             ),
                           if (destination != null)
-                            Row(
+                            Column(
                               children: [
-                                MySmallButton(
-                                    colors: Colors.red,
-                                    text: "Des",
-                                    onTap: () async {
-                                      var controller =
-                                          await _googleMapController.future;
-                                      controller.animateCamera(
-                                        CameraUpdate.newCameraPosition(
-                                          CameraPosition(
-                                            target: destination!.position,
-                                            zoom: 14.5,
-                                            tilt: 50.0,
-                                          ),
-                                        ),
-                                      );
-                                    }),
-                                MySmallButton(
-                                  iconData: Icons.close,
-                                  borderColor: Colors.red,
-                                  onTap: () => setState(() => {
-                                        destination = null,
-                                        infoDistanceAndDuration = null,
-                                      }),
-                                ),
-                              ],
-                            ),
-                          if (currentLocation != null)
-                            Row(
-                              children: [
-                                MySmallButton(
-                                  colors: Colors.blue,
-                                  text: "Cur",
+                                MapButton(
+                                  icon: Icons.pin_drop,
+                                  makeSmaller: () {
+                                    setState(() {
+                                      isExpandedDestination = false;
+                                    });
+                                  },
+                                  makeBigger: () {
+                                    setState(() {
+                                      isExpandedDestination = true;
+                                    });
+                                  },
+                                  isExpandedButton: isExpandedDestination,
+                                  colors: Colors.red,
+                                  text: "Des",
                                   onTap: () async {
                                     var controller =
                                         await _googleMapController.future;
                                     controller.animateCamera(
                                       CameraUpdate.newCameraPosition(
                                         CameraPosition(
-                                          target: currentLocation!.position,
+                                          target: destination!.position,
                                           zoom: 14.5,
                                           tilt: 50.0,
                                         ),
                                       ),
                                     );
                                   },
+                                  onClose: () => setState(() => {
+                                        destination = null,
+                                        infoDistanceAndDuration = null,
+                                        isExpandedDestination = false,
+                                      }),
                                 ),
-                                MySmallButton(
-                                  iconData: Icons.close,
-                                  borderColor: Colors.red,
-                                  onTap: () => setState(
-                                    () => currentLocation = null,
-                                  ),
-                                ),
+                                const SizedBox(height: 5.0),
                               ],
+                            ),
+                          if (currentLocation != null)
+                            MapButton(
+                              icon: Icons.directions,
+                              makeSmaller: () {
+                                setState(() {
+                                  isExpandedCurrentLocation = false;
+                                });
+                              },
+                              makeBigger: () {
+                                setState(() {
+                                  isExpandedCurrentLocation = true;
+                                });
+                              },
+                              isExpandedButton: isExpandedCurrentLocation,
+                              colors: Colors.blue,
+                              text: "Cur",
+                              onTap: () async {
+                                var controller =
+                                    await _googleMapController.future;
+                                controller.animateCamera(
+                                  CameraUpdate.newCameraPosition(
+                                    CameraPosition(
+                                      target: currentLocation!.position,
+                                      zoom: 14.5,
+                                      tilt: 50.0,
+                                    ),
+                                  ),
+                                );
+                              },
+                              onClose: () => setState(() => {
+                                    currentLocation = null,
+                                    isExpandedCurrentLocation = false,
+                                  }),
                             ),
                         ],
                       )),
@@ -371,8 +405,7 @@ class _MapPageState extends State<MapPage> {
                                   color: const Color.fromARGB(255, 43, 43, 43)
                                       .withOpacity(0.90)),
                               width: 50,
-                              height: MediaQuery.of(context).size.height *
-                                  0.28, //TODO: Falls Navbar ändert sich, dann hier auch ändern wahrscheinlich
+                              height: MediaQuery.of(context).size.height * 0.28,
                               child: Column(children: [
                                 Expanded(
                                     child: RotatedBox(
@@ -451,7 +484,8 @@ class _MapPageState extends State<MapPage> {
                                           });
                                         },
                                         icon: const ImageIcon(
-                                          AssetImage('assets/recommend_pic/recommend.png'),
+                                          AssetImage(
+                                              'assets/recommend_pic/recommend.png'),
                                           color: Colors.white,
                                           size: 30,
                                         ),
@@ -465,10 +499,12 @@ class _MapPageState extends State<MapPage> {
                                           });
                                         },
                                         icon: const ImageIcon(
-                                          AssetImage('assets/recommend_pic/delete_recommend.png'),
+                                          AssetImage(
+                                              'assets/recommend_pic/delete_recommend.png'),
                                           color: Colors.white,
                                           size: 28,
-                                        ),),
+                                        ),
+                                      ),
                                 IconButton(
                                     onPressed: () {
                                       setState(() {
@@ -488,7 +524,7 @@ class _MapPageState extends State<MapPage> {
                     : Container(),
                 pressToGetRecommend
                     ? Positioned(
-                        bottom: 20.0,
+                        bottom: isExpanded ? 32.0 : 28.0,
                         child: SizedBox(
                           height: isExpanded ? 500.0 : 200.0,
                           width: MediaQuery.of(context).size.width,
@@ -794,7 +830,8 @@ class _MapPageState extends State<MapPage> {
           position: pos,
         );
         destination = null;
-
+        isExpandedOrigin = false;
+        isExpandedDestination = false;
         // Reset info
         infoDistanceAndDuration = null;
       });
@@ -1156,7 +1193,6 @@ class _MapPageState extends State<MapPage> {
                               ],
                             )
                           : Padding(
-                              // Here is the back side of the FlipCard, which is not expanded. It is exactly the same as the front (not expanded) side.
                               padding: const EdgeInsets.only(
                                   left: 18, right: 18, top: 18, bottom: 16),
                               child: Column(

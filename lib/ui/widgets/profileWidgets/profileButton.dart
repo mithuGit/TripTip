@@ -28,8 +28,7 @@ class ProfileButton extends StatelessWidget {
       child: OutlinedButton(
         onPressed: onTap,
         style: OutlinedButton.styleFrom(
-          backgroundColor:
-              backgroundColor ??
+          backgroundColor: backgroundColor ??
               const Color.fromARGB(255, 43, 43, 43).withOpacity(0.90),
           foregroundColor: textcolor,
           padding: const EdgeInsets.all(16),

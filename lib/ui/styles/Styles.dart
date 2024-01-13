@@ -171,4 +171,9 @@ class Styles {
       fontSize: 20,
       fontWeight: FontWeight.w400,
       color: Colors.black);
+  static const mapButtonStyle = TextStyle(
+    color: Colors.white,
+    fontSize: 12,
+    fontFamily: 'Ubuntu',
+  );
 }
