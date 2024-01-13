@@ -28,19 +28,19 @@ class SelectTrip extends StatelessWidget {
                         title: "Start your next Adventure",
                         children: [
                           MyButton(
-                              margin: EdgeInsets.only(top: 15, bottom: 10),
+                              margin: const EdgeInsets.only(top: 15, bottom: 10),
                               onTap: () {
                                 context.push('/createtrip');
                               },
                               text: "Create Trip"),
                           MyButton(
-                            margin: EdgeInsets.only(bottom: 10),
+                            margin: const EdgeInsets.only(bottom: 10),
                               onTap: () {
                                 context.push('/jointrip');
                               },
                               text: "Join Trip"),
                           MyButton(
-                            margin: EdgeInsets.only(bottom: 10),
+                            margin: const EdgeInsets.only(bottom: 10),
                             onTap: () {
                               context.pop();
                             },
