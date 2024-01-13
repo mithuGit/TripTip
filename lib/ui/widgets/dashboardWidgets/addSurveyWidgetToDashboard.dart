@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:internet_praktikum/core/services/manageDashboardWidget.dart';
+import 'package:internet_praktikum/core/services/map_service.dart';
 import 'package:internet_praktikum/ui/styles/Styles.dart';
 import 'package:internet_praktikum/ui/widgets/dashboardWidgets/selectDeadline.dart';
 import 'package:internet_praktikum/ui/widgets/datepicker.dart';
@@ -55,6 +56,7 @@ class SelectedQuestion extends SelectedOption {
 
 // ignore: must_be_immutable
 class AddSurveyWidgetToDashboard extends StatefulWidget {
+  Place? place;
   DocumentReference day;
   String typeOfSurvey;
   Map<String, dynamic> userdata;
@@ -64,6 +66,7 @@ class AddSurveyWidgetToDashboard extends StatefulWidget {
       required this.day,
       required this.userdata,
       this.data,
+      this.place,
       required this.typeOfSurvey});
 
   @override
@@ -85,6 +88,7 @@ class AddSurveyWidgetToDashboardState
   @override
   void initState() {
     super.initState();
+    getPlaceDetails();
     selectedOption = widget.typeOfSurvey == "questionsurvey"
         ? SelectedQuestion()
         : SelectedDate();
@@ -109,6 +113,17 @@ class AddSurveyWidgetToDashboardState
     }
   }
 
+  void getPlaceDetails() {
+    if (widget.place != null) {
+      String title = widget.place!.name;
+      nameofSurvey.text = "Do you want to go to $title?";
+      if (widget.typeOfSurvey == "questionsurvey") {
+        _optionList.add(SelectedQuestion()..value = "Yes?");
+        _optionList.add(SelectedQuestion()..value = "No?");
+      }
+    }
+  }
+
   Future<DateTime> getDay() async {
     DocumentSnapshot dd = await widget.day.get();
     Map<String, dynamic> data = dd.data() as Map<String, dynamic>;
@@ -126,8 +141,8 @@ class AddSurveyWidgetToDashboardState
       "allowmultipleanswers": allowmultipleAnswers,
     };
     if (deadline != null) {
-      data["deadline"] = deadline;  
-    } 
+      data["deadline"] = deadline;
+    }
     data["options"] = _optionList.map((e) => e.toMap()).toList();
     DocumentReference by = FirebaseFirestore.instance
         .collection('users')
@@ -208,6 +223,7 @@ class AddSurveyWidgetToDashboardState
         ),
       );
     }
+
     // needed that the widget is moveable
     return SingleChildScrollView(
       child: Column(children: [
@@ -257,7 +273,7 @@ class AddSurveyWidgetToDashboardState
                   flex: 2,
                   child: InputField(
                     controller: (selectedOption as SelectedQuestion).question,
-                    hintText: "Question you can add",
+                    hintText: "Question or Answer you can add",
                     borderColor: Colors.grey.shade400,
                     focusedBorderColor: const Color.fromARGB(255, 84, 113, 255),
                     obscureText: false,
@@ -285,7 +301,8 @@ class AddSurveyWidgetToDashboardState
             IconButton(
                 onPressed: () => {
                       if (_optionList
-                          .where((element) => element.value == selectedOption.value)
+                          .where((element) =>
+                              element.value == selectedOption.value)
                           .isEmpty)
                         {
                           if (selectedOption.isNotEmpty &&

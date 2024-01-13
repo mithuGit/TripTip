@@ -1,7 +1,10 @@
+// ignore_for_file: must_be_immutable, avoid_print, file_names
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:internet_praktikum/core/services/manageDashboardWidget.dart';
+import 'package:internet_praktikum/core/services/map_service.dart';
 import 'package:internet_praktikum/ui/styles/Styles.dart';
 import 'package:internet_praktikum/ui/widgets/datepicker.dart';
 import 'package:internet_praktikum/ui/widgets/errorSnackbar.dart';
@@ -11,12 +14,19 @@ import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
 
 class AddAppointmentWidgetToDashboard extends StatefulWidget {
+  Place? place;
   Map<String, dynamic> userdata;
   DocumentReference day;
   Map<String, dynamic>? data;
   AddAppointmentWidgetToDashboard(
-      {super.key, required this.day, required this.userdata, this.data});
+      {super.key,
+      required this.day,
+      required this.userdata,
+      this.data,
+      this.place});
 
+  @override
+  // ignore: library_private_types_in_public_api
   _AddAppointmentWidgetToDashboardState createState() =>
       _AddAppointmentWidgetToDashboardState();
 }
@@ -28,6 +38,24 @@ class _AddAppointmentWidgetToDashboardState
   DateTime? selectedDate;
   var uuid = const Uuid();
   var firestore = FirebaseFirestore.instance;
+
+  @override
+  void initState() {
+    super.initState();
+    getPlaceDetails();
+  }
+
+  void getPlaceDetails() {
+    if (widget.place != null) {
+      nameOfAppointment.text = widget.place!.name;
+      String adress = widget.place!.formattedAddress;
+      if (widget.place!.formattedAddress == "") {
+        adress = "No adress available";
+      }
+      appointment.text =
+          "If you want to go there, this is the Adress :\n$adress";
+    }
+  }
 
   @override
   Widget build(BuildContext context) {

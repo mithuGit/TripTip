@@ -1,4 +1,4 @@
-import 'dart:async';
+// ignore_for_file: file_names
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -8,6 +8,7 @@ import 'package:internet_praktikum/ui/widgets/dashboardWidgets/diaryWidget.dart'
 import 'package:internet_praktikum/ui/widgets/dashboardWidgets/simpleNoteWidget.dart';
 import 'package:internet_praktikum/ui/widgets/dashboardWidgets/survey.dart';
 
+// ignore: must_be_immutable
 class MainDasboardinitializer extends StatefulWidget {
   double elevation = 0;
   final String title;
@@ -49,7 +50,6 @@ class _MainDasboardinitializerState extends State<MainDasboardinitializer> {
                     super.widget.title,
                     style: Styles.mainDasboardinitializerTitle,
                     textAlign: TextAlign.left,
-                    overflow: TextOverflow.ellipsis,
                   ),
                 )
               ]),

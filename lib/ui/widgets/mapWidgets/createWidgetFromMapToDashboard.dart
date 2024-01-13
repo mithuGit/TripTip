@@ -1,21 +1,24 @@
-// ignore_for_file: file_names
+// ignore_for_file: file_names, use_build_context_synchronously
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:internet_praktikum/core/services/map_service.dart';
 import 'package:internet_praktikum/ui/widgets/dashboardWidgets/addAppointmentWidgetToDashboard.dart';
 import 'package:internet_praktikum/ui/widgets/dashboardWidgets/addNoteWidgetToDashboard.dart';
 import 'package:internet_praktikum/ui/widgets/dashboardWidgets/addSurveyWidgetToDashboard.dart';
 import 'package:internet_praktikum/ui/widgets/datepicker.dart';
+import 'package:internet_praktikum/ui/widgets/errorSnackbar.dart';
 import 'package:internet_praktikum/ui/widgets/modalButton.dart';
 import 'package:intl/intl.dart';
 
 // ignore: must_be_immutable
 class CreateWidgetFromMapToDashboard extends StatefulWidget {
-  final String placeName;
+  final Place place;
   Map<String, dynamic> userdata;
-  CreateWidgetFromMapToDashboard({super.key, required this.userdata, required this.placeName});
+  CreateWidgetFromMapToDashboard(
+      {super.key, required this.userdata, required this.place});
 
   @override
   // ignore: library_private_types_in_public_api
@@ -28,6 +31,7 @@ class _CreateWidgetFromMapToDashboardState
   String show = 'init';
   DocumentReference? day;
   DateTime? selectedDate;
+
   @override
   Widget build(BuildContext context) {
     switch (show) {
@@ -41,6 +45,7 @@ class _CreateWidgetFromMapToDashboardState
                 setState(() {
                   selectedDate = date.date;
                 });
+                getDayReferenceFromSelectedDate(date.date);
               },
               presetDate: selectedDate != null
                   ? DateFormat('dd.MM.yyyy').format(selectedDate!)
@@ -57,85 +62,119 @@ class _CreateWidgetFromMapToDashboardState
               crossAxisSpacing: 10,
               children: [
                 ModalButton(
+                    icon: Icons.note_add,
+                    onTap: day != null
+                        ? () => {
+                              setState(() {
+                                show = 'note';
+                              })
+                            }
+                        : () {
+                            ErrorSnackbar.showErrorSnackbar(context,
+                                "Please select a date first or select a date that is in the right time range of the trip");
+                          },
+                    text: "Add Note"),
+                ModalButton(
                     icon: Icons.date_range,
-                    onTap: () => {
-                          setState(() {
-                            show = 'appointment';
-                          })
-                        },
+                    onTap: day != null
+                        ? () => {
+                              setState(() {
+                                show = 'appointment';
+                              })
+                            }
+                        : () {
+                            ErrorSnackbar.showErrorSnackbar(context,
+                                "Please select a date first or select a date that is in the right time range of the trip");
+                          },
                     text: "Add Appointment"),
                 ModalButton(
                     icon: Icons.poll,
-                    onTap: () => {
-                          setState(() {
-                            show = 'questionsurvey';
-                          })
-                        },
+                    onTap: day != null
+                        ? () => {
+                              setState(() {
+                                show = 'questionsurvey';
+                              })
+                            }
+                        : () {
+                            ErrorSnackbar.showErrorSnackbar(context,
+                                "Please select a date first or select a date that is in the right time range of the trip");
+                          },
                     text: "Add Question Survery"),
                 ModalButton(
                     icon: Icons.poll,
-                    onTap: () => {
-                          setState(() {
-                            show = 'appointmentsurvey';
-                          })
-                        },
+                    onTap: day != null
+                        ? () => {
+                              setState(() {
+                                show = 'appointmentsurvey';
+                              })
+                            }
+                        : () {
+                            ErrorSnackbar.showErrorSnackbar(context,
+                                "Please select a date first or select a date that is in the right time range of the trip");
+                          },
                     text: "Add Appointment Survery"),
               ],
             ),
           ],
         );
+
       case 'note':
-        setState(() async {
-          day = await getDayReferenceFromSelectedDate(selectedDate!);
-        });
         return AddNoteWidgetToDashboard(
-          userdata: widget.userdata,
-         day: day!);
+            userdata: widget.userdata, day: day!, place: widget.place);
+
       case 'appointment':
-        setState(() async {
-          day = await getDayReferenceFromSelectedDate(selectedDate!);
-        });
         return AddAppointmentWidgetToDashboard(
-            userdata: widget.userdata, day: day!);
+            userdata: widget.userdata, day: day!, place: widget.place);
       case 'questionsurvey':
-        setState(() async {
-          day = await getDayReferenceFromSelectedDate(selectedDate!);
-        });
         return AddSurveyWidgetToDashboard(
           userdata: widget.userdata,
           day: day!,
           typeOfSurvey: 'questionsurvey',
+          place: widget.place,
         );
       case 'appointmentsurvey':
-        setState(() async {
-          day = await getDayReferenceFromSelectedDate(selectedDate!);
-        });
         return AddSurveyWidgetToDashboard(
           userdata: widget.userdata,
           day: day!,
           typeOfSurvey: 'appointmentsurvey',
+          place: widget.place,
         );
       default:
         return const Text('default');
     }
   }
 
-  fromselectedDateToTimestamp(DateTime? selectedDate) {
-    return Timestamp.fromDate(selectedDate!);
-  }
-
-  Future<DocumentReference> getDayReferenceFromSelectedDate(
-      DateTime selectedDate) async {
+  Future<void> getDayReferenceFromSelectedDate(DateTime selectedDate) async {
     User user = FirebaseAuth.instance.currentUser!;
-    var uid = user.uid;
 
-    var doc = await FirebaseFirestore.instance
-        .collection("trips")
-        .doc(uid)
-        .collection("days")
-        .where("date", isEqualTo: fromselectedDateToTimestamp(selectedDate))
-        .get();
+    final DocumentSnapshot<Map<String, dynamic>> userDoc =
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(user.uid)
+            .get();
 
-    return doc.docs[0].reference;
+    if (userDoc.exists) {
+      final String tripId = userDoc.data()!['selectedtrip'].toString();
+
+      final QuerySnapshot<Map<String, dynamic>> doc = await FirebaseFirestore
+          .instance
+          .collection("trips")
+          .doc(tripId)
+          .collection("days")
+          .where("starttime", isEqualTo: Timestamp.fromDate(selectedDate))
+          .get();
+
+      if (doc.docs.isNotEmpty) {
+        day = doc.docs.first.reference;
+      } else {
+        ErrorSnackbar.showErrorSnackbar(
+            context, "No day found for the selected date");
+        Navigator.pop(context);
+      }
+    } else {
+      ErrorSnackbar.showErrorSnackbar(
+          context, "No day found for the selected date");
+      Navigator.pop(context);
+    }
   }
 }

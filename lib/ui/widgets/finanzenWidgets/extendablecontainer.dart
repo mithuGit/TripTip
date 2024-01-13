@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:internet_praktikum/core/services/paymentsHandeler.dart';
 import 'package:internet_praktikum/ui/widgets/finanzenWidgets/slidablebutton.dart';
 
+// ignore: must_be_immutable
 class ExpandableContainer extends StatefulWidget {
   final double sum;
   DocumentSnapshot currentUser;

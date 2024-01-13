@@ -1141,8 +1141,8 @@ class _MapPageState extends State<MapPage> {
                                                   );
                                                 }
                                                 return CreateWidgetFromMapToDashboard(
-                                                    placeName: allFavoritePlaces[
-                                                        index].name,
+                                                    place: allFavoritePlaces[
+                                                        index],
                                                     userdata:
                                                         snapshot.data![0]);
                                               })
