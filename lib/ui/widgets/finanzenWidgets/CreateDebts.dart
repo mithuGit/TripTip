@@ -20,8 +20,6 @@ class CreateDebts extends StatefulWidget {
 }
 
 class _CreateDebtsState extends State<CreateDebts> {
-  //TODO Finanzenproblem wegen status ,,open" ist nicht da irgendwie ein debug point mal bei finanzen setzen
-  // ca. Zeile 126 bei finanzen.dart
   final title = TextEditingController();
   final description = TextEditingController();
   final totalAmount = TextEditingController();
@@ -123,7 +121,6 @@ class _CreateDebtsState extends State<CreateDebts> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     getGroupmembers();
   }
@@ -134,8 +131,7 @@ class _CreateDebtsState extends State<CreateDebts> {
 
     for (int i = 0; i < amountList.length; i++) {
       if (amountList[i].text.isNotEmpty) {
-        sum += double.parse(amountList[i]
-            .text); // TODO: man bekommt Fehler wenn man statt . ein , benutzt
+        sum += double.parse(amountList[i].text);
       }
     }
 

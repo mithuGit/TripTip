@@ -4,7 +4,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:internet_praktikum/core/services/dashboardData.dart';
 import 'package:internet_praktikum/core/services/map_service.dart';
+import 'package:internet_praktikum/ui/views/dashboard/dashboard.dart';
 import 'package:internet_praktikum/ui/widgets/dashboardWidgets/addAppointmentWidgetToDashboard.dart';
 import 'package:internet_praktikum/ui/widgets/dashboardWidgets/addNoteWidgetToDashboard.dart';
 import 'package:internet_praktikum/ui/widgets/dashboardWidgets/addSurveyWidgetToDashboard.dart';
@@ -34,18 +36,20 @@ class _CreateWidgetFromMapToDashboardState
 
   @override
   Widget build(BuildContext context) {
+    //TODO: soll man nur Termine wählen können die im Trip Zeitraum liegen und somit eine Days Referenz haben oder wie genau?
     switch (show) {
       case 'init':
         return Column(
           children: [
             CupertinoDatePickerButton(
-              showFuture: false,
+              //TODO: man soll in der Zukunft nur Termine erstellen können
+              showFuture: true,
               mode: CupertinoDatePickerMode.date,
               onDateSelected: (date) {
                 setState(() {
                   selectedDate = date.date;
                 });
-                getDayReferenceFromSelectedDate(date.date);
+                getDayReference(date.date);
               },
               presetDate: selectedDate != null
                   ? DateFormat('dd.MM.yyyy').format(selectedDate!)
@@ -63,55 +67,75 @@ class _CreateWidgetFromMapToDashboardState
               children: [
                 ModalButton(
                     icon: Icons.note_add,
-                    onTap: day != null
+                    onTap: selectedDate != null && day != null
                         ? () => {
                               setState(() {
                                 show = 'note';
                               })
                             }
-                        : () {
-                            ErrorSnackbar.showErrorSnackbar(context,
-                                "Please select a date first or select a date that is in the right time range of the trip");
-                          },
+                        : selectedDate == null
+                            ? () {
+                                ErrorSnackbar.showErrorSnackbar(
+                                    context, "Please select a date first");
+                              }
+                            : () {
+                                ErrorSnackbar.showErrorSnackbar(context,
+                                    "Select a date that is in the right time range of the trip");
+                              },
                     text: "Add Note"),
                 ModalButton(
                     icon: Icons.date_range,
-                    onTap: day != null
+                    onTap: selectedDate != null && day != null
                         ? () => {
                               setState(() {
                                 show = 'appointment';
                               })
                             }
-                        : () {
-                            ErrorSnackbar.showErrorSnackbar(context,
-                                "Please select a date first or select a date that is in the right time range of the trip");
-                          },
+                        : selectedDate == null
+                            ? () {
+                                ErrorSnackbar.showErrorSnackbar(
+                                    context, "Please select a date first");
+                              }
+                            : () {
+                                ErrorSnackbar.showErrorSnackbar(context,
+                                    "Select a date that is in the right time range of the trip");
+                              },
                     text: "Add Appointment"),
                 ModalButton(
                     icon: Icons.poll,
-                    onTap: day != null
+                    onTap: selectedDate != null && day != null
                         ? () => {
                               setState(() {
                                 show = 'questionsurvey';
                               })
                             }
-                        : () {
-                            ErrorSnackbar.showErrorSnackbar(context,
-                                "Please select a date first or select a date that is in the right time range of the trip");
-                          },
+                        : selectedDate == null
+                            ? () {
+                                ErrorSnackbar.showErrorSnackbar(
+                                    context, "Please select a date first");
+                              }
+                            : () {
+                                ErrorSnackbar.showErrorSnackbar(context,
+                                    "Select a date that is in the right time range of the trip");
+                              },
                     text: "Add Question Survery"),
                 ModalButton(
                     icon: Icons.poll,
-                    onTap: day != null
+                    onTap: selectedDate != null && day != null
                         ? () => {
                               setState(() {
                                 show = 'appointmentsurvey';
                               })
                             }
-                        : () {
-                            ErrorSnackbar.showErrorSnackbar(context,
-                                "Please select a date first or select a date that is in the right time range of the trip");
-                          },
+                        : selectedDate == null
+                            ? () {
+                                ErrorSnackbar.showErrorSnackbar(
+                                    context, "Please select a date first");
+                              }
+                            : () {
+                                ErrorSnackbar.showErrorSnackbar(context,
+                                    "Select a date that is in the right time range of the trip");
+                              },
                     text: "Add Appointment Survery"),
               ],
             ),
@@ -144,7 +168,7 @@ class _CreateWidgetFromMapToDashboardState
     }
   }
 
-  Future<void> getDayReferenceFromSelectedDate(DateTime selectedDate) async {
+  Future<void> getDayReference(DateTime selectedDate) async {
     User user = FirebaseAuth.instance.currentUser!;
 
     final DocumentSnapshot<Map<String, dynamic>> userDoc =
@@ -167,14 +191,10 @@ class _CreateWidgetFromMapToDashboardState
       if (doc.docs.isNotEmpty) {
         day = doc.docs.first.reference;
       } else {
-        ErrorSnackbar.showErrorSnackbar(
-            context, "No day found for the selected date");
-        Navigator.pop(context);
+        DashBoardData.getCurrentDaySubCollection(selectedDate);
       }
     } else {
-      ErrorSnackbar.showErrorSnackbar(
-          context, "No day found for the selected date");
-      Navigator.pop(context);
+      ErrorSnackbar.showErrorSnackbar(context, "No user found for this trip");
     }
   }
 }

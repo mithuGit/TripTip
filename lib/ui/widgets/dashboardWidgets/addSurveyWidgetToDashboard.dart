@@ -28,7 +28,7 @@ class SelectedDate extends SelectedOption {
   bool get isNotEmpty => date != null;
   @override
   Map toMap() => {
-        "string": DateFormat('hh:mm').format(date!),
+        "string": DateFormat('HH:mm').format(date!),
         "date": date!,
         "voters": []
       };
