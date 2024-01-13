@@ -3,11 +3,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:internet_praktikum/ui/views/account/account_details.dart';
-<<<<<<< HEAD
 import 'package:internet_praktikum/ui/views/account/setInterestsPage.dart';
-=======
 import 'package:internet_praktikum/ui/views/dashboard/archive.dart';
->>>>>>> origin/DashboardSetup
 import 'package:internet_praktikum/ui/views/dashboard/readDiary.dart';
 import 'package:internet_praktikum/ui/views/dashboard/writeDiary.dart';
 import 'package:internet_praktikum/ui/views/finanzen/finazen.dart';

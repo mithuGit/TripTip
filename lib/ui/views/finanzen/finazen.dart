@@ -47,16 +47,14 @@ class _FinanzenState extends State<Finanzen> {
         isFinanz: true,
         icon: Icons.add,
         onTapForIconWidget: () {
-          CustomBottomSheet.show(context,
-              title: "Add Request:",
-              content: [
-                Builder(builder: (context) {
-                  if (selectedtrip == null) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
-                  return CreateDebts(selectedTrip: selectedtrip!);
-                })
-              ]);
+          CustomBottomSheet.show(context, title: "Add Request:", content: [
+            Builder(builder: (context) {
+              if (selectedtrip == null) {
+                return const Center(child: CircularProgressIndicator());
+              }
+              return CreateDebts(selectedTrip: selectedtrip!);
+            })
+          ]);
         },
         title: "Payments",
       ),
@@ -123,7 +121,7 @@ class _FinanzenState extends State<Finanzen> {
                             continue;
                           }
                           if (fundtome.isNotEmpty &&
-                              fundtome[0]["status"] == "open") {
+                              fundtome["status"] == "open") {
                             int index = to.indexOf(fundtome);
                             openRefundsPerUser[
                                     (payment["createdBy"] as DocumentReference)
@@ -132,14 +130,14 @@ class _FinanzenState extends State<Finanzen> {
                               "title": paymentData["title"],
                               "indexInArray": index,
                               "request": payment,
-                              "amount": fundtome[0]["amount"],
+                              "amount": fundtome["amount"],
                             });
                             sumsPerUser[(payment["createdBy"]
                                     as DocumentReference)
                                 .id] = sumsPerUser[
                                     (payment["createdBy"] as DocumentReference)
                                         .id]! +
-                                fundtome[0]["amount"];
+                                fundtome["amount"];
                           }
                         }
                       }
