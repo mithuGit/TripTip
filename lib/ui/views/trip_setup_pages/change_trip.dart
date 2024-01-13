@@ -39,7 +39,7 @@ class _ChangeTrip extends State<ChangeTrip> {
   }
 
   bool isAdmin(Map<String, dynamic> trip) {
-    return trip["createdBy"] == user.uid;
+    return trip["createdBy"] == FirebaseFirestore.instance.doc("/users/${user.uid}");
   }
 
   Widget createTripName(Map<String, dynamic> trip) {
@@ -80,10 +80,10 @@ class _ChangeTrip extends State<ChangeTrip> {
                 children: data!.map<Widget>((con) {
               return Slidable(
                   key: Key(con.hashCode.toString()),
-                  enabled: isAdmin(trip) && user.uid != con.id,
+                  enabled: isAdmin(trip),
                   endActionPane: ActionPane(
                       extentRatio: 0.7,
-                      motion: ScrollMotion(),
+                      motion: const ScrollMotion(),
                       children: [
                         SlidableAction(
                             onPressed: (context) {
@@ -102,10 +102,10 @@ class _ChangeTrip extends State<ChangeTrip> {
                             label: "Remove"),
                         SlidableAction(
                             onPressed: (context) {
-                              db
-                                  .collection("trips")
-                                  .doc(tripid)
-                                  .update({"createdBy": con.id});
+                              db.collection("trips").doc(tripid).update({
+                                "createdBy": FirebaseFirestore.instance
+                                    .doc("/users/${con.uid}")
+                              });
                               Navigator.pop(context);
                               setState(() {});
                             },
@@ -178,10 +178,13 @@ class _ChangeTrip extends State<ChangeTrip> {
                                   SlidableAction(
                                     onPressed: (sdf) {
                                       var members = con["members"] as List;
-                                      print(members);
-                                      members.remove(FirebaseFirestore.instance.doc("/users/" + user.uid));
-                                      if (con["createdBy"] == user.uid) {
-                                        db.collection("trips").doc(con.id).update({
+                                      members.remove(FirebaseFirestore.instance
+                                          .doc("/users/" + user.uid));
+                                      if (con["createdBy"] == FirebaseFirestore.instance.doc("/users/${user.uid}")) {
+                                        db
+                                            .collection("trips")
+                                            .doc(con.id)
+                                            .update({
                                           "members": members,
                                           "createdBy": members[0]
                                         });
