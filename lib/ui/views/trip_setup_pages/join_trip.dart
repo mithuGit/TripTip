@@ -8,17 +8,17 @@ import 'package:internet_praktikum/ui/widgets/my_button.dart';
 
 class JoinTrip extends StatelessWidget {
   JoinTrip({super.key});
-  CollectionReference trips = FirebaseFirestore.instance.collection('trips');
+  final CollectionReference trips = FirebaseFirestore.instance.collection('trips');
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   final groupController = TextEditingController();
 
-  void join_trip() async {
+  void joinTrip() async {
     final self = [
       FirebaseFirestore.instance.collection("users").doc(_auth.currentUser?.uid)
     ];
     final dir = groupController.text;
-    trips.doc(dir).update({"members": FieldValue.arrayUnion(self)});
+    trips.doc(dir).update({"members": FieldValue.arrayUnion([FirebaseFirestore.instance.doc("/users/" + self.toString())])});
   }
 
   @override
@@ -41,18 +41,18 @@ class JoinTrip extends StatelessWidget {
                     child:
                         CustomContainer(title: "Join your Friends", children: [
                       InputField(
-                          margin: EdgeInsets.only(top: 15, bottom: 10),
+                          margin: const EdgeInsets.only(top: 15, bottom: 10),
                           controller: groupController,
                           hintText: "Trip Code",
                           obscureText: false),
                       MyButton(
-                        margin: EdgeInsets.only(bottom: 10),
+                        margin: const EdgeInsets.only(bottom: 10),
                           onTap: () {
-                            join_trip();
+                            joinTrip();
                           },
                           text: "Next"),
                       MyButton(
-                        margin: EdgeInsets.only(bottom: 10),
+                        margin: const EdgeInsets.only(bottom: 10),
                           onTap: () {
                             context.pop();
                           },

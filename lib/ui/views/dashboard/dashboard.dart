@@ -28,9 +28,9 @@ class _DashBoardState extends State<DashBoard> {
             icon: const Icon(Icons.menu_rounded),
             onSelected: (value) => {
               switch (value) {
+                "archive" => {context.pushNamed("archive")},
                 "changeTrip" => {context.goNamed("changeTrip")},
                 "createWidget" => {
-                    // Hier muss Bürge Menü rein und in diesem Menü soll das was unten steht über ein Add Widget Button aufgerufen werden
                     CustomBottomSheet.show(context,
                         title: "Add new Widget to your Dashboard",
                         content: [
@@ -71,6 +71,10 @@ class _DashBoardState extends State<DashBoard> {
                 PopupMenuItem(
                   value: "createWidget",
                   child: Text("Create Widget"),
+                ),
+                PopupMenuItem(
+                  value: "archive",
+                  child: Text("Archive"),
                 )
               ];
             },

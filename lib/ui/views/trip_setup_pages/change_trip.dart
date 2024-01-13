@@ -2,12 +2,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:geocoding/geocoding.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:internet_praktikum/ui/styles/Styles.dart';
 import 'package:internet_praktikum/ui/widgets/bottom_sheet.dart';
-import 'package:internet_praktikum/ui/widgets/my_button.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class ChangeTrip extends StatefulWidget {
@@ -18,39 +15,44 @@ class ChangeTrip extends StatefulWidget {
 
 class _ChangeTrip extends State<ChangeTrip> {
   final db = FirebaseFirestore.instance;
-  final user = FirebaseAuth.instance.currentUser!.uid;
-  var userTrip = null;
+  final user = FirebaseAuth.instance.currentUser!;
+  var userTrip;
 
   Future<List> getTrips() async {
     var tripRef = db.collection("trips");
     var trips = [];
     await tripRef
-        .where("members", arrayContains: user)
+        .where("members",
+            arrayContains: FirebaseFirestore.instance.doc("/users/${user.uid}"))
         .get()
         .then((QuerySnapshot doc) {
       trips = doc.docs;
     });
-    await db.collection("users").doc(user).get().then((DocumentSnapshot doc) {
+    await db
+        .collection("users")
+        .doc(user.uid)
+        .get()
+        .then((DocumentSnapshot doc) {
       userTrip = (doc.data() as Map<String, dynamic>)["selectedtrip"];
     });
     return trips;
   }
 
   bool isAdmin(Map<String, dynamic> trip) {
-    return trip["createdBy"] == user;
+    return trip["createdBy"] == user.uid;
   }
 
   Widget createTripName(Map<String, dynamic> trip) {
     if (isAdmin(trip)) {
       return Row(children: [
         const Icon(FontAwesomeIcons.crown, size: 15, color: Colors.white),
-        SizedBox(width: 10),
+        const SizedBox(width: 10),
         Text(trip["city"] as String, style: Styles.mainDasboardinitializerTitle)
       ]);
     } else {
       return Row(
         children: [
-          SizedBox(width: 30),
+          const SizedBox(width: 30),
           Text(trip["city"] as String,
               style: Styles.mainDasboardinitializerTitle)
         ],
@@ -58,15 +60,13 @@ class _ChangeTrip extends State<ChangeTrip> {
     }
   }
 
-  Future<List> getTripUser(List<dynamic> userids) async {
-    var userRef = db.collection("users");
+  Future<List> getTripUser(List<dynamic> userref) async {
     var users = [];
-    await userRef
-        .where("uid", whereIn: userids)
-        .get()
-        .then((QuerySnapshot doc) {
-      users = doc.docs;
-    });
+    await Future.forEach(
+        userref,
+        (x) => FirebaseFirestore.instance.doc(x.path).get().then((y) {
+              users.add(y.data());
+            }));
     return users;
   }
 
@@ -80,7 +80,7 @@ class _ChangeTrip extends State<ChangeTrip> {
                 children: data!.map<Widget>((con) {
               return Slidable(
                   key: Key(con.hashCode.toString()),
-                  enabled: isAdmin(trip) && user != con.id,
+                  enabled: isAdmin(trip) && user.uid != con.id,
                   endActionPane: ActionPane(
                       extentRatio: 0.7,
                       motion: ScrollMotion(),
@@ -88,7 +88,8 @@ class _ChangeTrip extends State<ChangeTrip> {
                         SlidableAction(
                             onPressed: (context) {
                               var members = trip["members"] as List;
-                              members.remove(con.id);
+                              members.remove(FirebaseFirestore.instance
+                                  .doc("/users/${con.uid}"));
                               db
                                   .collection("trips")
                                   .doc(tripid)
@@ -118,7 +119,7 @@ class _ChangeTrip extends State<ChangeTrip> {
                       child: Card(
                           margin: const EdgeInsets.symmetric(
                               vertical: 10, horizontal: 10),
-                          key: Key(con.id.hashCode.toString()),
+                          key: Key(con.uid.hashCode.toString()),
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(34.4)),
                           color: const Color(0xE51E1E1E),
@@ -131,7 +132,7 @@ class _ChangeTrip extends State<ChangeTrip> {
                               ]))));
             }).toList());
           } else {
-            return Text("");
+            return const Text("");
           }
         });
   }
@@ -153,12 +154,11 @@ class _ChangeTrip extends State<ChangeTrip> {
           titleTextStyle: const TextStyle(color: Colors.black, fontSize: 20),
           actions: [
             IconButton(
-                padding: EdgeInsets.only(right: 15, bottom: 10),
+                padding: const EdgeInsets.only(right: 15, bottom: 10),
                 onPressed: () {
                   context.push('/selecttrip');
                 },
-                icon: const Icon(Icons.add,
-                    size: 40, color: const Color(0xE51E1E1E)))
+                icon: const Icon(Icons.add, size: 40, color: Color(0xE51E1E1E)))
           ]),
       body: FutureBuilder(
           future: getTrips(),
@@ -178,12 +178,10 @@ class _ChangeTrip extends State<ChangeTrip> {
                                   SlidableAction(
                                     onPressed: (sdf) {
                                       var members = con["members"] as List;
-                                      members.remove(user);
-                                      if (con["createdBy"] == user) {
-                                        db
-                                            .collection("trips")
-                                            .doc(con.id)
-                                            .update({
+                                      print(members);
+                                      members.remove(FirebaseFirestore.instance.doc("/users/" + user.uid));
+                                      if (con["createdBy"] == user.uid) {
+                                        db.collection("trips").doc(con.id).update({
                                           "members": members,
                                           "createdBy": members[0]
                                         });
@@ -214,7 +212,11 @@ class _ChangeTrip extends State<ChangeTrip> {
                                 ),
                                 SlidableAction(
                                   onPressed: (sdf) {
-                                    context.pushNamed("sharetrip", pathParameters: {"tripId": con.id, "afterCreate": "f"});
+                                    context.pushNamed("sharetrip",
+                                        pathParameters: {
+                                          "tripId": con.id,
+                                          "afterCreate": "f"
+                                        });
                                   },
                                   backgroundColor: Colors.transparent,
                                   foregroundColor: Colors.blue,
@@ -226,7 +228,7 @@ class _ChangeTrip extends State<ChangeTrip> {
                                 onTap: () {
                                   db
                                       .collection("users")
-                                      .doc(user)
+                                      .doc(user.uid)
                                       .update({"selectedtrip": con.id});
                                   context.goNamed('home');
                                 },
@@ -237,7 +239,7 @@ class _ChangeTrip extends State<ChangeTrip> {
                                   key: Key(con.id.hashCode.toString()),
                                   shape: RoundedRectangleBorder(
                                       side: userTrip == con.id
-                                          ? BorderSide(
+                                          ? const BorderSide(
                                               color: Colors.blue, width: 2)
                                           : BorderSide.none,
                                       borderRadius:
@@ -279,7 +281,7 @@ class _ChangeTrip extends State<ChangeTrip> {
                       .toList()
                       .cast());
             }
-            return Text("");
+            return const Text("");
           }),
     );
   }
