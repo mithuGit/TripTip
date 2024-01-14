@@ -68,7 +68,7 @@ class _OTPFormState extends State<OTPForm> {
                   child: CustomContainer(
                     title: "Verify your Email",
                     smallSize: true,
-                    children: [
+                    children: <Widget>[
                       const SizedBox(height: 25),
                       const Text(
                         "$message Please check your inbox.",
@@ -91,26 +91,30 @@ class _OTPFormState extends State<OTPForm> {
                       const SizedBox(
                         height: 55,
                       ),
-                      if (canResendEmail)
-                        MyButton(
-                          onTap:
-                              resendVerificationEmail, 
-                          text: "Resend Link",
-                        )
-                      else
-                        MyButton(
-                          onTap: () {
-                            context.go('/accountdetails/false');
-                          },
-                          text: 'Next',
-                        ),
-                      const SizedBox(height: 30),
-                      MyButton(
-                        onTap: () => {
-                          context.go('/loginorregister'),
-                        },
-                        text: 'Back',
-                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          if (canResendEmail)
+                            MyButton(
+                              onTap: resendVerificationEmail,
+                              text: "Resend Link",
+                            )
+                          else
+                            MyButton(
+                              onTap: () {
+                                context.go('/accountdetails/false');
+                              },
+                              text: 'Next',
+                            ),
+                          const SizedBox(height: 30),
+                          MyButton(
+                            onTap: () => {
+                              context.go('/loginorregister'),
+                            },
+                            text: 'Back',
+                          ),
+                        ],
+                      )
                     ],
                   ),
                 ),

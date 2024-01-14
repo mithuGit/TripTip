@@ -41,7 +41,7 @@ Future<DateTime> getStartDate() async {
         day); // Testen ob hier manchmal ein Fehler auftriit und bei day + 1 muss
     return result;
   } else {
-    throw Exception('No trips selected');
+    throw Exception('No trips selected'); //TODO: Error handling
   }
 }
 
