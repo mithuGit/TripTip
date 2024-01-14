@@ -176,4 +176,9 @@ class Styles {
     fontSize: 12,
     fontFamily: 'Ubuntu',
   );
+  static const verifystyle = TextStyle(
+    fontFamily: 'Ubuntu',
+    color: Colors.white,
+    fontSize: 20,
+  );
 }

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:internet_praktikum/ui/styles/Styles.dart';
 import 'package:internet_praktikum/ui/widgets/container.dart';
 import '../../widgets/my_button.dart';
 
@@ -72,11 +73,7 @@ class _OTPFormState extends State<OTPForm> {
                       const Text(
                         "$message Please check your inbox.",
                         textAlign: TextAlign.center,
-                        style: TextStyle(
-                          //TODO: style in styles.dart Ubuntu verwenden
-                          color: Colors.white,
-                          fontSize: 20,
-                        ),
+                        style: Styles.verifystyle,
                       ),
                       const SizedBox(height: 60),
                       if (canResendEmail)
@@ -97,7 +94,7 @@ class _OTPFormState extends State<OTPForm> {
                       if (canResendEmail)
                         MyButton(
                           onTap:
-                              resendVerificationEmail, // TODO: => sendVerificationEmail(),
+                              resendVerificationEmail, 
                           text: "Resend Link",
                         )
                       else
