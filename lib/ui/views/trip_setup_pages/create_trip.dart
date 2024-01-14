@@ -63,12 +63,14 @@ class _TripCreateState extends State<CreateTrip> {
       members.add(user);
       print("Create Trip: $destination $selectedStartDate $selectedEndDate");
 
+  
+
       DocumentReference trip = await trips.add({
         'city': destination?.cityName,
         'placedetails': destination?.placeDetails,
         'startdate': selectedStartDate,
         'enddate': selectedEndDate,
-        'createdBy': FirebaseFirestore.instance.doc((widget.auth.currentUser?.uid).toString()),
+        'createdBy': user,
         'members': members
       });
       FirebaseFirestore.instance
@@ -179,11 +181,7 @@ class _TripCreateState extends State<CreateTrip> {
                             onTap: connectPhotosAlbum,
                             imagePath: 'assets/googlephotos.png',
                             text: 'Create Photos Album'), */
-                        MyButton(
-                            onTap: () {
-                              PushNotificationService().initialise();
-                            },
-                            text: 'Push Notifications'),
+                      
                         MyButton(
                             margin: const EdgeInsets.only(top: 20),
                             onTap: create_trip,

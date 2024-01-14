@@ -47,21 +47,20 @@ class _CreateDebtsState extends State<CreateDebts> {
   Future<void> createDebt() async {
     List<dynamic> to = [];
 
-    for (int i = 0; i < optionList.length; i++) {
+    for (int i = 0; i < amountList.length; i++) {
       if (amountList[i].text.isNotEmpty) {
         to.add({
           "amount": double.parse(amountList[i].text),
           "status": "open",
-          "user": optionList[i],
+          "user": member[i],
         });
       }
     }
 
     if (title.text.isNotEmpty &&
-        description.text.isNotEmpty &&
         totalAmount.text.isNotEmpty &&
         myAmount.text.isNotEmpty) {
-      widget.selectedTrip.collection("payments").add({
+      await widget.selectedTrip.collection("payments").add({
         "title": title.text,
         "description": description.text,
         "amount": double.parse(totalAmount.text),
@@ -100,28 +99,39 @@ class _CreateDebtsState extends State<CreateDebts> {
     myAmount.text = remainingAmount.toStringAsFixed(2);
   }
 
-  void shareEquallyWithAllMembersFunction() {
-    double totalAmountValue = double.parse(totalAmount.text);
+   void shareEquallyWithAllMembersFunction() async {
+  double totalAmountValue = double.parse(totalAmount.text);
 
-    for (int i = 0; i < member.length; i++) {
-      if (optionList.where((element) => element == memberName).isEmpty) {
-        if (memberName.isNotEmpty) {
-          setState(() {
-            optionList.add(memberName);
-            amountList.add(TextEditingController());
-          });
-        }
+  await getMembers();
+
+  for (int i = 0; i < member.length; i++) {
+    DocumentSnapshot memberSnapshot = await member[i].get();
+    String memberPrename = memberSnapshot['prename'];
+    String memberLastname = memberSnapshot['lastname'];
+    String memberName = '$memberPrename $memberLastname'; // Concatenate prename and lastname
+    print("Checking member: $memberName");
+
+    if (member[i].id != user.uid && !optionList.contains(memberName)) {
+      if (memberName.isNotEmpty) {
+        setState(() {
+          optionList.add(memberName);
+          amountList.add(TextEditingController());
+        });
       }
     }
-
-    double diff = totalAmountValue / (optionList.length + 1);
-
-    for (int i = 0; i < optionList.length; i++) {
-      amountList[i].text = diff.toStringAsFixed(2);
-    }
-    myAmount.text = diff.toStringAsFixed(2);
   }
 
+  print("HIER wird es gemacht");
+  print(optionList.length);
+  print(amountList.length);
+
+  double diff = totalAmountValue / (optionList.length + 1);
+
+  for (int i = 0; i < optionList.length; i++) {
+    amountList[i].text = diff.toStringAsFixed(2);
+  }
+  myAmount.text = diff.toStringAsFixed(2);
+}
   void shareEquallyFunction() {
     if (shareEqually == false) {
       for (int i = 0; i < optionList.length; i++) {
@@ -184,7 +194,6 @@ class _CreateDebtsState extends State<CreateDebts> {
                     focusedBorderColor: const Color.fromARGB(255, 84, 113, 255),
                     borderColor: Colors.grey.shade400,
                   )),
-              const Icon(Icons.drag_handle),
             ],
           ),
         ),
@@ -237,7 +246,11 @@ class _CreateDebtsState extends State<CreateDebts> {
                       onChanged: (value) {
                         setState(() {
                           shareEquallyWithAllMembers = value!;
-                          shareEquallyWithAllMembersFunction();
+                          if (shareEquallyWithAllMembers == true) {
+                            shareEquallyWithAllMembersFunction();
+                            shareEqually = false;
+                            calculateMyAmountDifference = false;
+                          } 
                         });
                       }),
                 ],
@@ -253,7 +266,6 @@ class _CreateDebtsState extends State<CreateDebts> {
                   getMembers();
                 }
                 if (title.text != "" &&
-                    description.text != "" &&
                     totalAmount.text != "" &&
                     _isNumeric(totalAmount)) {
                   setState(() {
@@ -305,17 +317,10 @@ class _CreateDebtsState extends State<CreateDebts> {
           ),
           ConstrainedBox(
             constraints: const BoxConstraints(maxHeight: 180),
-            child: ReorderableListView.builder(
+            child: ListView.builder(
               shrinkWrap: true,
               itemCount: optionList.length,
               itemBuilder: (context, index) => buildTenableListTile(index),
-              onReorder: (int oldIndex, int newIndex) {
-                setState(() {
-                  if (oldIndex < newIndex) {
-                    newIndex -= 1;
-                  }
-                });
-              },
             ),
           ),
           Column(
@@ -412,6 +417,7 @@ class _CreateDebtsState extends State<CreateDebts> {
           ),
           const SizedBox(height: 15),
           Row(
+            //TODO halb halb machen die buttons 
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               MyButton(
@@ -421,12 +427,13 @@ class _CreateDebtsState extends State<CreateDebts> {
                     setState(() {
                       newBottomSheet = false;
                     });
-                  }, //hhhhhh
+                  }, 
                   text: "Back"),
+                  const SizedBox(height: 10),
               MyButton(
                   borderColor: Colors.black,
                   textStyle: Styles.buttonFontStyleModal,
-                  onTap: () => {createDebt, Navigator.pop(context)}, //hhhhhh
+                  onTap: () => {createDebt(), Navigator.pop(context)}, //hhhhhh
                   text: "Finish"),
             ],
           ),

@@ -110,10 +110,10 @@ class _AccountState extends State<Account> {
         lastnameController.text = userData['lastname'];
       });
     }
-    if (userData.containsKey('profilepicture') &&
-        userData['profilepicture'] != null) {
+    if (userData.containsKey('profilePicture') &&
+        userData['profilePicture'] != null) {
       setState(() {
-        imageURL = userData['profilepicture'];
+        imageURL = userData['profilePicture'];
       });
     } else {
       setState(() {
