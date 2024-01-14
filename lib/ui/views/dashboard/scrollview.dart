@@ -8,22 +8,17 @@ import 'package:internet_praktikum/ui/widgets/dashboardWidgets/mainDasboardiniti
 import 'package:flutter_slidable/flutter_slidable.dart';
 
 class ScrollViewWidget extends StatelessWidget {
-  DocumentReference? day;
-  Map<String, dynamic>? userdata;
+  final DocumentReference day;
+  final Map<String, dynamic> userdata;
   ScrollViewWidget({super.key, required this.day, required this.userdata});
   List<dynamic>? bufferArray = List.empty();
   bool justChangged = false;
 
   @override
   Widget build(BuildContext context) {
-    FirebaseFirestore firestore = FirebaseFirestore.instance;
-    
-    if (day == null) {
-      return const CircularProgressIndicator();
-    }
     final StreamController<List<dynamic>> dayStreamFiltered =
         StreamController<List<dynamic>>();
-    day!.snapshots().listen((event) async {
+    day.snapshots().listen((event) async {
       try {
         debugPrint("Stream got Data");
         if (justChangged) {
@@ -34,11 +29,9 @@ class ScrollViewWidget extends StatelessWidget {
           List<dynamic> localbufferArray =
               buffer.entries.map((entry) => entry.value).toList();
 
-          if (localbufferArray != null) {
-            localbufferArray?.sort(
-                (a, b) => (a['index'] as int).compareTo(b['index'] as int));
-          }
-          for (var i = 0; i < localbufferArray!.length; i++) {
+          localbufferArray.sort(
+              (a, b) => (a['index'] as int).compareTo(b['index'] as int));
+                  for (var i = 0; i < localbufferArray!.length; i++) {
             if (localbufferArray![i]["createdBy"] != null) {
               DocumentSnapshot userdoc =
                   await localbufferArray![i]["createdBy"].get();
@@ -72,7 +65,7 @@ class ScrollViewWidget extends StatelessWidget {
             // and set its elevation to the animated value.
             child: MainDasboardinitializer(
               key: Key('$index'),
-              userdata: userdata!,
+              userdata: userdata,
               day: day,
               title: bufferArray![index]["title"] as String,
               data: bufferArray![index],
