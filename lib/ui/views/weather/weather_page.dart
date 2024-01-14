@@ -20,9 +20,11 @@ class _WeatherPageState extends State<WeatherPage> {
   Future<void> fetchWeather() async {
     // is not the same as in weather_info.dart
     final weather = await _weatherHandler.fetchWeather();
-    setState(() {
-      actualWeather = weather;
-    });
+    if (mounted) {
+      setState(() {
+        actualWeather = weather;
+      });
+    }
   }
 
   // init state

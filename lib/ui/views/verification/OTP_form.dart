@@ -32,17 +32,17 @@ class _OTPFormState extends State<OTPForm> {
   }
 
   Future checkEmailVerified() async {
-    if (mounted) {
-      await FirebaseAuth.instance.currentUser!.reload();
+    await FirebaseAuth.instance.currentUser!.reload();
 
+    if (mounted) {
       setState(() {
         isEmailVerified = FirebaseAuth.instance.currentUser!.emailVerified;
       });
+    }
 
-      if (isEmailVerified) {
-        canResendEmail = false;
-        timer?.cancel();
-      }
+    if (isEmailVerified) {
+      canResendEmail = false;
+      timer?.cancel();
     }
   }
 
@@ -89,30 +89,49 @@ class _OTPFormState extends State<OTPForm> {
                           size: 100,
                         ),
                       const SizedBox(
-                        height: 55,
+                        height: 45,
                       ),
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
+                          SizedBox(
+                            width: MediaQuery.of(context).size.width * 0.4,
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: MyButton(
+                                onTap: () => {
+                                  context.go('/loginorregister'),
+                                },
+                                text: 'Back',
+                              ),
+                            ),
+                          ),
+                          const SizedBox(
+                            width: 10,
+                          ),
                           if (canResendEmail)
-                            MyButton(
-                              onTap: resendVerificationEmail,
-                              text: "Resend Link",
+                            SizedBox(
+                              width: MediaQuery.of(context).size.width * 0.4,
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: MyButton(
+                                  onTap: resendVerificationEmail,
+                                  text: "Resend Link",
+                                ),
+                              ),
                             )
                           else
-                            MyButton(
-                              onTap: () {
-                                context.go('/accountdetails/false');
-                              },
-                              text: 'Next',
+                            SizedBox(
+                              width: MediaQuery.of(context).size.width * 0.4,
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: MyButton(
+                                  onTap: () {
+                                    context.go('/accountdetails/false');
+                                  },
+                                  text: 'Next',
+                                ),
+                              ),
                             ),
-                          const SizedBox(height: 30),
-                          MyButton(
-                            onTap: () => {
-                              context.go('/loginorregister'),
-                            },
-                            text: 'Back',
-                          ),
                         ],
                       )
                     ],
