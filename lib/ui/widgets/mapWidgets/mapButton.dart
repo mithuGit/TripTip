@@ -6,91 +6,111 @@ class MapButton extends StatelessWidget {
   final Function()? makeSmaller;
   final Function()? makeBigger;
   final Function()? onClose;
+  final IconData? icon;
   final String text;
-  final Color? colors;
-  final Color? borderColor;
-  final bool? isExpandedButton;
+  final Color colors;
+  final bool isExpandedButton;
   const MapButton(
       {super.key,
       this.onTap,
       required this.text,
-      this.colors,
-      this.borderColor,
-      this.isExpandedButton,
+      required this.colors,
+      required this.isExpandedButton,
       this.makeSmaller,
       this.onClose,
-      this.makeBigger});
+      this.makeBigger,
+      this.icon});
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        if (isExpandedButton != null && isExpandedButton == true) {
-          onClose!();
-        } else if (isExpandedButton != null && isExpandedButton == false) {
-          makeBigger!();
-        }
-      },
-      child: AnimatedContainer(
-          duration: const Duration(milliseconds: 500),
-          curve: Curves.easeInOut,
-          width: (isExpandedButton != null && isExpandedButton == false)
-              ? 80
-              : 120,
-          child: OutlinedButton(
-            onPressed: () {},
-            style: OutlinedButton.styleFrom(
-              backgroundColor: colors,
-              foregroundColor: const Color.fromARGB(100, 255, 255, 255),
-              padding: const EdgeInsets.all(8),
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(11)),
-              side: BorderSide(width: 1.5, color: borderColor ?? Colors.white),
-            ),
+    return AnimatedContainer(
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.easeInOut,
+        height: 50,
+        width: (isExpandedButton == false) ? 80 : 120,
+        decoration: BoxDecoration(
+          gradient: colors == Colors.green
+              ? const LinearGradient(
+                  colors: [
+                    Color.fromARGB(255, 68, 218, 68),
+                    Color.fromARGB(255, 14, 120, 12)
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                )
+              : colors == Colors.red
+                  ? const LinearGradient(
+                      colors: [
+                        Color.fromRGBO(222, 96, 96, 1),
+                        Color.fromRGBO(230, 33, 12, 1),
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    )
+                  : colors == Colors.blue
+                      ? const LinearGradient(
+                          colors: [
+                            Color.fromRGBO(95, 209, 249, 1.0),
+                            Color.fromRGBO(85, 125, 218, 1),
+                          ],
+                          begin: Alignment.centerLeft,
+                          end: Alignment.centerRight,
+                        )
+                      : null,
+          borderRadius: const BorderRadius.only(
+              topRight: Radius.circular(34.5),
+              bottomRight: Radius.circular(34.5)),
+        ),
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
             child: Row(
-              mainAxisAlignment:
-                  isExpandedButton != null && isExpandedButton == false
-                      ? MainAxisAlignment.center
-                      : MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: isExpandedButton == false
+                  ? MainAxisAlignment.end
+                  : MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  text,
-                  style: Styles.smallButtonStyle,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                isExpandedButton != null && isExpandedButton == true
-                    ? GestureDetector(
-                        onTap: onTap,
-                        child: const Icon(
-                          Icons.location_city,
-                          size: 18,
-                          color: Colors.white,
-                        ),
-                      )
-                    : const SizedBox(),
-                isExpandedButton != null && isExpandedButton == true
-                    ? GestureDetector(
-                        onTap: onClose,
-                        child: const Icon(
-                          Icons.close,
-                          size: 18,
-                          color: Colors.red,
-                        ),
-                      )
-                    : const SizedBox(),
-                isExpandedButton != null && isExpandedButton == true
-                    ? GestureDetector(
-                        onTap: makeSmaller,
-                        child: const Icon(
-                          Icons.arrow_back_outlined,
-                          size: 18,
-                          color: Colors.white,
-                        ),
-                      )
-                    : const SizedBox()
+                if (isExpandedButton == false) ...[
+                  GestureDetector(
+                    onTap: makeBigger,
+                    child: Icon(
+                      icon ?? Icons.arrow_forward_outlined,
+                      size: 25,
+                      color: Colors.white,
+                    ),
+                  ),
+                  const SizedBox(
+                    width: 10,
+                  )
+                ] else ...[
+                  GestureDetector(
+                    onTap: onTap,
+                    child: Text(
+                      text,
+                      style: Styles.mapButtonStyle,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: onClose,
+                    child: Icon(
+                      Icons.close,
+                      size: 20,
+                      color: colors == Colors.red ? Colors.white : Colors.red,
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: makeSmaller,
+                    child: const Icon(
+                      Icons.arrow_back_outlined,
+                      size: 20,
+                      color: Colors.white,
+                    ),
+                  )
+                ],
               ],
             ),
-          )),
-    );
+          ),
+        ));
   }
 }

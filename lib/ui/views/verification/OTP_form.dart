@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:internet_praktikum/ui/styles/Styles.dart';
 import 'package:internet_praktikum/ui/widgets/container.dart';
 import '../../widgets/my_button.dart';
 
@@ -72,13 +73,8 @@ class _OTPFormState extends State<OTPForm> {
                       const Text(
                         "$message Please check your inbox.",
                         textAlign: TextAlign.center,
-                        style: TextStyle(
-                          //TODO: style in styles.dart Ubuntu verwenden
-                          color: Colors.white,
-                          fontSize: 20,
-                        ),
+                        style: Styles.verifystyle,
                       ),
-
                       const SizedBox(height: 60),
                       if (canResendEmail)
                         const Icon(
@@ -95,11 +91,10 @@ class _OTPFormState extends State<OTPForm> {
                       const SizedBox(
                         height: 55,
                       ),
-
                       if (canResendEmail)
                         MyButton(
                           onTap:
-                              resendVerificationEmail, // TODO: => sendVerificationEmail(),
+                              resendVerificationEmail, 
                           text: "Resend Link",
                         )
                       else
@@ -109,18 +104,13 @@ class _OTPFormState extends State<OTPForm> {
                           },
                           text: 'Next',
                         ),
-
-                      // Würde hier ein Back-Button Sinn machen? Mithu-Thai: JA
-                      /* MyButton(
-                          onTap: () => {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => const PasswordChange()))
-                          },
-                          text: 'Back',
-                        ),
-                        */
+                      const SizedBox(height: 30),
+                      MyButton(
+                        onTap: () => {
+                          context.go('/loginorregister'),
+                        },
+                        text: 'Back',
+                      ),
                     ],
                   ),
                 ),

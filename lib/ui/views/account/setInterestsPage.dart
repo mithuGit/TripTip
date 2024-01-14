@@ -83,6 +83,7 @@ class _SetInterestsPageState extends State<SetInterestsPage> {
                               ),
                               const SizedBox(height: 10),
                               GridView.count(
+                                physics: const NeverScrollableScrollPhysics(),
                                 crossAxisCount: 3,
                                 mainAxisSpacing: 10,
                                 crossAxisSpacing: 10,

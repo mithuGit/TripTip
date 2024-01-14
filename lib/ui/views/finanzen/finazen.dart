@@ -47,16 +47,14 @@ class _FinanzenState extends State<Finanzen> {
         isFinanz: true,
         icon: Icons.add,
         onTapForIconWidget: () {
-          CustomBottomSheet.show(context,
-              title: "Add Request:",
-              content: [
-                Builder(builder: (context) {
-                  if (selectedtrip == null) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
-                  return CreateDebts(selectedTrip: selectedtrip!);
-                })
-              ]);
+          CustomBottomSheet.show(context, title: "Add Request:", content: [
+            Builder(builder: (context) {
+              if (selectedtrip == null) {
+                return const Center(child: CircularProgressIndicator());
+              }
+              return CreateDebts(selectedTrip: selectedtrip!);
+            })
+          ]);
         },
         title: "Payments",
       ),

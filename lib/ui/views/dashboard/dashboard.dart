@@ -28,7 +28,7 @@ class _DashBoardState extends State<DashBoard> {
             icon: const Icon(Icons.menu_rounded),
             onSelected: (value) => {
               switch (value) {
-                "archive" => {context.pushNamed("archive")},
+                "archive" => {context.pushReplacementNamed("archive")},
                 "changeTrip" => {context.goNamed("changeTrip")},
                 "createWidget" => {
                     CustomBottomSheet.show(context,
@@ -36,7 +36,7 @@ class _DashBoardState extends State<DashBoard> {
                         content: [
                           FutureBuilder(
                               future: Future.wait([
-                                DashBoardData.getUserData(selectedDay!),
+                                DashBoardData.getUserData(),
                                 DashBoardData.getCurrentDaySubCollection(
                                     selectedDay!),
                               ]),
@@ -99,7 +99,7 @@ class _DashBoardState extends State<DashBoard> {
               if (selectedDay != null)
                 FutureBuilder(
                     future: Future.wait([
-                      DashBoardData.getUserData(selectedDay!),
+                      DashBoardData.getUserData(),
                       DashBoardData.getCurrentDaySubCollection(selectedDay!),
                     ]),
                     builder: (context, AsyncSnapshot<List<dynamic>> snapshot) {

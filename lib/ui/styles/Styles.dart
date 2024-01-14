@@ -114,8 +114,7 @@ class Styles {
       fontFamily: 'fonts/Ubuntu-Regular.ttf',
       fontSize: 15,
       fontWeight: FontWeight.w400,
-      color: Colors.white
-  );
+      color: Colors.white);
   static const mapadress = TextStyle(
       fontFamily: 'fonts/Ubuntu-Regular.ttf',
       fontSize: 15,
@@ -167,11 +166,19 @@ class Styles {
     fontFamily: 'Ubuntu',
     fontWeight: FontWeight.w500,
   );
-  );
   static const archiveDiv = TextStyle(
       fontFamily: 'fonts/Ubuntu-Regular.ttf',
       fontSize: 20,
       fontWeight: FontWeight.w400,
       color: Colors.black);
+  static const mapButtonStyle = TextStyle(
+    color: Colors.white,
+    fontSize: 12,
+    fontFamily: 'Ubuntu',
+  );
+  static const verifystyle = TextStyle(
+    fontFamily: 'Ubuntu',
+    color: Colors.white,
+    fontSize: 20,
+  );
 }
-
