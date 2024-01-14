@@ -78,7 +78,6 @@ class _OTPFormState extends State<OTPForm> {
                           fontSize: 20,
                         ),
                       ),
-
                       const SizedBox(height: 60),
                       if (canResendEmail)
                         const Icon(
@@ -95,7 +94,6 @@ class _OTPFormState extends State<OTPForm> {
                       const SizedBox(
                         height: 55,
                       ),
-
                       if (canResendEmail)
                         MyButton(
                           onTap:
@@ -109,18 +107,13 @@ class _OTPFormState extends State<OTPForm> {
                           },
                           text: 'Next',
                         ),
-
-                      // Würde hier ein Back-Button Sinn machen? Mithu-Thai: JA
-                      /* MyButton(
-                          onTap: () => {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => const PasswordChange()))
-                          },
-                          text: 'Back',
-                        ),
-                        */
+                      const SizedBox(height: 30),
+                      MyButton(
+                        onTap: () => {
+                          context.go('/loginorregister'),
+                        },
+                        text: 'Back',
+                      ),
                     ],
                   ),
                 ),
