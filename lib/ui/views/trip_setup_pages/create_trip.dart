@@ -35,7 +35,6 @@ class _TripCreateState extends State<CreateTrip> {
   PlaceDetails? destination;
   DateTime? selectedStartDate;
   DateTime? selectedEndDate;
-  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   void connectPhotosAlbum() async {
     setState(() {
@@ -57,23 +56,22 @@ class _TripCreateState extends State<CreateTrip> {
           selectedStartDate!.millisecondsSinceEpoch) {
         throw Exception("End date must be after start date!");
       }
-      DocumentReference user = widget.firestore
-          .collection("users")
-          .doc(widget.auth.currentUser?.uid);
-      members.add(user);
-      print("Create Trip: $destination $selectedStartDate $selectedEndDate");
+
+      var self = FirebaseFirestore.instance
+          .doc("/users/${widget.auth.currentUser!.uid}");
+      members.add(self);
 
       DocumentReference trip = await trips.add({
         'city': destination?.cityName,
         'placedetails': destination?.placeDetails,
         'startdate': selectedStartDate,
         'enddate': selectedEndDate,
-        'createdBy': FirebaseFirestore.instance.doc((widget.auth.currentUser?.uid).toString()),
+        'createdBy': self,
         'members': members
       });
       FirebaseFirestore.instance
           .collection("users")
-          .doc(_auth.currentUser?.uid)
+          .doc(widget.auth.currentUser?.uid)
           .update({"selectedtrip": trip.id});
 
       if (context.mounted) {
