@@ -27,7 +27,7 @@ class _VotingPollState extends State<VotingPoll> {
     super.initState();
     Map<String, dynamic> voteelement = widget.data["options"][widget.index];
     if (voteelement["voters"] != null) {
-      if (voteelement["voters"].contains(widget.userdata!["uid"])) {
+      if (voteelement["voters"].contains(widget.userdata!["uid"])) { // TODO: Hier kommt fehler
         setState(() {
           isClicked = true;
         });
