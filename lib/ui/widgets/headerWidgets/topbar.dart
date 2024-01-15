@@ -72,7 +72,7 @@ class _TopBarState extends State<TopBar> {
         leading: widget.isDash != null
             ? HeaderButton(
                 onTap: () {
-                  context.go('/weatherpage');
+                  context.go('/weatherpage', extra: actualWeather);
                 },
                 temperature: '${actualWeather?.temperature.round()}°C',
                 weatherImage:

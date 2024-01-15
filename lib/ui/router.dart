@@ -21,6 +21,7 @@ import 'package:internet_praktikum/ui/views/trip_setup_pages/join_trip.dart';
 import 'package:internet_praktikum/ui/views/trip_setup_pages/share_trip.dart';
 import 'package:internet_praktikum/ui/views/trip_setup_pages/select_trip.dart';
 import 'package:internet_praktikum/ui/views/verification/OTP_form.dart';
+import 'package:internet_praktikum/ui/views/weather/weather.dart';
 import 'package:internet_praktikum/ui/views/weather/weather_page.dart';
 
 class MyRouter {
@@ -178,7 +179,11 @@ class MyRouter {
         path: '/sharetrip/:tripId/:afterCreate',
         builder: (context, state) {
           if (state.pathParameters.isEmpty) {
-            return ShareTrip(key: state.pageKey, tripId: "Something went Wrong!", afterCreate: "f",);
+            return ShareTrip(
+              key: state.pageKey,
+              tripId: "Something went Wrong!",
+              afterCreate: "f",
+            );
           } else {
             return ShareTrip(
               key: state.pageKey,
@@ -189,12 +194,14 @@ class MyRouter {
         },
       ),
       GoRoute(
-        name: 'weatherpage',
-        path: '/weatherpage',
-        builder: (context, state) => WeatherPage(
-          key: state.pageKey,
-        ),
-      ),
+          name: 'weatherpage',
+          path: '/weatherpage',
+          builder: (context, state) {
+            return WeatherPage(
+              key: state.pageKey,
+              actualWeather: state.extra! as Weather,
+            );
+          }),
       GoRoute(
         name: 'changeTrip',
         path: '/changeTrip',
@@ -208,14 +215,6 @@ class MyRouter {
         path: '/archive',
         builder: (context, state) => Archive(
           key: state.pageKey,
-        ),
-      ),
-      GoRoute(
-        name: 'accountdetails-isEditProfile',
-        path: '/accountdetails-isEditProfile',
-        builder: (context, state) => Account(
-          key: state.pageKey,
-          isEditProfile: true,
         ),
       ),
       GoRoute(
