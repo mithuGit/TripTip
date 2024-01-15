@@ -41,7 +41,6 @@ class MyRouter {
       GlobalKey<NavigatorState>(debugLabel: 'shellProfile');
 
   static final router = GoRouter(
-    //TODO einfach nur ein / am anfang
     initialLocation: '/',
     navigatorKey: _rootNavigatorKey,
     routes: <RouteBase>[

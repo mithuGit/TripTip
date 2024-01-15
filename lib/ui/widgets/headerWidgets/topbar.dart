@@ -72,7 +72,13 @@ class _TopBarState extends State<TopBar> {
         leading: widget.isDash != null
             ? HeaderButton(
                 onTap: () {
-                  context.go('/weatherpage', extra: actualWeather);
+                  if (actualWeather != null) {
+                    context.go('/weatherpage', extra: actualWeather);
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                      content: Text("Please wait until the weather is loaded."),
+                    ));
+                  }
                 },
                 temperature: '${actualWeather?.temperature.round()}°C',
                 weatherImage:

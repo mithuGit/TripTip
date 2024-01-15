@@ -34,7 +34,9 @@ class _WeatherPageState extends State<WeatherPage> {
             icon: Icon(Icons.arrow_back,
                 color: isDarkMode ? Colors.white : Colors.black, size: 30),
             onPressed: () {
-              context.goNamed('home');
+              Future.delayed(const Duration(milliseconds: 300), () {
+                context.go('/');
+              });
             },
           ),
           backgroundColor: isDarkMode ? Colors.black : Colors.white,
