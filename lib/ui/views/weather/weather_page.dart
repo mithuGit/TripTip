@@ -22,38 +22,29 @@ class WeatherPage extends StatefulWidget {
 }
 
 class _WeatherPageState extends State<WeatherPage> {
-
-  //TODO: oben rechts soll nicht die gleichen Buttons sein wie die unten sondern, lieber ein Dark-White Mode Button
   //TODO Maybe getCity in WeatherService löschen
+
+  bool isDarkMode = false;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: isDarkMode ? Colors.black : Colors.white,
       appBar: AppBar(
           leading: IconButton(
-            icon: const Icon(Icons.arrow_back, color: Colors.white, size: 30),
+            icon: Icon(Icons.arrow_back,
+                color: isDarkMode ? Colors.white : Colors.black, size: 30),
             onPressed: () {
               context.goNamed('home');
             },
           ),
-          backgroundColor: Colors.black,
+          backgroundColor: isDarkMode ? Colors.black : Colors.white,
           actions: [
             IconButton(
-              icon: const Icon(Icons.refresh, color: Colors.white, size: 30),
-              onPressed: () async {
-                final weather = await widget._weatherHandler.fetchWeather();
+              icon: Icon(isDarkMode ? Icons.dark_mode : Icons.light_mode,
+                  color: isDarkMode ? Colors.white : Colors.black, size: 30),
+              onPressed: () {
                 setState(() {
-                  widget.actualWeather = weather!;
-                });
-              },
-            ),
-            IconButton(
-              icon: const Icon(Icons.directions, color: Colors.white, size: 30),
-              onPressed: () async {
-                final weather =
-                    await widget._weatherHandler.fetchWeatherForCurrentCity();
-                setState(() {
-                  widget.actualWeather = weather;
+                  isDarkMode = !isDarkMode;
                 });
               },
             ),
@@ -64,7 +55,9 @@ class _WeatherPageState extends State<WeatherPage> {
           children: [
             // city name
             Text(widget.actualWeather.cityName,
-                style: const TextStyle(fontSize: 30, color: Colors.white)),
+                style: TextStyle(
+                    fontSize: 30,
+                    color: isDarkMode ? Colors.white : Colors.black)),
 
             Lottie.asset(
               WeatherService.getWeatherAnimation(
@@ -73,17 +66,29 @@ class _WeatherPageState extends State<WeatherPage> {
 
             // temperature
             Text('${widget.actualWeather.temperature.round()}°C',
-                style: const TextStyle(fontSize: 30, color: Colors.white)),
+                style: TextStyle(
+                    fontSize: 30,
+                    color: isDarkMode ? Colors.white : Colors.black)),
 
             // weather condition
             Text(widget.actualWeather.mainCondition,
-                style: const TextStyle(fontSize: 30, color: Colors.white)),
+                style: TextStyle(
+                    fontSize: 30,
+                    color: isDarkMode ? Colors.white : Colors.black)),
 
             const SizedBox(height: 20),
 
             Padding(
               padding: const EdgeInsets.only(left: 40.0, right: 40.0, top: 20),
               child: MyButton(
+                  borderColor: isDarkMode ? Colors.white : Colors.black,
+                  textStyle: TextStyle(
+                    color: isDarkMode ? Colors.white : Colors.black,
+                    fontSize: 14,
+                    fontFamily: 'Ubuntu',
+                    fontWeight: FontWeight.w500,
+                  ),
+                  colors: isDarkMode ? Colors.black : Colors.white,
                   onTap: () async {
                     final weather = await widget._weatherHandler.fetchWeather();
                     setState(() {
@@ -97,6 +102,14 @@ class _WeatherPageState extends State<WeatherPage> {
             Padding(
               padding: const EdgeInsets.only(left: 40.0, right: 40.0, top: 20),
               child: MyButton(
+                  borderColor: isDarkMode ? Colors.white : Colors.black,
+                  textStyle: TextStyle(
+                    color: isDarkMode ? Colors.white : Colors.black,
+                    fontSize: 14,
+                    fontFamily: 'Ubuntu',
+                    fontWeight: FontWeight.w500,
+                  ),
+                  colors: isDarkMode ? Colors.black : Colors.white,
                   onTap: () async {
                     final weather = await widget._weatherHandler
                         .fetchWeatherForCurrentCity();
