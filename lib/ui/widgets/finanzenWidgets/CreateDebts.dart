@@ -94,8 +94,10 @@ class _CreateDebtsState extends State<CreateDebts> {
     double remainingAmount = totalAmountValue - sum;
     myAmount.text = remainingAmount.toStringAsFixed(2);
   }
+ 
+ 
 
-  void shareEquallyWithAllMembersFunction() async {
+  void shareEquallyWithAllMembersFunction(bool nextonly) async {
     double totalAmountValue = double.parse(totalAmount.text);
 
     await getMembers();
@@ -107,7 +109,7 @@ class _CreateDebtsState extends State<CreateDebts> {
       String memberName =
           '$memberPrename $memberLastname'; // Concatenate prename and lastname
 
-      if (member[i].id != user.uid && !optionList.contains(memberName)) {
+      if (member[i].id != user.uid && !optionList.contains(memberName) && !nextonly) {
         if (memberName.isNotEmpty) {
           setState(() {
             optionList.add(memberName);
@@ -120,13 +122,20 @@ class _CreateDebtsState extends State<CreateDebts> {
                 " " +
                 (currentUser!.data() as Map<String, dynamic>)["lastname"];
       }
+      if(member[i].id == user.uid && nextonly){
+       setState(() {
+         currentUserName=memberName;
+       });
+      }
     }
-    double diff = totalAmountValue / (optionList.length + 1);
-
-    for (int i = 0; i < optionList.length; i++) {
-      amountList[i].text = diff.toStringAsFixed(2);
-    }
-    myAmount.text = diff.toStringAsFixed(2);
+    if (!nextonly) {
+  double diff = totalAmountValue / (optionList.length + 1);
+  
+  for (int i = 0; i < optionList.length; i++) {
+    amountList[i].text = diff.toStringAsFixed(2);
+  }
+  myAmount.text = diff.toStringAsFixed(2);
+}
   }
 
   void shareEquallyFunction() {
@@ -237,7 +246,7 @@ class _CreateDebtsState extends State<CreateDebts> {
                         setState(() {
                           shareEquallyWithAllMembers = value!;
                           if (shareEquallyWithAllMembers == true) {
-                            shareEquallyWithAllMembersFunction();
+                            shareEquallyWithAllMembersFunction(false);
                             shareEqually = false;
                             calculateMyAmountDifference = false;
                           }
@@ -254,7 +263,9 @@ class _CreateDebtsState extends State<CreateDebts> {
               onTap: () {
                 if (title.text != "" &&
                     totalAmount.text != "" &&
-                    _isNumeric(totalAmount)) {
+                    _isNumeric(totalAmount)) 
+                    {
+                      shareEquallyWithAllMembersFunction(true);
                   setState(() {
                     newBottomSheet = true;
                   });
