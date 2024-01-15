@@ -41,24 +41,31 @@ class _AddAppointmentWidgetToDashboardState
   var uuid = const Uuid();
   var firestore = FirebaseFirestore.instance;
   DateTime? oldselectedDate;
+  Place? selectedPlace;
 
   @override
   void initState() {
     super.initState();
-    getPlaceDetails();
+    selectedPlace = widget.place;
+
     if (widget.data != null) {
       nameOfAppointment.text = widget.data!["title"];
       appointment.text = widget.data!["content"];
       selectedDate = widget.data!["date"].toDate();
       oldselectedDate = widget.data!["date"].toDate();
+      selectedPlace = widget.data!["place"] != null
+          ? Place.fromMap(widget.data!["place"])
+          : null;
+    } else {
+      getPlaceDetails();
     }
   }
 
   void getPlaceDetails() {
     if (widget.place != null) {
-      nameOfAppointment.text = widget.place!.name;
-      String adress = widget.place!.formattedAddress;
-      if (widget.place!.formattedAddress == "") {
+      nameOfAppointment.text = selectedPlace!.name;
+      String adress = selectedPlace!.formattedAddress;
+      if (selectedPlace!.formattedAddress == "") {
         adress = "No adress available";
       }
       appointment.text =
@@ -106,13 +113,7 @@ class _AddAppointmentWidgetToDashboardState
         "title": nameOfAppointment.text,
       };
       if (widget.place != null) {
-        data["place"] = {
-          "name": widget.place!.name,
-          "formattedAddress": widget.place!.formattedAddress,
-          "latitude": widget.place!.location.latitude,
-          "googlePlaceId": widget.place!.placeId,
-          "longitude": widget.place!.location.longitude,
-        };
+        data["place"] = widget.place!.toMap();
       }
 
       if (widget.data == null) {
@@ -163,6 +164,10 @@ class _AddAppointmentWidgetToDashboardState
             : "Select Time",
       ),
       const SizedBox(height: 10),
+      if (selectedPlace != null) ... [
+        Text("Is bound to locaition: ${selectedPlace!.name}", style: Styles.inputField, textAlign: TextAlign.left,),
+        const SizedBox(height: 10),
+      ],  
       InputField(
           controller: appointment,
           hintText: "Description of Appointment",
