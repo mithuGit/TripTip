@@ -27,10 +27,6 @@ class _CreateDebtsState extends State<CreateDebts> {
   final List<TextEditingController> amountList = List.empty(growable: true);
   final List<String> optionList = List.empty(growable: true);
 
-  //TODO Buttons von Back und Finish konfigurieren
-  //TItel für die bottomsheets wechseln passenden namen finden
-  //50/50 ???? mediaquery ???
-
   bool shareEqually = false;
   bool shareEquallyWithAllMembers = false;
   bool calculateMyAmountDifference = false;
@@ -99,39 +95,40 @@ class _CreateDebtsState extends State<CreateDebts> {
     myAmount.text = remainingAmount.toStringAsFixed(2);
   }
 
-   void shareEquallyWithAllMembersFunction() async {
-  double totalAmountValue = double.parse(totalAmount.text);
+  void shareEquallyWithAllMembersFunction() async {
+    double totalAmountValue = double.parse(totalAmount.text);
 
-  await getMembers();
+    await getMembers();
 
-  for (int i = 0; i < member.length; i++) {
-    DocumentSnapshot memberSnapshot = await member[i].get();
-    String memberPrename = memberSnapshot['prename'];
-    String memberLastname = memberSnapshot['lastname'];
-    String memberName = '$memberPrename $memberLastname'; // Concatenate prename and lastname
-    print("Checking member: $memberName");
+    for (int i = 0; i < member.length; i++) {
+      DocumentSnapshot memberSnapshot = await member[i].get();
+      String memberPrename = memberSnapshot['prename'];
+      String memberLastname = memberSnapshot['lastname'];
+      String memberName =
+          '$memberPrename $memberLastname'; // Concatenate prename and lastname
 
-    if (member[i].id != user.uid && !optionList.contains(memberName)) {
-      if (memberName.isNotEmpty) {
-        setState(() {
-          optionList.add(memberName);
-          amountList.add(TextEditingController());
-        });
+      if (member[i].id != user.uid && !optionList.contains(memberName)) {
+        if (memberName.isNotEmpty) {
+          setState(() {
+            optionList.add(memberName);
+            amountList.add(TextEditingController());
+          });
+        }
+      } else {
+        currentUserName =
+            (currentUser!.data() as Map<String, dynamic>)["prename"] +
+                " " +
+                (currentUser!.data() as Map<String, dynamic>)["lastname"];
       }
     }
+    double diff = totalAmountValue / (optionList.length + 1);
+
+    for (int i = 0; i < optionList.length; i++) {
+      amountList[i].text = diff.toStringAsFixed(2);
+    }
+    myAmount.text = diff.toStringAsFixed(2);
   }
 
-  print("HIER wird es gemacht");
-  print(optionList.length);
-  print(amountList.length);
-
-  double diff = totalAmountValue / (optionList.length + 1);
-
-  for (int i = 0; i < optionList.length; i++) {
-    amountList[i].text = diff.toStringAsFixed(2);
-  }
-  myAmount.text = diff.toStringAsFixed(2);
-}
   void shareEquallyFunction() {
     if (shareEqually == false) {
       for (int i = 0; i < optionList.length; i++) {
@@ -156,21 +153,15 @@ class _CreateDebtsState extends State<CreateDebts> {
         setState(() {
           optionList.removeAt(index);
           amountList.removeAt(index);
-          print("removed");
         });
       },
       background: Container(color: Colors.red),
-      child: Container(
-        decoration: BoxDecoration(
-          border: Border(
-            bottom: BorderSide(
-              color: Colors.grey.shade400,
-              width: 1.0,
-            ),
+      child: ListTile(
+        title: Padding(
+          padding: const EdgeInsets.only(
+            top: 8.0,
           ),
-        ),
-        child: ListTile(
-          title: Row(
+          child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               SizedBox(
@@ -239,7 +230,6 @@ class _CreateDebtsState extends State<CreateDebts> {
                   const Text(
                     "Share Equally with all Members:",
                     style: Styles.inputField,
-                    //TODO HIER bauen mit allen members  werden angezeigt und es wird berechnet
                   ),
                   Checkbox(
                       value: shareEquallyWithAllMembers,
@@ -250,7 +240,7 @@ class _CreateDebtsState extends State<CreateDebts> {
                             shareEquallyWithAllMembersFunction();
                             shareEqually = false;
                             calculateMyAmountDifference = false;
-                          } 
+                          }
                         });
                       }),
                 ],
@@ -262,9 +252,6 @@ class _CreateDebtsState extends State<CreateDebts> {
               borderColor: Colors.black,
               textStyle: Styles.buttonFontStyleModal,
               onTap: () {
-                if (shareEquallyWithAllMembers == true) {
-                  getMembers();
-                }
                 if (title.text != "" &&
                     totalAmount.text != "" &&
                     _isNumeric(totalAmount)) {
@@ -291,7 +278,6 @@ class _CreateDebtsState extends State<CreateDebts> {
                   notifier: (Member member) => {
                         setState(() {
                           if (member.isSet) memberName = member.name!;
-                          currentUserName = member.currentUserName!;
                         })
                       }),
               IconButton(
@@ -380,25 +366,23 @@ class _CreateDebtsState extends State<CreateDebts> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Flexible(
-                child: Container(
-                  width: 200,
-                  height: 50,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(11.0),
-                    border: Border.all(color: Colors.grey.shade400, width: 1),
+              Container(
+                width: 200,
+                height: 50,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(11.0),
+                  border: Border.all(color: Colors.grey.shade400, width: 1),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.only(
+                    left: 14,
                   ),
-                  child: Padding(
-                    padding: const EdgeInsets.only(
-                      left: 14,
-                    ),
-                    child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        currentUserName,
-                        style: Styles.inputField,
-                        overflow: TextOverflow.ellipsis,
-                      ),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      currentUserName,
+                      style: Styles.inputField,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                 ),
@@ -417,24 +401,35 @@ class _CreateDebtsState extends State<CreateDebts> {
           ),
           const SizedBox(height: 15),
           Row(
-            //TODO halb halb machen die buttons 
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              MyButton(
-                  borderColor: Colors.black,
-                  textStyle: Styles.buttonFontStyleModal,
-                  onTap: () {
-                    setState(() {
-                      newBottomSheet = false;
-                    });
-                  }, 
-                  text: "Back"),
-                  const SizedBox(height: 10),
-              MyButton(
-                  borderColor: Colors.black,
-                  textStyle: Styles.buttonFontStyleModal,
-                  onTap: () => {createDebt(), Navigator.pop(context)}, //hhhhhh
-                  text: "Finish"),
+              SizedBox(
+                width: MediaQuery.of(context).size.width * 0.45,
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
+                  child: MyButton(
+                      borderColor: Colors.black,
+                      textStyle: Styles.buttonFontStyleModal,
+                      onTap: () {
+                        setState(() {
+                          newBottomSheet = false;
+                        });
+                      },
+                      text: "Back"),
+                ),
+              ),
+              SizedBox(
+                width: MediaQuery.of(context).size.width * 0.45,
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
+                  child: MyButton(
+                      borderColor: Colors.black,
+                      textStyle: Styles.buttonFontStyleModal,
+                      onTap: () =>
+                          {createDebt(), Navigator.pop(context)}, //hhhhhh
+                      text: "Finish"),
+                ),
+              ),
             ],
           ),
         ] else ...[
