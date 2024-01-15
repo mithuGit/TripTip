@@ -6,6 +6,7 @@ import 'package:internet_praktikum/ui/widgets/finanzenWidgets/slidablebutton.dar
 // ignore: must_be_immutable
 class ExpandableContainer extends StatefulWidget {
   final double sum;
+  EdgeInsetsGeometry? margin;
   DocumentSnapshot currentUser;
   DocumentReference me;
   List<Map<String, dynamic>> openRefunds = [];
@@ -15,6 +16,7 @@ class ExpandableContainer extends StatefulWidget {
     required this.currentUser,
     required this.openRefunds,
     required this.me,
+    this.margin,
   }) : super(key: key);
 
   @override
@@ -57,6 +59,7 @@ class _ExpandableContainerState extends State<ExpandableContainer> {
       },
       child: AnimatedContainer(
         width: double.infinity,
+        margin: widget.margin,
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
         height: isExpanded

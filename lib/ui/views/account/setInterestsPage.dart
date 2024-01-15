@@ -2,7 +2,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:internet_praktikum/core/services/Interests.dart';
 import 'package:internet_praktikum/ui/widgets/container.dart';
+import 'package:internet_praktikum/ui/widgets/errorSnackbar.dart';
 import 'package:internet_praktikum/ui/widgets/my_button.dart';
 import 'package:internet_praktikum/ui/widgets/profileWidgets/imageContainer.dart';
 import 'package:internet_praktikum/ui/widgets/usernamebagageCreateTrip.dart';
@@ -19,29 +21,18 @@ class _SetInterestsPageState extends State<SetInterestsPage> {
   Widget build(BuildContext context) {
     FirebaseFirestore firestore = FirebaseFirestore.instance;
     FirebaseAuth auth = FirebaseAuth.instance;
-    List<String> interests = [
-      'assets/interests_pic/transport.png',
-      'assets/interests_pic/culture.png',
-      'assets/interests_pic/shopping.png',
-      'assets/interests_pic/food.png',
-      'assets/interests_pic/lodging.png',
-      'assets/interests_pic/sports.png',
-      'assets/interests_pic/health.png',
-      'assets/interests_pic/car.png',
-      'assets/interests_pic/education.png',
-      'assets/interests_pic/entertainment.png',
-      'assets/interests_pic/services.png',
-      'assets/interests_pic/religion.png',
-    ];
 
     List<String> selectedInterests = [];
-    List<String> uninterestedInterests = [];
+    List<String> uninteresteds = [];
 
     Future<void> updateInterests() async {
-      await firestore.collection('users').doc(auth.currentUser!.uid).update({
-        'interests': selectedInterests,
-        'uninterested': uninterestedInterests
-      });
+      if (selectedInterests.isEmpty) {
+        ErrorSnackbar.showErrorSnackbar(
+            context, "Please select at least 1 interest");
+        return;
+      }
+      await firestore.collection('users').doc(auth.currentUser!.uid).update(
+          {'interests': selectedInterests, 'uninterested': uninteresteds});
       if (context.mounted) {
         widget.isCreate == true
             ? context.go('/createtrip')
@@ -82,36 +73,87 @@ class _SetInterestsPageState extends State<SetInterestsPage> {
                                     color: Colors.white),
                               ),
                               const SizedBox(height: 10),
-                              GridView.count(
-                                physics: const NeverScrollableScrollPhysics(),
-                                crossAxisCount: 3,
-                                mainAxisSpacing: 10,
-                                crossAxisSpacing: 10,
-                                shrinkWrap: true,
-                                children: interests
-                                    .map((interest) => ImageContainer(
-                                          image: interest,
-                                          setInterested: (val) {
-                                            selectedInterests.addAll(val);
-                                          },
-                                          unInterestetset: (value) {
-                                            uninterestedInterests.addAll(value);
-                                          },
-                                          unInterestetunset: (val) {
-                                            for (final el in val) {
-                                              selectedInterests.remove(el);
-                                              uninterestedInterests.add(el);
-                                            }
-                                          },
-                                          unsetInterested: (val) {
-                                            for (final el in val) {
-                                              selectedInterests.remove(el);
-                                              uninterestedInterests.add(el);
-                                            }
-                                          },
-                                        ))
-                                    .toList(),
-                              ),
+                              FutureBuilder<DocumentSnapshot>(
+                                  future: firestore
+                                      .collection('users')
+                                      .doc(auth.currentUser!.uid)
+                                      .get(),
+                                  builder: (context, snapshot) {
+                                    if (snapshot.connectionState ==
+                                        ConnectionState.waiting) {
+                                      return const Center(
+                                        child: CircularProgressIndicator(),
+                                      );
+                                    }
+                                    if (snapshot.hasError) {
+                                      return const Center(
+                                        child: Text("Error Fetiching Userdata"),
+                                      );
+                                    }
+                                    if ((snapshot.data!.data() as Map<String,
+                                            dynamic>)["interests"] !=
+                                        null) {
+                                      selectedInterests = (snapshot.data!.data()
+                                                  as Map<String, dynamic>)[
+                                              "interests"]
+                                          .map<String>((e) => e.toString())
+                                          .toList();
+                                    }
+                                    if ((snapshot.data!.data() as Map<String,
+                                            dynamic>)["uninterested"] !=
+                                        null) {
+                                      uninteresteds = (snapshot.data!.data()
+                                                  as Map<String, dynamic>)[
+                                              "uninterested"]
+                                          .map<String>((e) => e.toString())
+                                          .toList();
+                                    }
+
+                                    List<String> selectedCategories = [];
+                                    List<String> uninterestedCategories = [];
+                                    selectedCategories =
+                                        Interests.evaluateCategories(
+                                            selectedInterests);
+                                    uninterestedCategories =
+                                        Interests.evaluateCategories(
+                                            uninteresteds);
+
+                                    return GridView.count(
+                                      physics:
+                                          const NeverScrollableScrollPhysics(),
+                                      crossAxisCount: 3,
+                                      mainAxisSpacing: 10,
+                                      crossAxisSpacing: 10,
+                                      shrinkWrap: true,
+                                      children: Interests.available.keys
+                                          .map((interest) => ImageContainer(
+                                                image: interest,
+                                                isSelected: selectedCategories
+                                                    .contains(interest),
+                                                isNotinterested:
+                                                    uninterestedCategories
+                                                        .contains(interest),
+                                                setInterested: (val) {
+                                                  selectedInterests.addAll(val);
+                                                },
+                                                unsetInterested: (val) {
+                                                  for (final el in val) {
+                                                    selectedInterests
+                                                        .remove(el);
+                                                  }
+                                                },
+                                                unInterestetset: (value) {
+                                                  uninteresteds.addAll(value);
+                                                },
+                                                unInterestetunset: (val) {
+                                                  for (final el in val) {
+                                                    uninteresteds.remove(el);
+                                                  }
+                                                },
+                                              ))
+                                          .toList(),
+                                    );
+                                  }),
                               const SizedBox(height: 25),
                               MyButton(onTap: updateInterests, text: "Finish"),
                             ],
