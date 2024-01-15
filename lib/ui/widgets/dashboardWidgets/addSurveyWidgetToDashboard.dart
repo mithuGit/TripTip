@@ -2,6 +2,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:internet_praktikum/core/services/JobworkerService.dart';
 import 'package:internet_praktikum/core/services/manageDashboardWidget.dart';
 import 'package:internet_praktikum/core/services/map_service.dart';
 import 'package:internet_praktikum/ui/styles/Styles.dart';
@@ -153,29 +154,10 @@ class AddSurveyWidgetToDashboardState
     if (widget.data == null) {
       String key = const Uuid().v4();
       if (deadline != null) {
-        DocumentReference converter = await firestore.collection("tasks").add({
-          "worker": "SurveyConvertion",
-          "performAt": deadline,
-          "status": "pending",
-          "options": {
-            "day": widget.day,
-            "widgetCreatedBy": by,
-            "titleOfSurvey": nameofSurvey.text,
-            "trip": trip,
-            "key": key
-          }
-        });
-        DocumentReference alerter = await firestore.collection("tasks").add({
-          "worker": "LastChanceSurvey",
-          "performAt": deadline!.subtract(const Duration(minutes: 15)),
-          "status": "pending",
-          "options": {
-            "day": widget.day,
-            "widgetCreatedBy": by,
-            "titleOfSurvey": nameofSurvey.text,
-            "trip": trip,
-          }
-        });
+        DocumentReference converter = await JobworkerService.generateSurveyConvertionWorker(
+            deadline!, widget.day, by, trip, key, nameofSurvey.text);
+        DocumentReference alerter = await JobworkerService.generateLastChanceSurveryWorker(
+            deadline!, widget.day, by, trip, key, nameofSurvey.text);
         data["workers"] = [converter, alerter];
       }
       await ManageDashboardWidged()
