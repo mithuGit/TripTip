@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:internet_praktikum/core/services/weather_service.dart';
 import 'package:internet_praktikum/ui/views/weather/weather.dart';
 import 'package:internet_praktikum/ui/widgets/bottom_sheet.dart';
+import 'package:internet_praktikum/ui/widgets/errorSnackbar.dart';
 import 'package:internet_praktikum/ui/widgets/headerWidgets/header_button.dart';
 
 class TopBar extends StatefulWidget implements PreferredSizeWidget {
@@ -75,9 +76,8 @@ class _TopBarState extends State<TopBar> {
                   if (actualWeather != null) {
                     context.go('/weatherpage', extra: actualWeather);
                   } else {
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                      content: Text("Please wait until the weather is loaded."),
-                    ));
+                    ErrorSnackbar.showErrorSnackbar(
+                        context, "Please wait until the weather is loaded.");
                   }
                 },
                 temperature: '${actualWeather?.temperature.round()}°C',

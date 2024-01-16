@@ -95,6 +95,8 @@ class _CreateDebtsState extends State<CreateDebts> {
     myAmount.text = remainingAmount.toStringAsFixed(2);
   }
 
+// To calculate the amount for all member if if checkbox the share equally wiht all
+//to get the currentUserName if if press next and/or to list all member name after pressing next 
   void shareEquallyWithAllMembersFunction(bool nextonly) async {
     double totalAmountValue = double.parse(totalAmount.text);
 
