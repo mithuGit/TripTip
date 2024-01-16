@@ -51,6 +51,8 @@ class _AccountState extends State<Account> {
   }
 
   //Update the email in Auth
+  //TODO ich glaube das kann nicht funktionieren, wegen dem passwort und so, man müsste irgendwo das passwort mal gespeichert habe
+  //TODO und dann hier irgendwie übergeben, aber ich glaube das ist nicht so einfach
   Future<void> updateAuthEmail(
       String newEmail, String oldMail, String password) async {
     AuthCredential credential =
