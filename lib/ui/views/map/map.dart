@@ -18,7 +18,7 @@ import 'package:internet_praktikum/ui/widgets/mapWidgets/createWidgetFromMapToDa
 import 'package:internet_praktikum/ui/widgets/mapWidgets/mapButton.dart';
 import 'package:internet_praktikum/ui/widgets/mapWidgets/smallButton.dart';
 import 'package:internet_praktikum/ui/widgets/my_button.dart';
-//import 'package:internet_praktikum/ui/widgets/inputfield_search_lookahead.dart';
+import 'package:location/location.dart';
 
 class MapPage extends StatefulWidget {
   const MapPage({super.key});
@@ -29,10 +29,10 @@ class MapPage extends StatefulWidget {
 
 class _MapPageState extends State<MapPage> {
   final Completer<GoogleMapController> _googleMapController = Completer();
+  //TODO: Wenn schon CurrentLocationData existiert und man auf Directions Button oben links drückt, dann bewegt sich nur die Camera an den Marker
 
   Marker? origin;
   Marker? destination;
-  Marker? currentLocation;
   Directions? infoDistanceAndDuration;
   LatLng? latLng;
   PlaceDetails? placeDetails;
@@ -73,6 +73,13 @@ class _MapPageState extends State<MapPage> {
   bool isExpandedOrigin = false;
   bool isExpandedDestination = false;
   bool isExpandedCurrentLocation = false;
+
+  //Current Location Data
+  LocationData? currentLocationData;
+  Location? location;
+  Uint8List? currentIcon;
+  bool isInitialCameraMove = true;
+  StreamSubscription<LocationData>? locationSubscription;
 
   @override
   void initState() {
@@ -124,6 +131,66 @@ class _MapPageState extends State<MapPage> {
         tilt: 45.0)));
   }
 
+  void getCurrentLocation() async {
+    bool serviceEnabled;
+    PermissionStatus permissionGranted;
+    location = Location();
+
+    serviceEnabled = await location!.serviceEnabled();
+    if (!serviceEnabled) {
+      serviceEnabled = await location!.requestService();
+      if (!serviceEnabled) {
+        return;
+      }
+    }
+
+    permissionGranted = await location!.hasPermission();
+    if (permissionGranted == PermissionStatus.denied) {
+      permissionGranted = await location!.requestPermission();
+      if (permissionGranted != PermissionStatus.granted) {
+        return;
+      }
+    }
+
+    currentIcon = await GoogleMapService()
+        .getBytesFromAsset('assets/my_location.png', 135);
+
+    location!.getLocation().then(
+      (location) {
+        currentLocationData = location;
+      },
+    );
+
+    var controller = await _googleMapController.future;
+    locationSubscription =
+        location!.onLocationChanged.listen((LocationData currentLocation) {
+      currentLocationData = currentLocation;
+
+      if (isInitialCameraMove) {
+        controller.animateCamera(
+          CameraUpdate.newCameraPosition(
+            CameraPosition(
+              target: LatLng(currentLocationData!.latitude!,
+                  currentLocationData!.longitude!),
+              zoom: 15,
+            ),
+          ),
+        );
+        setState(() {});
+        isInitialCameraMove =
+            false; // Markieren Sie, dass die erste Kamerabewegung abgeschlossen ist
+      } else {
+        setState(() {
+          CameraPosition(
+            target: LatLng(currentLocationData!.latitude!,
+                currentLocationData!.longitude!),
+            zoom: 15,
+          );
+        });
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -145,13 +212,11 @@ class _MapPageState extends State<MapPage> {
                 icon: const Icon(Icons.directions_outlined,
                     color: Colors.black, size: 30),
                 onPressed: () async {
-                  currentLocation = await GoogleMapService()
-                      .getCurrentLocation(_googleMapController);
                   setState(() {
-                    currentLocation!.position.latitude == 0
-                        ? currentLocation = null
-                        : currentLocation = currentLocation;
+                    currentLocationData = null;
+                    isInitialCameraMove = true;
                   });
+                  getCurrentLocation();
                 },
               ),
               const Text(
@@ -212,7 +277,15 @@ class _MapPageState extends State<MapPage> {
                     markers: {
                       if (origin != null) origin!,
                       if (destination != null) destination!,
-                      if (currentLocation != null) currentLocation!,
+                      if (currentLocationData != null &&
+                          currentIcon != null) ...{
+                        Marker(
+                          markerId: const MarkerId("currentLocation"),
+                          position: LatLng(currentLocationData!.latitude!,
+                              currentLocationData!.longitude!),
+                          icon: BitmapDescriptor.fromBytes(currentIcon!),
+                        ),
+                      },
                       ...markers,
                     },
                     polylines: {
@@ -293,7 +366,7 @@ class _MapPageState extends State<MapPage> {
                       ),
                     ),
                   ),
-                if (origin != null || currentLocation != null)
+                if (origin != null || currentLocationData != null)
                   Positioned(
                       top: 90.0,
                       child: Column(
@@ -381,7 +454,7 @@ class _MapPageState extends State<MapPage> {
                                 const SizedBox(height: 5.0),
                               ],
                             ),
-                          if (currentLocation != null)
+                          if (currentLocationData != null)
                             MapButton(
                               icon: Icons.directions,
                               makeSmaller: () {
@@ -403,7 +476,9 @@ class _MapPageState extends State<MapPage> {
                                 controller.animateCamera(
                                   CameraUpdate.newCameraPosition(
                                     CameraPosition(
-                                      target: currentLocation!.position,
+                                      target: LatLng(
+                                          currentLocationData!.latitude!,
+                                          currentLocationData!.longitude!),
                                       zoom: 14.5,
                                       tilt: 50.0,
                                     ),
@@ -411,8 +486,9 @@ class _MapPageState extends State<MapPage> {
                                 );
                               },
                               onClose: () => setState(() => {
-                                    currentLocation = null,
+                                    currentLocationData = null,
                                     isExpandedCurrentLocation = false,
+                                    locationSubscription!.cancel(),
                                   }),
                             ),
                         ],
