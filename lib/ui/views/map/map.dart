@@ -327,7 +327,7 @@ class _MapPageState extends State<MapPage> {
                             padding: const EdgeInsets.symmetric(),
                             child: origin == null
                                 ? const Text(
-                                    'Tap to see personilized recomendations \nLong press to set origin and destination',
+                                    'Tap to see personalized recommendation \nLong press to set origin and destination',
                                     style: Styles.warningmap,
                                     textAlign: TextAlign.center,
                                   )

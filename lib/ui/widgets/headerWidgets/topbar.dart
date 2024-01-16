@@ -45,8 +45,8 @@ class _TopBarState extends State<TopBar> {
 
   Future<void> fetchWeather() async {
     // is not the same as in weather_info.dart
+    final weather = await _weatherHandler.fetchWeather();
     if (mounted) {
-      final weather = await _weatherHandler.fetchWeather();
       setState(() {
         actualWeather = weather;
       });

@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:internet_praktikum/ui/widgets/errorSnackbar.dart';
 import 'package:internet_praktikum/ui/widgets/my_button.dart';
 import '../../widgets/container.dart';
 import '../../widgets/inputfield.dart';
@@ -41,13 +42,25 @@ class _AccountState extends State<Account> {
   //set and updates Userdata in the FirebaseCollestion users
   void updateUserData(String prename, String lastname, String dateOfBirth,
       String email, String image) async {
-    await userCollection.doc(currentUser.uid).update({
-      'prename': prename,
-      'lastname': lastname,
-      'dateOfBirth': dateOfBirth,
-      'email': email,
-      'profilepicture': image,
-    });
+    try {
+      await userCollection.doc(currentUser.uid).update({
+        //Updates data in FireStore
+        'prename': prename,
+        'lastname': lastname,
+        'dateOfBirth': dateOfBirth,
+        'email': email,
+        'profilepicture': image,
+      });
+      await currentUser.updateDisplayName(
+          "$prename $lastname"); //Updates displayName in Auth
+    } on Exception catch (e) {
+      if (kDebugMode) {
+        print("Something went wrong while fetching your data $e");
+      }
+      // ignore: use_build_context_synchronously
+      ErrorSnackbar.showErrorSnackbar(
+          context, "Something went wrong while fetching your data");
+    }
   }
 
   //Update the email in Auth
@@ -67,28 +80,10 @@ class _AccountState extends State<Account> {
     });
   }
 
-  //Updates displayName in Auth
-  Future<void> updateAuthDisplayName(String prename, String lastName) async {
-    try {
-      await currentUser.updateDisplayName("$prename $lastName");
-    } catch (e) {
-      if (kDebugMode) {
-        print("Error updating Displayname: $e");
-      }
-    }
-  }
-
   @override
   void initState() {
     super.initState();
     getUserData();
-
-    //TODO: damit kann man irgendwie das Bild in Avatr sehen,
-    //TODO: check aber nicht so ganz wieso? Ich glaub es liegt daran, dass es sonst nicht inizalisiert ist
-    //TODO: und currentUser-photoUrl das gleiche ist wie profilepicture in der DB
-    currentUser.photoURL != null
-        ? imageProvider = NetworkImage(currentUser.photoURL!)
-        : imageProvider = const AssetImage('assets/Personavatar.png');
   }
 
   Future<void> getUserData() async {
@@ -116,23 +111,15 @@ class _AccountState extends State<Account> {
         userData['profilePicture'] != null) {
       setState(() {
         imageURL = userData['profilePicture'];
+        imageProvider = NetworkImage(imageURL);
       });
     } else {
       setState(() {
         imageURL = '';
+        imageProvider = const AssetImage('assets/Personavatar.png');
       });
     }
     emailController.text = currentUser.email!;
-    if (currentUser.displayName != null &&
-        currentUser.displayName!.isNotEmpty) {
-      List<String> displayNameParts = currentUser.displayName!.split(' ');
-      if (displayNameParts.length == 2) {
-        setState(() {
-          prenameController.text = displayNameParts[0];
-          lastnameController.text = displayNameParts[1];
-        });
-      }
-    }
     if (userData.containsKey('dateOfBirth') &&
         userData['dateOfBirth'] != null) {
       setState(() {
@@ -269,11 +256,21 @@ class _AccountState extends State<Account> {
                           obscureText: false,
                           margin: const EdgeInsets.only(bottom: 25),
                         ),
+                        emailController.text.isNotEmpty &&
+                                emailController.text != currentUser.email
+                            ? InputField(
+                                controller: passwordController,
+                                hintText:
+                                    "Enter Password to change your Email Adress",
+                                obscureText: true,
+                                margin: const EdgeInsets.only(bottom: 25),
+                              )
+                            : const SizedBox(),
                         MyButton(
                           onTap: () async {
                             //store information of item in cloud firestore
 
-                            currentUser.updatePhotoURL(imageURL);
+                            //currentUser.updatePhotoURL(imageURL);
                             updateUserData(
                                 prenameController.value.text,
                                 lastnameController.value.text,
@@ -287,9 +284,6 @@ class _AccountState extends State<Account> {
                               await updateAuthEmail(emailController.text,
                                   'felixtest87@gmail.com', 'test123');
                             }
-                            updateAuthDisplayName(prenameController.text,
-                                lastnameController.text);
-
                             if (context.mounted) {
                               widget.isEditProfile == true
                                   ? context.go('/profile')
