@@ -183,7 +183,8 @@ class _LoginPageState extends State<LoginPage> {
                           }
 
                           if (isDateOfBirth == false) {
-                            if (context.mounted) context.go('/accountdetails/:isEditProfile');
+                            if (context.mounted)
+                              context.go('/accountdetails/:isEditProfile');
                           } else {
                             if (context.mounted) context.go('/');
                           }
@@ -220,7 +221,8 @@ class _LoginPageState extends State<LoginPage> {
                           }
 
                           if (isDateOfBirth == false) {
-                            if (context.mounted) context.go('/accountdetails/:isEditProfile');
+                            if (context.mounted)
+                              context.go('/accountdetails/:isEditProfile');
                           } else {
                             if (context.mounted) context.go('/');
                           }
@@ -319,7 +321,6 @@ class _LoginPageState extends State<LoginPage> {
                           String emailToCheck = passwordforgotController.text;
                           if (isValidEmail(emailToCheck)) {
                             resetPassword(emailToCheck);
-                            Navigator.of(context).pop();
                             if (context.mounted) {
                               ErrorSnackbar.showMessage(
                                   'A reset link has been sent to your email.',
