@@ -17,6 +17,7 @@ class CupertinoDatePickerButton extends StatefulWidget {
   final String? presetDate;
   final CupertinoDatePickerMode? mode;
   DateTime? boundingDate;
+  DateTime? initialDateTime;
   final bool? use24hFormat;
 
   CupertinoDatePickerButton(
@@ -27,7 +28,8 @@ class CupertinoDatePickerButton extends StatefulWidget {
       this.presetDate,
       this.mode = CupertinoDatePickerMode.date,
       this.boundingDate,
-      this.use24hFormat});
+      this.use24hFormat,
+      this.initialDateTime});
 
   @override
   _CupertinoDatePickerButtonState createState() =>
@@ -78,9 +80,11 @@ class _CupertinoDatePickerButtonState extends State<CupertinoDatePickerButton> {
                   color: Colors.white,
                 ),
                 child: CupertinoDatePicker(
-                    initialDateTime:  widget.boundingDate,
+                    initialDateTime:
+                        widget.initialDateTime ?? widget.boundingDate,
                     mode: widget.mode!,
-                    maximumDate: !widget.showFuture ? widget.boundingDate : null,
+                    maximumDate:
+                        !widget.showFuture ? widget.boundingDate : null,
                     minimumDate: widget.showFuture ? widget.boundingDate : null,
                     use24hFormat: widget.use24hFormat ?? false,
                     onDateTimeChanged: (DateTime newDate) {
@@ -88,7 +92,7 @@ class _CupertinoDatePickerButtonState extends State<CupertinoDatePickerButton> {
                       //formatieren des Strings
                       f_String =
                           '${newDate.day}.${newDate.month}.${newDate.year}';
-                          
+
                       //pass to callback
                       widget.onDateSelected?.call(DateStringTupel(
                           dateString: f_String, date: currentDate));

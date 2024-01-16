@@ -151,6 +151,7 @@ class _FinanzenState extends State<Finanzen> {
                           continue;
                         }
                         peopleYouOwe.add(ExpandableContainer(
+                          margin: const EdgeInsets.only(bottom: 8),
                           me: currentUser!.reference,
                           currentUser: members.data!
                               .firstWhere((element) => element.id == key),
@@ -250,22 +251,19 @@ class _FinanzenState extends State<Finanzen> {
                                       ),
                                   childCount: 1),
                             ),
-                            SliverList(
-                              delegate: SliverChildBuilderDelegate(
-                                  (BuildContext context, int index) {
-                                return Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: ExpansionTile(
-                                    initiallyExpanded: true,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(0),
+                            SliverPadding(
+                              padding: const EdgeInsets.all(8.0),
+                              sliver: SliverToBoxAdapter(
+                                child: ExpansionTile(
+                                      initiallyExpanded: true,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(0),
+                                      ),
+                                      title: Text("You owe "),
+                                      children: peopleYouOwe,
                                     ),
-                                    title: Text("You owe "),
-                                    children: peopleYouOwe,
-                                  ),
-                                );
-                              }, childCount: peopleYouOwe.length),
-                            ),
+                              ),
+                            )
                           ],
                         ),
                       );

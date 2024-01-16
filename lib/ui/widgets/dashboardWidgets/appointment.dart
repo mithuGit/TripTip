@@ -53,10 +53,9 @@ class _AppointmentWidgetState extends State<AppointmentWidget> {
                 children: [
                   GestureDetector(
                     onTap: () {},
-                    child: const Icon(
-                      //Hier muss entschieden werden, ob Icons Group oder Icon Map ist
-                      //formattedTime.compareTo(TimeOfDay.now().format(context)) < 0 ? Icons.check : widget.icon,
-                      Icons.map_outlined,
+                    
+                    child: Icon(
+                      widget.data!["place"] != null ? Icons.map_outlined : Icons.group,
                       color: Colors.white,
                       size: 35,
                     ),

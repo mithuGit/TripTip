@@ -64,6 +64,40 @@ class Place {
       required this.buisnessStatus,
       required this.rating,
       required this.reviews});
+  Map<String, dynamic> toMap() {
+    return {
+      "name": name,
+      "types": types,
+      "primaryType": primaryType,
+      "location": {
+        "latitude": location.latitude,
+        "longitude": location.longitude
+      },
+      "placeId": placeId,
+      "photos": photos,
+      "formattedAddress": formattedAddress,
+      "internationalPhoneNumber": internationalPhoneNumber,
+      "buisnessStatus": buisnessStatus,
+      "rating": rating,
+      "reviews": reviews
+    };
+  }
+
+  static Place fromMap(Map<String, dynamic> map) {
+    return Place(
+        name: map["name"],
+        types: map["types"],
+        primaryType: map["primaryType"],
+        location:
+            LatLng(map["location"]["latitude"], map["location"]["longitude"]),
+        placeId: map["placeId"],
+        photos: map["photos"],
+        formattedAddress: map["formattedAddress"],
+        internationalPhoneNumber: map["internationalPhoneNumber"],
+        buisnessStatus: map["buisnessStatus"],
+        rating: map["rating"],
+        reviews: map["reviews"]);
+  }
 }
 
 class GoogleMapService {
