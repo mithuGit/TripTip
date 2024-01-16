@@ -13,6 +13,7 @@ class InputField extends StatelessWidget {
   final Color? focusedBorderColor;
   final bool? multiline;
   final bool? numberField;
+  final bool? readOnly;
   final String? Function(String?)? validator;
 
   const InputField(
@@ -26,12 +27,14 @@ class InputField extends StatelessWidget {
       this.borderColor,
       this.focusedBorderColor,
       this.numberField,
-      this.validator});
+      this.validator,
+      this.readOnly});
   @override
   Widget build(BuildContext context) {
     return Container(
       margin: margin,
       child: TextFormField(
+        readOnly: readOnly == false ? true : false,
         controller: controller,
         obscureText: obscureText,
         autovalidateMode: AutovalidateMode.onUserInteraction,

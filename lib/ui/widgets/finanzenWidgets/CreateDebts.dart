@@ -10,9 +10,11 @@ import 'package:internet_praktikum/ui/widgets/my_button.dart';
 
 class CreateDebts extends StatefulWidget {
   final DocumentReference selectedTrip;
+  final QueryDocumentSnapshot? request;
   const CreateDebts({
     super.key,
     required this.selectedTrip,
+    this.request,
   });
 
   @override
@@ -39,6 +41,48 @@ class _CreateDebtsState extends State<CreateDebts> {
   DocumentSnapshot? currentUser;
 
   String memberName = "";
+
+  getRequestData() async {
+    if (widget.request != null) {
+      title.text = widget.request!["title"];
+      description.text = widget.request!["description"];
+      totalAmount.text = widget.request!["amount"].toString();
+
+      double sumForMyAmount = 0;
+
+      for (int i = 0; i < widget.request!["to"].length; i++) {
+        if ((widget.request!["to"][i]["user"] as DocumentReference).id !=
+            user.uid) {
+          var memberFromTo = await firestore
+              .collection("users")
+              .doc((widget.request!["to"][i]["user"] as DocumentReference).id)
+              .get();
+
+          optionList
+              .add(memberFromTo["prename"] + " " + memberFromTo["lastname"]);
+          sumForMyAmount += widget.request!["to"][i]["amount"];
+          amountList.add(TextEditingController(
+              text: widget.request!["to"][i]["amount"].toString()));
+        }
+      }
+      myAmount.text =
+          (double.parse(totalAmount.text) - sumForMyAmount).toStringAsFixed(2);
+
+      if ((sumForMyAmount / amountList.length) == double.parse(myAmount.text)) {
+        shareEqually = true;
+      } else {
+        shareEqually = false;
+      }
+
+      calculateMyAmountDifference = true; //TODO: CheckBox nicht mehr Clickable
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.request != null) getRequestData();
+  }
 
   Future<void> createDebt() async {
     List<dynamic> to = [];
@@ -96,7 +140,7 @@ class _CreateDebtsState extends State<CreateDebts> {
   }
 
 // To calculate the amount for all member if if checkbox the share equally wiht all
-//to get the currentUserName if if press next and/or to list all member name after pressing next 
+// to get the currentUserName if if press next and/or to list all member name after pressing next
   void shareEquallyWithAllMembersFunction(bool nextonly) async {
     double totalAmountValue = double.parse(totalAmount.text);
 
@@ -162,13 +206,30 @@ class _CreateDebtsState extends State<CreateDebts> {
   Widget buildTenableListTile(int index) {
     return Dismissible(
       key: Key(optionList[index].toString() + index.toString()),
+      direction: widget.request == null
+          ? DismissDirection.endToStart
+          : DismissDirection.none,
       onDismissed: (direction) {
-        setState(() {
-          optionList.removeAt(index);
-          amountList.removeAt(index);
-        });
+        if (widget.request == null) {
+          setState(() {
+            optionList.removeAt(index);
+            amountList.removeAt(index);
+          });
+        }
       },
-      background: Container(color: Colors.red),
+      background: Container(
+        color: Colors.red,
+        child: const Align(
+            alignment: Alignment.centerRight,
+            child: Padding(
+              padding: EdgeInsets.only(left: 20),
+              child: Text(
+                "Swipe to Delete   ",
+                style: Styles.buttonFontStyle,
+                textAlign: TextAlign.center,
+              ),
+            )),
+      ),
       child: ListTile(
         title: Padding(
           padding: const EdgeInsets.only(
@@ -191,6 +252,7 @@ class _CreateDebtsState extends State<CreateDebts> {
                   width: 150,
                   height: 50,
                   child: InputField(
+                    readOnly: widget.request == null,
                     controller: amountList[index],
                     hintText: "Enter the amount",
                     obscureText: false,
@@ -211,6 +273,7 @@ class _CreateDebtsState extends State<CreateDebts> {
       children: [
         if (!newBottomSheet) ...[
           InputField(
+              readOnly: widget.request == null,
               controller: title,
               hintText: "Title of Payment",
               focusedBorderColor: const Color.fromARGB(255, 84, 113, 255),
@@ -218,6 +281,7 @@ class _CreateDebtsState extends State<CreateDebts> {
               obscureText: false),
           const SizedBox(height: 15),
           InputField(
+              readOnly: widget.request == null,
               controller: description,
               hintText: "Description of Payment",
               focusedBorderColor: const Color.fromARGB(255, 84, 113, 255),
@@ -231,6 +295,7 @@ class _CreateDebtsState extends State<CreateDebts> {
               SizedBox(
                   width: 90,
                   child: InputField(
+                    readOnly: widget.request == null,
                     controller: totalAmount,
                     hintText: "The total amount",
                     obscureText: false,
@@ -296,9 +361,10 @@ class _CreateDebtsState extends State<CreateDebts> {
                       }),
               IconButton(
                   onPressed: () => {
-                        if (optionList
-                            .where((element) => element == memberName)
-                            .isEmpty)
+                        if (widget.request == null &&
+                            optionList
+                                .where((element) => element == memberName)
+                                .isEmpty)
                           {
                             if (memberName.isNotEmpty)
                               {
@@ -404,6 +470,7 @@ class _CreateDebtsState extends State<CreateDebts> {
               SizedBox(
                   width: 150,
                   child: InputField(
+                    readOnly: widget.request == null,
                     controller: myAmount,
                     hintText: "Enter the amount",
                     obscureText: false,
@@ -439,9 +506,12 @@ class _CreateDebtsState extends State<CreateDebts> {
                   child: MyButton(
                       borderColor: Colors.black,
                       textStyle: Styles.buttonFontStyleModal,
-                      onTap: () =>
-                          {createDebt(), Navigator.pop(context)}, //hhhhhh
-                      text: "Finish"),
+                      onTap: () => {
+                            widget.request == null
+                                ? {createDebt(), Navigator.pop(context)}
+                                : Navigator.pop(context)
+                          }, //hhhhhh
+                      text: widget.request == null ? "Finish" : "Close"),
                 ),
               ),
             ],
