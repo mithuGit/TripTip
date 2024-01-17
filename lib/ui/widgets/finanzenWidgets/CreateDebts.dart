@@ -10,11 +10,11 @@ import 'package:internet_praktikum/ui/widgets/my_button.dart';
 
 class CreateDebts extends StatefulWidget {
   final DocumentReference selectedTrip;
-  final QueryDocumentSnapshot? request;
+  final QueryDocumentSnapshot? preview;
   const CreateDebts({
     super.key,
     required this.selectedTrip,
-    this.request,
+    this.preview,
   });
 
   @override
@@ -35,55 +35,23 @@ class _CreateDebtsState extends State<CreateDebts> {
 
   bool newBottomSheet = false;
 
+  String membersName = "";
+  String currentUserName = "";
+
   final user = FirebaseAuth.instance.currentUser!;
   final firestore = FirebaseFirestore.instance;
   DocumentReference? selectedtrip;
   DocumentSnapshot? currentUser;
 
   String memberName = "";
+  var member = [];
 
-  getRequestData() async {
-    if (widget.request != null) {
-      title.text = widget.request!["title"];
-      description.text = widget.request!["description"];
-      totalAmount.text = widget.request!["amount"].toString();
-
-      double sumForMyAmount = 0;
-
-      for (int i = 0; i < widget.request!["to"].length; i++) {
-        if ((widget.request!["to"][i]["user"] as DocumentReference).id !=
-            user.uid) {
-          var memberFromTo = await firestore
-              .collection("users")
-              .doc((widget.request!["to"][i]["user"] as DocumentReference).id)
-              .get();
-
-          optionList
-              .add(memberFromTo["prename"] + " " + memberFromTo["lastname"]);
-          sumForMyAmount += widget.request!["to"][i]["amount"];
-          amountList.add(TextEditingController(
-              text: widget.request!["to"][i]["amount"].toString()));
-        }
-      }
-      myAmount.text =
-          (double.parse(totalAmount.text) - sumForMyAmount).toStringAsFixed(2);
-
-      if ((sumForMyAmount / amountList.length) == double.parse(myAmount.text)) {
-        shareEqually = true;
-      } else {
-        shareEqually = false;
-      }
-
-      calculateMyAmountDifference = true; //TODO: CheckBox nicht mehr Clickable
-    }
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    if (widget.request != null) getRequestData();
-  }
-
+  //TODO fallbeispiele eig schon abgecheckt kann gerne jemand nochmal prüfen aber hat bei mir geklappt
+  //shareeaull with all dann alle boxen full
+  //shareonly with member dann auch calculate my amount gleichzeitg
+  //calculate my amount dann nur diese box nix mehr
+  //keine box ankreuzen
+  // betrag ist nicht gleich dem total amount was passiert dann 
   Future<void> createDebt() async {
     List<dynamic> to = [];
 
@@ -111,18 +79,84 @@ class _CreateDebtsState extends State<CreateDebts> {
     }
   }
 
-  String membersName = "";
-  String currentUserName = "";
-
-  var member = [];
-
   Future<void> getMembers() async {
     currentUser = await firestore.collection("users").doc(user.uid).get();
     String selectedTripID =
         (currentUser!.data() as Map<String, dynamic>)["selectedtrip"];
     selectedtrip = firestore.collection("trips").doc(selectedTripID);
+
     member =
         ((await selectedtrip!.get()).data() as Map<String, dynamic>)["members"];
+  }
+
+  getpreviewdata() async {
+    if (widget.preview != null) {
+      await getMembers();
+      title.text = widget.preview!["title"];
+      description.text = widget.preview!["description"];
+      totalAmount.text = widget.preview!["amount"].toString();
+
+      double sumForMyAmount = 0;
+
+      for (int i = 0; i < widget.preview!["to"].length; i++) {
+        if ((widget.preview!["to"][i]["user"] as DocumentReference).id !=
+            user.uid) {
+          var memberFromTo = await firestore
+              .collection("users")
+              .doc((widget.preview!["to"][i]["user"] as DocumentReference).id)
+              .get();
+          optionList
+              .add(memberFromTo["prename"] + " " + memberFromTo["lastname"]);
+          sumForMyAmount += widget.preview!["to"][i]["amount"];
+          amountList.add(TextEditingController(
+              text: widget.preview!["to"][i]["amount"].toString()));
+        }
+      }
+      myAmount.text =
+          (double.parse(totalAmount.text) - sumForMyAmount).toStringAsFixed(2);
+
+      if ((sumForMyAmount / amountList.length) == double.parse(myAmount.text) &&
+          widget.preview!["to"].length + 1 == member.length) {
+        setState(() {
+          // soll wenn man shareeqqallywithallmembers anklickt, dass es automatisch shareequally als auch calculate my amount ??? oder ne
+          shareEquallyWithAllMembers = true;
+          shareEqually = true;
+          calculateMyAmountDifference = true;
+
+          print("hhier wird optionlist");
+          print(optionList.length);
+          print(optionList.length);
+
+          print("hier amount list");
+          print(amountList.length);
+          print(amountList.length);
+          print("hier unten die länge von to ");
+          print(widget.preview!["to"].length);
+          print(widget.preview!["to"].length);
+        });
+      } else if (widget.preview!["to"].length + 1 != member.length) {
+        if (sumForMyAmount / amountList.length == double.parse(myAmount.text)) {
+          setState(() {
+            shareEquallyWithAllMembers = false;
+            shareEqually = true;
+            calculateMyAmountDifference = true;
+          });
+        } else if (sumForMyAmount / amountList.length !=
+            double.parse(myAmount.text)) {
+          setState(() {
+            shareEquallyWithAllMembers = false;
+            shareEqually = false;
+            calculateMyAmountDifference = true;
+          });
+        }
+      }
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getpreviewdata();
   }
 
   void calculateMyAmount() {
@@ -206,11 +240,11 @@ class _CreateDebtsState extends State<CreateDebts> {
   Widget buildTenableListTile(int index) {
     return Dismissible(
       key: Key(optionList[index].toString() + index.toString()),
-      direction: widget.request == null
+      direction: widget.preview == null
           ? DismissDirection.endToStart
           : DismissDirection.none,
       onDismissed: (direction) {
-        if (widget.request == null) {
+        if (widget.preview == null) {
           setState(() {
             optionList.removeAt(index);
             amountList.removeAt(index);
@@ -240,19 +274,17 @@ class _CreateDebtsState extends State<CreateDebts> {
             children: [
               SizedBox(
                 width: 130,
-                child: Flexible(
-                  child: Text(
-                    optionList[index].toString(),
-                    style: Styles.inputField,
-                    overflow: TextOverflow.ellipsis,
-                  ),
+                child: Text(
+                  optionList[index].toString(),
+                  style: Styles.inputField,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
               SizedBox(
                   width: 150,
                   height: 50,
                   child: InputField(
-                    readOnly: widget.request == null,
+                    readOnly: widget.preview == null,
                     controller: amountList[index],
                     hintText: "Enter the amount",
                     obscureText: false,
@@ -267,13 +299,28 @@ class _CreateDebtsState extends State<CreateDebts> {
     );
   }
 
+  bool isamountcorrect() {
+    double sum = 0;
+    for (int i = 0; i < amountList.length; i++) {
+      if (amountList[i].text.isNotEmpty) {
+        sum += double.parse(amountList[i].text);
+      }
+    }
+    sum += double.parse(myAmount.text);
+    print("hier ist der totalamount");
+    print(totalAmount.text);
+    print("hier ist der summe aller amounts");
+    print(sum.toString());
+    return double.parse(totalAmount.text) == sum;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
         if (!newBottomSheet) ...[
           InputField(
-              readOnly: widget.request == null,
+              readOnly: widget.preview == null,
               controller: title,
               hintText: "Title of Payment",
               focusedBorderColor: const Color.fromARGB(255, 84, 113, 255),
@@ -281,7 +328,7 @@ class _CreateDebtsState extends State<CreateDebts> {
               obscureText: false),
           const SizedBox(height: 15),
           InputField(
-              readOnly: widget.request == null,
+              readOnly: widget.preview == null,
               controller: description,
               hintText: "Description of Payment",
               focusedBorderColor: const Color.fromARGB(255, 84, 113, 255),
@@ -295,7 +342,7 @@ class _CreateDebtsState extends State<CreateDebts> {
               SizedBox(
                   width: 90,
                   child: InputField(
-                    readOnly: widget.request == null,
+                    readOnly: widget.preview == null,
                     controller: totalAmount,
                     hintText: "The total amount",
                     obscureText: false,
@@ -312,14 +359,16 @@ class _CreateDebtsState extends State<CreateDebts> {
                   Checkbox(
                       value: shareEquallyWithAllMembers,
                       onChanged: (value) {
-                        setState(() {
-                          shareEquallyWithAllMembers = value!;
-                          if (shareEquallyWithAllMembers == true) {
-                            shareEquallyWithAllMembersFunction(false);
-                            shareEqually = false;
-                            calculateMyAmountDifference = false;
-                          }
-                        });
+                        if (widget.preview == null) {
+                          setState(() {
+                            shareEquallyWithAllMembers = value!;
+                            if (shareEquallyWithAllMembers == true) {
+                              shareEquallyWithAllMembersFunction(false);
+                              shareEqually = true;
+                              calculateMyAmountDifference = true;
+                            }
+                          });
+                        }
                       }),
                 ],
               ),
@@ -361,7 +410,7 @@ class _CreateDebtsState extends State<CreateDebts> {
                       }),
               IconButton(
                   onPressed: () => {
-                        if (widget.request == null &&
+                        if (widget.preview == null &&
                             optionList
                                 .where((element) => element == memberName)
                                 .isEmpty)
@@ -402,17 +451,19 @@ class _CreateDebtsState extends State<CreateDebts> {
                   Checkbox(
                       value: shareEqually,
                       onChanged: (value) {
-                        setState(() {
-                          shareEqually = value!;
-                          if (shareEqually == false &&
-                              calculateMyAmountDifference == true) {
-                            calculateMyAmountDifference = false;
-                          } else {
-                            shareEquallyFunction();
-                            shareEquallyWithAllMembers = false;
-                            calculateMyAmountDifference = true;
-                          }
-                        });
+                        if (widget.preview == null) {
+                          setState(() {
+                            shareEqually = value!;
+                            if (shareEqually == false &&
+                                calculateMyAmountDifference == true) {
+                              calculateMyAmountDifference = false;
+                            } else {
+                              shareEquallyFunction();
+                              shareEquallyWithAllMembers = false;
+                              calculateMyAmountDifference = true;
+                            }
+                          });
+                        }
                       }),
                 ],
               ),
@@ -426,17 +477,19 @@ class _CreateDebtsState extends State<CreateDebts> {
                   Checkbox(
                       value: calculateMyAmountDifference,
                       onChanged: (value) {
-                        setState(() {
-                          calculateMyAmountDifference = value!;
-                          calculateMyAmountDifference &&
-                                  totalAmount.text != "" &&
-                                  !shareEqually
-                              ? WidgetsBinding.instance
-                                  .addPostFrameCallback((_) {
-                                  calculateMyAmount();
-                                })
-                              : myAmount.text = "";
-                        });
+                        if (widget.preview == null) {
+                          setState(() {
+                            calculateMyAmountDifference = value!;
+                            calculateMyAmountDifference &&
+                                    totalAmount.text != "" &&
+                                    !shareEqually
+                                ? WidgetsBinding.instance
+                                    .addPostFrameCallback((_) {
+                                    calculateMyAmount();
+                                  })
+                                : myAmount.text = "";
+                          });
+                        }
                       }),
                 ],
               ),
@@ -470,7 +523,7 @@ class _CreateDebtsState extends State<CreateDebts> {
               SizedBox(
                   width: 150,
                   child: InputField(
-                    readOnly: widget.request == null,
+                    readOnly: widget.preview == null,
                     controller: myAmount,
                     hintText: "Enter the amount",
                     obscureText: false,
@@ -507,11 +560,23 @@ class _CreateDebtsState extends State<CreateDebts> {
                       borderColor: Colors.black,
                       textStyle: Styles.buttonFontStyleModal,
                       onTap: () => {
-                            widget.request == null
+                            if (widget.preview == null && isamountcorrect())
+                              {createDebt(), Navigator.pop(context)}
+                            else if (!isamountcorrect())
+                              {
+                                ErrorSnackbar.showErrorSnackbar(
+                                    context, "Please check the amount")
+                              }
+                            else if(widget.preview != null)
+                              {Navigator.pop(context)}
+
+                          
+
+                            /*    widget.preview == null && isamountcorrect()
                                 ? {createDebt(), Navigator.pop(context)}
-                                : Navigator.pop(context)
+                                : Navigator.pop(context),  */
                           }, //hhhhhh
-                      text: widget.request == null ? "Finish" : "Close"),
+                      text: widget.preview == null ? "Finish" : "Close"),
                 ),
               ),
             ],

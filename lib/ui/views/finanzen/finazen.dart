@@ -190,7 +190,7 @@ class _FinanzenState extends State<Finanzen> {
                                       Builder(builder: (context) {
                                         return CreateDebts(
                                           selectedTrip: selectedtrip!,
-                                          request: request,
+                                          preview: request,
                                         );
                                       })
                                     ]);
