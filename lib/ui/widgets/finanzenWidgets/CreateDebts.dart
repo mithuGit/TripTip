@@ -28,6 +28,7 @@ class _CreateDebtsState extends State<CreateDebts> {
   final myAmount = TextEditingController();
   final List<TextEditingController> amountList = List.empty(growable: true);
   final List<String> optionList = List.empty(growable: true);
+  final List<DocumentReference?> toMemberList = List.empty(growable: true);
 
   bool shareEqually = false;
   bool shareEquallyWithAllMembers = false;
@@ -43,6 +44,7 @@ class _CreateDebtsState extends State<CreateDebts> {
   DocumentSnapshot? currentUser;
 
   String memberName = "";
+  DocumentReference? memberNameUID;
   var member = [];
 
   //TODO fallbeispiele eig schon abgecheckt kann gerne jemand nochmal prüfen aber hat bei mir geklappt
@@ -61,7 +63,7 @@ class _CreateDebtsState extends State<CreateDebts> {
         to.add({
           "amount": double.parse(amountList[i].text),
           "status": "open",
-          "user": member[i],
+          "user": toMemberList[i],
         });
       }
     }
@@ -185,6 +187,7 @@ class _CreateDebtsState extends State<CreateDebts> {
         if (memberName.isNotEmpty) {
           setState(() {
             optionList.add(memberName);
+            toMemberList.add(member[i]);
             amountList.add(TextEditingController());
           });
         }
@@ -399,6 +402,7 @@ class _CreateDebtsState extends State<CreateDebts> {
                   notifier: (Member member) => {
                         setState(() {
                           if (member.isSet) memberName = member.name!;
+                          memberNameUID = member.reference;
                         })
                       }),
               IconButton(
@@ -412,6 +416,7 @@ class _CreateDebtsState extends State<CreateDebts> {
                               {
                                 setState(() {
                                   optionList.add(memberName);
+                                  toMemberList.add(memberNameUID);
                                   amountList.add(TextEditingController());
                                 })
                               }
@@ -553,13 +558,13 @@ class _CreateDebtsState extends State<CreateDebts> {
                       borderColor: Colors.black,
                       textStyle: Styles.buttonFontStyleModal,
                       onTap: () => {
-                            if (widget.preview == null && isamountcorrect())
+                            if (widget.preview == null /*&& isamountcorrect()*/)
                               {createDebt(), Navigator.pop(context)}
-                            else if (!isamountcorrect())
+                            /*else if (!isamountcorrect())
                               {
                                 ErrorSnackbar.showErrorSnackbar(
                                     context, "Please check the amount")
-                              }
+                              }*/
                             else if (widget.preview != null)
                               {Navigator.pop(context)}
                           },

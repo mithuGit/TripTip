@@ -6,9 +6,11 @@ import 'package:flutter/material.dart';
 
 class Member {
   String? name;
-  get isSet => name != null;
+  DocumentReference? reference;
+  get isSet => name != null && reference != null;
   Member({
     required this.name,
+    required this.reference,
   });
 }
 
@@ -35,6 +37,7 @@ class _GetMemberButtonState extends State<GetMemberButton> {
   var members = [];
   String name = "Select a member";
   String? currentUserName;
+  List<DocumentReference> memberDocu = [];
 
   @override
   void initState() {
@@ -53,6 +56,7 @@ class _GetMemberButtonState extends State<GetMemberButton> {
     setState(() {
       for (var i = 0; i < members.length; i++) {
         if ((members[i] as DocumentReference).id != user.uid) {
+          memberDocu.add((members[i] as DocumentReference));
           memberIDList.add((members[i] as DocumentReference).id);
         } else {
           currentUserName =
@@ -115,6 +119,7 @@ class _GetMemberButtonState extends State<GetMemberButton> {
                                       name = list[value];
                                       widget.notifier(Member(
                                         name: list[value],
+                                        reference: memberDocu[value],
                                       ));
                                     });
                                   },

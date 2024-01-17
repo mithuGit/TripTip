@@ -113,6 +113,7 @@ class _WeatherPageState extends State<WeatherPage> {
                   ),
                   colors: isDarkMode ? Colors.black : Colors.white,
                   onTap: () async {
+                    //TODO: fehnler abfangen hier
                     final weather = await widget._weatherHandler
                         .fetchWeatherForCurrentCity();
                     setState(() {

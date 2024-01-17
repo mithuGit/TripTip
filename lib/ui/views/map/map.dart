@@ -180,13 +180,15 @@ class _MapPageState extends State<MapPage> {
         isInitialCameraMove =
             false; // Markieren Sie, dass die erste Kamerabewegung abgeschlossen ist
       } else {
-        setState(() {
-          CameraPosition(
-            target: LatLng(currentLocationData!.latitude!,
-                currentLocationData!.longitude!),
-            zoom: 15,
-          );
-        });
+        if (mounted) {
+          setState(() {
+            CameraPosition(
+              target: LatLng(currentLocationData!.latitude!,
+                  currentLocationData!.longitude!),
+              zoom: 15,
+            );
+          });
+        }
       }
     });
   }
