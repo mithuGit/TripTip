@@ -51,7 +51,7 @@ class _CreateDebtsState extends State<CreateDebts> {
   //shareonly with member dann auch calculate my amount gleichzeitg
   //calculate my amount dann nur diese box nix mehr
   //keine box ankreuzen
-  // betrag ist nicht gleich dem total amount was passiert dann 
+  // betrag ist nicht gleich dem total amount was passiert dann
   Future<void> createDebt() async {
     List<dynamic> to = [];
 
@@ -122,17 +122,6 @@ class _CreateDebtsState extends State<CreateDebts> {
           shareEquallyWithAllMembers = true;
           shareEqually = true;
           calculateMyAmountDifference = true;
-
-          print("hhier wird optionlist");
-          print(optionList.length);
-          print(optionList.length);
-
-          print("hier amount list");
-          print(amountList.length);
-          print(amountList.length);
-          print("hier unten die länge von to ");
-          print(widget.preview!["to"].length);
-          print(widget.preview!["to"].length);
         });
       } else if (widget.preview!["to"].length + 1 != member.length) {
         if (sumForMyAmount / amountList.length == double.parse(myAmount.text)) {
@@ -307,10 +296,7 @@ class _CreateDebtsState extends State<CreateDebts> {
       }
     }
     sum += double.parse(myAmount.text);
-    print("hier ist der totalamount");
-    print(totalAmount.text);
-    print("hier ist der summe aller amounts");
-    print(sum.toString());
+
     return double.parse(totalAmount.text) == sum;
   }
 
@@ -393,7 +379,7 @@ class _CreateDebtsState extends State<CreateDebts> {
                   ErrorSnackbar.showErrorSnackbar(
                       context, "Please fill in all fields");
                 }
-              }, //hhhhhh
+              },
               text: "Next"),
         ] else ...[
           Container(),
@@ -567,15 +553,9 @@ class _CreateDebtsState extends State<CreateDebts> {
                                 ErrorSnackbar.showErrorSnackbar(
                                     context, "Please check the amount")
                               }
-                            else if(widget.preview != null)
+                            else if (widget.preview != null)
                               {Navigator.pop(context)}
-
-                          
-
-                            /*    widget.preview == null && isamountcorrect()
-                                ? {createDebt(), Navigator.pop(context)}
-                                : Navigator.pop(context),  */
-                          }, //hhhhhh
+                          },
                       text: widget.preview == null ? "Finish" : "Close"),
                 ),
               ),
