@@ -35,7 +35,6 @@ class _CreateDebtsState extends State<CreateDebts> {
 
   bool newBottomSheet = false;
 
-  String membersName = "";
   String currentUserName = "";
 
   final user = FirebaseAuth.instance.currentUser!;
@@ -52,6 +51,8 @@ class _CreateDebtsState extends State<CreateDebts> {
   //calculate my amount dann nur diese box nix mehr
   //keine box ankreuzen
   // betrag ist nicht gleich dem total amount was passiert dann
+
+  //create the debt in the database
   Future<void> createDebt() async {
     List<dynamic> to = [];
 
@@ -79,6 +80,7 @@ class _CreateDebtsState extends State<CreateDebts> {
     }
   }
 
+//get the members of the trip
   Future<void> getMembers() async {
     currentUser = await firestore.collection("users").doc(user.uid).get();
     String selectedTripID =
@@ -89,6 +91,7 @@ class _CreateDebtsState extends State<CreateDebts> {
         ((await selectedtrip!.get()).data() as Map<String, dynamic>)["members"];
   }
 
+//get the data for the preview container so he can look up again what he has entered and request from the other ones
   getpreviewdata() async {
     if (widget.preview != null) {
       await getMembers();
@@ -118,7 +121,6 @@ class _CreateDebtsState extends State<CreateDebts> {
       if ((sumForMyAmount / amountList.length) == double.parse(myAmount.text) &&
           widget.preview!["to"].length + 1 == member.length) {
         setState(() {
-          // soll wenn man shareeqqallywithallmembers anklickt, dass es automatisch shareequally als auch calculate my amount ??? oder ne
           shareEquallyWithAllMembers = true;
           shareEqually = true;
           calculateMyAmountDifference = true;
@@ -148,6 +150,7 @@ class _CreateDebtsState extends State<CreateDebts> {
     getpreviewdata();
   }
 
+  //calculate the amount of money for the current user
   void calculateMyAmount() {
     double totalAmountValue = double.parse(totalAmount.text);
     double sum = 0;
@@ -209,6 +212,7 @@ class _CreateDebtsState extends State<CreateDebts> {
     }
   }
 
+// To calculate the amount for all member which the user selected   if checkbox the share equally
   void shareEquallyFunction() {
     if (shareEqually == false) {
       for (int i = 0; i < optionList.length; i++) {
@@ -226,6 +230,8 @@ class _CreateDebtsState extends State<CreateDebts> {
     }
   }
 
+//build the listtile for the member list
+//if user add a wrong member to the request, he can delete it with the dismissible(swipe to the left)
   Widget buildTenableListTile(int index) {
     return Dismissible(
       key: Key(optionList[index].toString() + index.toString()),
@@ -288,6 +294,7 @@ class _CreateDebtsState extends State<CreateDebts> {
     );
   }
 
+//check if the amount is correct what user entered and equals to the total amount
   bool isamountcorrect() {
     double sum = 0;
     for (int i = 0; i < amountList.length; i++) {
@@ -568,6 +575,7 @@ class _CreateDebtsState extends State<CreateDebts> {
     );
   }
 
+//check if the amount is numeric and has only 2 decimals after the comma
   bool _isNumeric(TextEditingController controller) {
     if (controller.text == "") {
       return false;
@@ -579,6 +587,7 @@ class _CreateDebtsState extends State<CreateDebts> {
     return parsedValue != null && _countDecimals(parsedValue) <= 2;
   }
 
+//help method to the numeric method to check the decimals
   int _countDecimals(double value) {
     String valueString = value.toString();
     int index = valueString.indexOf('.');
