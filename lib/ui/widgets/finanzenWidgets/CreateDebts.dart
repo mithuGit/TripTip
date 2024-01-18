@@ -164,7 +164,7 @@ class _CreateDebtsState extends State<CreateDebts> {
     }
 
     double remainingAmount = totalAmountValue - sum;
-    myAmount.text = remainingAmount.toStringAsFixed(2);
+    myAmount.text = ((remainingAmount * 100).ceil() / 100).toStringAsFixed(2);
   }
 
 // To calculate the amount for all member if if checkbox the share equally wiht all
@@ -295,25 +295,6 @@ class _CreateDebtsState extends State<CreateDebts> {
         ),
       ),
     );
-  }
-
-//check if the amount is correct what user entered and equals to the total amount
-  bool isAmountCorrect() { //TODO: Funktion soll noch gebaut werden und 33..4
-    double sum = 0;
-    for (int i = 0; i < amountList.length; i++) {
-      if (amountList[i].text.isNotEmpty) {
-        sum += double.parse(amountList[i].text);
-      }
-    }
-    if (double.parse(totalAmount.text) - sum == double.parse(myAmount.text)) {
-      return true;
-    } else {
-      double diff = double.parse(totalAmount.text) - sum;
-      totalAmount.text = diff.toStringAsFixed(2);
-      ErrorSnackbar.showErrorSnackbar(
-          context, "Please check the amount. You have $diff € left");
-      return false;
-    }
   }
 
   @override
@@ -564,13 +545,8 @@ class _CreateDebtsState extends State<CreateDebts> {
                       borderColor: Colors.black,
                       textStyle: Styles.buttonFontStyleModal,
                       onTap: () => {
-                            if (widget.preview == null /*&& isAmountCorrect()*/)
+                            if (widget.preview == null)
                               {createDebt(), Navigator.pop(context)}
-                            /*else if (!isAmountCorrect())
-                              {
-                                ErrorSnackbar.showErrorSnackbar(
-                                    context, "Please check the amount")
-                              }*/
                             else if (widget.preview != null)
                               {Navigator.pop(context)}
                           },
