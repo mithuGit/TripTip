@@ -32,16 +32,57 @@ class _CreateWidgetFromMapToDashboardState
   String show = 'init';
   DocumentReference? day;
   DateTime? selectedDate;
+  DateTime? startDateRange;
+  DateTime? endDateRange;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    getStartDate();
+  }
+
+  getStartDate() async {
+    final auth = FirebaseAuth.instance.currentUser;
+    if (auth == null) {
+      // Handle the case where the user is not authenticated
+      return Future.error('User not authenticated');
+    }
+    final DocumentSnapshot<Map<String, dynamic>> userDoc =
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(auth.uid)
+            .get();
+
+    final String tripId = userDoc.data()!['selectedtrip'].toString();
+
+    final DocumentSnapshot<Map<String, dynamic>> documentSnapshot =
+        await FirebaseFirestore.instance.collection('trips').doc(tripId).get();
+    if (documentSnapshot.exists) {
+      final DateTime startDate = documentSnapshot.data()!['startdate'].toDate();
+      int day = startDate.day;
+      int month = startDate.month;
+      int year = startDate.year;
+      DateTime startresult = DateTime(year, month, day);
+      startDateRange = startresult;
+    } else {
+      ErrorSnackbar.showErrorSnackbar(context, "No trip found");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    //TODO: soll man nur Termine wählen können die im Trip Zeitraum liegen und somit eine Days Referenz haben oder wie genau?
     switch (show) {
       case 'init':
         return Column(
           children: [
+            //TODO hier weiter machen, irgendwie ist startDateRange null
             CupertinoDatePickerButton(
-              //TODO: man soll in der Zukunft nur Termine erstellen können
+              boundingDate: startDateRange != null
+                  ? (DateTime.now().isAfter(startDateRange!)
+                      ? DateTime.now()
+                      : startDateRange)
+                  : DateTime.now().add(const Duration(days: 1)),
               showFuture: true,
               mode: CupertinoDatePickerMode.date,
               onDateSelected: (date) {
