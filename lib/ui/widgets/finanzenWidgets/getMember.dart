@@ -26,8 +26,6 @@ class GetMemberButton extends StatefulWidget {
 }
 
 class _GetMemberButtonState extends State<GetMemberButton> {
-  //TODO BORDERRADIUS fürs ModalBottomsheet in CupertinoButton.filled verbessern
-
   List<String> list = [];
   final user = FirebaseAuth.instance.currentUser!;
   final firestore = FirebaseFirestore.instance;

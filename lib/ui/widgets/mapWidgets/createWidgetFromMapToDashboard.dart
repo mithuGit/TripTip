@@ -52,7 +52,7 @@ class _CreateWidgetFromMapToDashboardState
               },
               presetDate: selectedDate != null
                   ? DateFormat('dd.MM.yyyy').format(selectedDate!)
-                  : "Select Date",
+                  : "Select date where you want to add a widget",
             ),
             const SizedBox(
               height: 20,
