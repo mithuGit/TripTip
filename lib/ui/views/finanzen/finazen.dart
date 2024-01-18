@@ -196,10 +196,11 @@ class _FinanzenState extends State<Finanzen> {
                                     ]);
                               },
                               child: Container(
+                                margin: const EdgeInsets.only(bottom: 8),
                                 decoration: BoxDecoration(
                                   color: const Color(0xE51E1E1E),
-                                  border:
-                                      Border.all(color: const Color(0xE51E1E1E)),
+                                  border: Border.all(
+                                      color: const Color(0xE51E1E1E)),
                                   borderRadius: BorderRadius.circular(34.5),
                                 ),
                                 child: Padding(
@@ -269,13 +270,13 @@ class _FinanzenState extends State<Finanzen> {
                               padding: const EdgeInsets.all(8.0),
                               sliver: SliverToBoxAdapter(
                                 child: ExpansionTile(
-                                      initiallyExpanded: true,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(0),
-                                      ),
-                                      title: Text("You owe "),
-                                      children: peopleYouOwe,
-                                    ),
+                                  initiallyExpanded: true,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(0),
+                                  ),
+                                  title: Text("You owe "),
+                                  children: peopleYouOwe,
+                                ),
                               ),
                             )
                           ],

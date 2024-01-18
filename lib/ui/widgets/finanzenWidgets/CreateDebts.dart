@@ -94,7 +94,7 @@ class _CreateDebtsState extends State<CreateDebts> {
   }
 
 //get the data for the preview container so he can look up again what he has entered and request from the other ones
-  getpreviewdata() async {
+  getPreviewData() async {
     if (widget.preview != null) {
       await getMembers();
       title.text = widget.preview!["title"];
@@ -149,7 +149,7 @@ class _CreateDebtsState extends State<CreateDebts> {
   @override
   void initState() {
     super.initState();
-    getpreviewdata();
+    getPreviewData();
   }
 
   //calculate the amount of money for the current user
@@ -298,16 +298,22 @@ class _CreateDebtsState extends State<CreateDebts> {
   }
 
 //check if the amount is correct what user entered and equals to the total amount
-  bool isamountcorrect() {
+  bool isAmountCorrect() { //TODO: Funktion soll noch gebaut werden und 33..4
     double sum = 0;
     for (int i = 0; i < amountList.length; i++) {
       if (amountList[i].text.isNotEmpty) {
         sum += double.parse(amountList[i].text);
       }
     }
-    sum += double.parse(myAmount.text);
-
-    return double.parse(totalAmount.text) == sum;
+    if (double.parse(totalAmount.text) - sum == double.parse(myAmount.text)) {
+      return true;
+    } else {
+      double diff = double.parse(totalAmount.text) - sum;
+      totalAmount.text = diff.toStringAsFixed(2);
+      ErrorSnackbar.showErrorSnackbar(
+          context, "Please check the amount. You have $diff € left");
+      return false;
+    }
   }
 
   @override
@@ -558,9 +564,9 @@ class _CreateDebtsState extends State<CreateDebts> {
                       borderColor: Colors.black,
                       textStyle: Styles.buttonFontStyleModal,
                       onTap: () => {
-                            if (widget.preview == null /*&& isamountcorrect()*/)
+                            if (widget.preview == null /*&& isAmountCorrect()*/)
                               {createDebt(), Navigator.pop(context)}
-                            /*else if (!isamountcorrect())
+                            /*else if (!isAmountCorrect())
                               {
                                 ErrorSnackbar.showErrorSnackbar(
                                     context, "Please check the amount")
