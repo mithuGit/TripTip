@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:internet_praktikum/ui/widgets/errorSnackbar.dart';
 import 'package:internet_praktikum/ui/widgets/my_button.dart';
@@ -31,6 +32,10 @@ class _AccountState extends State<Account> {
   final emailController = TextEditingController();
   final dateOfBirthController = TextEditingController();
   final passwordController = TextEditingController();
+
+  Color buttonColor = Colors.grey;
+  Color buttonFill = Colors.white;
+  var buttonIcon = Icons.copy;
 
   XFile? pickedFile;
 
@@ -243,6 +248,7 @@ class _AccountState extends State<Account> {
                           showFuture: false,
                         ),
                         InputField(
+                          readOnly: true,
                           controller: emailController,
                           validator: ((p0) {
                             if (p0 == null || p0.isEmpty) {
@@ -256,7 +262,42 @@ class _AccountState extends State<Account> {
                           obscureText: false,
                           margin: const EdgeInsets.only(bottom: 25),
                         ),
-                        emailController.text.isNotEmpty &&
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            SizedBox(
+                              width: 275,
+                              child: InputField(
+                                readOnly: true,
+                                controller: TextEditingController(
+                                    text: currentUser.uid),
+                                hintText: "UID",
+                                obscureText: false,
+                              ),
+                            ),
+                            SizedBox(
+                              child: Card(
+                                  color: buttonFill,
+                                  margin: const EdgeInsets.only(left: 10),
+                                  child: IconButton(
+                                      onPressed: () {
+                                        Clipboard.setData(ClipboardData(
+                                            text: currentUser.uid));
+                                        setState(() {
+                                          buttonFill = Colors.green;
+                                          buttonIcon = Icons.check;
+                                          buttonColor = Colors.white;
+                                        });
+                                      },
+                                      icon: Icon(
+                                        buttonIcon,
+                                        color: buttonColor,
+                                      ))),
+                            )
+                          ],
+                        ),
+                        const SizedBox(height: 25),
+                        /* emailController.text.isNotEmpty &&
                                 emailController.text != currentUser.email
                             ? InputField(
                                 controller: passwordController,
@@ -265,7 +306,7 @@ class _AccountState extends State<Account> {
                                 obscureText: true,
                                 margin: const EdgeInsets.only(bottom: 25),
                               )
-                            : const SizedBox(),
+                            : const SizedBox(), */
                         MyButton(
                           onTap: () async {
                             //store information of item in cloud firestore

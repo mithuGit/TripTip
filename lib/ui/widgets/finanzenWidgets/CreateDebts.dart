@@ -48,6 +48,8 @@ class _CreateDebtsState extends State<CreateDebts> {
   DocumentReference? memberNameUID;
   var member = [];
 
+  bool TotalAmountisInRange = false;
+
   //TODO fallbeispiele eig schon abgecheckt kann gerne jemand nochmal prüfen aber hat bei mir geklappt
   //shareeaull with all dann alle boxen full
   //shareonly with member dann auch calculate my amount gleichzeitg
@@ -319,17 +321,21 @@ class _CreateDebtsState extends State<CreateDebts> {
                 totalAmountValue += double.parse(element2.text);
               }
             }
-            if (totalAmountValue > double.parse(totalAmount.text)) {
-              element.text = (double.parse(element.text) -
-                      (totalAmountValue - double.parse(totalAmount.text)))
-                  .toStringAsFixed(2);
-            }
+            setState(() {
+              if (totalAmountValue > double.parse(totalAmount.text)) {
+                if (!TotalAmountisInRange) {
+                  ErrorSnackbar.showErrorSnackbar(
+                      context, "The total amount is exceeded");
+                  TotalAmountisInRange = true;
+                }
+                TotalAmountisInRange = true;
+              } else {
+                TotalAmountisInRange = false;
+              }
+            });
             WidgetsBinding.instance.addPostFrameCallback((_) {
               calculateMyAmount();
             });
-          } else {
-            ErrorSnackbar.showErrorSnackbar(
-                context, "Please enter a valid Amount");
           }
         }
       });
@@ -376,8 +382,9 @@ class _CreateDebtsState extends State<CreateDebts> {
                   ),
                   Checkbox(
                       value: shareEquallyWithAllMembers,
-                      activeColor:
-                          widget.preview != null ? Colors.grey : Colors.purple,
+                      activeColor: widget.preview != null
+                          ? Colors.grey[300]
+                          : Colors.purple,
                       onChanged: (value) {
                         if (widget.preview == null) {
                           setState(() {
@@ -473,8 +480,9 @@ class _CreateDebtsState extends State<CreateDebts> {
                   ),
                   Checkbox(
                       value: shareEqually,
-                      activeColor:
-                          widget.preview != null ? Colors.grey : Colors.purple,
+                      activeColor: widget.preview != null
+                          ? Colors.grey[300]
+                          : Colors.purple,
                       onChanged: (value) {
                         if (widget.preview == null) {
                           setState(() {
@@ -501,8 +509,9 @@ class _CreateDebtsState extends State<CreateDebts> {
                   ),
                   Checkbox(
                       value: calculateMyAmountDifference,
-                      activeColor:
-                          widget.preview != null ? Colors.grey : Colors.purple,
+                      activeColor: widget.preview != null
+                          ? Colors.grey[300]
+                          : Colors.purple,
                       onChanged: (value) {
                         if (widget.preview == null) {
                           setState(() {

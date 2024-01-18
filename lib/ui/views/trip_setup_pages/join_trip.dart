@@ -52,7 +52,7 @@ class JoinTrip extends StatelessWidget {
                           margin: const EdgeInsets.only(bottom: 10),
                           onTap: () {
                             joinTrip();
-                            context.go("/");
+                            context.go("/changeTrip");
                           },
                           text: "Next"),
                       MyButton(

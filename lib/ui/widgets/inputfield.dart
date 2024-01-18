@@ -34,7 +34,7 @@ class InputField extends StatelessWidget {
     return Container(
       margin: margin,
       child: TextFormField(
-        readOnly: readOnly == false ? true : false,
+        readOnly: readOnly == true,
         controller: controller,
         obscureText: obscureText,
         autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -62,7 +62,7 @@ class InputField extends StatelessWidget {
                   : BorderSide(color: Colors.grey.shade400),
               borderRadius: BorderRadius.circular(11.0),
             ),
-            fillColor: Colors.white,
+            fillColor: readOnly == true ? Colors.grey[300] : Colors.white,
             filled: true,
             contentPadding:
                 const EdgeInsets.only(top: 16, bottom: 16, left: 14, right: 14),
