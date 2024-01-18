@@ -225,7 +225,7 @@ class _FinanzenState extends State<Finanzen> {
 
                       // Build the List
                       return Padding(
-                        padding: const EdgeInsets.only(bottom: 50),
+                        padding: const EdgeInsets.only(bottom: 80),
                         child: CustomScrollView(
                           slivers: [
                             SliverPadding(
