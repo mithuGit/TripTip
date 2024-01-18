@@ -341,6 +341,7 @@ class _CreateDebtsState extends State<CreateDebts> {
                   ),
                   Checkbox(
                       value: shareEquallyWithAllMembers,
+                      activeColor: widget.preview != null ?Colors.grey: Colors.purple,
                       onChanged: (value) {
                         if (widget.preview == null) {
                           setState(() {
@@ -349,6 +350,7 @@ class _CreateDebtsState extends State<CreateDebts> {
                               shareEquallyWithAllMembersFunction(false);
                               shareEqually = true;
                               calculateMyAmountDifference = true;
+                              
                             }
                           });
                         }
@@ -435,6 +437,8 @@ class _CreateDebtsState extends State<CreateDebts> {
                   ),
                   Checkbox(
                       value: shareEqually,
+                                            activeColor: widget.preview != null ?Colors.grey: Colors.purple,
+
                       onChanged: (value) {
                         if (widget.preview == null) {
                           setState(() {
@@ -461,6 +465,8 @@ class _CreateDebtsState extends State<CreateDebts> {
                   ),
                   Checkbox(
                       value: calculateMyAmountDifference,
+                                            activeColor: widget.preview != null ?Colors.grey: Colors.purple,
+
                       onChanged: (value) {
                         if (widget.preview == null) {
                           setState(() {
