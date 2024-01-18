@@ -1,4 +1,5 @@
 // ignore_for_file: file_names
+import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -152,6 +153,8 @@ class _CreateDebtsState extends State<CreateDebts> {
     getPreviewData();
   }
 
+  StreamController<double> myAmountStream = StreamController<double>();
+
   //calculate the amount of money for the current user
   void calculateMyAmount() {
     double totalAmountValue = double.parse(totalAmount.text);
@@ -213,6 +216,7 @@ class _CreateDebtsState extends State<CreateDebts> {
       }
       myAmount.text = diff.toStringAsFixed(2);
     }
+    calculateMyAmount();
   }
 
 // To calculate the amount for all member which the user selected   if checkbox the share equally
@@ -246,6 +250,8 @@ class _CreateDebtsState extends State<CreateDebts> {
           setState(() {
             optionList.removeAt(index);
             amountList.removeAt(index);
+            toMemberList.removeAt(index);
+            calculateMyAmount();
           });
         }
       },
@@ -299,6 +305,35 @@ class _CreateDebtsState extends State<CreateDebts> {
 
   @override
   Widget build(BuildContext context) {
+    double totalAmountValue = 0;
+    for (var element in amountList) {
+      element.addListener(() {
+        if (element.text.isNotEmpty) {
+          if (_isNumeric(element)) {
+            double elementValue = double.parse(element.text);
+            if (elementValue < 0) {
+              element.text = "0";
+            }
+            for (var element2 in amountList) {
+              if (element2.text.isNotEmpty) {
+                totalAmountValue += double.parse(element2.text);
+              }
+            }
+            if (totalAmountValue > double.parse(totalAmount.text)) {
+              element.text = (double.parse(element.text) -
+                      (totalAmountValue - double.parse(totalAmount.text)))
+                  .toStringAsFixed(2);
+            }
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              calculateMyAmount();
+            });
+          } else {
+            ErrorSnackbar.showErrorSnackbar(
+                context, "Please enter a valid Amount");
+          }
+        }
+      });
+    }
     return Column(
       children: [
         if (!newBottomSheet) ...[
@@ -407,6 +442,7 @@ class _CreateDebtsState extends State<CreateDebts> {
                                   optionList.add(memberName);
                                   toMemberList.add(memberNameUID);
                                   amountList.add(TextEditingController());
+                                  calculateMyAmount();
                                 })
                               }
                           }
