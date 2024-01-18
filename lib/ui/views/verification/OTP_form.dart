@@ -32,7 +32,7 @@ class _OTPFormState extends State<OTPForm> {
   }
 
   Future checkEmailVerified() async {
-    await FirebaseAuth.instance.currentUser!.reload();
+    await FirebaseAuth.instance.currentUser!.reload(); //TODO: Brauchen wir das?
 
     if (mounted) {
       setState(() {

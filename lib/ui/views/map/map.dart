@@ -246,9 +246,11 @@ class _MapPageState extends State<MapPage> {
                     );
                   },
                 ),
-                const Text(
-                  'Vacation',
-                  style: TextStyle(
+                Text(
+                  infoDistanceAndDuration != null
+                      ? 'Zoom to route'
+                      : 'Vacation',
+                  style: const TextStyle(
                       color: Colors.black, fontFamily: 'Ubuntu', fontSize: 12),
                 ),
               ],
