@@ -35,7 +35,7 @@ class _SetInterestsPageState extends State<SetInterestsPage> {
           {'interests': selectedInterests, 'uninterested': uninteresteds});
       if (context.mounted) {
         widget.isCreate == true
-            ? context.go('/createtrip')
+            ? context.push('/selecttrip')
             : context.go('/profile');
       }
     }
