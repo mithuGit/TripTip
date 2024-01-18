@@ -323,11 +323,11 @@ class _CreateDebtsState extends State<CreateDebts> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               SizedBox(
-                  width: 90,
+                  width: 130,
                   child: InputField(
                     readOnly: widget.preview == null,
                     controller: totalAmount,
-                    hintText: "The total amount",
+                    hintText: "Total Amount",
                     obscureText: false,
                     numberField: true,
                     focusedBorderColor: const Color.fromARGB(255, 84, 113, 255),
@@ -336,7 +336,7 @@ class _CreateDebtsState extends State<CreateDebts> {
               Row(
                 children: [
                   const Text(
-                    "Share Equally with all Members:",
+                    "Share Equally with \nall Members:",
                     style: Styles.inputField,
                   ),
                   Checkbox(
