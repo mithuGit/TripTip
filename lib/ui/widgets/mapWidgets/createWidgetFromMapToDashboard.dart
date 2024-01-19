@@ -5,11 +5,12 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:internet_praktikum/core/services/dashboardData.dart';
+import 'package:internet_praktikum/core/services/date_service.dart';
 import 'package:internet_praktikum/core/services/map_service.dart';
+import 'package:internet_praktikum/ui/styles/Styles.dart';
 import 'package:internet_praktikum/ui/widgets/dashboardWidgets/addAppointmentWidgetToDashboard.dart';
 import 'package:internet_praktikum/ui/widgets/dashboardWidgets/addNoteWidgetToDashboard.dart';
 import 'package:internet_praktikum/ui/widgets/dashboardWidgets/addSurveyWidgetToDashboard.dart';
-import 'package:internet_praktikum/ui/widgets/datepicker.dart';
 import 'package:internet_praktikum/ui/widgets/errorSnackbar.dart';
 import 'package:internet_praktikum/ui/widgets/modalButton.dart';
 import 'package:intl/intl.dart';
@@ -37,37 +38,7 @@ class _CreateWidgetFromMapToDashboardState
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-    getStartDate();
-  }
-
-  getStartDate() async {
-    final auth = FirebaseAuth.instance.currentUser;
-    if (auth == null) {
-      // Handle the case where the user is not authenticated
-      return Future.error('User not authenticated');
-    }
-    final DocumentSnapshot<Map<String, dynamic>> userDoc =
-        await FirebaseFirestore.instance
-            .collection('users')
-            .doc(auth.uid)
-            .get();
-
-    final String tripId = userDoc.data()!['selectedtrip'].toString();
-
-    final DocumentSnapshot<Map<String, dynamic>> documentSnapshot =
-        await FirebaseFirestore.instance.collection('trips').doc(tripId).get();
-    if (documentSnapshot.exists) {
-      final DateTime startDate = documentSnapshot.data()!['startdate'].toDate();
-      int day = startDate.day;
-      int month = startDate.month;
-      int year = startDate.year;
-      DateTime startresult = DateTime(year, month, day);
-      startDateRange = startresult;
-    } else {
-      ErrorSnackbar.showErrorSnackbar(context, "No trip found");
-    }
   }
 
   @override
@@ -76,24 +47,50 @@ class _CreateWidgetFromMapToDashboardState
       case 'init':
         return Column(
           children: [
-            //TODO hier weiter machen, irgendwie ist startDateRange null
-            CupertinoDatePickerButton(
-              boundingDate: startDateRange != null
-                  ? (DateTime.now().isAfter(startDateRange!)
-                      ? DateTime.now()
-                      : startDateRange)
-                  : DateTime.now().add(const Duration(days: 1)),
-              showFuture: true,
-              mode: CupertinoDatePickerMode.date,
-              onDateSelected: (date) {
-                setState(() {
-                  selectedDate = date.date;
-                });
-                getDayReference(date.date);
+            const Text(
+                'Select a date that is in the right time range of the trip',
+                style: Styles.headlineForDateInMapWidget),
+            const SizedBox(
+              height: 20,
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                await showCupertinoModalPopup<void>(
+                  context: context,
+                  builder: (BuildContext context) => FutureBuilder<Container>(
+                    future: buildContainerAsync(MediaQuery.of(context).size),
+                    builder: (BuildContext context,
+                        AsyncSnapshot<Container> snapshot) {
+                      if (snapshot.connectionState == ConnectionState.done) {
+                        if (snapshot.hasData) {
+                          return snapshot.data!;
+                        } else if (snapshot.hasError) {
+                          return Text('Error: ${snapshot.error}');
+                        }
+                      }
+                      return const CircularProgressIndicator();
+                    },
+                  ),
+                );
               },
-              presetDate: selectedDate != null
-                  ? DateFormat('dd.MM.yyyy').format(selectedDate!)
-                  : "Select date where you want to add a widget",
+              child: SizedBox(
+                width: MediaQuery.of(context).size.width * 0.4,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    const Icon(
+                      Icons.calendar_today,
+                      color: Colors.black,
+                    ),
+                    selectedDate != null
+                        ? Text(
+                            DateFormat('dd-MM-yyyy').format(selectedDate!),
+                            style: Styles.datepicker,
+                          )
+                        : const Text('Select Date'),
+                  ],
+                ),
+              ),
             ),
             const SizedBox(
               height: 20,
@@ -113,15 +110,10 @@ class _CreateWidgetFromMapToDashboardState
                                 show = 'note';
                               })
                             }
-                        : selectedDate == null
-                            ? () {
-                                ErrorSnackbar.showErrorSnackbar(
-                                    context, "Please select a date first");
-                              }
-                            : () {
-                                ErrorSnackbar.showErrorSnackbar(context,
-                                    "Select a date that is in the right time range of the trip");
-                              },
+                        : () {
+                            ErrorSnackbar.showErrorSnackbar(
+                                context, "Please select a date first");
+                          },
                     text: "Add Note"),
                 ModalButton(
                     icon: Icons.date_range,
@@ -131,15 +123,10 @@ class _CreateWidgetFromMapToDashboardState
                                 show = 'appointment';
                               })
                             }
-                        : selectedDate == null
-                            ? () {
-                                ErrorSnackbar.showErrorSnackbar(
-                                    context, "Please select a date first");
-                              }
-                            : () {
-                                ErrorSnackbar.showErrorSnackbar(context,
-                                    "Select a date that is in the right time range of the trip");
-                              },
+                        : () {
+                            ErrorSnackbar.showErrorSnackbar(
+                                context, "Please select a date first");
+                          },
                     text: "Add Appointment"),
                 ModalButton(
                     icon: Icons.poll,
@@ -149,15 +136,10 @@ class _CreateWidgetFromMapToDashboardState
                                 show = 'questionsurvey';
                               })
                             }
-                        : selectedDate == null
-                            ? () {
-                                ErrorSnackbar.showErrorSnackbar(
-                                    context, "Please select a date first");
-                              }
-                            : () {
-                                ErrorSnackbar.showErrorSnackbar(context,
-                                    "Select a date that is in the right time range of the trip");
-                              },
+                        : () {
+                            ErrorSnackbar.showErrorSnackbar(
+                                context, "Please select a date first");
+                          },
                     text: "Add Question Survery"),
                 ModalButton(
                     icon: Icons.poll,
@@ -167,15 +149,10 @@ class _CreateWidgetFromMapToDashboardState
                                 show = 'appointmentsurvey';
                               })
                             }
-                        : selectedDate == null
-                            ? () {
-                                ErrorSnackbar.showErrorSnackbar(
-                                    context, "Please select a date first");
-                              }
-                            : () {
-                                ErrorSnackbar.showErrorSnackbar(context,
-                                    "Select a date that is in the right time range of the trip");
-                              },
+                        : () {
+                            ErrorSnackbar.showErrorSnackbar(
+                                context, "Please select a date first");
+                          },
                     text: "Add Appointment Survery"),
               ],
             ),
@@ -236,5 +213,32 @@ class _CreateWidgetFromMapToDashboardState
     } else {
       ErrorSnackbar.showErrorSnackbar(context, "No user found for this trip");
     }
+  }
+
+  // Die Funktion, die den Container asynchron erstellt
+  Future<Container> buildContainerAsync(Size size) async {
+    return Container(
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(34.5),
+          topRight: Radius.circular(34.5),
+        ),
+      ),
+      height: size.height * 0.35,
+      child: CupertinoDatePicker(
+        minimumDate: (await DateService.getStartDate()).isAfter(DateTime.now())
+            ? await DateService.getStartDate()
+            : DateTime.now(),
+        maximumDate: await DateService.getEndDate(),
+        mode: CupertinoDatePickerMode.date,
+        onDateTimeChanged: (value) {
+          setState(() {
+            selectedDate = value;
+            getDayReference(value);
+          });
+        },
+      ),
+    );
   }
 }

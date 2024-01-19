@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:internet_praktikum/core/services/date_service.dart';
 import 'package:intl/intl.dart';
 
 class Calendar extends StatefulWidget {
@@ -9,60 +9,6 @@ class Calendar extends StatefulWidget {
 
   @override
   State<Calendar> createState() => _CalendarState();
-}
-
-Future<String> getSelectedTripId() async {
-  final auth = FirebaseAuth.instance.currentUser;
-  if (auth == null) {
-    // Handle the case where the user is not authenticated
-    return Future.error('User not authenticated');
-  }
-  final DocumentSnapshot<Map<String, dynamic>> userDoc =
-      await FirebaseFirestore.instance.collection('users').doc(auth.uid).get();
-
-  final String tripId = userDoc.data()!['selectedtrip'].toString();
-
-  return tripId;
-}
-
-Future<DateTime> getStartDate() async {
-  final String selectedTripDoc = await getSelectedTripId();
-  final DocumentSnapshot<Map<String, dynamic>> documentSnapshot =
-      await FirebaseFirestore.instance
-          .collection('trips')
-          .doc(selectedTripDoc)
-          .get();
-  if (documentSnapshot.exists) {
-    final DateTime startDate = documentSnapshot.data()!['startdate'].toDate();
-    int day = startDate.day;
-    int month = startDate.month;
-    int year = startDate.year;
-    DateTime result = DateTime(year, month,
-        day); // Testen ob hier manchmal ein Fehler auftriit und bei day + 1 muss
-    return result;
-  } else {
-    throw Exception('No trips selected'); //TODO: Error handling
-  }
-}
-
-Future<DateTime> getEndtDate() async {
-  final String selectedTripDoc = await getSelectedTripId();
-  final DocumentSnapshot<Map<String, dynamic>> documentSnapshot =
-      await FirebaseFirestore.instance
-          .collection('trips')
-          .doc(selectedTripDoc)
-          .get();
-  if (documentSnapshot.exists) {
-    final DateTime endDate = documentSnapshot.data()!['enddate'].toDate();
-    int day = endDate.day;
-    int month = endDate.month;
-    int year = endDate.year;
-    DateTime result = DateTime(year, month,
-        day); // Testen ob hier manchmal ein Fehler auftriit und bei day + 1 muss
-    return result;
-  } else {
-    throw Exception('No trips selected');
-  }
 }
 
 class _CalendarState extends State<Calendar> {
@@ -85,7 +31,7 @@ class _CalendarState extends State<Calendar> {
   }
 
   void fetchDate() async {
-    DateTime startDate = await getStartDate();
+    DateTime startDate = await DateService.getStartDate();
     if (DateTime.now().isBefore(startDate)) {
       // Hole Startdatum aus Firebase und initialisiere selectedDate, firstDate und lastDate
       setState(() {
@@ -105,8 +51,8 @@ class _CalendarState extends State<Calendar> {
   }
 
   Future<void> _showDateRangePicker() async {
-    DateTime start = await getStartDate();
-    DateTime end = await getEndtDate();
+    DateTime start = await DateService.getStartDate();
+    DateTime end = await DateService.getEndDate();
     if (context.mounted) {
       DateTimeRange? pickedRange = await showDateRangePicker(
         context: context,
@@ -136,7 +82,7 @@ class _CalendarState extends State<Calendar> {
 
   void _setNewDateRange(DateTime? newStart, DateTime? newEnd) async {
     if (newStart != null && newEnd != null) {
-      final String selectedTripDoc = await getSelectedTripId();
+      final String selectedTripDoc = await DateService.getSelectedTripId();
       final DocumentReference<Map<String, dynamic>> documentReference =
           FirebaseFirestore.instance.collection('trips').doc(selectedTripDoc);
       try {
@@ -160,7 +106,7 @@ class _CalendarState extends State<Calendar> {
   }
 
   void _goToLatestDate() async {
-    DateTime startTrip = await getStartDate();
+    DateTime startTrip = await DateService.getStartDate();
     setState(() {
       if (selectedDate!.isBefore(startTrip)) {
         selectedDate = startTrip;
