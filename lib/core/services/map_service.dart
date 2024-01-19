@@ -51,7 +51,7 @@ class Place {
           widthPx: photo["heightPx"],
         );
       }).toList();
-  PlacePhoto get firstImage => photosElements.first;
+  PlacePhoto get firstImage => photosElements.first; //TODO: check if first Photo is null => was soll dann passieren?
   Place(
       {required this.name,
       required this.types,
@@ -181,7 +181,7 @@ class GoogleMapService {
     } else {
       places = json1["places"];
     }
-
+    //TODO: bitte hier nochmal abchecken und in map die Fehler abfangen bitte
     for (var place in places) {
       placeList.add(Place(
         name: place["displayName"]["text"],
@@ -189,14 +189,14 @@ class GoogleMapService {
         location: LatLng(
             place["location"]["latitude"], place["location"]["longitude"]),
         placeId: place["id"],
-        photos: place["photos"],
+        photos: place["photos"] ?? [],
         formattedAddress: place["formattedAddress"] ?? "Non given",
         internationalPhoneNumber:
             place["internationalPhoneNumber"] ?? "Non given",
         buisnessStatus: place["businessStatus"],
         rating: place["rating"] * 1.0,
         primaryType: place["primaryType"] ?? "",
-        reviews: place["reviews"],
+        reviews: place["reviews"] ?? [],
       ));
     }
     return placeList;

@@ -29,7 +29,6 @@ class MapPage extends StatefulWidget {
 
 class _MapPageState extends State<MapPage> {
   final Completer<GoogleMapController> _googleMapController = Completer();
-  //TODO: Wenn schon CurrentLocationData existiert und man auf Directions Button oben links drückt, dann bewegt sich nur die Camera an den Marker
 
   Marker? origin;
   Marker? destination;
@@ -701,7 +700,7 @@ class _MapPageState extends State<MapPage> {
         Padding(
           padding: const EdgeInsets.all(12.0),
           child: Text(
-            review['text']['text'] ?? '',
+            review['text'] != null ? review['text']['text'] ?? '' : '',
             style: Styles.reviewtext,
           ),
         ),
@@ -724,7 +723,8 @@ class _MapPageState extends State<MapPage> {
         ),
       );
     } else {
-      var tempDisplayIndex = photoGalleryIndex + 1;
+      var tempDisplayIndex = photoGalleryIndex +
+          1; // TODO: photoGalleryIndex ist größer als die Length von photoElement.length von der rechten sowie linken FlipCards
 
       return Column(
         children: [
