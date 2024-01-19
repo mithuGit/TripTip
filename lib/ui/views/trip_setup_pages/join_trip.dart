@@ -46,7 +46,7 @@ class JoinTrip extends StatelessWidget {
                       InputField(
                           margin: const EdgeInsets.only(top: 15, bottom: 10),
                           controller: groupController,
-                          hintText: "Trip Code",
+                          hintText: "User ID",
                           obscureText: false),
                       MyButton(
                           margin: const EdgeInsets.only(bottom: 10),

@@ -39,7 +39,8 @@ class _ChangeTrip extends State<ChangeTrip> {
   }
 
   bool isAdmin(Map<String, dynamic> trip) {
-    return trip["createdBy"] == FirebaseFirestore.instance.doc("/users/${user.uid}");
+    return trip["createdBy"] ==
+        FirebaseFirestore.instance.doc("/users/${user.uid}");
   }
 
   Widget createTripName(Map<String, dynamic> trip) {
@@ -150,7 +151,7 @@ class _ChangeTrip extends State<ChangeTrip> {
             },
             icon: const Icon(Icons.arrow_back_ios),
           ),
-          title: const Text("Change Trip"),
+          title: const Text("Select a Trip"),
           titleTextStyle: const TextStyle(color: Colors.black, fontSize: 20),
           actions: [
             IconButton(
@@ -180,7 +181,9 @@ class _ChangeTrip extends State<ChangeTrip> {
                                       var members = con["members"] as List;
                                       members.remove(FirebaseFirestore.instance
                                           .doc("/users/" + user.uid));
-                                      if (con["createdBy"] == FirebaseFirestore.instance.doc("/users/${user.uid}")) {
+                                      if (con["createdBy"] ==
+                                          FirebaseFirestore.instance
+                                              .doc("/users/${user.uid}")) {
                                         db
                                             .collection("trips")
                                             .doc(con.id)

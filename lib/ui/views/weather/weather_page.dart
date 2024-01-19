@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:internet_praktikum/core/services/weather_service.dart';
 import 'package:internet_praktikum/ui/views/weather/weather.dart';
+import 'package:internet_praktikum/ui/widgets/errorSnackbar.dart';
 import 'package:internet_praktikum/ui/widgets/my_button.dart';
 
 import 'package:lottie/lottie.dart';
@@ -22,9 +23,8 @@ class WeatherPage extends StatefulWidget {
 }
 
 class _WeatherPageState extends State<WeatherPage> {
-  //TODO Maybe getCity in WeatherService löschen
-
   bool isDarkMode = false;
+  bool isLoading = false;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -113,15 +113,29 @@ class _WeatherPageState extends State<WeatherPage> {
                   ),
                   colors: isDarkMode ? Colors.black : Colors.white,
                   onTap: () async {
-                    //TODO: fehnler abfangen hier
-                    final weather = await widget._weatherHandler
-                        .fetchWeatherForCurrentCity();
+                    // Show the CircularProgressIndicator
                     setState(() {
-                      widget.actualWeather = weather;
+                      isLoading = true;
                     });
+                    try {
+                      final weather = await widget._weatherHandler
+                          .fetchWeatherForCurrentCity();
+                      setState(() {
+                        widget.actualWeather = weather;
+                      });
+                    } catch (e) {
+                      // ignore: use_build_context_synchronously
+                      ErrorSnackbar.showErrorSnackbar(context, e.toString());
+                    } finally {
+                      setState(() {
+                        isLoading = false;
+                      });
+                    }
                   },
                   text: "Get Weather for your Actual Location"),
             ),
+            const SizedBox(height: 40),
+            if (isLoading) const CircularProgressIndicator(),
           ],
         ),
       ),

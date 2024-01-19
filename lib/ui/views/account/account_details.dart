@@ -220,13 +220,14 @@ class _AccountState extends State<Account> {
                           controller: lastnameController,
                           hintText: 'Last Name',
                           obscureText: false,
-                          margin: const EdgeInsets.only(bottom: 12.5),
+                          margin: const EdgeInsets.only(bottom: 10),
                         ),
+                        const SizedBox(height: 10),
                         const SizedBox(
                           width: 148,
                           height: 18,
                           child: Text(
-                            'Date of Birth',
+                            'Date of Birth:',
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 12,
@@ -236,7 +237,7 @@ class _AccountState extends State<Account> {
                             ),
                           ),
                         ),
-                        const SizedBox(height: 12.5),
+                        const SizedBox(height: 10),
                         CupertinoDatePickerButton(
                           presetDate: selectedDate,
                           margin: const EdgeInsets.only(bottom: 25),
@@ -260,8 +261,23 @@ class _AccountState extends State<Account> {
                           }),
                           hintText: "Email",
                           obscureText: false,
-                          margin: const EdgeInsets.only(bottom: 25),
                         ),
+                        const SizedBox(height: 20),
+                        const SizedBox(
+                          width: 148,
+                          height: 18,
+                          child: Text(
+                            'User ID:',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                              fontFamily: 'Ubuntu',
+                              fontWeight: FontWeight.w500,
+                              height: 0,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 10),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
