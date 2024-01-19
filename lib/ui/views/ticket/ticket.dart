@@ -104,37 +104,40 @@ class _TicketState extends State<Ticket> {
                             text:
                                 "No Tickets found, press the + button to add one");
                       }
-                      return ListView(
-                        children: snapshot.data!.docs
-                            .map((DocumentSnapshot document) {
-                          return Slidable(
-                            key: Key(document.id),
-                            endActionPane: ActionPane(
-                              motion: const ScrollMotion(),
-                              children: [
-                                SlidableAction(
-                                  onPressed: (sdf) async {
-                                    Map<String, dynamic> data = (document.data()
-                                        as Map<String, dynamic>);
-                                    if (data["url"] != null) {
-                                      Reference doc = FirebaseStorage.instance
-                                          .ref(data["url"]);
-                                      await doc.delete();
-                                    }
-                                    document.reference.delete();
-                                  },
-                                  backgroundColor: Colors.transparent,
-                                  foregroundColor: Colors.red,
-                                  icon: Icons.delete,
-                                  label: 'Delete Ticket',
-                                )
-                              ],
-                            ),
-                            child: TicketContainer(
-                              ticket: document,
-                            ),
-                          );
-                        }).toList(),
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 20),
+                        child: ListView(
+                          children: snapshot.data!.docs
+                              .map((DocumentSnapshot document) {
+                            return Slidable(
+                              key: Key(document.id),
+                              endActionPane: ActionPane(
+                                motion: const ScrollMotion(),
+                                children: [
+                                  SlidableAction(
+                                    onPressed: (sdf) async {
+                                      Map<String, dynamic> data = (document.data()
+                                          as Map<String, dynamic>);
+                                      if (data["url"] != null) {
+                                        Reference doc = FirebaseStorage.instance
+                                            .ref(data["url"]);
+                                        await doc.delete();
+                                      }
+                                      document.reference.delete();
+                                    },
+                                    backgroundColor: Colors.transparent,
+                                    foregroundColor: Colors.red,
+                                    icon: Icons.delete,
+                                    label: 'Delete Ticket',
+                                  )
+                                ],
+                              ),
+                              child: TicketContainer(
+                                ticket: document,
+                              ),
+                            );
+                          }).toList(),
+                        ),
                       );
                     });
               },

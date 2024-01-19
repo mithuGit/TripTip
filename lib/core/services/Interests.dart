@@ -77,7 +77,7 @@ class Interests {
       "hair_salon",
       "laundry",
       "storage",
-      "telecommunication_service_provider",
+      "telecommunications_service_provider",
       "travel_agency",
       "accounting",
       "atm",

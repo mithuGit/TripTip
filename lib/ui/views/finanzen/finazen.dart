@@ -1,5 +1,7 @@
 // ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 
+import 'dart:ui';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -250,21 +252,23 @@ class _FinanzenState extends State<Finanzen> {
                                     user: currentUser!.reference,
                                   ),
                                 )),
-                            SliverList(
-                              delegate: SliverChildBuilderDelegate(
-                                  (context, index) => Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: ExpansionTile(
-                                          initiallyExpanded: true,
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(0),
-                                          ),
-                                          title: Text("Your Requests"),
-                                          children: yourRequests,
-                                        ),
-                                      ),
-                                  childCount: 1),
+                            SliverPadding(
+                              padding: const EdgeInsets.all(8.0),
+                              sliver: SliverToBoxAdapter(
+                                child: ImageFiltered(
+                                  imageFilter: ImageFilter.blur(
+                                      sigmaX: 0.5, sigmaY: 0.5),
+                                  child: ExpansionTile(
+                                    initiallyExpanded: true,
+                                    
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(0),
+                                    ),
+                                    title: Text("Your Requests"),
+                                    children: yourRequests,
+                                  ),
+                                ),
+                              ),
                             ),
                             SliverPadding(
                               padding: const EdgeInsets.all(8.0),

@@ -549,17 +549,13 @@ class _MapPageState extends State<MapPage> {
                                           final interests = userCollection
                                               .data()!['interests'];
 
-                                          final notInterests = userCollection
-                                              .data()!['uninterested'];
-
                                           List<Place> places =
                                               await GoogleMapService()
                                                   .getPlacesNew(
-                                                      tappedPointInCircle,
-                                                      radiusValue.toInt(),
-                                                      interests.cast<String>(),
-                                                      notInterests
-                                                          .cast<String>());
+                                            tappedPointInCircle,
+                                            radiusValue.toInt(),
+                                            interests.cast<String>(),
+                                          );
 
                                           if (places.isEmpty) {
                                             pressToGetRecommend = false;

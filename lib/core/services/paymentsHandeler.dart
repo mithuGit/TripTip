@@ -49,15 +49,16 @@ class PaymentsHandeler {
           "customer": _stripeId,
         },
       );
-      final _response = result.data;
-      print(_response);
-      cachedPaymentIntend = _response["paymentIntentId"];
+      if(result.data["success"] == false){
+        throw result.data["error"];
+      }
+      cachedPaymentIntend = result.data["paymentIntentId"];
       await Stripe.instance.initPaymentSheet(
           paymentSheetParameters: SetupPaymentSheetParameters(
-        paymentIntentClientSecret: _response["paymentIntent"],
+        paymentIntentClientSecret: result.data["paymentIntent"],
         merchantDisplayName: 'TipTrip',
         customerId: _stripeId,
-        customerEphemeralKeySecret: _response["ephemeralKey"],
+        customerEphemeralKeySecret: result.data["ephemeralKey"],
         style: ThemeMode.dark,
       ));
       // Start Payment
@@ -88,7 +89,7 @@ class PaymentsHandeler {
         }
       }
     } catch (error) {
-      throw "Error creating refund";
+      throw "Error creating refund: ${error.toString()}";
     }
   }
 
