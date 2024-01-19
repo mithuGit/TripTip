@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:internet_praktikum/core/services/paymentsHandeler.dart';
 import 'package:internet_praktikum/ui/widgets/bottom_sheet.dart';
+import 'package:internet_praktikum/ui/widgets/errorSnackbar.dart';
 import 'package:internet_praktikum/ui/widgets/finanzenWidgets/collectPayoutInformation.dart';
 import 'package:internet_praktikum/ui/widgets/my_button.dart';
 
@@ -17,8 +18,14 @@ class Wallet extends StatefulWidget {
 class _WalletState extends State<Wallet> {
   bool loading = false;
   PaymentsHandeler paymentsHandeler = PaymentsHandeler();
-  Future<void> recharge(DocumentSnapshot user) async {
+  Future<void> recharge(DocumentSnapshot user, BuildContext context) async {
+    try {
     await paymentsHandeler.refund(user);
+    } catch (e) {
+      if(mounted) {
+        ErrorSnackbar.showErrorSnackbar(context, e.toString());
+      } 
+    }
   }
 
   Future<void> bookToBankAccount(
@@ -28,7 +35,7 @@ class _WalletState extends State<Wallet> {
     } on NoPayOutinformation {
       if (mounted) {
         CustomBottomSheet.show(context,
-            title: "We need your Bankinformation:",
+            title: "Fill in your Back-Account",
             content: [CollectPayoutInformation(user: user)]);
       }
     }
@@ -51,7 +58,7 @@ class _WalletState extends State<Wallet> {
             }
             if (snapshot.hasError) {
               return const Center(
-                child: Text("Error"),
+                child: Text("Error while collecting Wallet Data"),
               );
             }
             double balance = 0.0;
@@ -104,7 +111,7 @@ class _WalletState extends State<Wallet> {
                           setState(() {
                             loading = true;
                           });
-                          await recharge(snapshot.data!);
+                          await recharge(snapshot.data!, context);
                           setState(() {
                             loading = false;
                           });

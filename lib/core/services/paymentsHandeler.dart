@@ -88,7 +88,9 @@ class PaymentsHandeler {
           }
         }
       }
-    } catch (error) {}
+    } catch (error) {
+      throw "Error creating refund";
+    }
   }
 
   Future<void> bookToBankAccount(DocumentSnapshot myAccount) async {
