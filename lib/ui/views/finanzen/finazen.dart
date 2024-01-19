@@ -62,11 +62,16 @@ class _FinanzenState extends State<Finanzen> {
       ),
       body: Stack(
         children: [
-          Container(
-            decoration: const BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage('assets/background_city_persona.png'),
-                fit: BoxFit.cover, // Maintain width, adjust height
+          ClipRect(
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+              child: Container(
+                decoration: const BoxDecoration(
+                  image: DecorationImage(
+                    image: AssetImage('assets/background_city_persona.png'),
+                    fit: BoxFit.cover, // Maintain width, adjust height
+                  ),
+                ),
               ),
             ),
           ),
@@ -255,18 +260,14 @@ class _FinanzenState extends State<Finanzen> {
                             SliverPadding(
                               padding: const EdgeInsets.all(8.0),
                               sliver: SliverToBoxAdapter(
-                                child: ImageFiltered(
-                                  imageFilter: ImageFilter.blur(
-                                      sigmaX: 0.5, sigmaY: 0.5),
-                                  child: ExpansionTile(
-                                    initiallyExpanded: true,
-                                    
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(0),
-                                    ),
-                                    title: Text("Your Requests"),
-                                    children: yourRequests,
+                                child: ExpansionTile(
+                                  initiallyExpanded: true,
+                                  
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(0),
                                   ),
+                                  title: Text("Your Requests"),
+                                  children: yourRequests,
                                 ),
                               ),
                             ),
