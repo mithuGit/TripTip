@@ -76,7 +76,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
               ),
               child: Column(
-                children: <Widget>[
+                children: [
                   GestureDetector(
                     onTap: () async {
                       // Pick image from gallery
