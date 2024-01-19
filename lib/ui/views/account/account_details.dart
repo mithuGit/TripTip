@@ -42,21 +42,24 @@ class _AccountState extends State<Account> {
   ImageProvider<Object>? imageProvider;
 
   String imageURL = '';
+  String newImageURL = '';
   bool uploading = false;
 
   //set and updates Userdata in the FirebaseCollestion users
-  Future<void> updateUserData(
-      String prename, String lastname, String dateOfBirth, String image) async {
+  Future<void> updateUserData() async {
     try {
+      if(newImageURL != ''){
+        imageURL = newImageURL;
+      }
       await userCollection.doc(currentUser.uid).update({
         //Updates data in FireStore
-        'prename': prename,
-        'lastname': lastname,
-        'dateOfBirth': dateOfBirth,
-        'profilePicture': image,
+        'prename': prenameController.text,
+        'lastname': lastnameController.text,
+        'dateOfBirth': dateOfBirthController.text,
+        'profilePicture': imageURL,
       });
       await currentUser.updateDisplayName(
-          "$prename $lastname"); //Updates displayName in Auth
+          "$prenameController.text $lastnameController.text"); //Updates displayName in Auth
     } on Exception catch (e) {
       if (kDebugMode) {
         print("Something went wrong while fetching your data $e");
@@ -158,9 +161,11 @@ class _AccountState extends State<Account> {
                                       if (pickedFile != null) {
                                         await referenceImageToUpload
                                             .putFile(File(pickedFile.path));
+                                        setState(() {
+                                          newImageURL =
+                                              referenceImageToUpload.fullPath;
+                                        });
                                       }
-                                      imageURL =
-                                          referenceImageToUpload.fullPath;
                                     } catch (e) {
                                       if (kDebugMode) {
                                         print(
@@ -297,11 +302,7 @@ class _AccountState extends State<Account> {
                                 //store information of item in cloud firestore
 
                                 //currentUser.updatePhotoURL(imageURL);
-                                await updateUserData(
-                                    prenameController.value.text,
-                                    lastnameController.value.text,
-                                    selectedDate,
-                                    imageURL);
+                                await updateUserData();
 
                                 if (context.mounted) {
                                   widget.isEditProfile == true
