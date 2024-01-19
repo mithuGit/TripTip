@@ -7,7 +7,6 @@ import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert' as convert;
-import 'package:location/location.dart';
 
 class PlacePhoto {
   final String name;
@@ -52,7 +51,7 @@ class Place {
           widthPx: photo["heightPx"],
         );
       }).toList();
-  PlacePhoto get firstImage => photosElements.first;
+  PlacePhoto get firstImage => photosElements.first; //TODO: check if first Photo is null => was soll dann passieren?
   Place(
       {required this.name,
       required this.types,
@@ -182,7 +181,7 @@ class GoogleMapService {
     } else {
       places = json1["places"];
     }
-
+    //TODO: bitte hier nochmal abchecken und in map die Fehler abfangen bitte
     for (var place in places) {
       placeList.add(Place(
         name: place["displayName"]["text"],
@@ -190,14 +189,14 @@ class GoogleMapService {
         location: LatLng(
             place["location"]["latitude"], place["location"]["longitude"]),
         placeId: place["id"],
-        photos: place["photos"],
+        photos: place["photos"] ?? [],
         formattedAddress: place["formattedAddress"] ?? "Non given",
         internationalPhoneNumber:
             place["internationalPhoneNumber"] ?? "Non given",
         buisnessStatus: place["businessStatus"],
         rating: place["rating"] * 1.0,
         primaryType: place["primaryType"] ?? "",
-        reviews: place["reviews"],
+        reviews: place["reviews"] ?? [],
       ));
     }
     return placeList;
@@ -237,62 +236,6 @@ class GoogleMapService {
     LatLng latLng = LatLng(double.parse(lat), double.parse(long));
     // print( "latLng: " + latLng.toString());
     return latLng;
-  }
-
-  Future<Marker> getCurrentLocation(
-      Completer<GoogleMapController> _googleMapController) async {
-    bool serviceEnabled;
-    PermissionStatus permissionGranted;
-
-    serviceEnabled = await Location().serviceEnabled();
-    if (!serviceEnabled) {
-      serviceEnabled = await Location().requestService();
-      if (!serviceEnabled) {
-        return const Marker(
-            markerId: MarkerId('myLocation'),
-            infoWindow: InfoWindow(
-              title: 'My Current Location',
-            ),
-            position: LatLng(0, 0));
-      }
-    }
-
-    permissionGranted = await Location().hasPermission();
-    if (permissionGranted == PermissionStatus.denied) {
-      permissionGranted = await Location().requestPermission();
-      if (permissionGranted != PermissionStatus.granted) {
-        return const Marker(
-            markerId: MarkerId('myLocation'),
-            infoWindow: InfoWindow(
-              title: 'My Current Location',
-            ),
-            position: LatLng(0, 0));
-      }
-    }
-
-    LocationData currentPosition = await Location().getLocation();
-    var latitude = currentPosition.latitude!;
-    var longitude = currentPosition.longitude!;
-
-    final Uint8List markerIcon = await getBytesFromAsset(
-        'assets/my_location.png',
-        100); //TODO: ICON auf Blau machen, also die PNG Datei ändern
-
-    var currentLocation = Marker(
-        markerId: const MarkerId('myLocation'),
-        infoWindow: const InfoWindow(
-          title: 'My Current Location',
-        ),
-        position: LatLng(latitude, longitude),
-        icon: BitmapDescriptor.fromBytes(markerIcon));
-
-    var controller = await _googleMapController.future;
-    controller.animateCamera(
-      CameraUpdate.newCameraPosition(
-        CameraPosition(target: LatLng(latitude, longitude), zoom: 15),
-      ),
-    );
-    return currentLocation;
   }
 
   Future<Uint8List> getBytesFromAsset(String path, int width) async {

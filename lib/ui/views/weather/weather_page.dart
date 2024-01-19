@@ -1,55 +1,53 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:internet_praktikum/ui/views/weather/weather.dart';
 import 'package:internet_praktikum/core/services/weather_service.dart';
+import 'package:internet_praktikum/ui/views/weather/weather.dart';
+import 'package:internet_praktikum/ui/widgets/my_button.dart';
 
 import 'package:lottie/lottie.dart';
 
+// ignore: must_be_immutable
 class WeatherPage extends StatefulWidget {
-  const WeatherPage({super.key});
+  Weather actualWeather;
+  final WeatherService _weatherHandler =
+      WeatherService("5a9d3eda46bcddc1662d351abc13c798");
+
+  WeatherPage({
+    super.key,
+    required this.actualWeather,
+  });
 
   @override
   State<WeatherPage> createState() => _WeatherPageState();
 }
 
 class _WeatherPageState extends State<WeatherPage> {
-  // api key for openweathermap
-  final _weatherHandler = WeatherService("5a9d3eda46bcddc1662d351abc13c798");
-  Weather? actualWeather;
+  //TODO Maybe getCity in WeatherService löschen
 
-  Future<void> fetchWeather() async {
-    // is not the same as in weather_info.dart
-    final weather = await _weatherHandler.fetchWeather();
-    setState(() {
-      actualWeather = weather;
-    });
-  }
-
-  // init state
-  @override
-  void initState() {
-    super.initState();
-    // fetch the weather on startup
-    fetchWeather();
-  }
-
+  bool isDarkMode = false;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: isDarkMode ? Colors.black : Colors.white,
       appBar: AppBar(
           leading: IconButton(
-            icon: const Icon(Icons.arrow_back, color: Colors.white, size: 30),
+            icon: Icon(Icons.arrow_back,
+                color: isDarkMode ? Colors.white : Colors.black, size: 30),
             onPressed: () {
-              context.goNamed('home');
+              Future.delayed(const Duration(milliseconds: 300), () {
+                context.go('/');
+              });
             },
           ),
-          backgroundColor: Colors.black,
+          backgroundColor: isDarkMode ? Colors.black : Colors.white,
           actions: [
             IconButton(
-              icon: const Icon(Icons.refresh, color: Colors.white, size: 30),
+              icon: Icon(isDarkMode ? Icons.dark_mode : Icons.light_mode,
+                  color: isDarkMode ? Colors.white : Colors.black, size: 30),
               onPressed: () {
-                fetchWeather();
+                setState(() {
+                  isDarkMode = !isDarkMode;
+                });
               },
             ),
           ]),
@@ -58,20 +56,72 @@ class _WeatherPageState extends State<WeatherPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             // city name
-            Text(actualWeather?.cityName ?? "Loading city...",
-                style: const TextStyle(fontSize: 30, color: Colors.white)),
+            Text(widget.actualWeather.cityName,
+                style: TextStyle(
+                    fontSize: 30,
+                    color: isDarkMode ? Colors.white : Colors.black)),
 
             Lottie.asset(
-              WeatherService.getWeatherAnimation(actualWeather?.mainCondition),
+              WeatherService.getWeatherAnimation(
+                  widget.actualWeather.mainCondition),
             ),
 
             // temperature
-            Text('${actualWeather?.temperature.round()}°C',
-                style: const TextStyle(fontSize: 30, color: Colors.white)),
+            Text('${widget.actualWeather.temperature.round()}°C',
+                style: TextStyle(
+                    fontSize: 30,
+                    color: isDarkMode ? Colors.white : Colors.black)),
 
             // weather condition
-            Text(actualWeather?.mainCondition ?? "Loading weather...",
-                style: const TextStyle(fontSize: 30, color: Colors.white)),
+            Text(widget.actualWeather.mainCondition,
+                style: TextStyle(
+                    fontSize: 30,
+                    color: isDarkMode ? Colors.white : Colors.black)),
+
+            const SizedBox(height: 20),
+
+            Padding(
+              padding: const EdgeInsets.only(left: 40.0, right: 40.0, top: 20),
+              child: MyButton(
+                  borderColor: isDarkMode ? Colors.white : Colors.black,
+                  textStyle: TextStyle(
+                    color: isDarkMode ? Colors.white : Colors.black,
+                    fontSize: 14,
+                    fontFamily: 'Ubuntu',
+                    fontWeight: FontWeight.w500,
+                  ),
+                  colors: isDarkMode ? Colors.black : Colors.white,
+                  onTap: () async {
+                    final weather = await widget._weatherHandler.fetchWeather();
+                    setState(() {
+                      widget.actualWeather = weather!;
+                    });
+                  },
+                  text: "Get Weather for your Trip Location"),
+            ),
+
+            const SizedBox(height: 20),
+            Padding(
+              padding: const EdgeInsets.only(left: 40.0, right: 40.0, top: 20),
+              child: MyButton(
+                  borderColor: isDarkMode ? Colors.white : Colors.black,
+                  textStyle: TextStyle(
+                    color: isDarkMode ? Colors.white : Colors.black,
+                    fontSize: 14,
+                    fontFamily: 'Ubuntu',
+                    fontWeight: FontWeight.w500,
+                  ),
+                  colors: isDarkMode ? Colors.black : Colors.white,
+                  onTap: () async {
+                    //TODO: fehnler abfangen hier
+                    final weather = await widget._weatherHandler
+                        .fetchWeatherForCurrentCity();
+                    setState(() {
+                      widget.actualWeather = weather;
+                    });
+                  },
+                  text: "Get Weather for your Actual Location"),
+            ),
           ],
         ),
       ),

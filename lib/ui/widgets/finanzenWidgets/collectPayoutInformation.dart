@@ -1,12 +1,15 @@
+// ignore_for_file: file_names
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:internet_praktikum/ui/styles/Styles.dart';
+import 'package:internet_praktikum/ui/widgets/errorSnackbar.dart';
 import 'package:internet_praktikum/ui/widgets/inputfield.dart';
 import 'package:internet_praktikum/ui/widgets/my_button.dart';
 
 /*
  This Class is used to collect the payout information from the user
 */
+// ignore: non_constant_identifier_names
 Map<String, int> CODE_LENGTHS = {
   'AD': 24,
   'AE': 23,
@@ -128,14 +131,24 @@ class CollectPayoutInformationState extends State<CollectPayoutInformation> {
     super.initState();
     Map<String, dynamic> data = widget.user.data() as Map<String, dynamic>;
     if (data["payoutInformation"] != null) {
-      if(data["payoutInformation"]["iban"] != null) ibanController.text = data["payoutInformation"]["iban"];
-      if(data["payoutInformation"]["bic"] != null) bicController.text = data["payoutInformation"]["bic"];
-      if(data["payoutInformation"]["accountHolderName"] != null)nameController.text = data["payoutInformation"]["accountHolderName"];
+      if (data["payoutInformation"]["iban"] != null) {
+        ibanController.text = data["payoutInformation"]["iban"];
+      }
+      if (data["payoutInformation"]["bic"] != null) {
+        bicController.text = data["payoutInformation"]["bic"];
+      }
+      if (data["payoutInformation"]["accountHolderName"] != null) {
+        nameController.text = data["payoutInformation"]["accountHolderName"];
+      }
     }
   }
+
   Future<void> savePayoutInformation() async {
-    if (ibanController.text.isEmpty || bicController.text.isEmpty || nameController.text.isEmpty) {
-      throw Exception("Please enter all fields");
+    if (ibanController.text.isEmpty ||
+        bicController.text.isEmpty ||
+        nameController.text.isEmpty) {
+      ErrorSnackbar.showErrorSnackbar(context, "Please enter all fields");
+      return;
     }
 
     await widget.user.reference.update({

@@ -35,27 +35,27 @@ class _TicketState extends State<Ticket> {
         title: "Tickets",
         icon: Icons.add,
         onTapForIconWidget: () {
-          CustomBottomSheet.show(context,
-              title: "Upload a Ticket",
-              content: [
-                FutureBuilder(
-                    future: getSelectedtrip(),
-                    builder: (context, selectedTrip) {
-                      if (selectedTrip.connectionState ==
-                          ConnectionState.waiting) {
-                        return const Center(
-                            child: CircularProgressIndicator());
-                      }
-                      if (selectedTrip.hasError) {
-                        return const Center(
-                            child: Text("Error while fetching Selectedtrip"));
-                      }
-                      DocumentReference trip = firestore
-                          .collection("trips")
-                          .doc(selectedTrip.data as String);
-                      return CreateTicketsWidget(selectedTrip: trip);
-                    })
-              ]);
+          CustomBottomSheet.show(context, title: "Upload a Ticket", content: [
+            FutureBuilder(
+                future: getSelectedtrip(),
+                builder: (context, selectedTrip) {
+                  if (selectedTrip.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  if (selectedTrip.hasError) {
+                    return const Center(
+                        child: Text("Error while fetching Selectedtrip"));
+                  }
+                  if (selectedTrip.data == null) {
+                    return const CenterText(
+                        text: "No Trip selected, please select a trip first");
+                  }
+                  DocumentReference trip = firestore
+                      .collection("trips")
+                      .doc(selectedTrip.data as String);
+                  return CreateTicketsWidget(selectedTrip: trip);
+                })
+          ]);
         },
       ),
       body: Stack(
@@ -75,8 +75,14 @@ class _TicketState extends State<Ticket> {
                   return const Center(child: CircularProgressIndicator());
                 }
                 if (currentTrip.hasError) {
-                  return const CenterText(text: "Error while fetching Selectedtrip");
+                  return const CenterText(
+                      text: "Error while fetching Selectedtrip");
                 }
+                if (currentTrip.hasData && currentTrip.data!.isEmpty) {
+                  return const CenterText(
+                      text: "No Trip selected, please select a trip first");
+                }
+
                 //Todo: change selected Trio to DocumentReference
                 return StreamBuilder<QuerySnapshot>(
                     stream: firestore
@@ -90,10 +96,13 @@ class _TicketState extends State<Ticket> {
                       }
                       if (snapshot.hasError) {
                         debugPrint(snapshot.error.toString());
-                        return const CenterText(text: "Error while fetching Tickets");
+                        return const CenterText(
+                            text: "Error while fetching Tickets");
                       }
                       if (snapshot.data!.docs.isEmpty) {
-                        return const CenterText(text: "No Tickets found, press the + button to add one");
+                        return const CenterText(
+                            text:
+                                "No Tickets found, press the + button to add one");
                       }
                       return ListView(
                         children: snapshot.data!.docs
@@ -105,10 +114,11 @@ class _TicketState extends State<Ticket> {
                               children: [
                                 SlidableAction(
                                   onPressed: (sdf) async {
-                                    Map<String, dynamic> data =
-                                        (document.data() as Map<String, dynamic>);
-                                    if(data["url"] != null){
-                                      Reference doc = FirebaseStorage.instance.ref(data["url"]);
+                                    Map<String, dynamic> data = (document.data()
+                                        as Map<String, dynamic>);
+                                    if (data["url"] != null) {
+                                      Reference doc = FirebaseStorage.instance
+                                          .ref(data["url"]);
                                       await doc.delete();
                                     }
                                     document.reference.delete();

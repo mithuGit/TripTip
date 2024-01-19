@@ -182,42 +182,57 @@ class _FinanzenState extends State<Finanzen> {
                                 )
                               ],
                             ),
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: const Color(0xE51E1E1E),
-                                border:
-                                    Border.all(color: const Color(0xE51E1E1E)),
-                                borderRadius: BorderRadius.circular(34.5),
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.only(
-                                    top: 18.0,
-                                    left: 25,
-                                    right: 25,
-                                    bottom: 15.0),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Flexible(
-                                      child: Text(
-                                        request.get("title"),
-                                        overflow: TextOverflow.ellipsis,
-                                        softWrap: true,
-                                        style: const TextStyle(
-                                          fontSize: 20,
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.white,
+                            child: GestureDetector(
+                              onTap: () {
+                                CustomBottomSheet.show(context,
+                                    title: "Request:",
+                                    content: [
+                                      Builder(builder: (context) {
+                                        return CreateDebts(
+                                          selectedTrip: selectedtrip!,
+                                          preview: request,
+                                        );
+                                      })
+                                    ]);
+                              },
+                              child: Container(
+                                margin: const EdgeInsets.only(bottom: 8),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xE51E1E1E),
+                                  border: Border.all(
+                                      color: const Color(0xE51E1E1E)),
+                                  borderRadius: BorderRadius.circular(34.5),
+                                ),
+                                child: Padding(
+                                  padding: const EdgeInsets.only(
+                                      top: 18.0,
+                                      left: 25,
+                                      right: 25,
+                                      bottom: 15.0),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Flexible(
+                                        child: Text(
+                                          request.get("title"),
+                                          overflow: TextOverflow.ellipsis,
+                                          softWrap: true,
+                                          style: const TextStyle(
+                                            fontSize: 20,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.white,
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                    Text("${request.get("amount")} €",
-                                        style: const TextStyle(
-                                          fontSize: 20,
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.white,
-                                        ))
-                                  ],
+                                      Text("${request.get("amount")} €",
+                                          style: const TextStyle(
+                                            fontSize: 20,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.white,
+                                          ))
+                                    ],
+                                  ),
                                 ),
                               ),
                             )));
@@ -255,13 +270,13 @@ class _FinanzenState extends State<Finanzen> {
                               padding: const EdgeInsets.all(8.0),
                               sliver: SliverToBoxAdapter(
                                 child: ExpansionTile(
-                                      initiallyExpanded: true,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(0),
-                                      ),
-                                      title: Text("You owe "),
-                                      children: peopleYouOwe,
-                                    ),
+                                  initiallyExpanded: true,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(0),
+                                  ),
+                                  title: Text("You owe "),
+                                  children: peopleYouOwe,
+                                ),
                               ),
                             )
                           ],

@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:internet_praktikum/core/services/paymentsHandeler.dart';
 import 'package:internet_praktikum/ui/widgets/bottom_sheet.dart';
@@ -24,13 +25,13 @@ class _WalletState extends State<Wallet> {
       DocumentSnapshot user, BuildContext context) async {
     try {
       await paymentsHandeler.bookToBankAccount(user);
-    } on NoPayOutinformation catch (e) {
+    } on NoPayOutinformation {
       if (mounted) {
         CustomBottomSheet.show(context,
             title: "We need your Bankinformation:",
             content: [CollectPayoutInformation(user: user)]);
       }
-    } catch (e) {}
+    }
   }
 
   @override
@@ -59,7 +60,9 @@ class _WalletState extends State<Wallet> {
                   (snapshot.data!.data() as Map<String, dynamic>)["balance"] *
                       1.0;
             } catch (e) {
-              print(e);
+              if (kDebugMode) {
+                print(e);
+              }
             }
             return Column(
               //    crossAxisAlignment: CrossAxisAlignment.start,
@@ -77,7 +80,7 @@ class _WalletState extends State<Wallet> {
                   height: 5,
                 ),
                 Text(
-                  "${balance} €",
+                  "${(balance * 100).ceil() / 100} €",
                   style: TextStyle(
                       fontSize: 40,
                       color: balance < 0 ? Colors.red : Colors.white,
@@ -107,7 +110,7 @@ class _WalletState extends State<Wallet> {
                           });
                         },
                         text: "Recharge"),
-                  ] else if(balance > 0) ...[
+                  ] else if (balance > 0) ...[
                     MyButton(
                         onTap: () async {
                           setState(() {

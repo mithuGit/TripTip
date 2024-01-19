@@ -181,4 +181,11 @@ class Styles {
     color: Colors.white,
     fontSize: 20,
   );
+  static const headlineForDateInMapWidget = TextStyle(
+    fontSize: 14,
+    color: Colors.black,
+    height: 1.5,
+    fontWeight: FontWeight.w500,
+    fontFamily: 'Ubuntu',
+  );
 }

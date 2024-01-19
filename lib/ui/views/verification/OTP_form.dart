@@ -32,17 +32,17 @@ class _OTPFormState extends State<OTPForm> {
   }
 
   Future checkEmailVerified() async {
-    if (mounted) {
-      await FirebaseAuth.instance.currentUser!.reload();
+    await FirebaseAuth.instance.currentUser!.reload(); //TODO: Brauchen wir das?
 
+    if (mounted) {
       setState(() {
         isEmailVerified = FirebaseAuth.instance.currentUser!.emailVerified;
       });
+    }
 
-      if (isEmailVerified) {
-        canResendEmail = false;
-        timer?.cancel();
-      }
+    if (isEmailVerified) {
+      canResendEmail = false;
+      timer?.cancel();
     }
   }
 
@@ -68,7 +68,7 @@ class _OTPFormState extends State<OTPForm> {
                   child: CustomContainer(
                     title: "Verify your Email",
                     smallSize: true,
-                    children: [
+                    children: <Widget>[
                       const SizedBox(height: 25),
                       const Text(
                         "$message Please check your inbox.",
@@ -89,28 +89,51 @@ class _OTPFormState extends State<OTPForm> {
                           size: 100,
                         ),
                       const SizedBox(
-                        height: 55,
+                        height: 45,
                       ),
-                      if (canResendEmail)
-                        MyButton(
-                          onTap:
-                              resendVerificationEmail, 
-                          text: "Resend Link",
-                        )
-                      else
-                        MyButton(
-                          onTap: () {
-                            context.go('/accountdetails/false');
-                          },
-                          text: 'Next',
-                        ),
-                      const SizedBox(height: 30),
-                      MyButton(
-                        onTap: () => {
-                          context.go('/loginorregister'),
-                        },
-                        text: 'Back',
-                      ),
+                      Row(
+                        children: [
+                          SizedBox(
+                            width: MediaQuery.of(context).size.width * 0.4,
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: MyButton(
+                                onTap: () => {
+                                  context.go('/loginorregister'),
+                                },
+                                text: 'Back',
+                              ),
+                            ),
+                          ),
+                          const SizedBox(
+                            width: 10,
+                          ),
+                          if (canResendEmail)
+                            SizedBox(
+                              width: MediaQuery.of(context).size.width * 0.4,
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: MyButton(
+                                  onTap: resendVerificationEmail,
+                                  text: "Resend Link",
+                                ),
+                              ),
+                            )
+                          else
+                            SizedBox(
+                              width: MediaQuery.of(context).size.width * 0.4,
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: MyButton(
+                                  onTap: () {
+                                    context.go('/accountdetails/false');
+                                  },
+                                  text: 'Next',
+                                ),
+                              ),
+                            ),
+                        ],
+                      )
                     ],
                   ),
                 ),

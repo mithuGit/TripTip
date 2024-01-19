@@ -165,7 +165,7 @@ class _AddAppointmentWidgetToDashboardState
       ),
       const SizedBox(height: 10),
       if (selectedPlace != null) ... [
-        Text("Is bound to locaition: ${selectedPlace!.name}", style: Styles.inputField, textAlign: TextAlign.left,),
+        Text("Is bound to location: ${selectedPlace!.name}", style: Styles.inputField, textAlign: TextAlign.left,),
         const SizedBox(height: 10),
       ],  
       InputField(

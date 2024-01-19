@@ -5,11 +5,12 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:internet_praktikum/core/services/dashboardData.dart';
+import 'package:internet_praktikum/core/services/date_service.dart';
 import 'package:internet_praktikum/core/services/map_service.dart';
+import 'package:internet_praktikum/ui/styles/Styles.dart';
 import 'package:internet_praktikum/ui/widgets/dashboardWidgets/addAppointmentWidgetToDashboard.dart';
 import 'package:internet_praktikum/ui/widgets/dashboardWidgets/addNoteWidgetToDashboard.dart';
 import 'package:internet_praktikum/ui/widgets/dashboardWidgets/addSurveyWidgetToDashboard.dart';
-import 'package:internet_praktikum/ui/widgets/datepicker.dart';
 import 'package:internet_praktikum/ui/widgets/errorSnackbar.dart';
 import 'package:internet_praktikum/ui/widgets/modalButton.dart';
 import 'package:intl/intl.dart';
@@ -32,27 +33,64 @@ class _CreateWidgetFromMapToDashboardState
   String show = 'init';
   DocumentReference? day;
   DateTime? selectedDate;
+  DateTime? startDateRange;
+  DateTime? endDateRange;
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
-    //TODO: soll man nur Termine wählen können die im Trip Zeitraum liegen und somit eine Days Referenz haben oder wie genau?
     switch (show) {
       case 'init':
         return Column(
           children: [
-            CupertinoDatePickerButton(
-              //TODO: man soll in der Zukunft nur Termine erstellen können
-              showFuture: true,
-              mode: CupertinoDatePickerMode.date,
-              onDateSelected: (date) {
-                setState(() {
-                  selectedDate = date.date;
-                });
-                getDayReference(date.date);
+            const Text(
+                'Select a date that is in the right time range of the trip',
+                style: Styles.headlineForDateInMapWidget),
+            const SizedBox(
+              height: 20,
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                await showCupertinoModalPopup<void>(
+                  context: context,
+                  builder: (BuildContext context) => FutureBuilder<Container>(
+                    future: buildContainerAsync(MediaQuery.of(context).size),
+                    builder: (BuildContext context,
+                        AsyncSnapshot<Container> snapshot) {
+                      if (snapshot.connectionState == ConnectionState.done) {
+                        if (snapshot.hasData) {
+                          return snapshot.data!;
+                        } else if (snapshot.hasError) {
+                          return Text('Error: ${snapshot.error}');
+                        }
+                      }
+                      return const CircularProgressIndicator();
+                    },
+                  ),
+                );
               },
-              presetDate: selectedDate != null
-                  ? DateFormat('dd.MM.yyyy').format(selectedDate!)
-                  : "Select Date",
+              child: SizedBox(
+                width: MediaQuery.of(context).size.width * 0.4,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    const Icon(
+                      Icons.calendar_today,
+                      color: Colors.black,
+                    ),
+                    selectedDate != null
+                        ? Text(
+                            DateFormat('dd-MM-yyyy').format(selectedDate!),
+                            style: Styles.datepicker,
+                          )
+                        : const Text('Select Date'),
+                  ],
+                ),
+              ),
             ),
             const SizedBox(
               height: 20,
@@ -72,15 +110,10 @@ class _CreateWidgetFromMapToDashboardState
                                 show = 'note';
                               })
                             }
-                        : selectedDate == null
-                            ? () {
-                                ErrorSnackbar.showErrorSnackbar(
-                                    context, "Please select a date first");
-                              }
-                            : () {
-                                ErrorSnackbar.showErrorSnackbar(context,
-                                    "Select a date that is in the right time range of the trip");
-                              },
+                        : () {
+                            ErrorSnackbar.showErrorSnackbar(
+                                context, "Please select a date first");
+                          },
                     text: "Add Note"),
                 ModalButton(
                     icon: Icons.date_range,
@@ -90,15 +123,10 @@ class _CreateWidgetFromMapToDashboardState
                                 show = 'appointment';
                               })
                             }
-                        : selectedDate == null
-                            ? () {
-                                ErrorSnackbar.showErrorSnackbar(
-                                    context, "Please select a date first");
-                              }
-                            : () {
-                                ErrorSnackbar.showErrorSnackbar(context,
-                                    "Select a date that is in the right time range of the trip");
-                              },
+                        : () {
+                            ErrorSnackbar.showErrorSnackbar(
+                                context, "Please select a date first");
+                          },
                     text: "Add Appointment"),
                 ModalButton(
                     icon: Icons.poll,
@@ -108,15 +136,10 @@ class _CreateWidgetFromMapToDashboardState
                                 show = 'questionsurvey';
                               })
                             }
-                        : selectedDate == null
-                            ? () {
-                                ErrorSnackbar.showErrorSnackbar(
-                                    context, "Please select a date first");
-                              }
-                            : () {
-                                ErrorSnackbar.showErrorSnackbar(context,
-                                    "Select a date that is in the right time range of the trip");
-                              },
+                        : () {
+                            ErrorSnackbar.showErrorSnackbar(
+                                context, "Please select a date first");
+                          },
                     text: "Add Question Survery"),
                 ModalButton(
                     icon: Icons.poll,
@@ -126,15 +149,10 @@ class _CreateWidgetFromMapToDashboardState
                                 show = 'appointmentsurvey';
                               })
                             }
-                        : selectedDate == null
-                            ? () {
-                                ErrorSnackbar.showErrorSnackbar(
-                                    context, "Please select a date first");
-                              }
-                            : () {
-                                ErrorSnackbar.showErrorSnackbar(context,
-                                    "Select a date that is in the right time range of the trip");
-                              },
+                        : () {
+                            ErrorSnackbar.showErrorSnackbar(
+                                context, "Please select a date first");
+                          },
                     text: "Add Appointment Survery"),
               ],
             ),
@@ -195,5 +213,32 @@ class _CreateWidgetFromMapToDashboardState
     } else {
       ErrorSnackbar.showErrorSnackbar(context, "No user found for this trip");
     }
+  }
+
+  // Die Funktion, die den Container asynchron erstellt
+  Future<Container> buildContainerAsync(Size size) async {
+    return Container(
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(34.5),
+          topRight: Radius.circular(34.5),
+        ),
+      ),
+      height: size.height * 0.35,
+      child: CupertinoDatePicker(
+        minimumDate: (await DateService.getStartDate()).isAfter(DateTime.now())
+            ? await DateService.getStartDate()
+            : DateTime.now(),
+        maximumDate: await DateService.getEndDate(),
+        mode: CupertinoDatePickerMode.date,
+        onDateTimeChanged: (value) {
+          setState(() {
+            selectedDate = value;
+            getDayReference(value);
+          });
+        },
+      ),
+    );
   }
 }

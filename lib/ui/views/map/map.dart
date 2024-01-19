@@ -18,7 +18,7 @@ import 'package:internet_praktikum/ui/widgets/mapWidgets/createWidgetFromMapToDa
 import 'package:internet_praktikum/ui/widgets/mapWidgets/mapButton.dart';
 import 'package:internet_praktikum/ui/widgets/mapWidgets/smallButton.dart';
 import 'package:internet_praktikum/ui/widgets/my_button.dart';
-//import 'package:internet_praktikum/ui/widgets/inputfield_search_lookahead.dart';
+import 'package:location/location.dart';
 
 class MapPage extends StatefulWidget {
   const MapPage({super.key});
@@ -32,7 +32,6 @@ class _MapPageState extends State<MapPage> {
 
   Marker? origin;
   Marker? destination;
-  Marker? currentLocation;
   Directions? infoDistanceAndDuration;
   LatLng? latLng;
   PlaceDetails? placeDetails;
@@ -73,6 +72,13 @@ class _MapPageState extends State<MapPage> {
   bool isExpandedOrigin = false;
   bool isExpandedDestination = false;
   bool isExpandedCurrentLocation = false;
+
+  //Current Location Data
+  LocationData? currentLocationData;
+  Location? location;
+  Uint8List? currentIcon;
+  bool isInitialCameraMove = true;
+  StreamSubscription<LocationData>? locationSubscription;
 
   @override
   void initState() {
@@ -124,6 +130,68 @@ class _MapPageState extends State<MapPage> {
         tilt: 45.0)));
   }
 
+  void getCurrentLocation() async {
+    bool serviceEnabled;
+    PermissionStatus permissionGranted;
+    location = Location();
+
+    serviceEnabled = await location!.serviceEnabled();
+    if (!serviceEnabled) {
+      serviceEnabled = await location!.requestService();
+      if (!serviceEnabled) {
+        return;
+      }
+    }
+
+    permissionGranted = await location!.hasPermission();
+    if (permissionGranted == PermissionStatus.denied) {
+      permissionGranted = await location!.requestPermission();
+      if (permissionGranted != PermissionStatus.granted) {
+        return;
+      }
+    }
+
+    currentIcon = await GoogleMapService()
+        .getBytesFromAsset('assets/my_location.png', 135);
+
+    location!.getLocation().then(
+      (location) {
+        currentLocationData = location;
+      },
+    );
+
+    var controller = await _googleMapController.future;
+    locationSubscription =
+        location!.onLocationChanged.listen((LocationData currentLocation) {
+      currentLocationData = currentLocation;
+
+      if (isInitialCameraMove) {
+        controller.animateCamera(
+          CameraUpdate.newCameraPosition(
+            CameraPosition(
+              target: LatLng(currentLocationData!.latitude!,
+                  currentLocationData!.longitude!),
+              zoom: 15,
+            ),
+          ),
+        );
+        setState(() {});
+        isInitialCameraMove =
+            false; // Markieren Sie, dass die erste Kamerabewegung abgeschlossen ist
+      } else {
+        if (mounted) {
+          setState(() {
+            CameraPosition(
+              target: LatLng(currentLocationData!.latitude!,
+                  currentLocationData!.longitude!),
+              zoom: 15,
+            );
+          });
+        }
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -145,13 +213,11 @@ class _MapPageState extends State<MapPage> {
                 icon: const Icon(Icons.directions_outlined,
                     color: Colors.black, size: 30),
                 onPressed: () async {
-                  currentLocation = await GoogleMapService()
-                      .getCurrentLocation(_googleMapController);
                   setState(() {
-                    currentLocation!.position.latitude == 0
-                        ? currentLocation = null
-                        : currentLocation = currentLocation;
+                    currentLocationData = null;
+                    isInitialCameraMove = true;
                   });
+                  getCurrentLocation();
                 },
               ),
               const Text(
@@ -179,9 +245,11 @@ class _MapPageState extends State<MapPage> {
                     );
                   },
                 ),
-                const Text(
-                  'Vacation',
-                  style: TextStyle(
+                Text(
+                  infoDistanceAndDuration != null
+                      ? 'Zoom to route'
+                      : 'Vacation',
+                  style: const TextStyle(
                       color: Colors.black, fontFamily: 'Ubuntu', fontSize: 12),
                 ),
               ],
@@ -212,7 +280,15 @@ class _MapPageState extends State<MapPage> {
                     markers: {
                       if (origin != null) origin!,
                       if (destination != null) destination!,
-                      if (currentLocation != null) currentLocation!,
+                      if (currentLocationData != null &&
+                          currentIcon != null) ...{
+                        Marker(
+                          markerId: const MarkerId("currentLocation"),
+                          position: LatLng(currentLocationData!.latitude!,
+                              currentLocationData!.longitude!),
+                          icon: BitmapDescriptor.fromBytes(currentIcon!),
+                        ),
+                      },
                       ...markers,
                     },
                     polylines: {
@@ -254,7 +330,7 @@ class _MapPageState extends State<MapPage> {
                             padding: const EdgeInsets.symmetric(),
                             child: origin == null
                                 ? const Text(
-                                    'Tap to see personilized recomendations \nLong press to set origin and destination',
+                                    'Tap to see personalized recommendation \nLong press to set origin and destination',
                                     style: Styles.warningmap,
                                     textAlign: TextAlign.center,
                                   )
@@ -293,7 +369,7 @@ class _MapPageState extends State<MapPage> {
                       ),
                     ),
                   ),
-                if (origin != null || currentLocation != null)
+                if (origin != null || currentLocationData != null)
                   Positioned(
                       top: 90.0,
                       child: Column(
@@ -381,7 +457,7 @@ class _MapPageState extends State<MapPage> {
                                 const SizedBox(height: 5.0),
                               ],
                             ),
-                          if (currentLocation != null)
+                          if (currentLocationData != null)
                             MapButton(
                               icon: Icons.directions,
                               makeSmaller: () {
@@ -403,7 +479,9 @@ class _MapPageState extends State<MapPage> {
                                 controller.animateCamera(
                                   CameraUpdate.newCameraPosition(
                                     CameraPosition(
-                                      target: currentLocation!.position,
+                                      target: LatLng(
+                                          currentLocationData!.latitude!,
+                                          currentLocationData!.longitude!),
                                       zoom: 14.5,
                                       tilt: 50.0,
                                     ),
@@ -411,8 +489,9 @@ class _MapPageState extends State<MapPage> {
                                 );
                               },
                               onClose: () => setState(() => {
-                                    currentLocation = null,
+                                    currentLocationData = null,
                                     isExpandedCurrentLocation = false,
+                                    locationSubscription!.cancel(),
                                   }),
                             ),
                         ],
@@ -621,7 +700,7 @@ class _MapPageState extends State<MapPage> {
         Padding(
           padding: const EdgeInsets.all(12.0),
           child: Text(
-            review['text']['text'] ?? '',
+            review['text'] != null ? review['text']['text'] ?? '' : '',
             style: Styles.reviewtext,
           ),
         ),
@@ -644,7 +723,8 @@ class _MapPageState extends State<MapPage> {
         ),
       );
     } else {
-      var tempDisplayIndex = photoGalleryIndex + 1;
+      var tempDisplayIndex = photoGalleryIndex +
+          1; // TODO: photoGalleryIndex ist größer als die Length von photoElement.length von der rechten sowie linken FlipCards
 
       return Column(
         children: [

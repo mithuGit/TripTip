@@ -1,4 +1,4 @@
-// ignore: file_names
+// ignore_for_file: file_names
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
@@ -6,9 +6,12 @@ import 'package:flutter/material.dart';
 
 class Member {
   String? name;
-  String? currentUserName;
-  get isSet => name != null;
-  Member({required this.name, required this.currentUserName});
+  DocumentReference? reference;
+  get isSet => name != null && reference != null;
+  Member({
+    required this.name,
+    required this.reference,
+  });
 }
 
 class GetMemberButton extends StatefulWidget {
@@ -23,9 +26,6 @@ class GetMemberButton extends StatefulWidget {
 }
 
 class _GetMemberButtonState extends State<GetMemberButton> {
-  //TODO BORDERRADIUS fürs ModalBottomsheet in CupertinoButton.filled verbessern
-  //DOPPELTE bottomsheet iwie
-
   List<String> list = [];
   final user = FirebaseAuth.instance.currentUser!;
   final firestore = FirebaseFirestore.instance;
@@ -35,6 +35,7 @@ class _GetMemberButtonState extends State<GetMemberButton> {
   var members = [];
   String name = "Select a member";
   String? currentUserName;
+  List<DocumentReference> memberDocu = [];
 
   @override
   void initState() {
@@ -53,6 +54,7 @@ class _GetMemberButtonState extends State<GetMemberButton> {
     setState(() {
       for (var i = 0; i < members.length; i++) {
         if ((members[i] as DocumentReference).id != user.uid) {
+          memberDocu.add((members[i] as DocumentReference));
           memberIDList.add((members[i] as DocumentReference).id);
         } else {
           currentUserName =
@@ -101,7 +103,7 @@ class _GetMemberButtonState extends State<GetMemberButton> {
                                   backgroundColor: Colors.white,
                                   itemExtent: 50,
                                   scrollController: FixedExtentScrollController(
-                                      initialItem: 0),
+                                      initialItem: list.indexOf(name)),
                                   children: [
                                     for (int i = 0; i < list.length; i++)
                                       Center(
@@ -114,8 +116,9 @@ class _GetMemberButtonState extends State<GetMemberButton> {
                                     setState(() {
                                       name = list[value];
                                       widget.notifier(Member(
-                                          name: list[value],
-                                          currentUserName: currentUserName));
+                                        name: list[value],
+                                        reference: memberDocu[value],
+                                      ));
                                     });
                                   },
                                 )),
