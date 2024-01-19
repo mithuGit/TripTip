@@ -290,7 +290,7 @@ class _CreateDebtsState extends State<CreateDebts> {
                   width: 150,
                   height: 50,
                   child: InputField(
-                    readOnly: widget.preview == null,
+                    readOnly: widget.preview != null,
                     controller: amountList[index],
                     hintText: "Enter the amount",
                     obscureText: false,
@@ -344,7 +344,7 @@ class _CreateDebtsState extends State<CreateDebts> {
       children: [
         if (!newBottomSheet) ...[
           InputField(
-              readOnly: widget.preview == null,
+              readOnly: widget.preview != null,
               controller: title,
               hintText: "Title of Payment",
               focusedBorderColor: const Color.fromARGB(255, 84, 113, 255),
@@ -352,7 +352,7 @@ class _CreateDebtsState extends State<CreateDebts> {
               obscureText: false),
           const SizedBox(height: 15),
           InputField(
-              readOnly: widget.preview == null,
+              readOnly: widget.preview != null,
               controller: description,
               hintText: "Description of Payment",
               focusedBorderColor: const Color.fromARGB(255, 84, 113, 255),
@@ -366,7 +366,7 @@ class _CreateDebtsState extends State<CreateDebts> {
               SizedBox(
                   width: 130,
                   child: InputField(
-                    readOnly: widget.preview == null,
+                    readOnly: widget.preview != null,
                     controller: totalAmount,
                     hintText: "Total Amount",
                     obscureText: false,
@@ -559,7 +559,7 @@ class _CreateDebtsState extends State<CreateDebts> {
               SizedBox(
                   width: 150,
                   child: InputField(
-                    readOnly: widget.preview == null,
+                    readOnly: widget.preview != null,
                     controller: myAmount,
                     hintText: "Enter the amount",
                     obscureText: false,
