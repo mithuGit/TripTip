@@ -1,11 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:go_router/go_router.dart';
 import 'package:internet_praktikum/ui/styles/Styles.dart';
 import 'package:internet_praktikum/ui/widgets/bottom_sheet.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:internet_praktikum/ui/widgets/modalButton.dart';
 
 class ChangeTrip extends StatefulWidget {
   const ChangeTrip({super.key});
@@ -39,7 +41,8 @@ class _ChangeTrip extends State<ChangeTrip> {
   }
 
   bool isAdmin(Map<String, dynamic> trip) {
-    return trip["createdBy"] == FirebaseFirestore.instance.doc("/users/${user.uid}");
+    return trip["createdBy"] ==
+        FirebaseFirestore.instance.doc("/users/${user.uid}");
   }
 
   Widget createTripName(Map<String, dynamic> trip) {
@@ -70,6 +73,34 @@ class _ChangeTrip extends State<ChangeTrip> {
     return users;
   }
 
+  Future<void> deleteAllWidgets(
+      dynamic user, String trip) async {
+    var ref = db.collection("trips").doc(trip).collection("days");
+    await ref.get().then(
+      (QuerySnapshot col) {
+        var docs = col.docs;
+        for (var i = 0; i < docs.length; i++) {
+          Map<String, dynamic> active =
+              (docs[i].data() as Map<String, dynamic>)["active"];
+          var temp = active;
+          if (active.isNotEmpty) {
+            for (var entry in active.entries) {
+              if (entry.key != "diary") {
+                if (entry.value["createdBy"] == user) {
+                  temp.remove(entry.key);
+                  ref.doc(docs[i].id).update({"active": temp});
+                }
+              }
+              if (active.isEmpty) {
+                break;
+              }
+            }
+          }
+        }
+      },
+    );
+  }
+
   FutureBuilder createMemberView(Map<String, dynamic> trip, String tripid) {
     return FutureBuilder(
         future: getTripUser(trip["members"]),
@@ -82,44 +113,79 @@ class _ChangeTrip extends State<ChangeTrip> {
                   key: Key(con.hashCode.toString()),
                   enabled: isAdmin(trip),
                   endActionPane: ActionPane(
-                      extentRatio: 0.7,
+                      extentRatio: 0.3,
                       motion: const ScrollMotion(),
                       children: [
                         SlidableAction(
-                            onPressed: (context) {
-                              var members = trip["members"] as List;
-                              members.remove(FirebaseFirestore.instance
-                                  .doc("/users/${con.uid}"));
-                              db
-                                  .collection("trips")
-                                  .doc(tripid)
-                                  .update({"members": members});
-                              setState(() {});
+                            onPressed: (contextt) {
+                              CustomBottomSheet.show(contextt,
+                                  title: "${con['prename']} ${con['lastname']}",
+                                  content: [
+                                    Container(
+                                        child: GridView.count(
+                                            crossAxisCount: 2,
+                                            crossAxisSpacing: 10,
+                                            shrinkWrap: true,
+                                            scrollDirection: Axis.vertical,
+                                            children: [
+                                          ModalButton(
+                                              icon: Icons.remove_circle_outline,
+                                              onTap: () {
+                                                var members =
+                                                    trip["members"] as List;
+                                                members.remove(FirebaseFirestore
+                                                    .instance
+                                                    .doc(
+                                                        "/users/${con['uid']}"));
+                                                db
+                                                    .collection("trips")
+                                                    .doc(tripid)
+                                                    .update(
+                                                        {"members": members});
+
+                                                setState(() {});
+                                                context.goNamed("home");
+                                              },
+                                              text: "Kick Member"),
+                                          ModalButton(
+                                              icon: Icons.delete,
+                                              onTap: () {
+                                                deleteAllWidgets(
+                                                    FirebaseFirestore.instance.doc(
+                                                        "/users/${con['uid']}"),
+                                                    tripid);
+                                                context.goNamed("home");
+                                              },
+                                              text: "Delete Widgets"),
+                                          ModalButton(
+                                              icon: FontAwesomeIcons.crown,
+                                              onTap: () {
+                                                db
+                                                    .collection("trips")
+                                                    .doc(tripid)
+                                                    .update({
+                                                  "createdBy": FirebaseFirestore
+                                                      .instance
+                                                      .doc(
+                                                          "/users/${con['uid']}")
+                                                });
+                                                setState(() {});
+                                                context.goNamed("home");
+                                              },
+                                              text: "Give Admin"),
+                                        ])),
+                                  ]);
                             },
                             backgroundColor: Colors.transparent,
-                            foregroundColor: Colors.red,
-                            icon: Icons.delete,
-                            label: "Remove"),
-                        SlidableAction(
-                            onPressed: (context) {
-                              db.collection("trips").doc(tripid).update({
-                                "createdBy": FirebaseFirestore.instance
-                                    .doc("/users/${con.uid}")
-                              });
-                              Navigator.pop(context);
-                              setState(() {});
-                            },
-                            backgroundColor: Colors.transparent,
-                            foregroundColor: Colors.black,
-                            icon: FontAwesomeIcons.crown,
-                            label: "Give Admin")
+                            foregroundColor: Colors.grey,
+                            icon: Icons.settings,
+                            label: "Settings"),
                       ]),
                   child: Container(
                       height: 60,
                       child: Card(
                           margin: const EdgeInsets.symmetric(
                               vertical: 10, horizontal: 10),
-                          key: Key(con.uid.hashCode.toString()),
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(34.4)),
                           color: const Color(0xE51E1E1E),
@@ -156,7 +222,8 @@ class _ChangeTrip extends State<ChangeTrip> {
             IconButton(
                 padding: const EdgeInsets.only(right: 15, bottom: 10),
                 onPressed: () {
-                  context.push('/selecttrip');
+                  context.pushNamed('selecttrip',
+                      pathParameters: {"noTrip": "false"});
                 },
                 icon: const Icon(Icons.add, size: 40, color: Color(0xE51E1E1E)))
           ]),
@@ -180,7 +247,9 @@ class _ChangeTrip extends State<ChangeTrip> {
                                       var members = con["members"] as List;
                                       members.remove(FirebaseFirestore.instance
                                           .doc("/users/" + user.uid));
-                                      if (con["createdBy"] == FirebaseFirestore.instance.doc("/users/${user.uid}")) {
+                                      if (con["createdBy"] ==
+                                          FirebaseFirestore.instance
+                                              .doc("/users/${user.uid}")) {
                                         db
                                             .collection("trips")
                                             .doc(con.id)

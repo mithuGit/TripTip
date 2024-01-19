@@ -3,8 +3,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:internet_praktikum/ui/widgets/container.dart';
+import 'package:internet_praktikum/ui/widgets/errorSnackbar.dart';
 import 'package:internet_praktikum/ui/widgets/inputfield.dart';
 import 'package:internet_praktikum/ui/widgets/my_button.dart';
+import 'package:path/path.dart';
 
 class JoinTrip extends StatelessWidget {
   JoinTrip({super.key});
@@ -14,13 +16,23 @@ class JoinTrip extends StatelessWidget {
 
   final groupController = TextEditingController();
 
-  void joinTrip() async {
+  void joinTrip(BuildContext context) async {
     final self = _auth.currentUser?.uid;
 
     final dir = groupController.text;
-    trips.doc(dir).update({
+
+    trips.doc(dir).get().then((doc) => {
+      if(doc.exists){
+        trips.doc(dir).update({
       "members": FieldValue.arrayUnion(
           [FirebaseFirestore.instance.doc("/users/" + self.toString())])
+    }), FirebaseFirestore.instance
+        .doc("/users/$self")
+        .update({"selectedtrip": dir}),
+        context.goNamed("home")
+      } else {
+        ErrorSnackbar.showErrorSnackbar(context, "Trip does not exist")
+      }
     });
   }
 
@@ -51,7 +63,7 @@ class JoinTrip extends StatelessWidget {
                       MyButton(
                           margin: const EdgeInsets.only(bottom: 10),
                           onTap: () {
-                            joinTrip();
+                            joinTrip(context);
                           },
                           text: "Next"),
                       MyButton(
