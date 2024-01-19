@@ -121,7 +121,7 @@ class _AccountState extends State<Account> {
                           emailController.text = userData['email'];
                         }
                         imageProvider =
-                            AssetImage('assets/Personavatar.png');
+                            const AssetImage('assets/Personavatar.png');
                         if (userData.containsKey('profilePicture')) {
                           imageURL = userData['profilePicture'];
                           imageProvider = NetworkImage(imageURL);
@@ -157,7 +157,7 @@ class _AccountState extends State<Account> {
                                     try {
                                       if (pickedFile != null) {
                                         await referenceImageToUpload
-                                            .putFile(File(pickedFile!.path));
+                                            .putFile(File(pickedFile.path));
                                       }
                                       imageURL =
                                           referenceImageToUpload.fullPath;
@@ -175,6 +175,8 @@ class _AccountState extends State<Account> {
                                       setState(() {
                                         imageProvider =
                                             FileImage(File(pickedFile!.path));
+                                        PaintingBinding.instance.imageCache
+                                            .clear();
                                       });
                                     }
                                     setState(() {
