@@ -20,11 +20,11 @@ class _WalletState extends State<Wallet> {
   PaymentsHandeler paymentsHandeler = PaymentsHandeler();
   Future<void> recharge(DocumentSnapshot user, BuildContext context) async {
     try {
-    await paymentsHandeler.refund(user);
+      await paymentsHandeler.refund(user);
     } catch (e) {
-      if(mounted) {
+      if (mounted) {
         ErrorSnackbar.showErrorSnackbar(context, e.toString());
-      } 
+      }
     }
   }
 
@@ -36,7 +36,7 @@ class _WalletState extends State<Wallet> {
       if (mounted) {
         CustomBottomSheet.show(context,
             title: "Fill in your Back-Account",
-            content: [CollectPayoutInformation(user: user)]);
+            content: [CollectPayoutInformation(user: user, bookToBankAccount: true)]);
       }
     }
   }
@@ -86,15 +86,34 @@ class _WalletState extends State<Wallet> {
                 const SizedBox(
                   height: 5,
                 ),
-                Text(
-                  "${(balance * 100).ceil() / 100} €",
-                  style: TextStyle(
-                      fontSize: 40,
-                      color: balance < 0 ? Colors.red : Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontFamily: "Ubuntu"),
-                  textAlign: TextAlign.left,
-                ),
+                if (balance == 0.0) ...[
+                  const Text(
+                    "0 €",
+                    style: TextStyle(
+                        fontSize: 40,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontFamily: "Ubuntu"),
+                    textAlign: TextAlign.left,
+                  ),
+                  const Text(
+                    "nothing to do here!",
+                    style: TextStyle(
+                        fontSize: 15,
+                        color: Colors.white,
+                        fontWeight: FontWeight.normal,
+                        fontFamily: "Ubuntu"),
+                  ),
+                ] else
+                  Text(
+                    "${(balance * 100).ceil() / 100} €",
+                    style: TextStyle(
+                        fontSize: 40,
+                        color: balance < 0 ? Colors.red : Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontFamily: "Ubuntu"),
+                    textAlign: TextAlign.left,
+                  ),
                 const SizedBox(
                   height: 30,
                 ),

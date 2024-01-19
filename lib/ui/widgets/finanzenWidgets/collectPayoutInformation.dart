@@ -1,6 +1,7 @@
 // ignore_for_file: file_names
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:internet_praktikum/core/services/paymentsHandeler.dart';
 import 'package:internet_praktikum/ui/styles/Styles.dart';
 import 'package:internet_praktikum/ui/widgets/errorSnackbar.dart';
 import 'package:internet_praktikum/ui/widgets/inputfield.dart';
@@ -116,7 +117,9 @@ bool checkChecksum(String string, int lenght) {
 
 class CollectPayoutInformation extends StatefulWidget {
   final DocumentSnapshot user;
-  const CollectPayoutInformation({super.key, required this.user});
+  final bool bookToBankAccount;
+  const CollectPayoutInformation(
+      {super.key, required this.user, this.bookToBankAccount = false});
   @override
   CollectPayoutInformationState createState() =>
       CollectPayoutInformationState();
@@ -147,8 +150,10 @@ class CollectPayoutInformationState extends State<CollectPayoutInformation> {
     if (ibanController.text.isEmpty ||
         bicController.text.isEmpty ||
         nameController.text.isEmpty) {
-      ErrorSnackbar.showErrorSnackbar(context, "Please enter all fields");
-      return;
+      throw "Please fill in all fields";
+    }
+    if(!isValidIBANNumber(ibanController.text)){
+      throw "Please enter a valid IBAN";
     }
 
     await widget.user.reference.update({
@@ -158,6 +163,11 @@ class CollectPayoutInformationState extends State<CollectPayoutInformation> {
         "accountHolderName": nameController.text,
       }
     });
+    
+    if (widget.bookToBankAccount) {
+      DocumentSnapshot user = await widget.user.reference.get();
+      await PaymentsHandeler().bookToBankAccount(user);
+    }
     if (context.mounted) Navigator.pop(context);
   }
 
@@ -196,7 +206,8 @@ class CollectPayoutInformationState extends State<CollectPayoutInformation> {
         ),
         const SizedBox(height: 20),
         MyButton(
-          onTap: savePayoutInformation,
+          onTap: () => savePayoutInformation().onError((error, stackTrace) =>
+              ErrorSnackbar.showErrorSnackbar(context, error.toString())),
           text: "Save",
           borderColor: Colors.black,
           textStyle: Styles.buttonFontStyleModal,

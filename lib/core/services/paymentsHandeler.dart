@@ -47,7 +47,6 @@ class PaymentsHandeler {
           await FirebaseFunctions.instance.httpsCallable('stripeRefund').call(
         {
           "customer": _stripeId,
-          "amount": 23.4,
         },
       );
       final _response = result.data;
@@ -64,7 +63,7 @@ class PaymentsHandeler {
       // Start Payment
       await Stripe.instance.presentPaymentSheet();
     } on FirebaseFunctionsException catch (error) {
-      throw "Error creating refund";
+      throw "Error creating refund: ${error.message}";
     } on StripeException catch (error) {
       debugPrint("StripeException");
       debugPrint(error.toString());
@@ -101,7 +100,10 @@ class PaymentsHandeler {
     final result = await FirebaseFunctions.instance
         .httpsCallable('bookToBankAccount')
         .call();
-    final _response = result.data as String;
+    final _response = result.data as Map<String, dynamic>;
+    if (!_response["success"]) {
+      throw _response["error"];
+    }
     print(_response);
   }
 
