@@ -43,13 +43,18 @@ class _AccountState extends State<Account> {
 
   String imageURL = '';
   String newImageURL = '';
+  String imagePath = '';
+  String newImagePath = '';
   bool uploading = false;
 
   //set and updates Userdata in the FirebaseCollestion users
   Future<void> updateUserData() async {
     try {
-      if(newImageURL != ''){
+      if (newImageURL != '') {
         imageURL = newImageURL;
+      }
+      if (newImagePath != '') {
+        imagePath = newImagePath;
       }
       await userCollection.doc(currentUser.uid).update({
         //Updates data in FireStore
@@ -57,6 +62,7 @@ class _AccountState extends State<Account> {
         'lastname': lastnameController.text,
         'dateOfBirth': dateOfBirthController.text,
         'profilePicture': imageURL,
+        'profilePicturePath': imagePath,
       });
       await currentUser.updateDisplayName(
           "$prenameController.text $lastnameController.text"); //Updates displayName in Auth
@@ -129,6 +135,9 @@ class _AccountState extends State<Account> {
                           imageURL = userData['profilePicture'];
                           imageProvider = NetworkImage(imageURL);
                         }
+                        if (userData.containsKey('profilePicturePath')) {
+                          imagePath = userData['profilePicturePath'];
+                        }
 
                         return Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -161,8 +170,11 @@ class _AccountState extends State<Account> {
                                       if (pickedFile != null) {
                                         await referenceImageToUpload
                                             .putFile(File(pickedFile.path));
-                                        setState(() {
+                                        setState(() async {
                                           newImageURL =
+                                              await referenceImageToUpload
+                                                  .getDownloadURL();
+                                          newImagePath =
                                               referenceImageToUpload.fullPath;
                                         });
                                       }
