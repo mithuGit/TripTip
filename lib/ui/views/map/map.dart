@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flip_card/flip_card.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -79,6 +80,9 @@ class _MapPageState extends State<MapPage> {
   Uint8List? currentIcon;
   bool isInitialCameraMove = true;
   StreamSubscription<LocationData>? locationSubscription;
+
+  bool isLocationLoading = false;
+  bool loadingRecommendations = false;
 
   @override
   void initState() {
@@ -209,24 +213,44 @@ class _MapPageState extends State<MapPage> {
           backgroundColor: Colors.transparent,
           leading: Column(
             children: [
-              IconButton(
-                icon: const Icon(Icons.directions_outlined,
-                    color: Colors.black, size: 30),
-                onPressed: () async {
-                  setState(() {
-                    currentLocationData = null;
-                    isInitialCameraMove = true;
-                  });
-                  getCurrentLocation();
-                },
-              ),
-              const Text(
-                'Location',
-                style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 12,
+              if (isLocationLoading == true && currentLocationData == null) ...{
+                // Show CircularProgressIndicator only when data is not available
+                const Column(
+                  children: [
+                    SizedBox(height: 14),
+                    SizedBox(
+                      child: CircularProgressIndicator(
+                        strokeWidth: 3,
+                      ),
+                    )
+                  ],
                 ),
-              ),
+              } else if (isLocationLoading == false ||
+                  currentLocationData != null) ...{
+                Column(
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.directions_outlined,
+                          color: Colors.black, size: 30),
+                      onPressed: () async {
+                        setState(() {
+                          isLocationLoading = true;
+                          currentLocationData = null;
+                          isInitialCameraMove = true;
+                        });
+                        getCurrentLocation();
+                      },
+                    ),
+                    const Text(
+                      'Location',
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ),
+              }
             ],
           ),
           actions: [
@@ -489,6 +513,7 @@ class _MapPageState extends State<MapPage> {
                                 );
                               },
                               onClose: () => setState(() => {
+                                    isLocationLoading = false,
                                     currentLocationData = null,
                                     isExpandedCurrentLocation = false,
                                     locationSubscription!.cancel(),
@@ -549,44 +574,74 @@ class _MapPageState extends State<MapPage> {
                                           final interests = userCollection
                                               .data()!['interests'];
 
-                                          List<Place> places =
-                                              await GoogleMapService()
-                                                  .getPlacesNew(
-                                            tappedPointInCircle,
-                                            radiusValue.toInt(),
-                                            interests.cast<String>(),
-                                          );
-
-                                          if (places.isEmpty) {
-                                            pressToGetRecommend = false;
-                                            markers = {};
-                                            // ignore: use_build_context_synchronously
-                                            return ErrorSnackbar
-                                                .showErrorSnackbar(
-                                                    context, "No places found");
-                                          }
-
-                                          for (var place in places) {
-                                            _setNearMarker(
-                                              place.location,
-                                              place.name,
-                                              place.types,
-                                            );
-                                          }
-                                          allFavoritePlaces = places;
-                                          pressToGetRecommend = true;
+                                          final notInterests = userCollection
+                                              .data()!['uninterested'];
 
                                           setState(() {
-                                            placeImage =
-                                                places[1].photos[0]['name'];
+                                            loadingRecommendations =
+                                                true; // Setzen Sie den Ladezustand
                                           });
+
+                                          try {
+                                            List<Place> places =
+                                                await GoogleMapService()
+                                                    .getPlacesNew(
+                                                        tappedPointInCircle,
+                                                        radiusValue.toInt(),
+                                                        interests
+                                                            .cast<String>(),
+                                                        notInterests
+                                                            .cast<String>());
+
+                                            if (places.isEmpty) {
+                                              pressToGetRecommend = false;
+                                              markers = {};
+                                              // ignore: use_build_context_synchronously
+                                              return ErrorSnackbar
+                                                  .showErrorSnackbar(context,
+                                                      "No places found");
+                                            }
+
+                                            for (var place in places) {
+                                              _setNearMarker(
+                                                place.location,
+                                                place.name,
+                                                place.types,
+                                              );
+                                            }
+                                            allFavoritePlaces = places;
+                                            pressToGetRecommend = true;
+
+                                            setState(() {
+                                              placeImage =
+                                                  places[1].photos[0]['name'];
+                                              loadingRecommendations = false;
+                                            });
+                                          } catch (e) {
+                                            if (kDebugMode) {
+                                              print(
+                                                  "Error fetching recommendations: $e");
+                                            }
+                                            // ignore: use_build_context_synchronously
+                                            ErrorSnackbar.showErrorSnackbar(
+                                                context,
+                                                "Error fetching recommendations");
+                                          }
                                         },
-                                        icon: const ImageIcon(
-                                          AssetImage(
-                                              'assets/recommend_pic/recommend.png'),
-                                          color: Colors.white,
-                                          size: 30,
-                                        ),
+                                        icon: loadingRecommendations
+                                            ? const SizedBox(
+                                                height: 30,
+                                                width: 30,
+                                                child:
+                                                    CircularProgressIndicator(
+                                                  color: Colors.white,
+                                                )) // Zeige CircularProgressIndicator während des Ladens
+                                            : const ImageIcon(
+                                                AssetImage(
+                                                    'assets/recommend_pic/recommend.png'),
+                                                color: Colors.white,
+                                                size: 30,
+                                              ),
                                       )
                                     : IconButton(
                                         onPressed: () {
