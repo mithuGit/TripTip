@@ -23,7 +23,6 @@ class _TicketState extends State<Ticket> {
   Future<String> getSelectedtrip() async {
     DocumentSnapshot sn =
         await firestore.collection("users").doc(user.uid).get();
-    print(sn.data()! as Map<String, dynamic>);
     return (sn.data()! as Map<String, dynamic>)["selectedtrip"];
   }
 

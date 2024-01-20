@@ -1,10 +1,12 @@
+// ignore_for_file: file_names
 import 'dart:async';
-
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:internet_praktikum/ui/styles/Styles.dart';
 import 'package:internet_praktikum/ui/widgets/container.dart';
+import 'package:internet_praktikum/ui/widgets/errorSnackbar.dart';
 import '../../widgets/my_button.dart';
 
 class OTPForm extends StatefulWidget {
@@ -156,7 +158,11 @@ class _OTPFormState extends State<OTPForm> {
         canResendEmail = true;
       }
     } on FirebaseAuthException catch (e) {
-      print(e.code);
+      // ignore: use_build_context_synchronously
+      ErrorSnackbar.showErrorSnackbar(context, e.message!);
+      if (kDebugMode) {
+        print(e.code);
+      }
     }
   }
 }

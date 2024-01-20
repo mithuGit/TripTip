@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:internet_praktikum/core/services/date_service.dart';
+import 'package:internet_praktikum/ui/widgets/errorSnackbar.dart';
 import 'package:intl/intl.dart';
 
 class Calendar extends StatefulWidget {
@@ -96,7 +97,9 @@ class _CalendarState extends State<Calendar> {
           lastDate = newStart.subtract(const Duration(days: 1));
         });
       } catch (e) {
-        print(e);
+        //print(e);
+        // ignore: use_build_context_synchronously
+        ErrorSnackbar.showErrorSnackbar(context, 'Could not update date range');
         throw Exception('Could not update date range');
       }
     }

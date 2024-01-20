@@ -12,7 +12,7 @@ import 'package:internet_praktikum/ui/widgets/profileWidgets/profileButton.dart'
 import 'package:permission_handler/permission_handler.dart';
 
 class ProfilePage extends StatefulWidget {
-  ProfilePage({Key? key}) : super(key: key);
+  const ProfilePage({Key? key}) : super(key: key);
 
   @override
   State<ProfilePage> createState() => _ProfilePageState();
