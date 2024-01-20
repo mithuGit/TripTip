@@ -124,11 +124,16 @@ class _GetMemberButtonState extends State<GetMemberButton> {
                                 )),
                           ],
                         )),
-                    CupertinoButton(
-                        child: const Text("Done"),
-                        onPressed: () {
-                          Navigator.pop(context);
-                        })
+                    SizedBox(
+                      width: double.infinity,
+                      child: CupertinoButton(
+                          borderRadius: null,
+                          color: const Color.fromRGBO(103, 80, 164, 1.0),
+                          child: const Text("Done"),
+                          onPressed: () {
+                            Navigator.pop(context);
+                          }),
+                    )
                   ]))),
     );
   }

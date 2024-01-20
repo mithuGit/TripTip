@@ -80,6 +80,11 @@ class _CreateDebtsState extends State<CreateDebts> {
         "to": to,
         "createdBy": currentUser!.reference,
         "timestamp": DateTime.now(),
+        "paymentType": shareEquallyWithAllMembers == true
+            ? "shareEquallyWithAllMembers"
+            : shareEqually == true
+                ? "shareEqually"
+                : "shareOnlyWithMember",
       });
     }
   }
@@ -98,10 +103,20 @@ class _CreateDebtsState extends State<CreateDebts> {
 //get the data for the preview container so he can look up again what he has entered and request from the other ones
   Future<void> getPreviewData() async {
     if (widget.preview != null) {
-      await getMembers();
+      nextButtonToGetMember();
       title.text = widget.preview!["title"];
       description.text = widget.preview!["description"];
       totalAmount.text = widget.preview!["amount"].toString();
+
+      if (widget.preview!["paymentType"] == "shareEquallyWithAllMembers") {
+        setState(() {
+          shareEquallyWithAllMembers = true;
+        });
+      } else if (widget.preview!["paymentType"] == "shareEqually") {
+        setState(() {
+          shareEqually = true;
+        });
+      }
 
       double sumForMyAmount = 0;
 
@@ -114,6 +129,7 @@ class _CreateDebtsState extends State<CreateDebts> {
               .get();
           optionList
               .add(memberFromTo["prename"] + " " + memberFromTo["lastname"]);
+
           sumForMyAmount += widget.preview!["to"][i]["amount"];
           amountList.add(TextEditingController(
               text: widget.preview!["to"][i]["amount"].toString()));
@@ -121,27 +137,6 @@ class _CreateDebtsState extends State<CreateDebts> {
       }
       myAmount.text =
           (double.parse(totalAmount.text) - sumForMyAmount).toStringAsFixed(2);
-
-      if ((sumForMyAmount / amountList.length) == double.parse(myAmount.text) &&
-          widget.preview!["to"].length + 1 == member.length) {
-        setState(() {
-          shareEquallyWithAllMembers = true;
-          shareEqually = true;
-        });
-      } else if (widget.preview!["to"].length + 1 != member.length) {
-        if (sumForMyAmount / amountList.length == double.parse(myAmount.text)) {
-          setState(() {
-            shareEquallyWithAllMembers = false;
-            shareEqually = true;
-          });
-        } else if (sumForMyAmount / amountList.length !=
-            double.parse(myAmount.text)) {
-          setState(() {
-            shareEquallyWithAllMembers = false;
-            shareEqually = false;
-          });
-        }
-      }
     }
   }
 
@@ -158,12 +153,11 @@ class _CreateDebtsState extends State<CreateDebts> {
 
     for (int i = 0; i < optionList.length; i++) {
       if (amountList[i].text.isNotEmpty) {
-        sum += (double.parse(amountList[i].text) * 100).ceil() / 100;
+        sum += double.parse(amountList[i].text);
       }
     }
-
-    double remainingAmount = totalAmountValue - sum; //- 0.01;
-    myAmount.text = ((remainingAmount * 100).ceil() / 100).toStringAsFixed(2);
+    double remainingAmount = totalAmountValue - sum;
+    myAmount.text = remainingAmount.toStringAsFixed(2);
   }
 
   //get the current user name by pressing the next button
@@ -206,7 +200,7 @@ class _CreateDebtsState extends State<CreateDebts> {
     double diff = totalAmountValue / (optionList.length + 1);
 
     for (int i = 0; i < optionList.length; i++) {
-      amountList[i].text = diff.toStringAsFixed(2);
+      amountList[i].text = ((diff * 100).ceil() / 100).toStringAsFixed(2);
     }
     myAmount.text = diff.toStringAsFixed(2);
 
@@ -282,6 +276,7 @@ class _CreateDebtsState extends State<CreateDebts> {
                   width: 150,
                   height: 50,
                   child: InputField(
+                    textAlignCenter: true,
                     readOnly: widget.preview != null,
                     controller: amountList[index],
                     hintText: "Enter the amount",
@@ -303,6 +298,9 @@ class _CreateDebtsState extends State<CreateDebts> {
     for (var element in amountList) {
       element.addListener(() {
         if (element.text.isNotEmpty) {
+          if (element.text.contains(",")) {
+            element.text = element.text.replaceAll(",", ".");
+          }
           if (_isNumeric(element)) {
             double elementValue = double.parse(element.text);
             if (elementValue < 0) {
@@ -314,27 +312,27 @@ class _CreateDebtsState extends State<CreateDebts> {
               }
             }
             setState(() {
-              if (totalAmountValue > double.parse(totalAmount.text)) {
-                if (!totalAmountIsInRange) {
-                  ErrorSnackbar.showErrorSnackbar(
-                      context, "The total amount is exceeded");
-                  totalAmountIsInRange = true;
-                }
-                totalAmountIsInRange = true;
-              } else {
-                totalAmountIsInRange = false;
+              if (totalAmountValue.compareTo(double.parse(totalAmount.text)) >
+                  1) {
+                ErrorSnackbar.showErrorSnackbar(
+                    context, "The total amount is exceeded");
               }
             });
             WidgetsBinding.instance.addPostFrameCallback((_) {
               calculateMyAmount();
             });
           }
+        } else {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            calculateMyAmount();
+          });
         }
       });
     }
     return Column(
       children: [
         if (!newBottomSheet) ...[
+          const SizedBox(height: 10),
           InputField(
               readOnly: widget.preview != null,
               controller: title,
@@ -342,7 +340,7 @@ class _CreateDebtsState extends State<CreateDebts> {
               focusedBorderColor: const Color.fromARGB(255, 84, 113, 255),
               borderColor: Colors.grey.shade400,
               obscureText: false),
-          const SizedBox(height: 15),
+          const SizedBox(height: 20),
           InputField(
               readOnly: widget.preview != null,
               controller: description,
@@ -351,7 +349,7 @@ class _CreateDebtsState extends State<CreateDebts> {
               borderColor: Colors.grey.shade400,
               multiline: true,
               obscureText: false),
-          const SizedBox(height: 15),
+          const SizedBox(height: 20),
           InputField(
             readOnly: widget.preview != null,
             controller: totalAmount,
@@ -361,7 +359,7 @@ class _CreateDebtsState extends State<CreateDebts> {
             focusedBorderColor: const Color.fromARGB(255, 84, 113, 255),
             borderColor: Colors.grey.shade400,
           ),
-          const SizedBox(height: 40),
+          const SizedBox(height: 25),
           MyButton(
               borderColor: Colors.black,
               textStyle: Styles.buttonFontStyleModal,
@@ -451,9 +449,9 @@ class _CreateDebtsState extends State<CreateDebts> {
                 ? (value) {
                     setState(() {
                       shareEqually = value!;
-                      if (shareEqually == false) {
-                      } else {
+                      if (shareEqually == true) {
                         shareEquallyFunction();
+                        shareEquallyWithAllMembers = false;
                       }
                     });
                   }
@@ -484,6 +482,7 @@ class _CreateDebtsState extends State<CreateDebts> {
                       shareEquallyWithAllMembers = value!;
                       if (shareEquallyWithAllMembers == true) {
                         shareEquallyWithAllMembersFunction();
+                        shareEqually = false;
                       }
                     });
                   }
@@ -494,7 +493,7 @@ class _CreateDebtsState extends State<CreateDebts> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Container(
-                width: 200,
+                width: MediaQuery.of(context).size.width * 0.45,
                 height: 50,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(11.0),
@@ -515,8 +514,9 @@ class _CreateDebtsState extends State<CreateDebts> {
                 ),
               ),
               SizedBox(
-                  width: 150,
+                  width: MediaQuery.of(context).size.width * 0.45,
                   child: InputField(
+                    textAlignCenter: true,
                     readOnly: widget.preview != null,
                     controller: myAmount,
                     hintText: "Enter the amount",

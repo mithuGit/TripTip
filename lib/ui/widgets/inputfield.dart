@@ -14,6 +14,7 @@ class InputField extends StatelessWidget {
   final bool? multiline;
   final bool? numberField;
   final bool? readOnly;
+  final bool? textAlignCenter;
   final String? Function(String?)? validator;
 
   const InputField(
@@ -28,12 +29,14 @@ class InputField extends StatelessWidget {
       this.focusedBorderColor,
       this.numberField,
       this.validator,
+      this.textAlignCenter,
       this.readOnly});
   @override
   Widget build(BuildContext context) {
     return Container(
       margin: margin,
       child: TextFormField(
+        textAlign: textAlignCenter != null ? TextAlign.center : TextAlign.start,
         readOnly: readOnly == true,
         controller: controller,
         obscureText: obscureText,
