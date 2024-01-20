@@ -52,7 +52,7 @@ class UsernameBagageDashboardWidget extends StatelessWidget {
                     ' ' +
                     data!["lastname"] +
                     ' at ' +
-                    DateFormat('HH:mm').format((data!["createdAt"] as Timestamp).toDate()),
+                    DateFormat('HH:mm DD:YY').format((data!["createdAt"] as Timestamp).toDate()),
                 style: Styles.usernameBagageWidget),
           ),
         ],
