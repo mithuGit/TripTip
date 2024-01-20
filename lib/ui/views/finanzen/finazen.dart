@@ -247,7 +247,7 @@ class _FinanzenState extends State<Finanzen> {
 
                       // Build the List
                       return Padding(
-                        padding: const EdgeInsets.only(bottom: 80),
+                        padding: const EdgeInsets.only(bottom: 65),
                         child: CustomScrollView(
                           slivers: [
                             SliverPadding(
@@ -262,7 +262,6 @@ class _FinanzenState extends State<Finanzen> {
                               sliver: SliverToBoxAdapter(
                                 child: ExpansionTile(
                                   initiallyExpanded: true,
-                                  
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(0),
                                   ),

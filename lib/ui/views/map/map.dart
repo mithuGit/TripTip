@@ -574,9 +574,6 @@ class _MapPageState extends State<MapPage> {
                                           final interests = userCollection
                                               .data()!['interests'];
 
-                                          final notInterests = userCollection
-                                              .data()!['uninterested'];
-
                                           setState(() {
                                             loadingRecommendations =
                                                 true; // Setzen Sie den Ladezustand
@@ -586,11 +583,10 @@ class _MapPageState extends State<MapPage> {
                                             List<Place> places =
                                                 await GoogleMapService()
                                                     .getPlacesNew(
-                                                        tappedPointInCircle,
-                                                        radiusValue.toInt(),
-                                                        interests
-                                                            .cast<String>(),
-                                                       );
+                                              tappedPointInCircle,
+                                              radiusValue.toInt(),
+                                              interests.cast<String>(),
+                                            );
 
                                             if (places.isEmpty) {
                                               pressToGetRecommend = false;
@@ -867,109 +863,109 @@ class _MapPageState extends State<MapPage> {
 
     if (types.contains('bar')) {
       markerIcon = await GoogleMapService()
-          .getBytesFromAsset('assets/map_icon/bars.png', 75);
+          .getBytesFromAsset('assets/map_icon/bars.png', 100);
     } else if (types.contains('bakery')) {
       markerIcon = await GoogleMapService()
-          .getBytesFromAsset('assets/map_icon/cake-shop.png', 75);
+          .getBytesFromAsset('assets/map_icon/cake-shop.png', 100);
     } else if (types.contains('clothing_store')) {
       markerIcon = await GoogleMapService()
-          .getBytesFromAsset('assets/map_icon/clothings.png', 75);
+          .getBytesFromAsset('assets/map_icon/clothings.png', 100);
     } else if (types.contains('cafe')) {
       markerIcon = await GoogleMapService()
-          .getBytesFromAsset('assets/map_icon/coffee-n-tea.png', 75);
+          .getBytesFromAsset('assets/map_icon/coffee-n-tea.png', 100);
     } else if (types.contains('electronics_store')) {
       markerIcon = await GoogleMapService()
-          .getBytesFromAsset('assets/map_icon/computers.png', 75);
+          .getBytesFromAsset('assets/map_icon/computers.png', 100);
     } else if (types.contains('night_club')) {
       markerIcon = await GoogleMapService()
-          .getBytesFromAsset('assets/map_icon/dance-clubs.png', 75);
+          .getBytesFromAsset('assets/map_icon/dance-clubs.png', 100);
     } else if (types.contains('doctor')) {
       markerIcon = await GoogleMapService()
-          .getBytesFromAsset('assets/map_icon/doctors.png', 75);
+          .getBytesFromAsset('assets/map_icon/doctors.png', 100);
     } else if (types.contains('bowling_alley ') ||
         types.contains('zoo') ||
         types.contains('amusement_park')) {
       markerIcon = await GoogleMapService()
-          .getBytesFromAsset('assets/map_icon/karaoke.png', 75);
+          .getBytesFromAsset('assets/map_icon/karaoke.png', 100);
     } else if (types.contains('art_gallery ')) {
       markerIcon = await GoogleMapService()
-          .getBytesFromAsset('assets/map_icon/exhibitions.png', 75);
+          .getBytesFromAsset('assets/map_icon/exhibitions.png', 100);
     } else if (types.contains('bank') ||
         types.contains('atm') ||
         types.contains('finance')) {
       markerIcon = await GoogleMapService()
-          .getBytesFromAsset('assets/map_icon/financial-services.png', 75);
+          .getBytesFromAsset('assets/map_icon/financial-services.png', 100);
     } else if (types.contains('food')) {
       markerIcon = await GoogleMapService()
-          .getBytesFromAsset('assets/map_icon/food.png', 75);
+          .getBytesFromAsset('assets/map_icon/food.png', 100);
     } /* else if (types.contains('health') || types.contains('hospital')) { //TODO: Gym zählt auch ins health medical
     //WIE problem BEHEBEN ?? da es nicht nur health medical ist
     //z.B. bei Health medical zählt auch gym mit dazu aber wird nur als health medical png angezeigt statt ein eigenes gym png
       markerIcon = await GoogleMapService()
-          .getBytesFromAsset('assets/map_icon/health-medical.png', 75);
+          .getBytesFromAsset('assets/map_icon/health-medical.png', 100);
     }  */
     else if (types.contains('lodging')) {
       markerIcon = await GoogleMapService()
-          .getBytesFromAsset('assets/map_icon/hotels.png', 75);
+          .getBytesFromAsset('assets/map_icon/hotels.png', 100);
     } else if (types.contains('library') || types.contains('book_store')) {
       markerIcon = await GoogleMapService()
-          .getBytesFromAsset('assets/map_icon/libraries.png', 75);
+          .getBytesFromAsset('assets/map_icon/libraries.png', 100);
     } else if (types.contains('spa')) {
       markerIcon = await GoogleMapService()
-          .getBytesFromAsset('assets/map_icon/massage-therapy.png', 75);
+          .getBytesFromAsset('assets/map_icon/massage-therapy.png', 100);
     } else if (types.contains('pharmacy') ||
         types.contains("physiotherapist")) {
       markerIcon = await GoogleMapService()
-          .getBytesFromAsset('assets/map_icon/medical.png', 75);
+          .getBytesFromAsset('assets/map_icon/medical.png', 100);
     } else if (types.contains('movie_rental') ||
         types.contains('movie_theater')) {
       markerIcon = await GoogleMapService()
-          .getBytesFromAsset('assets/map_icon/movies.png', 75);
+          .getBytesFromAsset('assets/map_icon/movies.png', 100);
     } else if (types.contains('museum')) {
       markerIcon = await GoogleMapService()
-          .getBytesFromAsset('assets/map_icon/museums.png', 75);
+          .getBytesFromAsset('assets/map_icon/museums.png', 100);
     } else if (types.contains('park')) {
       markerIcon = await GoogleMapService()
-          .getBytesFromAsset('assets/map_icon/places.png', 75);
+          .getBytesFromAsset('assets/map_icon/places.png', 100);
     } else if (types.contains('restaurant')) {
       markerIcon = await GoogleMapService()
-          .getBytesFromAsset('assets/map_icon/restaurants.png', 75);
+          .getBytesFromAsset('assets/map_icon/restaurants.png', 100);
     } else if (types.contains('store') || types.contains('shoe_store')) {
       markerIcon = await GoogleMapService()
-          .getBytesFromAsset('assets/map_icon/retail-stores.png', 75);
+          .getBytesFromAsset('assets/map_icon/retail-stores.png', 100);
     } else if (types.contains('beauty_salon') || types.contains('hair_care')) {
       markerIcon = await GoogleMapService()
-          .getBytesFromAsset('assets/map_icon/saloon.png', 75);
+          .getBytesFromAsset('assets/map_icon/saloon.png', 100);
     } else if (types.contains('school') ||
         types.contains('secondary_school') ||
         types.contains('university')) {
       markerIcon = await GoogleMapService()
-          .getBytesFromAsset('assets/map_icon/schools.png', 75);
+          .getBytesFromAsset('assets/map_icon/schools.png', 100);
     } else if (types.contains('supermarket') ||
         types.contains('convenience_store') ||
         types.contains('shopping_mall')) {
       markerIcon = await GoogleMapService()
-          .getBytesFromAsset('assets/map_icon/shopping.png', 75);
+          .getBytesFromAsset('assets/map_icon/shopping.png', 100);
     } else if (types.contains('gym') || types.contains('stadium')) {
       markerIcon = await GoogleMapService()
-          .getBytesFromAsset('assets/map_icon/sports.png', 75);
+          .getBytesFromAsset('assets/map_icon/sports.png', 100);
     } else if (types.contains('train_station') ||
         types.contains('travel_agency')) {
       markerIcon = await GoogleMapService()
-          .getBytesFromAsset('assets/map_icon/tickets.png', 75);
+          .getBytesFromAsset('assets/map_icon/tickets.png', 100);
     } else if (types.contains('tourist_attraction')) {
       markerIcon = await GoogleMapService()
-          .getBytesFromAsset('assets/map_icon/tours.png', 75);
+          .getBytesFromAsset('assets/map_icon/tours.png', 100);
     } else if (types.contains('mosque') ||
         types.contains('church') ||
         types.contains('hindu_temple') ||
         types.contains('synagogue') ||
         types.contains('place_of_worship')) {
       markerIcon = await GoogleMapService()
-          .getBytesFromAsset('assets/map_icon/religious.png', 75);
+          .getBytesFromAsset('assets/map_icon/religious.png', 100);
     } else {
       markerIcon = await GoogleMapService()
-          .getBytesFromAsset('assets/map_icon/default.png', 75);
+          .getBytesFromAsset('assets/map_icon/default.png', 100);
     }
 
     final Marker marker = Marker(
@@ -1178,13 +1174,17 @@ class _MapPageState extends State<MapPage> {
                                         'Address: ',
                                         style: Styles.mapadress,
                                       ),
-                                      SizedBox(
+                                      Flexible(
+                                        child: SizedBox(
                                           width: 150.0,
                                           child: Text(
                                             allFavoritePlaces[index]
                                                 .formattedAddress,
                                             style: Styles.mapadressformatted,
-                                          ))
+                                            maxLines: 4,
+                                          ),
+                                        ),
+                                      )
                                     ],
                                   ),
                                 )
