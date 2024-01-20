@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:internet_praktikum/ui/widgets/bottom_sheet.dart';
 import 'package:internet_praktikum/ui/widgets/centerText.dart';
-import 'package:internet_praktikum/ui/widgets/finanzenWidgets/createDebts.dart';
+import 'package:internet_praktikum/ui/widgets/finanzenWidgets/createWidgetPreviewForDebts.dart';
 import 'package:internet_praktikum/ui/widgets/finanzenWidgets/wallet.dart';
 import 'package:internet_praktikum/ui/widgets/headerWidgets/topbar.dart';
 import '../../widgets/finanzenWidgets/extendablecontainer.dart';
