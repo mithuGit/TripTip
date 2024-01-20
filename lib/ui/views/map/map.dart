@@ -659,7 +659,7 @@ class _MapPageState extends State<MapPage> {
                                         ),
                                       ),
                                 IconButton(
-                                    onPressed: () {
+                                    onPressed: () async {
                                       setState(() {
                                         isExpanded = false;
                                         radiusSlider = false;
@@ -669,6 +669,21 @@ class _MapPageState extends State<MapPage> {
                                         markers = {};
                                         allFavoritePlaces = [];
                                       });
+                                      final GoogleMapController controller =
+                                          await _googleMapController.future;
+                                      controller.animateCamera(
+                                          CameraUpdate.newCameraPosition(
+                                              CameraPosition(
+                                                  target: currentLocationData ==
+                                                          null
+                                                      ? LatLng(latLng!.latitude,
+                                                          latLng!.longitude)
+                                                      : LatLng(
+                                                          currentLocationData!
+                                                              .latitude!,
+                                                          currentLocationData!
+                                                              .longitude!),
+                                                  zoom: 12)));
                                     },
                                     icon: const Icon(Icons.close,
                                         color: Colors.red))
