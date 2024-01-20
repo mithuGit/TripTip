@@ -24,6 +24,13 @@ class UsernameBagageDashboardWidget extends StatelessWidget {
       return _userData;
     }
 
+    String dateString() {
+      if(DateTime.now().difference(data?["createdAt"].toDate()).inDays == 0){
+        return " Today at ${DateFormat('HH:mm').format(data?["createdAt"].toDate())}";
+      }
+      return " on ${DateFormat('M.D.y').format(data?["createdAt"].toDate())}";
+    }
+
     return Container(
       margin: const EdgeInsets.only(top: 8),
       child: Row(
@@ -51,8 +58,7 @@ class UsernameBagageDashboardWidget extends StatelessWidget {
                     data!["prename"] +
                     ' ' +
                     data!["lastname"] +
-                    ' at ' +
-                    DateFormat('HH:mm DD:YY').format((data!["createdAt"] as Timestamp).toDate()),
+                   dateString(),
                 style: Styles.usernameBagageWidget),
           ),
         ],
