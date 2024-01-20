@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:internet_praktikum/ui/widgets/errorSnackbar.dart';
@@ -30,7 +31,6 @@ class _AccountState extends State<Account> {
   final prenameController = TextEditingController();
   final lastnameController = TextEditingController();
   final emailController = TextEditingController();
-  final dateOfBirthController = TextEditingController();
   final passwordController = TextEditingController();
 
   Color buttonColor = Colors.grey;
@@ -41,11 +41,53 @@ class _AccountState extends State<Account> {
   String selectedDate = '';
   ImageProvider<Object>? imageProvider;
 
+  DateTime? selectedDateTime;
+
   String imageURL = '';
   String newImageURL = '';
   String imagePath = '';
   String newImagePath = '';
   bool uploading = false;
+  bool loarding = false;
+  @override
+  void initState() {
+    super.initState();
+    setState(() {
+      loarding = true;
+    });
+    SchedulerBinding.instance.addPostFrameCallback((_) async {
+      Map<String, dynamic> userData =
+          (await getUserdata()).data() as Map<String, dynamic>;
+      if (userData["prename"] != null) {
+        prenameController.text = userData["prename"];
+      }
+      if (userData["lastname"] != null) {
+        lastnameController.text = userData["lastname"];
+      }
+      if (userData["dateOfBirth"] != null) {
+        selectedDate = userData["dateOfBirth"];
+      }
+      if (userData["email"] != null) {
+        emailController.text = userData["email"];
+      } else {
+        emailController.text = currentUser.email!;
+      }
+      if (userData["profilePicture"] != null) {
+        setState(() {
+          imageURL = userData["profilePicture"];
+          imageProvider = NetworkImage(userData["profilePicture"]);
+        });
+      }
+      if (userData["profilePicturePath"] != null) {
+        setState(() {
+          imagePath = userData["profilePicturePath"];
+        });
+      }
+      setState(() {
+        loarding = false;
+      });
+    });
+  }
 
   //set and updates Userdata in the FirebaseCollestion users
   Future<void> updateUserData() async {
@@ -60,19 +102,19 @@ class _AccountState extends State<Account> {
         //Updates data in FireStore
         'prename': prenameController.text,
         'lastname': lastnameController.text,
-        'dateOfBirth': dateOfBirthController.text,
+        'dateOfBirth': selectedDate,
         'profilePicture': imageURL,
         'profilePicturePath': imagePath,
       });
       await currentUser.updateDisplayName(
-          "$prenameController.text $lastnameController.text"); //Updates displayName in Auth
+          prenameController.text + " " + lastnameController.text); //Updates displayName in Auth
     } on Exception catch (e) {
       if (kDebugMode) {
         print("Something went wrong while fetching your data $e");
       }
       // ignore: use_build_context_synchronously
       ErrorSnackbar.showErrorSnackbar(
-          context, "Something went wrong while fetching your data");
+          context, "Something went wrong while updating your profile");
     }
   }
 
@@ -101,234 +143,182 @@ class _AccountState extends State<Account> {
               child: CustomContainer(
                 title: "Account Details:",
                 children: [
-                  FutureBuilder(
-                      future: getUserdata(),
-                      builder:
-                          (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
-                        if (snapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return const Center(
-                            child: CircularProgressIndicator(),
-                          );
-                        }
-                        if (snapshot.hasError) {
-                          return const Text(
-                              "Something went wrong while fetching your data ");
-                        }
-                        Map<String, dynamic> userData =
-                            snapshot.data!.data()! as Map<String, dynamic>;
-                        if (userData['prename'] != null) {
-                          prenameController.text = userData['prename'];
-                        }
-                        if (userData['lastname'] != null) {
-                          lastnameController.text = userData['lastname'];
-                        }
-                        if (userData['dateOfBirth'] != null) {
-                          selectedDate = userData['dateOfBirth'];
-                        }
-                        if (userData['email'] != null) {
-                          emailController.text = userData['email'];
-                        }
-                        imageProvider =
-                            const AssetImage('assets/Personavatar.png');
-                        if (userData.containsKey('profilePicture')) {
-                          imageURL = userData['profilePicture'];
-                          imageProvider = NetworkImage(imageURL);
-                        }
-                        if (userData.containsKey('profilePicturePath')) {
-                          imagePath = userData['profilePicturePath'];
-                        }
+                  if (loarding)
+                    const Center(child: CircularProgressIndicator()),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      GestureDetector(
+                        onTap: () async {
+                          setState(() {
+                            uploading = true;
+                          });
+                          ImagePicker imagePicker = ImagePicker();
+                          XFile? pickedFile;
+                          pickedFile = await imagePicker.pickImage(
+                              source: ImageSource.gallery);
+                          //get reference to storage root
+                          Reference referenceRoot =
+                              FirebaseStorage.instance.ref();
+                          Reference referenceDirImages =
+                              referenceRoot.child('profilePictures');
 
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                GestureDetector(
-                                  onTap: () async {
-                                    setState(() {
-                                      uploading = true;
-                                    });
-                                    ImagePicker imagePicker = ImagePicker();
-                                    XFile? pickedFile;
-                                    pickedFile = await imagePicker.pickImage(
-                                        source: ImageSource.gallery);
-                                    //get reference to storage root
-                                    Reference referenceRoot =
-                                        FirebaseStorage.instance.ref();
-                                    Reference referenceDirImages =
-                                        referenceRoot.child('profilePictures');
+                          // create a refernece for the image to be stored
+                          Reference referenceImageToUpload =
+                              referenceDirImages.child(currentUser.uid);
 
-                                    // create a refernece for the image to be stored
-                                    Reference referenceImageToUpload =
-                                        referenceDirImages
-                                            .child(currentUser.uid);
+                          //Handle errors/succes
+                          try {
+                            if (pickedFile != null) {
+                              await referenceImageToUpload
+                                  .putFile(File(pickedFile.path));
+                              String _newUploadURL =
+                                  await referenceImageToUpload.getDownloadURL();
+                              setState(() {
+                                newImagePath = referenceImageToUpload.fullPath;
+                                newImageURL = _newUploadURL;
+                              });
+                            }
+                          } catch (e) {
+                            if (kDebugMode) {
+                              print(
+                                  "Something went wrong while uploading your image $e");
+                            }
+                            // ignore: use_build_context_synchronously
+                            ErrorSnackbar.showErrorSnackbar(context,
+                                "Something went wrong while uploading your image");
+                          }
 
-                                    //Handle errors/succes
-                                    try {
-                                      if (pickedFile != null) {
-                                        await referenceImageToUpload
-                                            .putFile(File(pickedFile.path));
-                                        setState(() async {
-                                          newImageURL =
-                                              await referenceImageToUpload
-                                                  .getDownloadURL();
-                                          newImagePath =
-                                              referenceImageToUpload.fullPath;
-                                        });
-                                      }
-                                    } catch (e) {
-                                      if (kDebugMode) {
-                                        print(
-                                            "Something went wrong while uploading your image $e");
-                                      }
-                                      // ignore: use_build_context_synchronously
-                                      ErrorSnackbar.showErrorSnackbar(context,
-                                          "Something went wrong while uploading your image");
-                                    }
-
-                                    if (pickedFile != null) {
-                                      setState(() {
-                                        imageProvider =
-                                            FileImage(File(pickedFile!.path));
-                                        PaintingBinding.instance.imageCache
-                                            .clear();
-                                      });
-                                    }
-                                    setState(() {
-                                      uploading = false;
-                                    });
-                                  },
-                                  child: CircleAvatar(
-                                    radius: 37.5,
-                                    backgroundImage: imageProvider,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 5),
-                            if (uploading)
-                              const Center(child: LinearProgressIndicator()),
-                            const SizedBox(
-                              height: 25,
-                            ),
-                            InputField(
-                              controller: prenameController,
-                              hintText: 'First Name',
-                              obscureText: false,
-                              margin: const EdgeInsets.only(bottom: 25),
-                            ),
-                            InputField(
-                              controller: lastnameController,
-                              hintText: 'Last Name',
-                              obscureText: false,
-                              margin: const EdgeInsets.only(bottom: 10),
-                            ),
-                            const SizedBox(height: 10),
-                            const SizedBox(
-                              width: 148,
-                              height: 18,
-                              child: Text(
-                                'Date of Birth:',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 12,
-                                  fontFamily: 'Ubuntu',
-                                  fontWeight: FontWeight.w500,
-                                  height: 0,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: 10),
-                            CupertinoDatePickerButton(
-                              presetDate: selectedDate,
-                              margin: const EdgeInsets.only(bottom: 25),
-                              onDateSelected:
-                                  (DateStringTupel dateStringTupel) {
-                                setState(() {
-                                  selectedDate = dateStringTupel.dateString;
-                                });
-                              },
-                              showFuture: false,
-                            ),
-                            InputField(
-                              readOnly: true,
-                              controller: emailController,
-                              hintText: "Email",
-                              obscureText: false,
-                            ),
-                            const SizedBox(height: 20),
-                            const SizedBox(
-                              width: 148,
-                              height: 18,
-                              child: Text(
-                                'User ID:',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 12,
-                                  fontFamily: 'Ubuntu',
-                                  fontWeight: FontWeight.w500,
-                                  height: 0,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: 10),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                SizedBox(
-                                  width: 275,
-                                  child: InputField(
-                                    readOnly: true,
-                                    controller: TextEditingController(
-                                        text: currentUser.uid),
-                                    hintText: "UID",
-                                    obscureText: false,
-                                  ),
-                                ),
-                                SizedBox(
-                                  child: Card(
-                                      color: buttonFill,
-                                      margin: const EdgeInsets.only(left: 10),
-                                      child: IconButton(
-                                          onPressed: () {
-                                            Clipboard.setData(ClipboardData(
-                                                text: currentUser.uid));
-                                            setState(() {
-                                              buttonFill = Colors.green;
-                                              buttonIcon = Icons.check;
-                                              buttonColor = Colors.white;
-                                            });
-                                          },
-                                          icon: Icon(
-                                            buttonIcon,
-                                            color: buttonColor,
-                                          ))),
-                                )
-                              ],
-                            ),
-                            const SizedBox(height: 25),
-                            MyButton(
-                              onTap: () async {
-                                //store information of item in cloud firestore
-
-                                //currentUser.updatePhotoURL(imageURL);
-                                await updateUserData();
-
-                                if (context.mounted) {
-                                  widget.isEditProfile == true
-                                      ? context.go('/profile')
-                                      : context.go('/setinterests/true');
-                                }
-                              },
-                              text: widget.isEditProfile == true
-                                  ? "Finish"
-                                  : 'Select your Interests',
-                            ),
-                          ],
-                        );
-                      }),
+                          if (pickedFile != null) {
+                            setState(() {
+                              imageProvider = FileImage(File(pickedFile!.path));
+                              PaintingBinding.instance.imageCache.clear();
+                            });
+                          }
+                          setState(() {
+                            uploading = false;
+                          });
+                        },
+                        child: CircleAvatar(
+                          radius: 37.5,
+                          backgroundImage: imageProvider,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 5),
+                  if (uploading) const Center(child: LinearProgressIndicator()),
+                  const SizedBox(
+                    height: 25,
+                  ),
+                  InputField(
+                    controller: prenameController,
+                    hintText: 'First Name',
+                    obscureText: false,
+                    margin: const EdgeInsets.only(bottom: 25),
+                  ),
+                  InputField(
+                    controller: lastnameController,
+                    hintText: 'Last Name',
+                    obscureText: false,
+                    margin: const EdgeInsets.only(bottom: 10),
+                  ),
+                  const SizedBox(height: 10),
+                  const SizedBox(
+                    width: 148,
+                    height: 18,
+                    child: Text(
+                      'Date of Birth:',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                        fontFamily: 'Ubuntu',
+                        fontWeight: FontWeight.w500,
+                        height: 0,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  CupertinoDatePickerButton(
+                    presetDate: selectedDate,
+                    margin: const EdgeInsets.only(bottom: 25),
+                    onDateSelected: (DateStringTupel dateStringTupel) {
+                      setState(() {
+                        selectedDate = dateStringTupel.dateString;
+                      });
+                    },
+                    showFuture: false,
+                  ),
+                  InputField(
+                    readOnly: true,
+                    controller: emailController,
+                    hintText: "Email",
+                    obscureText: false,
+                  ),
+                  const SizedBox(height: 20),
+                  const SizedBox(
+                    width: 148,
+                    height: 18,
+                    child: Text(
+                      'User ID:',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                        fontFamily: 'Ubuntu',
+                        fontWeight: FontWeight.w500,
+                        height: 0,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      SizedBox(
+                        width: 275,
+                        child: InputField(
+                          readOnly: true,
+                          controller:
+                              TextEditingController(text: currentUser.uid),
+                          hintText: "UID",
+                          obscureText: false,
+                        ),
+                      ),
+                      SizedBox(
+                        child: Card(
+                            color: buttonFill,
+                            margin: const EdgeInsets.only(left: 10),
+                            child: IconButton(
+                                onPressed: () {
+                                  Clipboard.setData(
+                                      ClipboardData(text: currentUser.uid));
+                                  setState(() {
+                                    buttonFill = Colors.green;
+                                    buttonIcon = Icons.check;
+                                    buttonColor = Colors.white;
+                                  });
+                                },
+                                icon: Icon(
+                                  buttonIcon,
+                                  color: buttonColor,
+                                ))),
+                      )
+                    ],
+                  ),
+                  const SizedBox(height: 25),
+                  MyButton(
+                    onTap: () async {
+                      await updateUserData();
+                      if (context.mounted) {
+                        widget.isEditProfile == true
+                            ? context.go('/profile')
+                            : context.go('/setinterests/true');
+                      }
+                    },
+                    text: widget.isEditProfile == true
+                        ? "Finish"
+                        : 'Select your Interests',
+                  ),
                 ],
               ),
             ),
