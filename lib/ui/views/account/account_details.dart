@@ -42,21 +42,30 @@ class _AccountState extends State<Account> {
   ImageProvider<Object>? imageProvider;
 
   String imageURL = '';
+  String newImageURL = '';
+  String imagePath = '';
+  String newImagePath = '';
   bool uploading = false;
 
   //set and updates Userdata in the FirebaseCollestion users
-  Future<void> updateUserData(
-      String prename, String lastname, String dateOfBirth, String image) async {
+  Future<void> updateUserData() async {
     try {
+      if (newImageURL != '') {
+        imageURL = newImageURL;
+      }
+      if (newImagePath != '') {
+        imagePath = newImagePath;
+      }
       await userCollection.doc(currentUser.uid).update({
         //Updates data in FireStore
-        'prename': prename,
-        'lastname': lastname,
-        'dateOfBirth': dateOfBirth,
-        'profilePicture': image,
+        'prename': prenameController.text,
+        'lastname': lastnameController.text,
+        'dateOfBirth': dateOfBirthController.text,
+        'profilePicture': imageURL,
+        'profilePicturePath': imagePath,
       });
       await currentUser.updateDisplayName(
-          "$prename $lastname"); //Updates displayName in Auth
+          "$prenameController.text $lastnameController.text"); //Updates displayName in Auth
     } on Exception catch (e) {
       if (kDebugMode) {
         print("Something went wrong while fetching your data $e");
@@ -121,10 +130,13 @@ class _AccountState extends State<Account> {
                           emailController.text = userData['email'];
                         }
                         imageProvider =
-                            AssetImage('assets/Personavatar.png');
+                            const AssetImage('assets/Personavatar.png');
                         if (userData.containsKey('profilePicture')) {
                           imageURL = userData['profilePicture'];
                           imageProvider = NetworkImage(imageURL);
+                        }
+                        if (userData.containsKey('profilePicturePath')) {
+                          imagePath = userData['profilePicturePath'];
                         }
 
                         return Column(
@@ -157,10 +169,15 @@ class _AccountState extends State<Account> {
                                     try {
                                       if (pickedFile != null) {
                                         await referenceImageToUpload
-                                            .putFile(File(pickedFile!.path));
+                                            .putFile(File(pickedFile.path));
+                                        setState(() async {
+                                          newImageURL =
+                                              await referenceImageToUpload
+                                                  .getDownloadURL();
+                                          newImagePath =
+                                              referenceImageToUpload.fullPath;
+                                        });
                                       }
-                                      imageURL =
-                                          referenceImageToUpload.fullPath;
                                     } catch (e) {
                                       if (kDebugMode) {
                                         print(
@@ -175,6 +192,8 @@ class _AccountState extends State<Account> {
                                       setState(() {
                                         imageProvider =
                                             FileImage(File(pickedFile!.path));
+                                        PaintingBinding.instance.imageCache
+                                            .clear();
                                       });
                                     }
                                     setState(() {
@@ -295,11 +314,7 @@ class _AccountState extends State<Account> {
                                 //store information of item in cloud firestore
 
                                 //currentUser.updatePhotoURL(imageURL);
-                                await updateUserData(
-                                    prenameController.value.text,
-                                    lastnameController.value.text,
-                                    selectedDate,
-                                    imageURL);
+                                await updateUserData();
 
                                 if (context.mounted) {
                                   widget.isEditProfile == true

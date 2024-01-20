@@ -33,7 +33,6 @@ class _CreateDebtsState extends State<CreateDebts> {
 
   bool shareEqually = false;
   bool shareEquallyWithAllMembers = false;
-  bool calculateMyAmountDifference = false;
 
   bool newBottomSheet = false;
 
@@ -48,7 +47,7 @@ class _CreateDebtsState extends State<CreateDebts> {
   DocumentReference? memberNameUID;
   var member = [];
 
-  bool TotalAmountisInRange = false;
+  bool totalAmountIsInRange = false;
 
   //TODO fallbeispiele eig schon abgecheckt kann gerne jemand nochmal prüfen aber hat bei mir geklappt
   //shareeaull with all dann alle boxen full
@@ -97,7 +96,7 @@ class _CreateDebtsState extends State<CreateDebts> {
   }
 
 //get the data for the preview container so he can look up again what he has entered and request from the other ones
-  getPreviewData() async {
+  Future<void> getPreviewData() async {
     if (widget.preview != null) {
       await getMembers();
       title.text = widget.preview!["title"];
@@ -128,21 +127,18 @@ class _CreateDebtsState extends State<CreateDebts> {
         setState(() {
           shareEquallyWithAllMembers = true;
           shareEqually = true;
-          calculateMyAmountDifference = true;
         });
       } else if (widget.preview!["to"].length + 1 != member.length) {
         if (sumForMyAmount / amountList.length == double.parse(myAmount.text)) {
           setState(() {
             shareEquallyWithAllMembers = false;
             shareEqually = true;
-            calculateMyAmountDifference = true;
           });
         } else if (sumForMyAmount / amountList.length !=
             double.parse(myAmount.text)) {
           setState(() {
             shareEquallyWithAllMembers = false;
             shareEqually = false;
-            calculateMyAmountDifference = true;
           });
         }
       }
@@ -152,10 +148,8 @@ class _CreateDebtsState extends State<CreateDebts> {
   @override
   void initState() {
     super.initState();
-    getPreviewData();
+    if (widget.preview != null) getPreviewData();
   }
-
-  StreamController<double> myAmountStream = StreamController<double>();
 
   //calculate the amount of money for the current user
   void calculateMyAmount() {
@@ -164,17 +158,30 @@ class _CreateDebtsState extends State<CreateDebts> {
 
     for (int i = 0; i < optionList.length; i++) {
       if (amountList[i].text.isNotEmpty) {
-        sum += double.parse(amountList[i].text);
+        sum += (double.parse(amountList[i].text) * 100).ceil() / 100;
       }
     }
 
-    double remainingAmount = totalAmountValue - sum;
+    double remainingAmount = totalAmountValue - sum; //- 0.01;
     myAmount.text = ((remainingAmount * 100).ceil() / 100).toStringAsFixed(2);
   }
 
-// To calculate the amount for all member if if checkbox the share equally wiht all
-// to get the currentUserName if if press next and/or to list all member name after pressing next
-  void shareEquallyWithAllMembersFunction(bool nextonly) async {
+  //get the current user name by pressing the next button
+  void nextButtonToGetMember() async {
+    await getMembers();
+    for (int i = 0; i < member.length; i++) {
+      if (member[i].id == user.uid) {
+        currentUserName =
+            (currentUser!.data() as Map<String, dynamic>)["prename"] +
+                " " +
+                (currentUser!.data() as Map<String, dynamic>)["lastname"];
+      }
+    }
+    calculateMyAmount();
+  }
+
+  // share the amount equally with all members => only when nextonly is false
+  void shareEquallyWithAllMembersFunction() async {
     double totalAmountValue = double.parse(totalAmount.text);
 
     await getMembers();
@@ -186,9 +193,7 @@ class _CreateDebtsState extends State<CreateDebts> {
       String memberName =
           '$memberPrename $memberLastname'; // Concatenate prename and lastname
 
-      if (member[i].id != user.uid &&
-          !optionList.contains(memberName) &&
-          !nextonly) {
+      if (member[i].id != user.uid && !optionList.contains(memberName)) {
         if (memberName.isNotEmpty) {
           setState(() {
             optionList.add(memberName);
@@ -196,28 +201,15 @@ class _CreateDebtsState extends State<CreateDebts> {
             amountList.add(TextEditingController());
           });
         }
-      } else {
-        currentUserName =
-            (currentUser!.data() as Map<String, dynamic>)["prename"] +
-                " " +
-                (currentUser!.data() as Map<String, dynamic>)["lastname"];
-      }
-      if (member[i].id == user.uid && nextonly) {
-        if (memberName.isNotEmpty) {
-          setState(() {
-            currentUserName = memberName;
-          });
-        }
       }
     }
-    if (!nextonly) {
-      double diff = totalAmountValue / (optionList.length + 1);
+    double diff = totalAmountValue / (optionList.length + 1);
 
-      for (int i = 0; i < optionList.length; i++) {
-        amountList[i].text = diff.toStringAsFixed(2);
-      }
-      myAmount.text = diff.toStringAsFixed(2);
+    for (int i = 0; i < optionList.length; i++) {
+      amountList[i].text = diff.toStringAsFixed(2);
     }
+    myAmount.text = diff.toStringAsFixed(2);
+
     calculateMyAmount();
   }
 
@@ -239,8 +231,8 @@ class _CreateDebtsState extends State<CreateDebts> {
     }
   }
 
-//build the listtile for the member list
-//if user add a wrong member to the request, he can delete it with the dismissible(swipe to the left)
+// build the listtile for the member list
+// if user add a wrong member to the request, he can delete it with the dismissible(swipe to the left)
   Widget buildTenableListTile(int index) {
     return Dismissible(
       key: Key(optionList[index].toString() + index.toString()),
@@ -323,14 +315,14 @@ class _CreateDebtsState extends State<CreateDebts> {
             }
             setState(() {
               if (totalAmountValue > double.parse(totalAmount.text)) {
-                if (!TotalAmountisInRange) {
+                if (!totalAmountIsInRange) {
                   ErrorSnackbar.showErrorSnackbar(
                       context, "The total amount is exceeded");
-                  TotalAmountisInRange = true;
+                  totalAmountIsInRange = true;
                 }
-                TotalAmountisInRange = true;
+                totalAmountIsInRange = true;
               } else {
-                TotalAmountisInRange = false;
+                totalAmountIsInRange = false;
               }
             });
             WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -360,46 +352,14 @@ class _CreateDebtsState extends State<CreateDebts> {
               multiline: true,
               obscureText: false),
           const SizedBox(height: 15),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              SizedBox(
-                  width: 130,
-                  child: InputField(
-                    readOnly: widget.preview != null,
-                    controller: totalAmount,
-                    hintText: "Total Amount",
-                    obscureText: false,
-                    numberField: true,
-                    focusedBorderColor: const Color.fromARGB(255, 84, 113, 255),
-                    borderColor: Colors.grey.shade400,
-                  )),
-              Row(
-                children: [
-                  const Text(
-                    "Share Equally with \nall Members:",
-                    style: Styles.inputField,
-                  ),
-                  Checkbox(
-                      value: shareEquallyWithAllMembers,
-                      activeColor: widget.preview != null
-                          ? Colors.grey[300]
-                          : Colors.purple,
-                      onChanged: (value) {
-                        if (widget.preview == null) {
-                          setState(() {
-                            shareEquallyWithAllMembers = value!;
-                            if (shareEquallyWithAllMembers == true) {
-                              shareEquallyWithAllMembersFunction(false);
-                              shareEqually = true;
-                              calculateMyAmountDifference = true;
-                            }
-                          });
-                        }
-                      }),
-                ],
-              ),
-            ],
+          InputField(
+            readOnly: widget.preview != null,
+            controller: totalAmount,
+            hintText: "Enter the total amount",
+            obscureText: false,
+            numberField: true,
+            focusedBorderColor: const Color.fromARGB(255, 84, 113, 255),
+            borderColor: Colors.grey.shade400,
           ),
           const SizedBox(height: 40),
           MyButton(
@@ -409,7 +369,7 @@ class _CreateDebtsState extends State<CreateDebts> {
                 if (title.text != "" &&
                     totalAmount.text != "" &&
                     _isNumeric(totalAmount)) {
-                  shareEquallyWithAllMembersFunction(true);
+                  nextButtonToGetMember();
                   setState(() {
                     newBottomSheet = true;
                   });
@@ -468,68 +428,66 @@ class _CreateDebtsState extends State<CreateDebts> {
               itemBuilder: (context, index) => buildTenableListTile(index),
             ),
           ),
-          Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    "Share Equally:",
-                    style: Styles.inputField,
-                  ),
-                  Checkbox(
-                      value: shareEqually,
-                      activeColor: widget.preview != null
-                          ? Colors.grey[300]
-                          : Colors.purple,
-                      onChanged: (value) {
-                        if (widget.preview == null) {
-                          setState(() {
-                            shareEqually = value!;
-                            if (shareEqually == false &&
-                                calculateMyAmountDifference == true) {
-                              calculateMyAmountDifference = false;
-                            } else {
-                              shareEquallyFunction();
-                              shareEquallyWithAllMembers = false;
-                              calculateMyAmountDifference = true;
-                            }
-                          });
-                        }
-                      }),
-                ],
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    "Calculate my Amount:", // My amount will be calculated automatically
-                    style: Styles.inputField,
-                  ),
-                  Checkbox(
-                      value: calculateMyAmountDifference,
-                      activeColor: widget.preview != null
-                          ? Colors.grey[300]
-                          : Colors.purple,
-                      onChanged: (value) {
-                        if (widget.preview == null) {
-                          setState(() {
-                            calculateMyAmountDifference = value!;
-                            calculateMyAmountDifference &&
-                                    totalAmount.text != "" &&
-                                    !shareEqually
-                                ? WidgetsBinding.instance
-                                    .addPostFrameCallback((_) {
-                                    calculateMyAmount();
-                                  })
-                                : myAmount.text = "";
-                          });
-                        }
-                      }),
-                ],
-              ),
-            ],
+          CheckboxListTile(
+            title: const Text(
+              "Share Equally",
+              style: Styles.inputField,
+            ),
+            subtitle: const Text(
+              "Please select the members you want to share with",
+              style: TextStyle(fontSize: 12),
+            ),
+            value: shareEqually,
+            checkboxShape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(5),
+            ),
+            activeColor:
+                widget.preview != null ? Colors.grey[300] : Colors.purple,
+            tileColor: Colors.white,
+            controlAffinity: ListTileControlAffinity.leading,
+            contentPadding:
+                const EdgeInsets.only(left: 10, right: 10, top: 0, bottom: 0),
+            onChanged: widget.preview == null
+                ? (value) {
+                    setState(() {
+                      shareEqually = value!;
+                      if (shareEqually == false) {
+                      } else {
+                        shareEquallyFunction();
+                      }
+                    });
+                  }
+                : null,
+          ),
+          CheckboxListTile(
+            value: shareEquallyWithAllMembers,
+            title: const Text(
+              "Share Equally All",
+              style: Styles.inputField,
+            ),
+            subtitle: const Text(
+              "All members will be selected with equally amount",
+              style: TextStyle(fontSize: 12),
+            ),
+            checkboxShape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(5),
+            ),
+            activeColor:
+                widget.preview != null ? Colors.grey[300] : Colors.purple,
+            tileColor: Colors.white,
+            controlAffinity: ListTileControlAffinity.leading,
+            contentPadding:
+                const EdgeInsets.only(left: 10, right: 10, top: 0, bottom: 0),
+            onChanged: widget.preview == null
+                ? (value) {
+                    setState(() {
+                      shareEquallyWithAllMembers = value!;
+                      if (shareEquallyWithAllMembers == true) {
+                        shareEquallyWithAllMembersFunction();
+                      }
+                    });
+                  }
+                : null,
           ),
           const SizedBox(height: 10),
           Row(
