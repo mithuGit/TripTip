@@ -47,24 +47,24 @@ class PaymentsHandeler {
           await FirebaseFunctions.instance.httpsCallable('stripeRefund').call(
         {
           "customer": _stripeId,
-          "amount": 23.4,
         },
       );
-      final _response = result.data;
-      print(_response);
-      cachedPaymentIntend = _response["paymentIntentId"];
+      if(result.data["success"] == false){
+        throw result.data["error"];
+      }
+      cachedPaymentIntend = result.data["paymentIntentId"];
       await Stripe.instance.initPaymentSheet(
           paymentSheetParameters: SetupPaymentSheetParameters(
-        paymentIntentClientSecret: _response["paymentIntent"],
+        paymentIntentClientSecret: result.data["paymentIntent"],
         merchantDisplayName: 'TipTrip',
         customerId: _stripeId,
-        customerEphemeralKeySecret: _response["ephemeralKey"],
+        customerEphemeralKeySecret: result.data["ephemeralKey"],
         style: ThemeMode.dark,
       ));
       // Start Payment
       await Stripe.instance.presentPaymentSheet();
     } on FirebaseFunctionsException catch (error) {
-      throw "Error creating refund";
+      throw "Error creating refund: ${error.message}";
     } on StripeException catch (error) {
       debugPrint("StripeException");
       debugPrint(error.toString());
@@ -88,7 +88,9 @@ class PaymentsHandeler {
           }
         }
       }
-    } catch (error) {}
+    } catch (error) {
+      throw "Error creating refund: ${error.toString()}";
+    }
   }
 
   Future<void> bookToBankAccount(DocumentSnapshot myAccount) async {
@@ -99,7 +101,10 @@ class PaymentsHandeler {
     final result = await FirebaseFunctions.instance
         .httpsCallable('bookToBankAccount')
         .call();
-    final _response = result.data as String;
+    final _response = result.data as Map<String, dynamic>;
+    if (!_response["success"]) {
+      throw _response["error"];
+    }
     print(_response);
   }
 

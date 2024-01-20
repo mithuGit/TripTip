@@ -590,8 +590,7 @@ class _MapPageState extends State<MapPage> {
                                                         radiusValue.toInt(),
                                                         interests
                                                             .cast<String>(),
-                                                        notInterests
-                                                            .cast<String>());
+                                                       );
 
                                             if (places.isEmpty) {
                                               pressToGetRecommend = false;

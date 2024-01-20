@@ -6,8 +6,6 @@ class ImageContainer extends StatefulWidget {
 
   final ValueChanged<List<String>> setInterested;
   final ValueChanged<List<String>> unsetInterested;
-  final ValueChanged<List<String>> unInterestetset;
-  final ValueChanged<List<String>> unInterestetunset;
 
   final bool? isSelected;
   final bool? isNotinterested;
@@ -16,8 +14,6 @@ class ImageContainer extends StatefulWidget {
       super.key,
       required this.setInterested,
       required this.unsetInterested,
-      required this.unInterestetset,
-      required this.unInterestetunset,
       this.isSelected,
       this.isNotinterested});
 
@@ -45,31 +41,11 @@ class _ImageContainerState extends State<ImageContainer> {
     return GestureDetector(
       onTap: () {
         setState(() {
-          if (isNotinterested) {
-            widget.unInterestetunset(Interests.available[widget.image]!);
-            isSelected = false;
-            isNotinterested = false;
+          isSelected = !isSelected;
+          if (isSelected) {
+            widget.setInterested(Interests.available[widget.image]!);
           } else {
-            isSelected = !isSelected;
-            if (isSelected) {
-              widget.setInterested(Interests.available[widget.image]!);
-            } else {
-              widget.unsetInterested(Interests.available[widget.image]!);
-            }
-          }
-        });
-      },
-      onLongPress: () {
-        setState(() {
-          if(isSelected){
             widget.unsetInterested(Interests.available[widget.image]!);
-            isSelected = false;
-          }
-          isNotinterested = !isNotinterested;
-          if (isNotinterested) {
-            widget.unInterestetset(Interests.available[widget.image]!);
-          } else {
-            widget.unInterestetunset(Interests.available[widget.image]!);
           }
         });
       },
@@ -80,9 +56,7 @@ class _ImageContainerState extends State<ImageContainer> {
             height: 85,
             decoration: BoxDecoration(
               border: Border.all(
-                color: isSelected
-                    ? Colors.green
-                    : (isNotinterested ? Colors.red : Colors.white),
+                color: isSelected ? Colors.green : Colors.white,
                 width: 2,
               ),
               borderRadius: BorderRadius.circular(14),

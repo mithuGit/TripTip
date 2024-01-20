@@ -23,7 +23,6 @@ class _SetInterestsPageState extends State<SetInterestsPage> {
     FirebaseAuth auth = FirebaseAuth.instance;
 
     List<String> selectedInterests = [];
-    List<String> uninteresteds = [];
 
     Future<void> updateInterests() async {
       if (selectedInterests.isEmpty) {
@@ -32,7 +31,7 @@ class _SetInterestsPageState extends State<SetInterestsPage> {
         return;
       }
       await firestore.collection('users').doc(auth.currentUser!.uid).update(
-          {'interests': selectedInterests, 'uninterested': uninteresteds});
+          {'interests': selectedInterests});
       if (context.mounted) {
         widget.isCreate == true
             ? context.push('/selecttrip')
@@ -65,7 +64,7 @@ class _SetInterestsPageState extends State<SetInterestsPage> {
                             children: [
                               const Text(
                                 textAlign: TextAlign.center,
-                                "Select your interests by pressing a picture and longpress to make it uninterested",
+                                "Select your interests by pressing a picture",
                                 style: TextStyle(
                                     fontFamily: 'Ubuntu',
                                     fontSize: 14,
@@ -99,24 +98,13 @@ class _SetInterestsPageState extends State<SetInterestsPage> {
                                           .map<String>((e) => e.toString())
                                           .toList();
                                     }
-                                    if ((snapshot.data!.data() as Map<String,
-                                            dynamic>)["uninterested"] !=
-                                        null) {
-                                      uninteresteds = (snapshot.data!.data()
-                                                  as Map<String, dynamic>)[
-                                              "uninterested"]
-                                          .map<String>((e) => e.toString())
-                                          .toList();
-                                    }
+                          
 
                                     List<String> selectedCategories = [];
                                     List<String> uninterestedCategories = [];
                                     selectedCategories =
                                         Interests.evaluateCategories(
                                             selectedInterests);
-                                    uninterestedCategories =
-                                        Interests.evaluateCategories(
-                                            uninteresteds);
 
                                     return GridView.count(
                                       physics:
@@ -140,14 +128,6 @@ class _SetInterestsPageState extends State<SetInterestsPage> {
                                                   for (final el in val) {
                                                     selectedInterests
                                                         .remove(el);
-                                                  }
-                                                },
-                                                unInterestetset: (value) {
-                                                  uninteresteds.addAll(value);
-                                                },
-                                                unInterestetunset: (val) {
-                                                  for (final el in val) {
-                                                    uninteresteds.remove(el);
                                                   }
                                                 },
                                               ))

@@ -1,5 +1,7 @@
 // ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 
+import 'dart:ui';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -60,11 +62,16 @@ class _FinanzenState extends State<Finanzen> {
       ),
       body: Stack(
         children: [
-          Container(
-            decoration: const BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage('assets/background_city_persona.png'),
-                fit: BoxFit.cover, // Maintain width, adjust height
+          ClipRect(
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+              child: Container(
+                decoration: const BoxDecoration(
+                  image: DecorationImage(
+                    image: AssetImage('assets/background_city_persona.png'),
+                    fit: BoxFit.cover, // Maintain width, adjust height
+                  ),
+                ),
               ),
             ),
           ),
@@ -240,7 +247,7 @@ class _FinanzenState extends State<Finanzen> {
 
                       // Build the List
                       return Padding(
-                        padding: const EdgeInsets.only(bottom: 50),
+                        padding: const EdgeInsets.only(bottom: 80),
                         child: CustomScrollView(
                           slivers: [
                             SliverPadding(
@@ -250,21 +257,19 @@ class _FinanzenState extends State<Finanzen> {
                                     user: currentUser!.reference,
                                   ),
                                 )),
-                            SliverList(
-                              delegate: SliverChildBuilderDelegate(
-                                  (context, index) => Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: ExpansionTile(
-                                          initiallyExpanded: true,
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(0),
-                                          ),
-                                          title: Text("Your Requests"),
-                                          children: yourRequests,
-                                        ),
-                                      ),
-                                  childCount: 1),
+                            SliverPadding(
+                              padding: const EdgeInsets.all(8.0),
+                              sliver: SliverToBoxAdapter(
+                                child: ExpansionTile(
+                                  initiallyExpanded: true,
+                                  
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(0),
+                                  ),
+                                  title: Text("Your Requests"),
+                                  children: yourRequests,
+                                ),
+                              ),
                             ),
                             SliverPadding(
                               padding: const EdgeInsets.all(8.0),
