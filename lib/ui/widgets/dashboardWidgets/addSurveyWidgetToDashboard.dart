@@ -154,10 +154,12 @@ class AddSurveyWidgetToDashboardState
     if (widget.data == null) {
       String key = const Uuid().v4();
       if (deadline != null) {
-        DocumentReference converter = await JobworkerService.generateSurveyConvertionWorker(
-            deadline!, widget.day, by, trip, key, nameofSurvey.text);
-        DocumentReference alerter = await JobworkerService.generateLastChanceSurveryWorker(
-            deadline!, widget.day, by, trip, key, nameofSurvey.text);
+        DocumentReference converter =
+            await JobworkerService.generateSurveyConvertionWorker(
+                deadline!, widget.day, by, trip, key, nameofSurvey.text);
+        DocumentReference alerter =
+            await JobworkerService.generateLastChanceSurveryWorker(
+                deadline!, widget.day, by, trip, key, nameofSurvey.text);
         data["workers"] = [converter, alerter];
       }
       await ManageDashboardWidged()
@@ -174,13 +176,26 @@ class AddSurveyWidgetToDashboardState
     Widget buildTenableListTile(SelectedOption item, int index) {
       return Dismissible(
         key: Key(_optionList[index].toString() + index.toString()),
+        direction: DismissDirection.endToStart,
         onDismissed: (direction) {
           setState(() {
             _optionList.removeAt(index);
             print("removed");
           });
         },
-        background: Container(color: Colors.red),
+        background: Container(
+          color: Colors.red,
+          child: const Align(
+              alignment: Alignment.centerRight,
+              child: Padding(
+                padding: EdgeInsets.only(left: 20),
+                child: Text(
+                  "Swipe to Delete   ",
+                  style: Styles.buttonFontStyle,
+                  textAlign: TextAlign.center,
+                ),
+              )),
+        ),
         child: Container(
           decoration: BoxDecoration(
             border: Border(
