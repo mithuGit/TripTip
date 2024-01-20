@@ -49,13 +49,6 @@ class _CreateDebtsState extends State<CreateDebts> {
 
   bool totalAmountIsInRange = false;
 
-  //TODO fallbeispiele eig schon abgecheckt kann gerne jemand nochmal prüfen aber hat bei mir geklappt
-  //shareeaull with all dann alle boxen full
-  //shareonly with member dann auch calculate my amount gleichzeitg
-  //calculate my amount dann nur diese box nix mehr
-  //keine box ankreuzen
-  // betrag ist nicht gleich dem total amount was passiert dann
-
   //create the debt in the database
   Future<void> createDebt() async {
     List<dynamic> to = [];
@@ -89,7 +82,7 @@ class _CreateDebtsState extends State<CreateDebts> {
     }
   }
 
-//get the members of the trip
+  // get the members of the trip
   Future<void> getMembers() async {
     currentUser = await firestore.collection("users").doc(user.uid).get();
     String selectedTripID =
@@ -100,7 +93,7 @@ class _CreateDebtsState extends State<CreateDebts> {
         ((await selectedtrip!.get()).data() as Map<String, dynamic>)["members"];
   }
 
-//get the data for the preview container so he can look up again what he has entered and request from the other ones
+  // get the data for the preview container so he can look up again what he has entered and request from the other ones
   Future<void> getPreviewData() async {
     if (widget.preview != null) {
       nextButtonToGetMember();
@@ -146,7 +139,7 @@ class _CreateDebtsState extends State<CreateDebts> {
     if (widget.preview != null) getPreviewData();
   }
 
-  //calculate the amount of money for the current user
+  // calculate the amount of money for the current user
   void calculateMyAmount() {
     double totalAmountValue = double.parse(totalAmount.text);
     double sum = 0;
@@ -160,7 +153,7 @@ class _CreateDebtsState extends State<CreateDebts> {
     myAmount.text = remainingAmount.toStringAsFixed(2);
   }
 
-  //get the current user name by pressing the next button
+  // get the current user name by pressing the next button
   void nextButtonToGetMember() async {
     await getMembers();
     for (int i = 0; i < member.length; i++) {
@@ -207,7 +200,7 @@ class _CreateDebtsState extends State<CreateDebts> {
     calculateMyAmount();
   }
 
-// To calculate the amount for all member which the user selected   if checkbox the share equally
+  // To calculate the amount for all member which the user selected   if checkbox the share equally
   void shareEquallyFunction() {
     if (shareEqually == false) {
       for (int i = 0; i < optionList.length; i++) {
@@ -571,7 +564,7 @@ class _CreateDebtsState extends State<CreateDebts> {
     );
   }
 
-//check if the amount is numeric and has only 2 decimals after the comma
+// check if the amount is numeric and has only 2 decimals after the comma
   bool _isNumeric(TextEditingController controller) {
     if (controller.text == "") {
       return false;
@@ -583,7 +576,7 @@ class _CreateDebtsState extends State<CreateDebts> {
     return parsedValue != null && _countDecimals(parsedValue) <= 2;
   }
 
-//help method to the numeric method to check the decimals
+// help method to the numeric method to check the decimals
   int _countDecimals(double value) {
     String valueString = value.toString();
     int index = valueString.indexOf('.');
