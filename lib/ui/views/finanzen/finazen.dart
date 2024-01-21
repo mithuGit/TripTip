@@ -8,11 +8,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:internet_praktikum/ui/widgets/bottom_sheet.dart';
 import 'package:internet_praktikum/ui/widgets/centerText.dart';
+import 'package:internet_praktikum/ui/widgets/finanzenWidgets/ExpansionTile.dart';
 import 'package:internet_praktikum/ui/widgets/finanzenWidgets/createDebts.dart';
 import 'package:internet_praktikum/ui/widgets/finanzenWidgets/wallet.dart';
 import 'package:internet_praktikum/ui/widgets/headerWidgets/topbar.dart';
 import '../../widgets/finanzenWidgets/extendablecontainer.dart';
 
+/*
+This class is for seeing all the payments and requests of the user.
+It is also possible to create new requests, via the plus icon in the topbar.
+
+*/
 class Finanzen extends StatefulWidget {
   const Finanzen({Key? key}) : super(key: key);
 
@@ -207,7 +213,7 @@ class _FinanzenState extends State<Finanzen> {
                                 decoration: BoxDecoration(
                                   color: const Color(0xE51E1E1E),
                                   border: Border.all(
-                                      color: const Color(0xE51E1E1E)),
+                                      color: Colors.transparent, width: 0),
                                   borderRadius: BorderRadius.circular(34.5),
                                 ),
                                 child: Padding(
@@ -247,39 +253,33 @@ class _FinanzenState extends State<Finanzen> {
 
                       // Build the List
                       return Padding(
-                        padding: const EdgeInsets.only(bottom: 80),
+                        padding: const EdgeInsets.only(bottom: 65),
                         child: CustomScrollView(
                           slivers: [
                             SliverPadding(
-                                padding: const EdgeInsets.all(20),
+                                padding: const EdgeInsets.only(
+                                    top: 10, left: 20, right: 20, bottom: 10),
                                 sliver: SliverToBoxAdapter(
                                   child: Wallet(
                                     user: currentUser!.reference,
                                   ),
                                 )),
                             SliverPadding(
-                              padding: const EdgeInsets.all(8.0),
+                              padding: const EdgeInsets.only(
+                                  top: 10, left: 20, right: 20, bottom: 10),
                               sliver: SliverToBoxAdapter(
-                                child: ExpansionTile(
-                                  initiallyExpanded: true,
-                                  
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(0),
-                                  ),
-                                  title: Text("Your Requests"),
+                                child: ExpansionTileWidget(
+                                  title: "Your Requests",
                                   children: yourRequests,
                                 ),
                               ),
                             ),
                             SliverPadding(
-                              padding: const EdgeInsets.all(8.0),
+                              padding: const EdgeInsets.only(
+                                  top: 10, left: 20, right: 20, bottom: 10),
                               sliver: SliverToBoxAdapter(
-                                child: ExpansionTile(
-                                  initiallyExpanded: true,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(0),
-                                  ),
-                                  title: Text("You owe "),
+                                child: ExpansionTileWidget(
+                                  title: "You Owe",
                                   children: peopleYouOwe,
                                 ),
                               ),

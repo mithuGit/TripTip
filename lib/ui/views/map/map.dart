@@ -574,9 +574,6 @@ class _MapPageState extends State<MapPage> {
                                           final interests = userCollection
                                               .data()!['interests'];
 
-                                          final notInterests = userCollection
-                                              .data()!['uninterested'];
-
                                           setState(() {
                                             loadingRecommendations =
                                                 true; // Setzen Sie den Ladezustand
