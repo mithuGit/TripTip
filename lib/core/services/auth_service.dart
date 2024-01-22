@@ -16,7 +16,6 @@ Future<UserCredential> signInWithGoogle() async {
     idToken: gAuth.idToken,
   );
 
-  // hier muss noch eingebaut werden, wegen OTP Verifizierung
   UserCredential userCredential =
       await FirebaseAuth.instance.signInWithCredential(credential);
 
@@ -38,7 +37,7 @@ Future<UserCredential> signInWithGoogle() async {
     await PushNotificationService().initialise();
   }
   // finally, lets sign in the user
-  return await FirebaseAuth.instance.signInWithCredential(credential);
+  return userCredential;
 }
 
 Future<void> signInWithFacebook() async {
