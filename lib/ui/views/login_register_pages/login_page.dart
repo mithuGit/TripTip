@@ -39,7 +39,6 @@ class _LoginPageState extends State<LoginPage> {
         context.go("/");
       }
     } on FirebaseAuthException catch (e) {
-      print(e.code);
       // Wrong email | Wrong password
       if (e.code == 'user-not-found' || e.code == 'wrong-password') {
         if (context.mounted) {
@@ -183,8 +182,9 @@ class _LoginPageState extends State<LoginPage> {
                           }
 
                           if (isDateOfBirth == false) {
-                            if (context.mounted)
+                            if (context.mounted) {
                               context.go('/accountdetails/:isEditProfile');
+                            }
                           } else {
                             if (context.mounted) context.go('/');
                           }
@@ -221,8 +221,9 @@ class _LoginPageState extends State<LoginPage> {
                           }
 
                           if (isDateOfBirth == false) {
-                            if (context.mounted)
+                            if (context.mounted) {
                               context.go('/accountdetails/:isEditProfile');
+                            }
                           } else {
                             if (context.mounted) context.go('/');
                           }
@@ -368,7 +369,8 @@ class _LoginPageState extends State<LoginPage> {
     try {
       await FirebaseAuth.instance.sendPasswordResetEmail(email: email.trim());
     } on FirebaseAuthException catch (e) {
-      print(e);
+      // ignore: use_build_context_synchronously
+      ErrorSnackbar.showErrorSnackbar(context, "Something went wrong. , $e");
     }
   }
 }

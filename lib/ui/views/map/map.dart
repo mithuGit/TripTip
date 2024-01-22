@@ -201,6 +201,7 @@ class _MapPageState extends State<MapPage> {
     return Scaffold(
       extendBody: true,
       appBar: AppBar(
+          scrolledUnderElevation: 0,
           toolbarHeight: 65,
           centerTitle: true,
           title: const Text(
