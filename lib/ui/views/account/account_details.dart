@@ -170,7 +170,7 @@ class _AccountState extends State<Account> {
                               compressQuality: 50,
                               uiSettings: [
                                 AndroidUiSettings(
-                                    toolbarTitle: 'Move Your Profile Picture',
+                                    toolbarTitle: 'Crop Your Profile Picture',
                                     toolbarColor: Colors.deepOrange,
                                     toolbarWidgetColor: Colors.white,
                                     initAspectRatio:
@@ -190,7 +190,7 @@ class _AccountState extends State<Account> {
                                   referenceDirImages.child(currentUser.uid);
                               if (croppedFile != null) {
                                 await referenceImageToUpload
-                                    .putFile(File(croppedFile.path));
+                                    .putFile(File(croppedFile.path), SettableMetadata(contentType: 'image/jpeg'));
                                 String newUploadURL =
                                     await referenceImageToUpload
                                         .getDownloadURL();
