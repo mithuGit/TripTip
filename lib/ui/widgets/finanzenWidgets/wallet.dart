@@ -36,7 +36,9 @@ class _WalletState extends State<Wallet> {
       if (mounted) {
         CustomBottomSheet.show(context,
             title: "Fill in your Back-Account",
-            content: [CollectPayoutInformation(user: user, bookToBankAccount: true)]);
+            content: [
+              CollectPayoutInformation(user: user, bookToBankAccount: true)
+            ]);
       }
     }
   }
