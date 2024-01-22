@@ -35,7 +35,9 @@ class _WalletState extends State<Wallet> {
       if (mounted) {
         CustomBottomSheet.show(context,
             title: "Fill in your Back-Account",
-            content: [CollectPayoutInformation(user: user, bookToBankAccount: true)]);
+            content: [
+              CollectPayoutInformation(user: user, bookToBankAccount: true)
+            ]);
       }
     }
   }
@@ -105,6 +107,7 @@ class _WalletState extends State<Wallet> {
                   ),
                 ] else
                   Text(
+                    //    "${(balance).toStringAsFixed(2)} €",
                     "${(balance * 100).ceil() / 100} €",
                     style: TextStyle(
                         fontSize: 40,

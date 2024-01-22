@@ -18,7 +18,7 @@ class WeatherService {
 
   Future<Weather?> fetchWeather() async {
     try {
-      final weather = await getWeatherData(); // das ist der Standort vom Trip
+      final weather = await getWeatherData();
       actualWeather = weather;
       return weather;
     } catch (e) {
