@@ -53,7 +53,7 @@ class PaymentsHandeler {
       await Stripe.instance.initPaymentSheet(
           paymentSheetParameters: SetupPaymentSheetParameters(
         paymentIntentClientSecret: result.data["paymentIntent"],
-        merchantDisplayName: 'TipTrip',
+        merchantDisplayName: 'TripTip',
         customerId: _stripeId,
         customerEphemeralKeySecret: result.data["ephemeralKey"],
         style: ThemeMode.dark,

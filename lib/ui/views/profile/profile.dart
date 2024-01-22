@@ -1,11 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/foundation.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:internet_praktikum/core/services/init_pushnotifications.dart';
+import 'package:internet_praktikum/ui/widgets/errorSnackbar.dart';
 import 'package:internet_praktikum/ui/widgets/headerWidgets/topbar.dart';
 import 'package:internet_praktikum/ui/widgets/profileWidgets/profileButton.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -26,7 +27,21 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   void deleteUser() async {
-    await FirebaseAuth.instance.currentUser!.delete();
+    FirebaseFunctions functions = FirebaseFunctions.instance;
+    HttpsCallableResult callable = await functions.httpsCallable('stripeRemoveCustomer').call();
+    Map<String, dynamic> data = Map<String, dynamic>.from(callable.data);
+
+    if(data['success']) {
+
+      await FirebaseAuth.instance.currentUser!.delete();
+      await FirebaseFirestore.instance.collection('users').doc(FirebaseAuth.instance.currentUser!.uid).delete();
+      await FirebaseStorage.instance.ref('profilePictures/${FirebaseAuth.instance.currentUser!.uid}').delete();
+    } else {
+      if(mounted) {
+        ErrorSnackbar.showErrorSnackbar(context, data['message']);
+      }
+    }
+
     if (context.mounted) {
       GoRouter.of(context).go('/loginorregister');
     }
