@@ -17,10 +17,9 @@ class Wallet extends StatefulWidget {
 
 class _WalletState extends State<Wallet> {
   bool loading = false;
-  PaymentsHandeler paymentsHandeler = PaymentsHandeler();
   Future<void> recharge(DocumentSnapshot user, BuildContext context) async {
     try {
-      await paymentsHandeler.refund(user);
+      await PaymentsHandeler.refund(user);
     } catch (e) {
       if (mounted) {
         ErrorSnackbar.showErrorSnackbar(context, e.toString());
@@ -31,7 +30,7 @@ class _WalletState extends State<Wallet> {
   Future<void> bookToBankAccount(
       DocumentSnapshot user, BuildContext context) async {
     try {
-      await paymentsHandeler.bookToBankAccount(user);
+      await PaymentsHandeler.bookToBankAccount(user);
     } on NoPayOutinformation {
       if (mounted) {
         CustomBottomSheet.show(context,

@@ -104,7 +104,7 @@ class _TicketState extends State<Ticket> {
                                 "No Tickets found, press the + button to add one");
                       }
                       return Padding(
-                        padding: const EdgeInsets.only(bottom: 20),
+                        padding: const EdgeInsets.only(bottom: 65),
                         child: ListView(
                           children: snapshot.data!.docs
                               .map((DocumentSnapshot document) {

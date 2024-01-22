@@ -166,7 +166,7 @@ class CollectPayoutInformationState extends State<CollectPayoutInformation> {
     
     if (widget.bookToBankAccount) {
       DocumentSnapshot user = await widget.user.reference.get();
-      await PaymentsHandeler().bookToBankAccount(user);
+      await PaymentsHandeler.bookToBankAccount(user);
     }
     if (context.mounted) Navigator.pop(context);
   }

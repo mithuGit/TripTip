@@ -24,25 +24,30 @@ class UsernameBagageDashboardWidget extends StatelessWidget {
       return _userData;
     }
 
+    String dateString() {
+      if(DateTime.now().difference(data?["createdAt"].toDate()).inDays == 0){
+        return " Today at ${DateFormat('HH:mm').format(data?["createdAt"].toDate())}";
+      }
+      return " on ${DateFormat('M.D.y').format(data?["createdAt"].toDate())}";
+    }
+
     return Container(
       margin: const EdgeInsets.only(top: 8),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          data!["profilePicture"] != null ? ClipOval(
-            child: Image.network(
-              data!["profilePicture"],
-              width: 22,
-              height: 22,
+          data!["profilePicture"] != null && data!["profilePicture"] != "" ? ClipOval(
+            child: CircleAvatar(
+              radius: 11,
+              child: Image.network(data!["profilePicture"]),
             ),
           ) : ClipOval(
-            child: Image.asset(
-              "assets/Personavatar.png",
-              width: 22,
-              height: 22,
+            child: CircleAvatar(
+              radius: 11,
+              child: Image.asset("assets/Personavatar.png"),
             ),
           ),
-          if(data!["prename"] != null && data!["lastname"] != null)
+          if(data!["prename"] != null && data!["lastname"] != null && data!["prename"] != "" && data!["lastname"] != "")
           Container(
             margin: const EdgeInsets.only(left: 7),
             child: Text(
@@ -51,8 +56,7 @@ class UsernameBagageDashboardWidget extends StatelessWidget {
                     data!["prename"] +
                     ' ' +
                     data!["lastname"] +
-                    ' at ' +
-                    DateFormat('HH:mm DD:YY').format((data!["createdAt"] as Timestamp).toDate()),
+                   dateString(),
                 style: Styles.usernameBagageWidget),
           ),
         ],

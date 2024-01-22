@@ -1,21 +1,23 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:internet_praktikum/core/services/paymentsHandeler.dart';
+import 'package:internet_praktikum/ui/widgets/errorSnackbar.dart';
 import 'package:internet_praktikum/ui/widgets/finanzenWidgets/slidablebutton.dart';
 
-// ignore: must_be_immutable
 class ExpandableContainer extends StatefulWidget {
   final double sum;
-  EdgeInsetsGeometry? margin;
-  DocumentSnapshot currentUser;
-  DocumentReference me;
-  List<Map<String, dynamic>> openRefunds = [];
-  ExpandableContainer({
+  final EdgeInsetsGeometry? margin;
+  final DocumentSnapshot currentUser;
+  final DocumentReference me;
+  final DocumentReference trip;
+  final List<Map<String, dynamic>> openRefunds;
+  const ExpandableContainer({
     Key? key,
     required this.sum,
     required this.currentUser,
     required this.openRefunds,
     required this.me,
+    required this.trip,
     this.margin,
   }) : super(key: key);
 
@@ -189,10 +191,9 @@ class _ExpandableContainerState extends State<ExpandableContainer> {
                 right: 15,
                 bottom: 5,
                 child: SlideButton(
-                  onSubmit: () => PaymentsHandeler().payOpenRefundsPerUser(
-                      widget.openRefunds,
+                  onSubmit: () => PaymentsHandeler.payOpenRefundsPerUser(
                       widget.currentUser.reference,
-                      widget.me),
+                      widget.trip).onError((error, stackTrace) => ErrorSnackbar.showErrorSnackbar(context, error.toString())),
                   buttonText: 'Slide to Pay',
                   margin: const EdgeInsets.only(bottom: 8),
                 ),

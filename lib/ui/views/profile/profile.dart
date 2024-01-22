@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
@@ -44,12 +43,6 @@ class _ProfilePageState extends State<ProfilePage> {
 
   XFile? pickedFile;
 
-  void updateProfilepicture(String image) async {
-    await userCollection.doc(currentUser.uid).update({
-      'profilepicture': image,
-    });
-  }
-
   @override
   void initState() {
     super.initState();
@@ -77,46 +70,9 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
               child: Column(
                 children: [
-                  GestureDetector(
-                    onTap: () async {
-                      // Pick image from gallery
-                      ImagePicker imagePicker = ImagePicker();
-                      pickedFile = await imagePicker.pickImage(
-                          source: ImageSource.gallery);
-                      //get reference to storage root
-                      Reference referenceRoot = FirebaseStorage.instance.ref();
-                      Reference referenceDirImages =
-                          referenceRoot.child('profilePictures');
-
-                      // create a refernece for the image to be stored
-                      Reference referenceImageToUpload =
-                          referenceDirImages.child(currentUser.uid);
-
-                      //Handle errors/succes
-                      try {
-                        if (pickedFile != null) {
-                          await referenceImageToUpload
-                              .putFile(File(pickedFile!.path));
-                        }
-                        imageURL =
-                            await referenceImageToUpload.getDownloadURL();
-                      } catch (e) {
-                        if (kDebugMode) {
-                          print(e);
-                        }
-                      }
-                      setState(() {
-                        imageProvider = ((pickedFile != null
-                                ? FileImage(File(pickedFile!.path))
-                                : const AssetImage('assets/Personavatar.png'))
-                            as ImageProvider<Object>?)!;
-                      });
-                      updateProfilepicture(imageURL);
-                    },
-                    child: CircleAvatar(
-                      radius: 37.5,
-                      backgroundImage: imageProvider,
-                    ),
+                  CircleAvatar(
+                    radius: 37.5,
+                    backgroundImage: imageProvider,
                   ),
                   const SizedBox(height: 10),
                   Text('Welcome ${user.displayName}',

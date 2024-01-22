@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 class User {
   String prename;
   String lastname;
-  Image profileImage;
+  ImageProvider profileImage;
   User(this.prename, this.lastname, this.profileImage);
 }
 
@@ -22,7 +22,7 @@ class UsernameBagageCreateTrip extends StatefulWidget {
 
 class _UsernameBagageCreateTripState extends State<UsernameBagageCreateTrip> {
   Future<User> _getNames() async {
-    Image pb = Image.asset('assets/Personavatar.png');
+    ImageProvider pb = const AssetImage('assets/Personavatar.png');
     String prename = 'Not';
     String lastname = 'Registered';
 
@@ -35,7 +35,7 @@ class _UsernameBagageCreateTripState extends State<UsernameBagageCreateTrip> {
         final data = ref.docs.first.data();
         prename = data['prename'];
         lastname = data['lastname'];
-        if(data['profilePicture'] != null) pb = Image.network(data['profilePicture']);
+        if(data['profilePicture'] != null) pb = NetworkImage(data['profilePicture']);
       }
 
       return User(prename, lastname, pb);
@@ -54,14 +54,21 @@ class _UsernameBagageCreateTripState extends State<UsernameBagageCreateTrip> {
         child: FutureBuilder<User>(
             future: _getNames(),
             builder: (BuildContext context, AsyncSnapshot<User> snapshot) {
+              if(snapshot.connectionState == ConnectionState.waiting) return const Text('Loading...');
+              if (snapshot.hasError) {
+                return const Text('Something went wrong while fetching the user');
+              }
               User user = User(
-                  "Maximilian", "Laue", Image.asset('assets/Personavatar.png'));
+                  "Maximilian", "Laue", const AssetImage('assets/Personavatar.png'));
               if (snapshot.hasData) {
                 user = snapshot.data!;
               }
 
               List<Widget> children = [
-                Image.asset('assets/Personavatar.png'),
+                CircleAvatar(
+                  radius: 25,
+                  backgroundImage: user.profileImage,
+                ),
                 Container(
                     margin: const EdgeInsets.only(left: 14),
                     child: Text.rich(
