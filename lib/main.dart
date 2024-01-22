@@ -19,16 +19,7 @@ Future<void> main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-
-  try {
-    FirebaseFirestore.instance.useFirestoreEmulator('localhost', 8080);
-    await FirebaseAuth.instance.useAuthEmulator('localhost', 9099);
-    await FirebaseStorage.instance.useStorageEmulator('localhost', 9199);
-    FirebaseFunctions.instance.useFunctionsEmulator('localhost', 5001);
-  } catch (e) {
-    // ignore: avoid_print
-    print(e);
-  }
+  
 
   if (FirebaseAuth.instance.currentUser != null) {
     await PushNotificationService().checkInitialized();

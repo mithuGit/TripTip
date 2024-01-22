@@ -35,10 +35,11 @@ Future<UserCredential> signInWithGoogle() async {
         'dateOfBirth': null
       });
     }
-    await PushNotificationService().initialise();
+    
   }
+  await PushNotificationService().initialise();
   // finally, lets sign in the user
-  return await FirebaseAuth.instance.signInWithCredential(credential);
+  return userCredential;
 }
 
 Future<void> signInWithFacebook() async {
