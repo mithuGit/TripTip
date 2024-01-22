@@ -36,7 +36,7 @@ class UsernameBagageDashboardWidget extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          data!["profilePicture"] != null ? ClipOval(
+          data!["profilePicture"] != null && data!["profilePicture"] != "" ? ClipOval(
             child: Image.network(
               data!["profilePicture"],
               width: 22,
@@ -49,7 +49,7 @@ class UsernameBagageDashboardWidget extends StatelessWidget {
               height: 22,
             ),
           ),
-          if(data!["prename"] != null && data!["lastname"] != null)
+          if(data!["prename"] != null && data!["lastname"] != null && data!["prename"] != "" && data!["lastname"] != "")
           Container(
             margin: const EdgeInsets.only(left: 7),
             child: Text(

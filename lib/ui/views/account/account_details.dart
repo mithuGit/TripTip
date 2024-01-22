@@ -72,13 +72,15 @@ class _AccountState extends State<Account> {
       } else {
         emailController.text = currentUser.email!;
       }
-      if (userData["profilePicture"] != null) {
+      if (userData["profilePicture"] != null &&
+          userData["profilePicture"] != "") {
         setState(() {
           imageURL = userData["profilePicture"];
           imageProvider = NetworkImage(userData["profilePicture"]);
         });
       }
-      if (userData["profilePicturePath"] != null) {
+      if (userData["profilePicturePath"] != null &&
+          userData["profilePicturePath"] != "") {
         setState(() {
           imagePath = userData["profilePicturePath"];
         });
@@ -91,31 +93,29 @@ class _AccountState extends State<Account> {
 
   //set and updates Userdata in the FirebaseCollestion users
   Future<void> updateUserData() async {
-    try {
-      if (newImageURL != '') {
-        imageURL = newImageURL;
-      }
-      if (newImagePath != '') {
-        imagePath = newImagePath;
-      }
-      await userCollection.doc(currentUser.uid).update({
-        //Updates data in FireStore
-        'prename': prenameController.text,
-        'lastname': lastnameController.text,
-        'dateOfBirth': selectedDate,
-        'profilePicture': imageURL,
-        'profilePicturePath': imagePath,
-      });
-      await currentUser.updateDisplayName(
-          prenameController.text + " " + lastnameController.text); //Updates displayName in Auth
-    } on Exception catch (e) {
-      if (kDebugMode) {
-        print("Something went wrong while fetching your data $e");
-      }
-      // ignore: use_build_context_synchronously
-      ErrorSnackbar.showErrorSnackbar(
-          context, "Something went wrong while updating your profile");
+    if (prenameController.text == "") throw "Please enter your first name";
+    if (lastnameController.text == "") throw "Please enter your last name";
+    if (selectedDate == "") throw "Please enter your date of birth";
+    if (newImageURL != '') {
+      imageURL = newImageURL;
+      await currentUser.updatePhotoURL(imageURL);  
     }
+    if (newImagePath != '') {
+      imagePath = newImagePath;
+    }
+    await userCollection.doc(currentUser.uid).update({
+      //Updates data in FireStore
+      'prename': prenameController.text,
+      'lastname': lastnameController.text,
+      'dateOfBirth': selectedDate,
+      'profilePicture': imageURL,
+      'profilePicturePath': imagePath,
+    });
+    //Updates displayName in Auth
+    await currentUser.updateDisplayName(
+        prenameController.text + " " + lastnameController.text);
+      
+    await currentUser.reload();    
   }
 
   Future<DocumentSnapshot> getUserdata() async {
@@ -157,26 +157,23 @@ class _AccountState extends State<Account> {
                           XFile? pickedFile;
                           pickedFile = await imagePicker.pickImage(
                               source: ImageSource.gallery);
-                          //get reference to storage root
-                          Reference referenceRoot =
-                              FirebaseStorage.instance.ref();
-                          Reference referenceDirImages =
-                              referenceRoot.child('profilePictures');
-
-                          // create a refernece for the image to be stored
-                          Reference referenceImageToUpload =
-                              referenceDirImages.child(currentUser.uid);
-
-                          //Handle errors/succes
                           try {
+                            //get reference to storage root
+                            Reference referenceDirImages =
+                                FirebaseStorage.instance.ref().child('profilePictures');
+                              
+
+                            // create a refernece for the image to be stored
+                            Reference referenceImageToUpload =
+                                referenceDirImages.child(currentUser.uid);
                             if (pickedFile != null) {
                               await referenceImageToUpload
                                   .putFile(File(pickedFile.path));
-                              String _newUploadURL =
+                              String newUploadURL =
                                   await referenceImageToUpload.getDownloadURL();
                               setState(() {
                                 newImagePath = referenceImageToUpload.fullPath;
-                                newImageURL = _newUploadURL;
+                                newImageURL = newUploadURL;
                               });
                             }
                           } catch (e) {
@@ -308,11 +305,21 @@ class _AccountState extends State<Account> {
                   const SizedBox(height: 25),
                   MyButton(
                     onTap: () async {
-                      await updateUserData();
-                      if (context.mounted) {
-                        widget.isEditProfile == true
-                            ? context.go('/profile')
-                            : context.go('/setinterests/true');
+                      try {
+                        await updateUserData();
+                        if (context.mounted) {
+                          widget.isEditProfile == true
+                              ? context.go('/profile')
+                              : context.go('/setinterests/true');
+                        }
+                      } catch (e) {
+                        if (kDebugMode) {
+                          print("Something went wrong $e");
+                        }
+                        if (mounted) {
+                          ErrorSnackbar.showErrorSnackbar(
+                              context, e.toString());
+                        }
                       }
                     },
                     text: widget.isEditProfile == true
