@@ -65,15 +65,9 @@ class _UsernameBagageCreateTripState extends State<UsernameBagageCreateTrip> {
               }
 
               List<Widget> children = [
-                ClipOval(
-                  child: Container(
-                    color: Colors.white,
-                    child: Image(
-                      image: user.profileImage,
-                      width: 52,
-                      height: 52,
-                    ),
-                  ),
+                CircleAvatar(
+                  radius: 25,
+                  backgroundImage: user.profileImage,
                 ),
                 Container(
                     margin: const EdgeInsets.only(left: 14),

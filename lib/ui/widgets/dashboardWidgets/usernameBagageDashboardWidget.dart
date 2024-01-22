@@ -37,16 +37,14 @@ class UsernameBagageDashboardWidget extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
           data!["profilePicture"] != null && data!["profilePicture"] != "" ? ClipOval(
-            child: Image.network(
-              data!["profilePicture"],
-              width: 22,
-              height: 22,
+            child: CircleAvatar(
+              radius: 11,
+              child: Image.network(data!["profilePicture"]),
             ),
           ) : ClipOval(
-            child: Image.asset(
-              "assets/Personavatar.png",
-              width: 22,
-              height: 22,
+            child: CircleAvatar(
+              radius: 11,
+              child: Image.asset("assets/Personavatar.png"),
             ),
           ),
           if(data!["prename"] != null && data!["lastname"] != null && data!["prename"] != "" && data!["lastname"] != "")

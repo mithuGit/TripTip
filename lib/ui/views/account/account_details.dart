@@ -13,6 +13,7 @@ import '../../widgets/inputfield.dart';
 import '../../widgets/datepicker.dart';
 import 'package:go_router/go_router.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:image_cropper/image_cropper.dart';
 
 class Account extends StatefulWidget {
   final bool isEditProfile;
@@ -98,7 +99,7 @@ class _AccountState extends State<Account> {
     if (selectedDate == "") throw "Please enter your date of birth";
     if (newImageURL != '') {
       imageURL = newImageURL;
-      await currentUser.updatePhotoURL(imageURL);  
+      await currentUser.updatePhotoURL(imageURL);
     }
     if (newImagePath != '') {
       imagePath = newImagePath;
@@ -114,8 +115,8 @@ class _AccountState extends State<Account> {
     //Updates displayName in Auth
     await currentUser.updateDisplayName(
         prenameController.text + " " + lastnameController.text);
-      
-    await currentUser.reload();    
+
+    await currentUser.reload();
   }
 
   Future<DocumentSnapshot> getUserdata() async {
@@ -157,40 +158,62 @@ class _AccountState extends State<Account> {
                           XFile? pickedFile;
                           pickedFile = await imagePicker.pickImage(
                               source: ImageSource.gallery);
-                          try {
-                            //get reference to storage root
-                            Reference referenceDirImages =
-                                FirebaseStorage.instance.ref().child('profilePictures');
-                              
-
-                            // create a refernece for the image to be stored
-                            Reference referenceImageToUpload =
-                                referenceDirImages.child(currentUser.uid);
-                            if (pickedFile != null) {
-                              await referenceImageToUpload
-                                  .putFile(File(pickedFile.path));
-                              String newUploadURL =
-                                  await referenceImageToUpload.getDownloadURL();
-                              setState(() {
-                                newImagePath = referenceImageToUpload.fullPath;
-                                newImageURL = newUploadURL;
-                              });
-                            }
-                          } catch (e) {
-                            if (kDebugMode) {
-                              print(
-                                  "Something went wrong while uploading your image $e");
-                            }
-                            // ignore: use_build_context_synchronously
-                            ErrorSnackbar.showErrorSnackbar(context,
-                                "Something went wrong while uploading your image");
-                          }
-
                           if (pickedFile != null) {
-                            setState(() {
-                              imageProvider = FileImage(File(pickedFile!.path));
-                              PaintingBinding.instance.imageCache.clear();
-                            });
+                            CroppedFile? croppedFile =
+                                await ImageCropper().cropImage(
+                              sourcePath: pickedFile.path,
+                              cropStyle: CropStyle.circle,
+                              aspectRatioPresets: [
+                                CropAspectRatioPreset.square,
+                              ],
+                              compressFormat: ImageCompressFormat.jpg,
+                              compressQuality: 50,
+                              uiSettings: [
+                                AndroidUiSettings(
+                                    toolbarTitle: 'Move Your Profile Picture',
+                                    toolbarColor: Colors.deepOrange,
+                                    toolbarWidgetColor: Colors.white,
+                                    initAspectRatio:
+                                        CropAspectRatioPreset.square,
+                                    lockAspectRatio: true),
+                              ],
+                            );
+                            try {
+                              //get reference to storage root
+                              Reference referenceDirImages = FirebaseStorage
+                                  .instance
+                                  .ref()
+                                  .child('profilePictures');
+
+                              // create a refernece for the image to be stored
+                              Reference referenceImageToUpload =
+                                  referenceDirImages.child(currentUser.uid);
+                              if (croppedFile != null) {
+                                await referenceImageToUpload
+                                    .putFile(File(croppedFile.path));
+                                String newUploadURL =
+                                    await referenceImageToUpload
+                                        .getDownloadURL();
+                                setState(() {
+                                  newImagePath =
+                                      referenceImageToUpload.fullPath;
+                                  newImageURL = newUploadURL;
+                                });
+                                setState(() {
+                                  imageProvider =
+                                      FileImage(File(croppedFile.path));
+                                  PaintingBinding.instance.imageCache.clear();
+                                });
+                              }
+                            } catch (e) {
+                              if (kDebugMode) {
+                                print(
+                                    "Something went wrong while uploading your image $e");
+                              }
+                              // ignore: use_build_context_synchronously
+                              ErrorSnackbar.showErrorSnackbar(context,
+                                  "Something went wrong while uploading your image");
+                            }
                           }
                           setState(() {
                             uploading = false;
