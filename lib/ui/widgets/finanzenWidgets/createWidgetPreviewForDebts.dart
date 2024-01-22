@@ -8,6 +8,7 @@ import 'package:internet_praktikum/ui/widgets/errorSnackbar.dart';
 import 'package:internet_praktikum/ui/widgets/finanzenWidgets/getMember.dart';
 import 'package:internet_praktikum/ui/widgets/inputfield.dart';
 import 'package:internet_praktikum/ui/widgets/my_button.dart';
+import 'package:path/path.dart';
 
 class CreateDebts extends StatefulWidget {
   final DocumentReference selectedTrip;
@@ -30,6 +31,7 @@ class _CreateDebtsState extends State<CreateDebts> {
   final List<TextEditingController> amountList = List.empty(growable: true);
   final List<String> optionList = List.empty(growable: true);
   final List<DocumentReference?> toMemberList = List.empty(growable: true);
+  final List<bool> memberStatusList = List.empty(growable: true);
 
   bool shareEqually = false;
   bool shareEquallyWithAllMembers = false;
@@ -48,6 +50,8 @@ class _CreateDebtsState extends State<CreateDebts> {
   var member = [];
 
   bool totalAmountIsInRange = false;
+
+  bool isitEmpty = false;
 
   //create the debt in the database
   Future<void> createDebt() async {
@@ -110,7 +114,6 @@ class _CreateDebtsState extends State<CreateDebts> {
           shareEqually = true;
         });
       }
-
       double sumForMyAmount = 0;
 
       for (int i = 0; i < widget.preview!["to"].length; i++) {
@@ -120,14 +123,19 @@ class _CreateDebtsState extends State<CreateDebts> {
               .collection("users")
               .doc((widget.preview!["to"][i]["user"] as DocumentReference).id)
               .get();
+
           optionList
               .add(memberFromTo["prename"] + " " + memberFromTo["lastname"]);
 
+          bool ispaid = widget.preview!["to"][i]["status"] == "paid";
+          memberStatusList.add(ispaid);
           sumForMyAmount += widget.preview!["to"][i]["amount"];
           amountList.add(TextEditingController(
               text: widget.preview!["to"][i]["amount"].toString()));
+          //(checkstatuss ? "paid" : "open")));
         }
       }
+
       myAmount.text =
           (double.parse(totalAmount.text) - sumForMyAmount).toStringAsFixed(2);
     }
@@ -156,6 +164,12 @@ class _CreateDebtsState extends State<CreateDebts> {
   // get the current user name by pressing the next button
   void nextButtonToGetMember() async {
     await getMembers();
+    if (member.length == 1 && member[0].id == user.uid) {
+      setState(() {
+        isitEmpty = true;
+      });
+    }
+
     for (int i = 0; i < member.length; i++) {
       if (member[i].id == user.uid) {
         currentUserName =
@@ -266,18 +280,33 @@ class _CreateDebtsState extends State<CreateDebts> {
                 ),
               ),
               SizedBox(
-                  width: 150,
+                  width: 155,
                   height: 50,
                   child: InputField(
-                    textAlignCenter: true,
-                    readOnly: widget.preview != null,
-                    controller: amountList[index],
-                    hintText: "Enter the amount",
-                    obscureText: false,
-                    numberField: true,
-                    focusedBorderColor: const Color.fromARGB(255, 84, 113, 255),
-                    borderColor: Colors.grey.shade400,
-                  )),
+                      textAlignCenter: true,
+                      readOnly: widget.preview != null,
+                      controller: amountList[index],
+                      hintText: "Enter the amount",
+                      obscureText: false,
+                      numberField: true,
+                      focusedBorderColor:
+                          const Color.fromARGB(255, 84, 113, 255),
+                      borderColor: widget.preview == null
+                          ? Colors.grey.shade400
+                          : (memberStatusList[index] == true
+                              ? Colors.green
+                              : Colors.red))),
+              const SizedBox(
+                width: 10,
+              ),
+              if (widget.preview != null)
+                Text(
+                  memberStatusList[index] == true ? "paid" : "open",
+                  style: TextStyle(
+                      color: memberStatusList[index] == true
+                          ? Colors.green
+                          : Colors.red),
+                ),
             ],
           ),
         ),
@@ -377,40 +406,44 @@ class _CreateDebtsState extends State<CreateDebts> {
           Container(),
         ],
         if (newBottomSheet) ...[
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              GetMemberButton(
-                  notifier: (Member member) => {
-                        setState(() {
-                          if (member.isSet) memberName = member.name!;
-                          memberNameUID = member.reference;
-                        })
-                      }),
-              IconButton(
-                  onPressed: () => {
-                        if (widget.preview == null &&
-                            optionList
-                                .where((element) => element == memberName)
-                                .isEmpty)
-                          {
-                            if (memberName.isNotEmpty)
-                              {
-                                setState(() {
-                                  optionList.add(memberName);
-                                  toMemberList.add(memberNameUID);
-                                  amountList.add(TextEditingController());
-                                  calculateMyAmount();
-                                })
-                              }
-                          }
-                      },
-                  icon: const Icon(
-                    Icons.add,
-                    size: 30,
-                  )),
-            ],
-          ),
+          if (widget.preview == null && !isitEmpty)
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                GetMemberButton(
+                    notifier: (Member member) => {
+                          setState(() {
+                            if (member.isSet) memberName = member.name!;
+                            memberNameUID = member.reference;
+                          })
+                        }),
+                IconButton(
+                    onPressed: () => {
+                          if (widget.preview == null &&
+                              optionList
+                                  .where((element) => element == memberName)
+                                  .isEmpty)
+                            {
+                              if (memberName.isNotEmpty)
+                                {
+                                  setState(() {
+                                    optionList.add(memberName);
+                                    toMemberList.add(memberNameUID);
+                                    amountList.add(TextEditingController());
+                                    calculateMyAmount();
+                                  })
+                                }
+                            }
+                        },
+                    icon: const Icon(
+                      Icons.add,
+                      size: 30,
+                    )),
+              ],
+            )
+          else ...[
+            Container(),
+          ],
           ConstrainedBox(
             constraints: const BoxConstraints(maxHeight: 180),
             child: ListView.builder(

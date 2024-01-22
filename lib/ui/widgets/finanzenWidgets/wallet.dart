@@ -106,6 +106,7 @@ class _WalletState extends State<Wallet> {
                   ),
                 ] else
                   Text(
+                    //    "${(balance).toStringAsFixed(2)} €",
                     "${(balance * 100).ceil() / 100} €",
                     style: TextStyle(
                         fontSize: 40,
