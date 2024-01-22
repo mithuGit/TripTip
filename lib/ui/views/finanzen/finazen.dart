@@ -11,9 +11,10 @@ import 'package:internet_praktikum/ui/widgets/bottom_sheet.dart';
 import 'package:internet_praktikum/ui/widgets/centerText.dart';
 import 'package:internet_praktikum/ui/widgets/errorSnackbar.dart';
 import 'package:internet_praktikum/ui/widgets/finanzenWidgets/ExpansionTile.dart';
-import 'package:internet_praktikum/ui/widgets/finanzenWidgets/createDebts.dart';
+
 import 'package:internet_praktikum/ui/widgets/finanzenWidgets/wallet.dart';
 import 'package:internet_praktikum/ui/widgets/headerWidgets/topbar.dart';
+import 'package:internet_praktikum/ui/widgets/finanzenWidgets/createWidgetPreviewForDebts.dart';
 import '../../widgets/finanzenWidgets/extendablecontainer.dart';
 
 /*
