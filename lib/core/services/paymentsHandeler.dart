@@ -9,32 +9,29 @@ class NoPayOutinformation implements Exception {
 }
 
 class PaymentsHandeler {
-  FirebaseFunctions functions = FirebaseFunctions.instance;
-  Future<String> createAccoutAndAddPaymentsMethode(
+  static FirebaseFunctions functions = FirebaseFunctions.instance;
+  static Future<String> createAccoutAndAddPaymentsMethode(
       DocumentReference user) async {
     final result = await FirebaseFunctions.instance
         .httpsCallable('stripeAddPaymentsMethode')
         .call();
 
-    final _response = result.data;
+    final response = result.data;
 
-    if (_response["success"]) {
-      final _setupIntent = _response["setupIntent"];
-      final _ephemeralKey = _response["ephemeralKey"];
-      final _customer = _response["customer"];
+    if (response["success"]) {
+      return response["customer"];
     } else {
-      throw _response["error"];
+      throw response["error"];
     }
-    return _response["customer"];
   }
 
-  Future<void> refund(DocumentSnapshot user) async {
+  static Future<void> refund(DocumentSnapshot user) async {
     String _stripeId = "";
     if ((user.data()! as Map<String, dynamic>)["stripeId"] == null) {
       try {
         _stripeId = await createAccoutAndAddPaymentsMethode(user.reference);
       } catch (e) {
-        throw "Error creating Account";
+        throw "Error creating Account$e";
       }
     } else {
       _stripeId = (user.data()! as Map<String, dynamic>)["stripeId"];
@@ -49,7 +46,7 @@ class PaymentsHandeler {
           "customer": _stripeId,
         },
       );
-      if(result.data["success"] == false){
+      if (result.data["success"] == false) {
         throw result.data["error"];
       }
       cachedPaymentIntend = result.data["paymentIntentId"];
@@ -93,7 +90,7 @@ class PaymentsHandeler {
     }
   }
 
-  Future<void> bookToBankAccount(DocumentSnapshot myAccount) async {
+  static Future<void> bookToBankAccount(DocumentSnapshot myAccount) async {
     Map<String, dynamic> data = myAccount.data()! as Map<String, dynamic>;
     if (data["payoutInformation"] == null) {
       throw NoPayOutinformation("No Payout Information");
@@ -101,34 +98,35 @@ class PaymentsHandeler {
     final result = await FirebaseFunctions.instance
         .httpsCallable('bookToBankAccount')
         .call();
-    final _response = result.data as Map<String, dynamic>;
-    if (!_response["success"]) {
-      throw _response["error"];
+    final response = result.data as Map<String, dynamic>;
+    if (!response["success"]) {
+      throw response["error"];
     }
-    print(_response);
   }
 
-  Future<void> payOpenRefundsPerUser(List<Map<String, dynamic>> openRefunds,
-      DocumentReference theotherUser, DocumentReference me) async {
-    double sumOfRefunds = 0;
-    for (final refund in openRefunds) {
-      final QueryDocumentSnapshot request = refund["request"];
-      List<dynamic> to = (request.data()! as Map<String, dynamic>)["to"];
-      to[refund["indexInArray"]] = {
-        "amount": refund["amount"],
-        "user": me,
-        "status": "paid",
-      };
-      sumOfRefunds += refund["amount"] * 1.0;
-      await request.reference.update({
-        "to": to,
-      });
+  static Future<void> payOpenRefundsPerUser(
+      DocumentReference userToPayFor, DocumentReference trip) async {
+    final result = await FirebaseFunctions.instance
+        .httpsCallable('payOpenRefundsPerUser')
+        .call({
+      "destinationUser": userToPayFor.id,
+      "trip": trip.id,
+    });
+    final response = result.data as Map<String, dynamic>;
+    if (!response["success"]) {
+      throw response["error"];
     }
-    await theotherUser.update({
-      "balance": FieldValue.increment(sumOfRefunds),
+  }
+  static Future<void> deleteRequest(DocumentReference request) async {
+    debugPrint(request.path);
+    final result = await FirebaseFunctions.instance
+        .httpsCallable('deleteRequest')
+        .call({
+      "request": request.path,
     });
-    await me.update({
-      "balance": FieldValue.increment(-sumOfRefunds),
-    });
+    final response = result.data as Map<String, dynamic>;
+    if (!response["success"]) {
+      throw response["error"];
+    }
   }
 }

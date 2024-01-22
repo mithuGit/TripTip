@@ -6,8 +6,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:internet_praktikum/core/services/paymentsHandeler.dart';
 import 'package:internet_praktikum/ui/widgets/bottom_sheet.dart';
 import 'package:internet_praktikum/ui/widgets/centerText.dart';
+import 'package:internet_praktikum/ui/widgets/errorSnackbar.dart';
 import 'package:internet_praktikum/ui/widgets/finanzenWidgets/ExpansionTile.dart';
 import 'package:internet_praktikum/ui/widgets/finanzenWidgets/createDebts.dart';
 import 'package:internet_praktikum/ui/widgets/finanzenWidgets/wallet.dart';
@@ -170,6 +172,7 @@ class _FinanzenState extends State<Finanzen> {
                               .firstWhere((element) => element.id == key),
                           openRefunds: openRefundsPerUser[key]!,
                           sum: sumsPerUser[key]!,
+                          trip: selectedtrip!,
                         ));
                       }
 
@@ -187,11 +190,19 @@ class _FinanzenState extends State<Finanzen> {
                               motion: const ScrollMotion(),
                               children: [
                                 SlidableAction(
-                                  onPressed: (sdf) async {},
+                                  autoClose: false,
+                                  onPressed: (_) async {
+                                    await PaymentsHandeler.deleteRequest(
+                                            request.reference)
+                                        .onError((error, stackTrace) =>
+                                            ErrorSnackbar.showErrorSnackbar(
+                                                context, error.toString()));
+                                  },
                                   backgroundColor: Colors.transparent,
                                   foregroundColor: Colors.red,
                                   icon: Icons.delete,
                                   label: 'Delete Request',
+                                  
                                 )
                               ],
                             ),
