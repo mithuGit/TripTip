@@ -19,8 +19,6 @@ Future<void> main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  
-
   if (FirebaseAuth.instance.currentUser != null) {
     await PushNotificationService().checkInitialized();
   }
