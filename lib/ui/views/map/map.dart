@@ -778,64 +778,68 @@ class _MapPageState extends State<MapPage> {
         child: Text(
           'No Photos',
           style: TextStyle(
-              color: Colors.white,
-              fontFamily: 'WorkSans',
-              fontSize: 12.0,
-              fontWeight: FontWeight.w500),
+            color: Colors.white,
+            fontFamily: 'WorkSans',
+            fontSize: 12.0,
+            fontWeight: FontWeight.w500,
+          ),
         ),
       );
     } else {
-      var tempDisplayIndex = photoGalleryIndex +
-          1; // TODO: photoGalleryIndex ist größer als die Length von photoElement.length von der rechten sowie linken FlipCards
-
       return Column(
         children: [
           const SizedBox(height: 5.0),
           Container(
-              height: 250.0,
-              width: 250.0,
-              decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10.0),
-                  image: DecorationImage(
-                      image: photoElement[photoGalleryIndex].imageProvider,
-                      fit: BoxFit.cover))),
-          const SizedBox(height: 15.0),
-          Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
-            MySmallButton(
-                borderColor: photoGalleryIndex == 0 ? Colors.red : Colors.green,
-                onTap: () {
-                  setState(() {
-                    if (photoGalleryIndex != 0) {
-                      photoGalleryIndex = photoGalleryIndex - 1;
+            height: 250.0,
+            width: 250.0,
+            child: PageView.builder(
+              itemCount: photoElement.length,
+              controller: PageController(
+                initialPage: 0,
+              ),
+              onPageChanged: (index) {
+                setState(() {
+                  photoGalleryIndex = index;
+                });
+              },
+              itemBuilder: (context, index) {
+                return Image(
+                  image: photoElement[index].imageProvider,
+                  fit: BoxFit.cover,
+                  loadingBuilder: (context, child, loadingProgress) {
+                    if (loadingProgress == null) {
+                      return child;
                     } else {
-                      photoGalleryIndex = 0;
+                      return const CircularProgressIndicator();
                     }
-                  });
-                },
-                text: "Prev"),
-            Text(
-              '$tempDisplayIndex/${photoElement.length}',
-              style: const TextStyle(
-                  color: Colors.white,
-                  fontFamily: 'WorkSans',
-                  fontSize: 12.0,
-                  fontWeight: FontWeight.w500),
+                  },
+                );
+              },
             ),
-            MySmallButton(
-                borderColor: photoGalleryIndex == photoElement.length - 1
-                    ? Colors.red
-                    : Colors.green,
-                onTap: () {
-                  setState(() {
-                    if (photoGalleryIndex != photoElement.length - 1) {
-                      photoGalleryIndex = photoGalleryIndex + 1;
-                    } else {
-                      photoGalleryIndex = photoElement.length - 1;
-                    }
-                  });
-                },
-                text: "Next"),
-          ])
+          ),
+          const SizedBox(height: 15.0),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Expanded(
+                child: Center(
+                  child: Text(
+                    photoGalleryIndex < photoElement.length - 1
+                        ? "Swipe to see more Pictures of the location"
+                        : "No more pictures to see. Please swipe back.", // Updated message
+                    style: TextStyle(
+                      color: photoGalleryIndex < photoElement.length - 1
+                          ? Colors.white
+                          : Colors.red,
+                      fontFamily: 'Ubuntu',
+                      fontSize: 14.0,
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ],
       );
     }
