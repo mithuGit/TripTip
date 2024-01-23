@@ -1,27 +1,41 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:internet_praktikum/ui/widgets/container.dart';
+import 'package:internet_praktikum/ui/widgets/errorSnackbar.dart';
 import 'package:internet_praktikum/ui/widgets/inputfield.dart';
 import 'package:internet_praktikum/ui/widgets/my_button.dart';
 
 class JoinTrip extends StatelessWidget {
+  
   JoinTrip({super.key});
   final CollectionReference trips =
       FirebaseFirestore.instance.collection('trips');
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   final groupController = TextEditingController();
+  FirebaseFunctions functions = FirebaseFunctions.instance;
 
-  void joinTrip() async {
+  Future<void> joinTrip(BuildContext context) async {
     final self = _auth.currentUser?.uid;
 
     final dir = groupController.text;
-    trips.doc(dir).update({
-      "members": FieldValue.arrayUnion(
-          [FirebaseFirestore.instance.doc("/users/" + self.toString())])
-    });
+    if (dir.isEmpty) {
+      throw "Please enter a Trip ID";
+    }
+
+    final result = await FirebaseFunctions.instance
+        .httpsCallable('joinTrip')
+        .call({"trip": dir, "user": self});
+
+
+    final response = result.data as Map<String, dynamic>;    
+
+    if (!response["success"]) {
+      throw response["error"];
+    }
   }
 
   @override
@@ -46,13 +60,18 @@ class JoinTrip extends StatelessWidget {
                       InputField(
                           margin: const EdgeInsets.only(top: 15, bottom: 10),
                           controller: groupController,
-                          hintText: "User ID",
+                          hintText: "Trip ID",
                           obscureText: false),
                       MyButton(
                           margin: const EdgeInsets.only(bottom: 10),
-                          onTap: () {
-                            joinTrip();
-                            context.go("/changeTrip");
+                          onTap: () async {
+                            try {
+                              await joinTrip(context);
+                              context.go("/changeTrip");
+                            } catch (e) {
+                              ErrorSnackbar.showErrorSnackbar(
+                                  context, e.toString());
+                            }
                           },
                           text: "Next"),
                       MyButton(

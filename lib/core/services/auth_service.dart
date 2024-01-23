@@ -34,8 +34,9 @@ Future<UserCredential> signInWithGoogle() async {
         'dateOfBirth': null
       });
     }
-    await PushNotificationService().initialise();
+    
   }
+  await PushNotificationService().initialise();
   // finally, lets sign in the user
   return userCredential;
 }

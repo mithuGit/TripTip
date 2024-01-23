@@ -1,11 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/foundation.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:internet_praktikum/core/services/init_pushnotifications.dart';
+import 'package:internet_praktikum/ui/widgets/errorSnackbar.dart';
 import 'package:internet_praktikum/ui/widgets/headerWidgets/topbar.dart';
 import 'package:internet_praktikum/ui/widgets/profileWidgets/profileButton.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -25,10 +26,23 @@ class _ProfilePageState extends State<ProfilePage> {
     }
   }
 
-  void deleteUser() async {
-    await FirebaseAuth.instance.currentUser!.delete();
-    if (context.mounted) {
-      GoRouter.of(context).go('/loginorregister');
+  Future<void> deleteUser() async {
+    FirebaseFunctions functions = FirebaseFunctions.instance;
+    HttpsCallableResult callable =
+        await functions.httpsCallable('removeUser').call();
+    Map<String, dynamic> data = Map<String, dynamic>.from(callable.data);
+
+    if (data['success']) {
+      await FirebaseStorage.instance
+          .ref('profilePictures/${FirebaseAuth.instance.currentUser!.uid}')
+          .delete();
+      if (context.mounted) {
+        GoRouter.of(context).go('/loginorregister');
+      }
+    } else {
+      if (mounted) {
+        ErrorSnackbar.showErrorSnackbar(context, data['error']);
+      }
     }
   }
 

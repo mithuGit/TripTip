@@ -9,6 +9,7 @@ class NoPayOutinformation implements Exception {
 }
 
 class PaymentsHandeler {
+  
   static FirebaseFunctions functions = FirebaseFunctions.instance;
   static Future<String> createAccoutAndAddPaymentsMethode(
       DocumentReference user) async {
@@ -53,7 +54,7 @@ class PaymentsHandeler {
       await Stripe.instance.initPaymentSheet(
           paymentSheetParameters: SetupPaymentSheetParameters(
         paymentIntentClientSecret: result.data["paymentIntent"],
-        merchantDisplayName: 'TipTrip',
+        merchantDisplayName: 'TripTip',
         customerId: _stripeId,
         customerEphemeralKeySecret: result.data["ephemeralKey"],
         style: ThemeMode.dark,
