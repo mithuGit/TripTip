@@ -1,41 +1,199 @@
+import 'dart:async';
+import 'dart:ui' as ui;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert' as convert;
 
+class PlacePhoto {
+  final String name;
+  int widthPx;
+  int heightPx;
+  static const _key = "AIzaSyBUh4YsufaUkM8XQqdO8TSXKpBf_3dJOmA";
+
+  ImageProvider get imageProvider => NetworkImage(
+        "https://places.googleapis.com/v1/$name/media?maxHeightPx=$heightPx&maxWidthPx=$widthPx&key=$_key",
+      );
+  PlacePhoto({
+    required this.name,
+    required this.heightPx,
+    required this.widthPx,
+  }) {
+    if (widthPx >= 4800) {
+      widthPx = 4800;
+    }
+    if (heightPx >= 4800) {
+      heightPx = 4800;
+    }
+  }
+}
+
+class Place {
+  final String name;
+  final List<dynamic> types;
+  final String primaryType;
+  final LatLng location;
+  final String placeId;
+  final List<dynamic> photos;
+  final String formattedAddress;
+  final String internationalPhoneNumber;
+  final String buisnessStatus;
+  final double rating;
+  final List<dynamic> reviews;
+  get typesString => types.join(", ");
+  get photosElements => photos.map((photo) {
+        return PlacePhoto(
+          name: photo["name"],
+          heightPx: photo["widthPx"],
+          widthPx: photo["heightPx"],
+        );
+      }).toList();
+  PlacePhoto get firstImage => photosElements.first; //TODO: check if first Photo is null => was soll dann passieren?
+  Place(
+      {required this.name,
+      required this.types,
+      required this.primaryType,
+      required this.location,
+      required this.placeId,
+      required this.photos,
+      required this.formattedAddress,
+      required this.internationalPhoneNumber,
+      required this.buisnessStatus,
+      required this.rating,
+      required this.reviews});
+  Map<String, dynamic> toMap() {
+    return {
+      "name": name,
+      "types": types,
+      "primaryType": primaryType,
+      "location": {
+        "latitude": location.latitude,
+        "longitude": location.longitude
+      },
+      "placeId": placeId,
+      "photos": photos,
+      "formattedAddress": formattedAddress,
+      "internationalPhoneNumber": internationalPhoneNumber,
+      "buisnessStatus": buisnessStatus,
+      "rating": rating,
+      "reviews": reviews
+    };
+  }
+
+  static Place fromMap(Map<String, dynamic> map) {
+    return Place(
+        name: map["name"],
+        types: map["types"],
+        primaryType: map["primaryType"],
+        location:
+            LatLng(map["location"]["latitude"], map["location"]["longitude"]),
+        placeId: map["placeId"],
+        photos: map["photos"],
+        formattedAddress: map["formattedAddress"],
+        internationalPhoneNumber: map["internationalPhoneNumber"],
+        buisnessStatus: map["buisnessStatus"],
+        rating: map["rating"],
+        reviews: map["reviews"]);
+  }
+}
 
 class GoogleMapService {
+  static const key = "AIzaSyBUh4YsufaUkM8XQqdO8TSXKpBf_3dJOmA";
 
-   static const key = "AIzaSyBUh4YsufaUkM8XQqdO8TSXKpBf_3dJOmA";
-  
-
-   Future<dynamic> getPlaceDetails(LatLng coords, int radius) async {
+  Future<dynamic> getPlacesNew(LatLng coords, int radius,
+      List<String> interests) async {
     var lat = coords.latitude;
     var lng = coords.longitude;
 
-    final String url =
-        'https://maps.googleapis.com/maps/api/place/nearbysearch/json?&location=$lat,$lng&radius=$radius&key=$key';
+    const String url = 'https://places.googleapis.com/v1/places:searchNearby';
 
-    var response = await http.get(Uri.parse(url));
+    List<String> interestsList1 = [];
+    List<String> interestsList2 = [];
 
-    var json = convert.jsonDecode(response.body);
+    for (var i = 0; i < interests.length; i++) {
+      if (i < 40) {
+        interestsList1.add(interests[i]);
+      } else {
+        interestsList2.add(interests[i]);
+      }
+    }
+    String maxAmount = "5";
+    if(interestsList2.isEmpty) {
+      maxAmount = "10";
+    }
 
-    return json;
+    var apiRequest1 = await http.post(Uri.parse(url),
+        body: convert.jsonEncode({
+          "locationRestriction": {
+            "circle": {
+              "center": {"latitude": "$lat", "longitude": "$lng"},
+              "radius": "$radius"
+            }
+          },
+          "maxResultCount": maxAmount,
+          "includedTypes": interestsList1,
+        }),
+        headers: {
+          "X-Goog-Api-Key": key,
+          "X-Goog-FieldMask":
+              "places.displayName,places.types,places.location,places.photos,places.id,places.formattedAddress,places.internationalPhoneNumber,places.businessStatus,places.rating,places.reviews,places.primaryType"
+        });
+    var json2;
+    if (interestsList2.isNotEmpty) {
+      var apiRequest2 = await http.post(Uri.parse(url),
+          body: convert.jsonEncode({
+            "locationRestriction": {
+              "circle": {
+                "center": {"latitude": "$lat", "longitude": "$lng"},
+                "radius": "$radius"
+              }
+            },
+            "maxResultCount": "5",
+            "includedTypes": interestsList2,
+          }),
+          headers: {
+            "X-Goog-Api-Key": key,
+            "X-Goog-FieldMask":
+                "places.displayName,places.types,places.location,places.photos,places.id,places.formattedAddress,places.internationalPhoneNumber,places.businessStatus,places.rating,places.reviews,places.primaryType"
+          });
+      json2 = convert.jsonDecode(apiRequest2.body);
+    }
+
+    var json1 = convert.jsonDecode(apiRequest1.body);
+    List<dynamic> places;
+    List<Place> placeList = [];
+
+    if (json1["places"] == null) {
+      return placeList;
+    }
+    if (json2 != null) {
+      places = [...json1["places"], ...json2["places"]];
+    } else {
+      places = json1["places"];
+    }
+    for (var place in places) {
+      placeList.add(Place(
+        name: place["displayName"]["text"] ?? "No name",
+        types: place["types"] ?? ["No types"],
+        location: LatLng(
+            place["location"]["latitude"], place["location"]["longitude"]),
+        placeId: place["id"],
+        photos: place["photos"] ?? [],
+        formattedAddress: place["formattedAddress"] ?? "Non given",
+        internationalPhoneNumber:
+            place["internationalPhoneNumber"] ?? "Non given",
+        buisnessStatus: place["businessStatus"] ?? "Non given",
+        rating: place["rating"] != null ? place["rating"] * 1.0 : 0.0,
+        primaryType: place["primaryType"] ?? "",
+        reviews: place["reviews"] ?? [],
+      ));
+    }
+    return placeList;
   }
 
-  Future<dynamic> getMorePlaceDetails(String token) async {
-    final String url =
-        'https://maps.googleapis.com/maps/api/place/nearbysearch/json?&pagetoken=$token&key=$key';
-
-    var response = await http.get(Uri.parse(url));
-
-    var json = convert.jsonDecode(response.body);
-
-    return json;
-  }
-
-  
   Future<LatLng> getLatLng() async {
     final auth = FirebaseAuth.instance.currentUser;
 
@@ -72,17 +230,14 @@ class GoogleMapService {
     return latLng;
   }
 
-   Future<Map<String, dynamic>> getPlace(String? input) async {
-    final String url =
-        'https://maps.googleapis.com/maps/api/place/details/json?place_id=$input&key=$key';
+  Future<Uint8List> getBytesFromAsset(String path, int width) async {
+    ByteData data = await rootBundle.load(path);
 
-    var response = await http.get(Uri.parse(url));
-
-    var json = convert.jsonDecode(response.body);
-
-    var results = json['result'] as Map<String, dynamic>;
-
-    return results;
+    ui.Codec codec = await ui.instantiateImageCodec(data.buffer.asUint8List(),
+        targetWidth: width);
+    ui.FrameInfo fi = await codec.getNextFrame();
+    return (await fi.image.toByteData(format: ui.ImageByteFormat.png))!
+        .buffer
+        .asUint8List();
   }
-
 }

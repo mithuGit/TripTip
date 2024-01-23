@@ -216,7 +216,7 @@ class _ChangeTrip extends State<ChangeTrip> {
             },
             icon: const Icon(Icons.arrow_back_ios),
           ),
-          title: const Text("Change Trip"),
+          title: const Text("Select a Trip"),
           titleTextStyle: const TextStyle(color: Colors.black, fontSize: 20),
           actions: [
             IconButton(

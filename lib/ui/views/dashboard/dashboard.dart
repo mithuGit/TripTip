@@ -37,7 +37,7 @@ class _DashBoardState extends State<DashBoard> {
                         content: [
                           FutureBuilder(
                               future: Future.wait([
-                                DashBoardData.getUserData(selectedDay!),
+                                DashBoardData.getUserData(),
                                 DashBoardData.getCurrentDaySubCollection(
                                     selectedDay!),
                               ]),
@@ -91,35 +91,38 @@ class _DashBoardState extends State<DashBoard> {
                 fit: BoxFit.fitWidth,
               ),
             ),
-            child: Column(children: [
-              Calendar(onDateSelected: (date) {
-                setState(() {
-                  selectedDay = date;
-                });
-              }),
-              if (selectedDay != null)
-                FutureBuilder(
-                    future: Future.wait([
-                      DashBoardData.getUserData(selectedDay!),
-                      DashBoardData.getCurrentDaySubCollection(selectedDay!),
-                    ]),
-                    builder: (context, AsyncSnapshot<List<dynamic>> snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const Center(
-                          child: CircularProgressIndicator(),
-                        );
-                      }
-                      if (snapshot.hasError) {
-                        print(snapshot.error);
-                        return const Center(
-                          child: Text(
-                              'An error occured while fetching data! check your internet connection!'),
-                        );
-                      }
-                      return ScrollViewWidget(
-                          day: snapshot.data![1], userdata: snapshot.data![0]);
-                    })
-            ]),
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 65),
+              child: Column(children: [
+                Calendar(onDateSelected: (date) {
+                  setState(() {
+                    selectedDay = date;
+                  });
+                }),
+                if (selectedDay != null)
+                  FutureBuilder(
+                      future: Future.wait([
+                        DashBoardData.getUserData(),
+                        DashBoardData.getCurrentDaySubCollection(selectedDay!),
+                      ]),
+                      builder: (context, AsyncSnapshot<List<dynamic>> snapshot) {
+                        if (snapshot.connectionState == ConnectionState.waiting) {
+                          return const Center(
+                            child: CircularProgressIndicator(),
+                          );
+                        }
+                        if (snapshot.hasError) {
+                          print(snapshot.error);
+                          return const Center(
+                            child: Text(
+                                'An error occured while fetching data! check your internet connection!'),
+                          );
+                        }
+                        return ScrollViewWidget(
+                            day: snapshot.data![1], userdata: snapshot.data![0]);
+                      })
+              ]),
+            ),
           ),
         ],
       ),

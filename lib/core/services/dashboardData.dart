@@ -5,10 +5,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 class DashBoardData {
   static final user = FirebaseAuth.instance.currentUser!;
-  static Future<Map<String, dynamic>> getUserData(DateTime selectedDay) async {
-    print("getUserData");
+  static Future<Map<String, dynamic>> getUserData() async {
     final userCollection = FirebaseFirestore.instance.collection('users');
-    print('DateTime: $selectedDay');
     final userDoc = await userCollection.doc(user.uid).get();
     Map<String, dynamic> _userData = userDoc.data() as Map<String, dynamic>;
     if (_userData['selectedtrip'] == null) throw Exception('No trip selected');

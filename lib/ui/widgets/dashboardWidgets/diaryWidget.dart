@@ -1,6 +1,4 @@
 import 'dart:async';
-import 'dart:math';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -93,9 +91,11 @@ class DiaryWidgetState extends State<DiaryWidget> {
                       color: Colors.white,
                     )),
               ] else ...[
-                Text(
-                    "$writerPrename $writerLastname is writing a Diary for the Day!",
-                    style: Styles.noteTextstyle),
+                Flexible(
+                  child: Text(
+                      "$writerPrename $writerLastname is writing a Diary for the Day!",
+                      style: Styles.noteTextstyle),
+                ),
                 IconButton(
                     onPressed: () {
                       GoRouter.of(context).go('/diary/read', extra: widget.day);
@@ -121,9 +121,11 @@ class DiaryWidgetState extends State<DiaryWidget> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                    "$writerPrename $writerLastname has written\na Diary for the Day!",
-                    style: Styles.noteTextstyle),
+                Flexible(
+                  child: Text(
+                      "$writerPrename $writerLastname has written\na Diary for the Day!",
+                      style: Styles.noteTextstyle),
+                ),
                 IconButton(
                     onPressed: () {
                       GoRouter.of(context).go('/diary/read', extra: widget.day);

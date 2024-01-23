@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -9,12 +10,14 @@ import 'package:internet_praktikum/ui/widgets/my_button.dart';
 import 'package:path/path.dart';
 
 class JoinTrip extends StatelessWidget {
+  
   JoinTrip({super.key});
   final CollectionReference trips =
       FirebaseFirestore.instance.collection('trips');
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   final groupController = TextEditingController();
+  FirebaseFunctions functions = FirebaseFunctions.instance;
 
   void joinTrip(BuildContext context) async {
     final self = _auth.currentUser?.uid;
@@ -58,7 +61,7 @@ class JoinTrip extends StatelessWidget {
                       InputField(
                           margin: const EdgeInsets.only(top: 15, bottom: 10),
                           controller: groupController,
-                          hintText: "Trip Code",
+                          hintText: "Trip ID",
                           obscureText: false),
                       MyButton(
                           margin: const EdgeInsets.only(bottom: 10),

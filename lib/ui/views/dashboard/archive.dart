@@ -46,7 +46,6 @@ class _Archive extends State<Archive> {
           },
         );
 
-
     archiveList.sort((a, b) => a["daytime"].compareTo(b["daytime"]));
 
     return archiveList;
@@ -119,6 +118,13 @@ class _Archive extends State<Archive> {
           centerTitle: true,
           title: const Text("Archive"),
           titleTextStyle: const TextStyle(color: Colors.black, fontSize: 20),
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back_ios),
+            color: Colors.black,
+            onPressed: () {
+              context.go('/');
+            },
+          ),
         ),
         body: FutureBuilder(
             future: getArchives(),

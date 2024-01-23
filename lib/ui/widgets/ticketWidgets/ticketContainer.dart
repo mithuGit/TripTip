@@ -1,8 +1,7 @@
+// ignore_for_file: file_names
 import 'dart:io';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:internet_praktikum/ui/views/ticket/ImageViewerPage.dart';
 import 'package:internet_praktikum/ui/views/ticket/PDFViewerPage.dart';
@@ -10,6 +9,7 @@ import 'package:internet_praktikum/ui/widgets/bottom_sheet.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf_render/pdf_render_widgets.dart';
 
+// ignore: must_be_immutable
 class TicketContainer extends StatefulWidget {
   DocumentSnapshot ticket;
 
@@ -52,7 +52,7 @@ class _TicketContainerState extends State<TicketContainer> {
     if (isPDF) {
       final Directory tempDir = await getTemporaryDirectory();
       pdfFile = File('${tempDir.path}/${data!["title"]}');
-      await FirebaseStorage.instance.ref(data!["url"]).writeToFile(pdfFile!);
+      await FirebaseStorage.instance.ref(data!["url"]).writeToFile(pdfFile);
 
       docWidget = PdfDocumentLoader.openFile(
         pdfFile.path,
@@ -91,71 +91,65 @@ class _TicketContainerState extends State<TicketContainer> {
                     children: [
                       const SizedBox(height: 20.0),
                       Container(
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                            width: 1,
-                            color: Theme.of(context)
-                                .colorScheme
-                                .primary
-                                .withOpacity(0.2),
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              width: 1,
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .primary
+                                  .withOpacity(0.2),
+                            ),
                           ),
-                        ),
-                        height: height,
-                        width: double.infinity,
-                        alignment: Alignment.center,
-                        child:GestureDetector(
-                                onTap: () {
-                                  file.data!.isPdf
-                                      ? (openPDF(
-                                          context, file.data!.pdf!, data!["title"]))
-                                      : (openImage(
-                                          context, file.data!.image, data!["title"]));
-                                },
-                                child: file.data!.widget,
-                              )
-  
-                      ),
+                          height: height,
+                          width: double.infinity,
+                          alignment: Alignment.center,
+                          child: GestureDetector(
+                            onTap: () {
+                              file.data!.isPdf
+                                  ? (openPDF(
+                                      context, file.data!.pdf!, data!["title"]))
+                                  : (openImage(context, file.data!.image,
+                                      data!["title"]));
+                            },
+                            child: file.data!.widget,
+                          )),
                     ]);
               },
             ),
           ]);
         },
+        // Ticket Widget on dashboard
         child: Container(
           decoration: BoxDecoration(
             color: const Color(0xE51E1E1E),
             border: Border.all(color: const Color(0xE51E1E1E)),
             borderRadius: BorderRadius.circular(34.5),
           ),
-          child: Stack(
-            children: [
-              SingleChildScrollView(
-                child: Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(
-                          top: 18.0, left: 25, right: 25, bottom: 15.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            data!["title"],
-                            style: const TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
-                          ),
-                          const ImageIcon(
-                            AssetImage('assets/docs.png'),
-                            color: Colors.white,
-                          ),
-                        ],
-                      ),
+          child: Padding(
+            padding: const EdgeInsets.only(
+                top: 18.0, left: 25, right: 25, bottom: 15.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Flexible(
+                  flex: 1,
+                  child: Text(
+                    data!["title"],
+                    overflow: TextOverflow.ellipsis,
+                    softWrap: true,
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
                     ),
-                  ],
+                  ),
                 ),
-              ),
-            ],
+                const ImageIcon(
+                  AssetImage('assets/docs.png'),
+                  color: Colors.white,
+                ),
+              ],
+            ),
           ),
         ),
       ),

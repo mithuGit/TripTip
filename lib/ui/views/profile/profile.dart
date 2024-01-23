@@ -1,17 +1,18 @@
-import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:internet_praktikum/core/services/init_pushnotifications.dart';
+import 'package:internet_praktikum/ui/widgets/errorSnackbar.dart';
 import 'package:internet_praktikum/ui/widgets/headerWidgets/topbar.dart';
 import 'package:internet_praktikum/ui/widgets/profileWidgets/profileButton.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class ProfilePage extends StatefulWidget {
-  ProfilePage({Key? key}) : super(key: key);
+  const ProfilePage({Key? key}) : super(key: key);
 
   @override
   State<ProfilePage> createState() => _ProfilePageState();
@@ -25,10 +26,23 @@ class _ProfilePageState extends State<ProfilePage> {
     }
   }
 
-  void deleteUser() async {
-    await FirebaseAuth.instance.currentUser!.delete();
-    if (context.mounted) {
-      GoRouter.of(context).go('/loginorregister');
+  Future<void> deleteUser() async {
+    FirebaseFunctions functions = FirebaseFunctions.instance;
+    HttpsCallableResult callable =
+        await functions.httpsCallable('removeUser').call();
+    Map<String, dynamic> data = Map<String, dynamic>.from(callable.data);
+
+    if (data['success']) {
+      await FirebaseStorage.instance
+          .ref('profilePictures/${FirebaseAuth.instance.currentUser!.uid}')
+          .delete();
+      if (context.mounted) {
+        GoRouter.of(context).go('/loginorregister');
+      }
+    } else {
+      if (mounted) {
+        ErrorSnackbar.showErrorSnackbar(context, data['error']);
+      }
     }
   }
 
@@ -41,9 +55,10 @@ class _ProfilePageState extends State<ProfilePage> {
   final storage = FirebaseStorage.instance;
   late ImageProvider<Object>? imageProvider;
 
+  XFile? pickedFile;
+
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     currentUser.photoURL != null
         ? imageProvider = NetworkImage(currentUser.photoURL!)
@@ -68,57 +83,21 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
               ),
               child: Column(
-                children: <Widget>[
-                  GestureDetector(
-                    onTap: () async {
-                      // Pick image from gallery
-                      ImagePicker imagePicker = ImagePicker();
-                      XFile? pickedFile = await imagePicker.pickImage(
-                          source: ImageSource.gallery);
-                      //get reference to storage root
-                      Reference referenceRoot = FirebaseStorage.instance.ref();
-                      Reference referenceDirImages =
-                          referenceRoot.child('profilePictures');
-
-                      // create a refernece for the image to be stored
-                      Reference referenceImageToUpload =
-                          referenceDirImages.child(currentUser.uid);
-
-                      //Handle errors/succes
-                      try {
-                        if (pickedFile != null) {
-                          await referenceImageToUpload
-                              .putFile(File(pickedFile.path));
-                        }
-                        imageURL =
-                            await referenceImageToUpload.getDownloadURL();
-                      } catch (e) {
-                        print(e);
-                      }
-                      setState(() {
-                        imageProvider = (pickedFile != null
-                                ? FileImage(File(pickedFile.path))
-                                : const AssetImage('assets/Personavatar.png'))
-                            as ImageProvider<Object>?;
-                        currentUser.updatePhotoURL(imageURL);
-                      });
-                    },
-                    child: CircleAvatar(
-                      radius: 37.5,
-                      backgroundImage: imageProvider,
-                    ),
+                children: [
+                  CircleAvatar(
+                    radius: 37.5,
+                    backgroundImage: imageProvider,
                   ),
                   const SizedBox(height: 10),
                   Text('Welcome ${user.displayName}',
                       style: const TextStyle(
                           fontSize: 20, fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 15),
                   SizedBox(
                       width: 200,
                       child: ElevatedButton(
                           onPressed: () {
-                            context.pushReplacement(
-                                "/accountdetails-isEditProfile");
+                            context.pushReplacement("/accountdetails/true");
                           },
                           style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.grey[300],
@@ -126,7 +105,7 @@ class _ProfilePageState extends State<ProfilePage> {
                               shape: const StadiumBorder()),
                           child: const Text('Edit Profile',
                               style: TextStyle(color: Colors.black)))),
-                  const SizedBox(height: 25),
+                  const SizedBox(height: 15),
                   Center(
                     child: Padding(
                       padding: const EdgeInsets.only(
@@ -189,10 +168,11 @@ class _ProfilePageState extends State<ProfilePage> {
                                       );
                                     }),
                                 ProfileButton(
-                                  title: "Billing Details",
-                                  icon: Icons.wallet,
+                                  title: "Your Interests",
+                                  icon: Icons.stars,
                                   textcolor: Colors.white,
-                                  onTap: () {},
+                                  onTap: () =>
+                                      context.go('/setinterests/false'),
                                 ),
                                 ProfileButton(
                                   title: "Game: Choose a Loser ",

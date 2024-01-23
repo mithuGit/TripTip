@@ -2,7 +2,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:internet_praktikum/core/services/JobworkerService.dart';
 import 'package:internet_praktikum/core/services/manageDashboardWidget.dart';
+import 'package:internet_praktikum/core/services/map_service.dart';
 import 'package:internet_praktikum/ui/styles/Styles.dart';
 import 'package:internet_praktikum/ui/widgets/dashboardWidgets/selectDeadline.dart';
 import 'package:internet_praktikum/ui/widgets/datepicker.dart';
@@ -27,7 +29,7 @@ class SelectedDate extends SelectedOption {
   bool get isNotEmpty => date != null;
   @override
   Map toMap() => {
-        "string": DateFormat('hh:mm').format(date!),
+        "string": DateFormat('HH:mm').format(date!),
         "date": date!,
         "voters": []
       };
@@ -42,11 +44,11 @@ class SelectedDate extends SelectedOption {
 class SelectedQuestion extends SelectedOption {
   TextEditingController question = TextEditingController();
   @override
-  bool get isNotEmpty => true;
+  bool get isNotEmpty => question.text.isNotEmpty;
   @override
   Map toMap() => {"string": question.text, "voters": []};
   @override
-  Object? get value => question;
+  Object? get value => question.text;
   @override
   set value(Object? value) => question.text = value as String;
   @override
@@ -55,6 +57,7 @@ class SelectedQuestion extends SelectedOption {
 
 // ignore: must_be_immutable
 class AddSurveyWidgetToDashboard extends StatefulWidget {
+  Place? place;
   DocumentReference day;
   String typeOfSurvey;
   Map<String, dynamic> userdata;
@@ -64,6 +67,7 @@ class AddSurveyWidgetToDashboard extends StatefulWidget {
       required this.day,
       required this.userdata,
       this.data,
+      this.place,
       required this.typeOfSurvey});
 
   @override
@@ -85,6 +89,7 @@ class AddSurveyWidgetToDashboardState
   @override
   void initState() {
     super.initState();
+    getPlaceDetails();
     selectedOption = widget.typeOfSurvey == "questionsurvey"
         ? SelectedQuestion()
         : SelectedDate();
@@ -109,6 +114,17 @@ class AddSurveyWidgetToDashboardState
     }
   }
 
+  void getPlaceDetails() {
+    if (widget.place != null) {
+      String title = widget.place!.name;
+      nameofSurvey.text = "Do you want to go to $title?";
+      if (widget.typeOfSurvey == "questionsurvey") {
+        _optionList.add(SelectedQuestion()..value = "Yes?");
+        _optionList.add(SelectedQuestion()..value = "No?");
+      }
+    }
+  }
+
   Future<DateTime> getDay() async {
     DocumentSnapshot dd = await widget.day.get();
     Map<String, dynamic> data = dd.data() as Map<String, dynamic>;
@@ -126,8 +142,8 @@ class AddSurveyWidgetToDashboardState
       "allowmultipleanswers": allowmultipleAnswers,
     };
     if (deadline != null) {
-      data["deadline"] = deadline;  
-    } 
+      data["deadline"] = deadline;
+    }
     data["options"] = _optionList.map((e) => e.toMap()).toList();
     DocumentReference by = FirebaseFirestore.instance
         .collection('users')
@@ -138,29 +154,12 @@ class AddSurveyWidgetToDashboardState
     if (widget.data == null) {
       String key = const Uuid().v4();
       if (deadline != null) {
-        DocumentReference converter = await firestore.collection("tasks").add({
-          "worker": "SurveyConvertion",
-          "performAt": deadline,
-          "status": "pending",
-          "options": {
-            "day": widget.day,
-            "widgetCreatedBy": by,
-            "titleOfSurvey": nameofSurvey.text,
-            "trip": trip,
-            "key": key
-          }
-        });
-        DocumentReference alerter = await firestore.collection("tasks").add({
-          "worker": "LastChanceSurvey",
-          "performAt": deadline!.subtract(const Duration(minutes: 15)),
-          "status": "pending",
-          "options": {
-            "day": widget.day,
-            "widgetCreatedBy": by,
-            "titleOfSurvey": nameofSurvey.text,
-            "trip": trip,
-          }
-        });
+        DocumentReference converter =
+            await JobworkerService.generateSurveyConvertionWorker(
+                deadline!, widget.day, by, trip, key, nameofSurvey.text);
+        DocumentReference alerter =
+            await JobworkerService.generateLastChanceSurveryWorker(
+                deadline!, widget.day, by, trip, key, nameofSurvey.text);
         data["workers"] = [converter, alerter];
       }
       await ManageDashboardWidged()
@@ -177,12 +176,26 @@ class AddSurveyWidgetToDashboardState
     Widget buildTenableListTile(SelectedOption item, int index) {
       return Dismissible(
         key: Key(_optionList[index].toString() + index.toString()),
+        direction: DismissDirection.endToStart,
         onDismissed: (direction) {
           setState(() {
             _optionList.removeAt(index);
+            print("removed");
           });
         },
-        background: Container(color: Colors.red),
+        background: Container(
+          color: Colors.red,
+          child: const Align(
+              alignment: Alignment.centerRight,
+              child: Padding(
+                padding: EdgeInsets.only(left: 20),
+                child: Text(
+                  "Swipe to Delete   ",
+                  style: Styles.buttonFontStyle,
+                  textAlign: TextAlign.center,
+                ),
+              )),
+        ),
         child: Container(
           decoration: BoxDecoration(
             border: Border(
@@ -207,6 +220,7 @@ class AddSurveyWidgetToDashboardState
         ),
       );
     }
+
     // needed that the widget is moveable
     return SingleChildScrollView(
       child: Column(children: [
@@ -256,7 +270,7 @@ class AddSurveyWidgetToDashboardState
                   flex: 2,
                   child: InputField(
                     controller: (selectedOption as SelectedQuestion).question,
-                    hintText: "Question you can add",
+                    hintText: "Question or Answer you can add",
                     borderColor: Colors.grey.shade400,
                     focusedBorderColor: const Color.fromARGB(255, 84, 113, 255),
                     obscureText: false,
@@ -284,10 +298,11 @@ class AddSurveyWidgetToDashboardState
             IconButton(
                 onPressed: () => {
                       if (_optionList
-                          .where((element) => element == selectedOption)
+                          .where((element) =>
+                              element.value == selectedOption.value)
                           .isEmpty)
                         {
-                          if (selectedOption.value != null &&
+                          if (selectedOption.isNotEmpty &&
                               _optionList.length <= 5)
                             {
                               setState(() {
@@ -307,7 +322,7 @@ class AddSurveyWidgetToDashboardState
           ],
         ),
         ConstrainedBox(
-          constraints: const BoxConstraints(maxHeight: 200),
+          constraints: const BoxConstraints(maxHeight: 180),
           child: ReorderableListView.builder(
             shrinkWrap: true,
             itemCount: _optionList.length,
@@ -324,7 +339,7 @@ class AddSurveyWidgetToDashboardState
             },
           ),
         ),
-        const SizedBox(height: 5),
+        const SizedBox(height: 10),
         if (_optionList.length >= 2)
           MyButton(
               colors: Colors.blue,

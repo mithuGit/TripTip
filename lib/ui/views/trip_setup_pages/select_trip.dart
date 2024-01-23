@@ -30,7 +30,7 @@ class SelectTrip extends StatelessWidget {
                         title: "Start your next Adventure",
                         children: [
                           MyButton(
-                              margin: EdgeInsets.only(top: 15, bottom: 10),
+                              margin: const EdgeInsets.only(top: 15, bottom: 10),
                               onTap: () {
                                 context.push('/createtrip');
                               },

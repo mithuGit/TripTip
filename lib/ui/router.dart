@@ -3,10 +3,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:internet_praktikum/ui/views/account/account_details.dart';
+import 'package:internet_praktikum/ui/views/account/setInterestsPage.dart';
 import 'package:internet_praktikum/ui/views/dashboard/archive.dart';
 import 'package:internet_praktikum/ui/views/dashboard/readDiary.dart';
 import 'package:internet_praktikum/ui/views/dashboard/writeDiary.dart';
-import 'package:internet_praktikum/ui/views/finanzen/creditcard.dart';
 import 'package:internet_praktikum/ui/views/finanzen/finazen.dart';
 import 'package:internet_praktikum/ui/views/dashboard/dashboard.dart';
 import 'package:internet_praktikum/ui/views/map/map.dart';
@@ -21,6 +21,7 @@ import 'package:internet_praktikum/ui/views/trip_setup_pages/join_trip.dart';
 import 'package:internet_praktikum/ui/views/trip_setup_pages/share_trip.dart';
 import 'package:internet_praktikum/ui/views/trip_setup_pages/select_trip.dart';
 import 'package:internet_praktikum/ui/views/verification/OTP_form.dart';
+import 'package:internet_praktikum/ui/views/weather/weather.dart';
 import 'package:internet_praktikum/ui/views/weather/weather_page.dart';
 import 'package:internet_praktikum/ui/widgets/game/gameChooser.dart';
 
@@ -141,10 +142,14 @@ class MyRouter {
               )),
       GoRoute(
         name: 'accountdetails',
-        path: '/accountdetails',
-        builder: (context, state) => Account(
-          key: state.pageKey,
-        ),
+        path: '/accountdetails/:isEditProfile',
+        builder: (context, state) {
+          final isEditProfile = state.pathParameters['isEditProfile'];
+          return Account(
+            key: state.pageKey,
+            isEditProfile: isEditProfile == "true",
+          );
+        },
       ),
       GoRoute(
         name: 'createtrip',
@@ -175,7 +180,11 @@ class MyRouter {
         path: '/sharetrip/:tripId/:afterCreate',
         builder: (context, state) {
           if (state.pathParameters.isEmpty) {
-            return ShareTrip(key: state.pageKey, tripId: "Something went Wrong!", afterCreate: "f",);
+            return ShareTrip(
+              key: state.pageKey,
+              tripId: "Something went Wrong!",
+              afterCreate: "f",
+            );
           } else {
             return ShareTrip(
               key: state.pageKey,
@@ -186,12 +195,14 @@ class MyRouter {
         },
       ),
       GoRoute(
-        name: 'weatherpage',
-        path: '/weatherpage',
-        builder: (context, state) => WeatherPage(
-          key: state.pageKey,
-        ),
-      ),
+          name: 'weatherpage',
+          path: '/weatherpage',
+          builder: (context, state) {
+            return WeatherPage(
+              key: state.pageKey,
+              actualWeather: state.extra! as Weather,
+            );
+          }),
       GoRoute(
         name: 'changetrip',
         path: '/changetrip',
@@ -199,6 +210,7 @@ class MyRouter {
           key: state.pageKey,
         ),
       ),
+
       GoRoute(
         name: 'archive',
         path: '/archive',
@@ -207,19 +219,15 @@ class MyRouter {
         ),
       ),
       GoRoute(
-        name: 'payment',
-        path: '/payment',
-        builder: (context, state) => CardFormScreen(
-          key: state.pageKey,
-        ),
-      ),
-      GoRoute(
-        name: 'accountdetails-isEditProfile',
-        path: '/accountdetails-isEditProfile',
-        builder: (context, state) => Account(
-          key: state.pageKey,
-          isEditProfile: true,
-        ),
+        name: 'setInterests',
+        path: '/setinterests/:isCreate',
+        builder: (context, state) {
+          final isCreate = state.pathParameters['isCreate'];
+          return SetInterestsPage(
+            key: state.pageKey,
+            isCreate: isCreate == "true",
+          );
+        },
       ),
       GoRoute(
         name: 'info',

@@ -1,9 +1,12 @@
+// ignore_for_file: file_names
 import 'dart:async';
-
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:internet_praktikum/ui/styles/Styles.dart';
 import 'package:internet_praktikum/ui/widgets/container.dart';
+import 'package:internet_praktikum/ui/widgets/errorSnackbar.dart';
 import '../../widgets/my_button.dart';
 
 class OTPForm extends StatefulWidget {
@@ -31,11 +34,13 @@ class _OTPFormState extends State<OTPForm> {
   }
 
   Future checkEmailVerified() async {
-    await FirebaseAuth.instance.currentUser!.reload();
+    await FirebaseAuth.instance.currentUser!.reload(); //TODO: Brauchen wir das?
 
-    setState(() {
-      isEmailVerified = FirebaseAuth.instance.currentUser!.emailVerified;
-    });
+    if (mounted) {
+      setState(() {
+        isEmailVerified = FirebaseAuth.instance.currentUser!.emailVerified;
+      });
+    }
 
     if (isEmailVerified) {
       canResendEmail = false;
@@ -65,18 +70,13 @@ class _OTPFormState extends State<OTPForm> {
                   child: CustomContainer(
                     title: "Verify your Email",
                     smallSize: true,
-                    children: [
+                    children: <Widget>[
                       const SizedBox(height: 25),
                       const Text(
                         "$message Please check your inbox.",
                         textAlign: TextAlign.center,
-                        style: TextStyle(
-                          //TODO: style in styles.dart Ubuntu verwenden
-                          color: Colors.white,
-                          fontSize: 20,
-                        ),
+                        style: Styles.verifystyle,
                       ),
-
                       const SizedBox(height: 60),
                       if (canResendEmail)
                         const Icon(
@@ -91,34 +91,51 @@ class _OTPFormState extends State<OTPForm> {
                           size: 100,
                         ),
                       const SizedBox(
-                        height: 55,
+                        height: 45,
                       ),
-
-                      if (canResendEmail)
-                        MyButton(
-                          onTap:
-                              resendVerificationEmail, // TODO: => sendVerificationEmail(),
-                          text: "Resend Link",
-                        )
-                      else
-                        MyButton(
-                          onTap: () {
-                            context.go('/accountdetails');
-                          },
-                          text: 'Next',
-                        ),
-
-                      // Würde hier ein Back-Button Sinn machen? Mithu-Thai: JA
-                      /* MyButton(
-                          onTap: () => {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => const PasswordChange()))
-                          },
-                          text: 'Back',
-                        ),
-                        */
+                      Row(
+                        children: [
+                          SizedBox(
+                            width: MediaQuery.of(context).size.width * 0.4,
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: MyButton(
+                                onTap: () => {
+                                  context.go('/loginorregister'),
+                                },
+                                text: 'Back',
+                              ),
+                            ),
+                          ),
+                          const SizedBox(
+                            width: 10,
+                          ),
+                          if (canResendEmail)
+                            SizedBox(
+                              width: MediaQuery.of(context).size.width * 0.4,
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: MyButton(
+                                  onTap: resendVerificationEmail,
+                                  text: "Resend Link",
+                                ),
+                              ),
+                            )
+                          else
+                            SizedBox(
+                              width: MediaQuery.of(context).size.width * 0.4,
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: MyButton(
+                                  onTap: () {
+                                    context.go('/accountdetails/false');
+                                  },
+                                  text: 'Next',
+                                ),
+                              ),
+                            ),
+                        ],
+                      )
                     ],
                   ),
                 ),
@@ -141,7 +158,11 @@ class _OTPFormState extends State<OTPForm> {
         canResendEmail = true;
       }
     } on FirebaseAuthException catch (e) {
-      print(e.code);
+      // ignore: use_build_context_synchronously
+      ErrorSnackbar.showErrorSnackbar(context, e.message!);
+      if (kDebugMode) {
+        print(e.code);
+      }
     }
   }
 }

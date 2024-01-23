@@ -31,14 +31,15 @@ Future<UserCredential> signInWithGoogle() async {
         'prename': userCredential.user!.displayName,
         'lastname': userCredential.user!.displayName,
         'uid': userCredential.user!.uid,
-        'profilepicture': userCredential.user!.photoURL,
+        'profilePicture': userCredential.user!.photoURL,
         'dateOfBirth': null
       });
     }
-    await PushNotificationService().initialise();
+    
   }
+  await PushNotificationService().initialise();
   // finally, lets sign in the user
-  return await FirebaseAuth.instance.signInWithCredential(credential);
+  return userCredential;
 }
 
 Future<void> signInWithFacebook() async {
@@ -61,7 +62,7 @@ Future<void> signInWithFacebook() async {
         'prename': userCredential.user!.displayName,
         'lastname': 'LastNameTest',
         'email': userCredential.user!.email,
-        'profilepicture': userCredential.user!.photoURL,
+        'profilePicture': userCredential.user!.photoURL,
         'uid': userCredential.user!.uid,
         'dateOfBirth': null
       });

@@ -177,11 +177,7 @@ class _TripCreateState extends State<CreateTrip> {
                             onTap: connectPhotosAlbum,
                             imagePath: 'assets/googlephotos.png',
                             text: 'Create Photos Album'), */
-                        MyButton(
-                            onTap: () {
-                              PushNotificationService().initialise();
-                            },
-                            text: 'Push Notifications'),
+
                         MyButton(
                             margin: const EdgeInsets.only(top: 20),
                             onTap: create_trip,

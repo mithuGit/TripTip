@@ -73,17 +73,20 @@ dependencies:
 
   googleapis_auth: ^1.4.1
   flutter_rating_stars: ^1.0.3+4
+  flip_card: ^0.7.0
   flutter_quill: ^9.2.0
   permission_handler: ^11.1.0
   font_awesome_flutter: ^10.6.0
   flame: ^1.14.0
+  cloud_functions: ^4.6.0
+  image_cropper: ^5.0.1
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  firebase_auth_mocks: ^0.13.0
-  fake_cloud_firestore: ^2.4.3
-  google_sign_in_mocks: ^0.3.0
+  flutter_launcher_icons: ^0.13.1 
+  flutter_native_splash: ^2.3.9
+
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
@@ -119,6 +122,8 @@ flutter:
     - assets/votingbutton_pic/
     - assets/character_pic/
     - assets/map_icon/
+    - assets/interests_pic/
+    - assets/recommend_pic/
 
   fonts:
     - family: Ubuntu
@@ -166,3 +171,10 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages
+flutter_launcher_icons:
+  android: true  
+  image_path: "assets/logo.png"
+
+flutter_native_splash:
+  background_image: "assets/startpage.png"
+

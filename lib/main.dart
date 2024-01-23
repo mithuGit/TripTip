@@ -15,10 +15,11 @@ Future<void> main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
   if (FirebaseAuth.instance.currentUser != null) {
     await PushNotificationService().checkInitialized();
   }
-  runApp(Main());
+  runApp(const Main());
 }
 
 class Main extends StatelessWidget {

@@ -54,7 +54,7 @@ class _RegisterPageState extends State<RegisterPage> {
             'prename': userCredential.user!.displayName,
             'lastname': userCredential.user!.displayName,
             'uid': userCredential.user!.uid,
-            'profilepicture': null,
+            'profilePicture': null,
             'dateOfBirth': null,
             'selectedtrip': null
             // Add other data fields as needed
@@ -216,7 +216,8 @@ class _RegisterPageState extends State<RegisterPage> {
                           }
 
                           if (isDateOfBirth == false) {
-                            if (context.mounted) context.go('/accountdetails');
+                            if (context.mounted)
+                              context.go('/accountdetails/:isEditProfile');
                           } else {
                             if (context.mounted) context.go('/');
                           }
@@ -253,7 +254,8 @@ class _RegisterPageState extends State<RegisterPage> {
                           }
 
                           if (isDateOfBirth == false) {
-                            if (context.mounted) context.go('/accountdetails');
+                            if (context.mounted)
+                              context.go('/accountdetails/:isEditProfile');
                           } else {
                             if (context.mounted) context.go('/');
                           }

@@ -2,28 +2,24 @@ import 'dart:async';
 import 'dart:ui';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:internet_praktikum/core/services/JobworkerService.dart';
 import 'package:internet_praktikum/core/services/updateWidgetListeners.dart';
 import 'package:internet_praktikum/ui/styles/Styles.dart';
 import 'package:internet_praktikum/ui/widgets/dashboardWidgets/mainDasboardinitializer.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 
 class ScrollViewWidget extends StatelessWidget {
-  DocumentReference? day;
-  Map<String, dynamic>? userdata;
+  final DocumentReference day;
+  final Map<String, dynamic> userdata;
   ScrollViewWidget({super.key, required this.day, required this.userdata});
   List<dynamic>? bufferArray = List.empty();
   bool justChangged = false;
 
   @override
   Widget build(BuildContext context) {
-    FirebaseFirestore firestore = FirebaseFirestore.instance;
-
-    if (day == null) {
-      return const CircularProgressIndicator();
-    }
     final StreamController<List<dynamic>> dayStreamFiltered =
         StreamController<List<dynamic>>();
-    day!.snapshots().listen((event) async {
+    day.snapshots().listen((event) async {
       try {
         debugPrint("Stream got Data");
         if (justChangged) {
@@ -34,21 +30,19 @@ class ScrollViewWidget extends StatelessWidget {
           List<dynamic> localbufferArray =
               buffer.entries.map((entry) => entry.value).toList();
 
-          if (localbufferArray != null) {
-            localbufferArray?.sort(
-                (a, b) => (a['index'] as int).compareTo(b['index'] as int));
-          }
+          localbufferArray
+              .sort((a, b) => (a['index'] as int).compareTo(b['index'] as int));
           for (var i = 0; i < localbufferArray!.length; i++) {
-            if (localbufferArray![i]["createdBy"] != null) {
+            if (localbufferArray[i]["createdBy"] != null) {
               DocumentSnapshot userdoc =
-                  await localbufferArray![i]["createdBy"].get();
+                  await localbufferArray[i]["createdBy"].get();
               if (userdoc.exists) {
                 Map<String, dynamic> userdata =
                     userdoc.data() as Map<String, dynamic>;
-                localbufferArray![i]["profilePicture"] =
+                localbufferArray[i]["profilePicture"] =
                     userdata["profilePicture"];
-                localbufferArray![i]["prename"] = userdata["prename"];
-                localbufferArray![i]["lastname"] = userdata["lastname"];
+                localbufferArray[i]["prename"] = userdata["prename"];
+                localbufferArray[i]["lastname"] = userdata["lastname"];
               }
             }
           }
@@ -72,7 +66,7 @@ class ScrollViewWidget extends StatelessWidget {
             // and set its elevation to the animated value.
             child: MainDasboardinitializer(
               key: Key('$index'),
-              userdata: userdata!,
+              userdata: userdata,
               day: day,
               title: bufferArray![index]["title"] as String,
               data: bufferArray![index],
@@ -101,9 +95,7 @@ class ScrollViewWidget extends StatelessWidget {
             );
           }
           debugPrint("Container is editable");
-          return Container(
-            padding: const EdgeInsets.only(bottom: 50),
-            // 65 because of the bottom navigation bar
+          return Expanded(
             child: ReorderableListView(
               buildDefaultDragHandles: true,
               scrollDirection: Axis.vertical,
@@ -139,54 +131,74 @@ class ScrollViewWidget extends StatelessWidget {
                         // if you shhoud use a left pane, use this:
                         //    dismissible: DismissiblePane(onDismissed: () {}),
                         children: [
-                          if(con["dontEdit"] == null)
-                          SlidableAction(
-                            onPressed: (sdf) {
-                              UpdateWidgetListeners().updateWidget(con["key"], con!, day!,userdata!,context,);
-                            },
-                            backgroundColor: Colors.transparent,
-                            foregroundColor: Colors.blue,
-                            icon: Icons.edit,
-                            label: 'Edit',
-                          ),
-                          if(con["dontDelete"] == null)
-                          SlidableAction(
-                            onPressed: (s) async {
-                              Map<String, dynamic> archive = ((await day!.get())
-                                  .data() as Map<String, dynamic>)['archive'];
-                              archive[con["key"]] = con;
-                              List<dynamic>? tempArray = bufferArray;
-                              tempArray?.remove(con);
-                              dayStreamFiltered.add(tempArray!);
-                              Map<int, dynamic>? res = tempArray.asMap();
-                              res.forEach((key, value) {
-                                value['index'] = key;
-                              });
-                              Map<String, dynamic>? res2 =
-                                  res.map((key, value) {
-                                return MapEntry(value["key"] as String, value);
-                              });
-                              //umschreibem
-                              day!.update({"active": res2, "archive": archive});
-                              justChangged = true;
-                            },
-                            backgroundColor: Colors.transparent,
-                            foregroundColor: Colors.red,
-                            icon: Icons.delete,
-                            label: 'Delete',
-                          ),
-                          if(con["dontDelete"] != null)
-                          SlidableAction(
-                            onPressed: (s) async {},
-                            backgroundColor: Colors.transparent,
-                            foregroundColor: Colors.red,
-                            label: "Can't delete this",
-                          ),
+                          if (con["dontEdit"] == null)
+                            SlidableAction(
+                              onPressed: (sdf) {
+                                UpdateWidgetListeners().updateWidget(
+                                  con["key"],
+                                  con!,
+                                  day!,
+                                  userdata!,
+                                  context,
+                                );
+                              },
+                              backgroundColor: Colors.transparent,
+                              foregroundColor: Colors.blue,
+                              icon: Icons.edit,
+                              label: 'Edit',
+                            ),
+                          if (con["dontDelete"] == null)
+                            SlidableAction(
+                              onPressed: (s) async {
+                                Map<String, dynamic> archive =
+                                    ((await day.get()).data()
+                                        as Map<String, dynamic>)['archive'];
+
+                                // Delete every corresponding worker
+
+                                if (con["workers"] != null) {
+                                  List<DocumentReference>? workers =
+                                      (con["workers"] as List)
+                                          .map((e) => e as DocumentReference)
+                                          .toList();
+                                  await JobworkerService.deleteAllWorkers(workers);
+                                }
+
+                                archive[con["key"]] = con;
+                                List<dynamic>? tempArray = bufferArray;
+                                tempArray?.remove(con);
+                                dayStreamFiltered.add(tempArray!);
+                                Map<int, dynamic>? res = tempArray.asMap();
+                                res.forEach((key, value) {
+                                  value['index'] = key;
+                                });
+                                Map<String, dynamic>? res2 =
+                                    res.map((key, value) {
+                                  return MapEntry(
+                                      value["key"] as String, value);
+                                });
+                                //move Widget to Archive part
+                                day.update(
+                                    {"active": res2, "archive": archive});
+                                justChangged = true;
+                              },
+                              backgroundColor: Colors.transparent,
+                              foregroundColor: Colors.red,
+                              icon: Icons.delete,
+                              label: 'Delete',
+                            ),
+                          if (con["dontDelete"] != null)
+                            SlidableAction(
+                              onPressed: (s) async {},
+                              backgroundColor: Colors.transparent,
+                              foregroundColor: Colors.red,
+                              label: "Can't delete this",
+                            ),
                         ],
                       ),
                       child: MainDasboardinitializer(
-                          title:  con!["title"],
-                          userdata: userdata!,
+                          title: con!["title"],
+                          userdata: userdata,
                           day: day,
                           data: con),
                     );

@@ -38,13 +38,16 @@ class InfoPage extends StatelessWidget {
                       description: "Co Founder, CEO",
                       link:
                           "https://www.linkedin.com/in/mithusan-naguleswaran-b046a1292/",
+                      linkname: "LinkedIn",
                       image: "assets/character_pic/mithu.png",
                       color: Colors.red,
                     ),
                     CharakterContainer(
                       name: "Thai Binh Nguyen",
                       description: "Co Founder, CEO",
-                      link: "https://pub.dev/packages/url_launcher",
+                      link:
+                          "https://www.linkedin.com/in/thai-binh-nguyen-454951224/",
+                      linkname: "LinkedIn",
                       image: "assets/character_pic/thai.png",
                       color: Colors.purple,
                     ),
@@ -59,15 +62,17 @@ class InfoPage extends StatelessWidget {
                     CharakterContainer(
                       name: "Tim Carlo Päpke",
                       description: "Co Founder, CEO",
-                      link: "bla bla bla",
+                      link: "https://www.instagram.com/timcarlo02/",
+                      linkname: "Instagram",
                       image: "assets/character_pic/tim.png",
                       color: Colors.orange,
                     ),
                     CharakterContainer(
-                      name: "Felix Bauer",
+                      name: "David Henn",
                       description: "Co Founder, CEO",
-                      link: "bla bla bla",
-                      image: "assets/character_pic/mithu.png",
+                      link: "https://www.instagram.com/davidhenn2610/",
+                      linkname: "Instagram",
+                      image: "assets/character_pic/david.png",
                       color: Colors.green,
                     ),
                   ],
@@ -80,10 +85,12 @@ class InfoPage extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     CharakterContainer(
-                      name: "David Henn",
+                      name: "Felix Bauer",
                       description: "Co Founder, CEO",
-                      link: "bla bla bla",
-                      image: "assets/character_pic/mithu.png",
+                      link:
+                          "https://www.instagram.com/xfelix001?igsh=MWcwcW45amNuc3Nycw%3D%3D&utm_source=qr",
+                      linkname: "Instagram",
+                      image: "assets/character_pic/felix.png",
                       color: Colors.blue,
                       fill: true,
                     ),

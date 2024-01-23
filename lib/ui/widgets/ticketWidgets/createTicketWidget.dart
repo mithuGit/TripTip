@@ -1,7 +1,6 @@
-// ignore_for_file: avoid_print
+// ignore_for_file: file_names
 
 import 'dart:io';
-import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -32,13 +31,16 @@ class _CreateTicketsWidgetState extends State<CreateTicketsWidget> {
   PlatformFile? pickedFile;
   bool isPdf = false;
 
-  Future uploadFile() async {
-    if (selectedImage == null && pickedFile == null) {
-      return;
+  bool isUploading = false;
+
+  Future<void> uploadFile() async {
+    if (titleOfTicket.text.isEmpty) {
+      throw "Please enter a title for the ticket";
     }
-
+    if(selectedImage == null && pickedFile == null){
+      throw "No File selected";
+    }
     File file;
-
     if (selectedImage != null) {
       file = File(selectedImage!.path);
     } else {
@@ -66,9 +68,11 @@ class _CreateTicketsWidgetState extends State<CreateTicketsWidget> {
       final ref = FirebaseStorage.instance.ref().child(path);
 
       uploadTask = ref.putFile(file);
-      // TODU catch error while upluading
-      uploadTask!.whenComplete(() {
-        FirebaseFirestore.instance
+      setState(() {
+        isUploading = true;
+      });
+      uploadTask!.whenComplete(() async {
+        await FirebaseFirestore.instance
             .collection("trips")
             .doc(tripId)
             .collection("tickets")
@@ -78,12 +82,13 @@ class _CreateTicketsWidgetState extends State<CreateTicketsWidget> {
           "createdBy": FirebaseAuth.instance.currentUser!.uid,
           "createdAt": DateTime.now(),
         });
+        setState(() {
+          isUploading = false;
+        });
+        if (mounted) {
+          Navigator.of(context).pop();
+        }
       });
-      await uploadTask!.whenComplete(() {});
-
-      // Only for testing
-      //final urlDownload = await snapshot.ref.getDownloadURL();
-      //print('Download-Link: $urlDownload');
     }
   }
 
@@ -183,8 +188,14 @@ class _CreateTicketsWidgetState extends State<CreateTicketsWidget> {
             mainAxisSpacing: 10,
             padding: const EdgeInsets.all(10),
             children: [
-              ModalButton(onTap: takePicture, icon: Icons.photo_camera , text: "Take a Picture"),
-              ModalButton(onTap: selectedFile,icon: Icons.picture_as_pdf , text: "Upload a PDF"),
+              ModalButton(
+                  onTap: takePicture,
+                  icon: Icons.photo_camera,
+                  text: "Take a Picture"),
+              ModalButton(
+                  onTap: selectedFile,
+                  icon: Icons.picture_as_pdf,
+                  text: "Upload a PDF"),
             ],
           ),
         ] else
@@ -205,7 +216,6 @@ class _CreateTicketsWidgetState extends State<CreateTicketsWidget> {
                       // Nochmal neues Bild erstellen, wenn man drauf klickt
                       onTap: () => takePicture(),
                       child: Image.file(
-                        
                         selectedImage!,
                         fit: BoxFit.cover,
                         width: double.infinity,
@@ -245,31 +255,22 @@ class _CreateTicketsWidgetState extends State<CreateTicketsWidget> {
                             ),
                     )),
         const SizedBox(height: 10),
-        MyButton(
-          borderColor: Colors.black,
-          textStyle: Styles.buttonFontStyleModal,
-          onTap: () {
-            // TODO: Widget soll dann erstellt werden und dieser soll in Ticket direkt zu sehen sein.
-            if (titleOfTicket.text.isNotEmpty &&
-                (selectedImage != null || pickedFile != null)) {
-              uploadFile();
-              Navigator.of(context).pop();
-              setState(() {
-                uploadTask = null;
-              });
-            } else {
-              if (selectedImage == null && pickedFile == null) {
-                showAlertDialog(context);
-              } else {
-                showAlertDialog(context,
-                    title: "Please enter a title for your Ticket or Receipt",
-                    button1: "Ok",
-                    button2: false);
-              }
-            }
-          },
-          text: "Upload Ticket",
-        ),
+        if (isUploading)
+          const Center(child: CircularProgressIndicator(color: Colors.black,))
+        else
+          MyButton(
+            borderColor: Colors.black,
+            textStyle: Styles.buttonFontStyleModal,
+            onTap: () {
+              uploadFile().onError((error, stackTrace) => {
+                    print(error.toString()),
+                    print(stackTrace.toString()),
+                    print("error"),
+                    ErrorSnackbar.showErrorSnackbar(context, error.toString())
+                  });
+            },
+            text: "Upload Ticket",
+          ),
       ],
     );
   }

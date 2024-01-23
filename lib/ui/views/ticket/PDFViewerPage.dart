@@ -1,3 +1,5 @@
+// ignore_for_file: file_names
+
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_pdfview/flutter_pdfview.dart';
@@ -28,6 +30,8 @@ class _PDFViewerPageState extends State<PDFViewerPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
+        centerTitle: true,
+        backgroundColor: Colors.white,
         actions: pages >= 2
             ? [
                 Center(child: Text(text)),
@@ -49,23 +53,28 @@ class _PDFViewerPageState extends State<PDFViewerPage> {
               ]
             : null,
       ),
-      body: InteractiveViewer(
-        minScale: 0.5,
-        maxScale: double.infinity,
-        panEnabled: true,
-        scaleEnabled: true,
-        trackpadScrollCausesScale: false,
-        child: PDFView(
-          filePath: widget.file.path,
-          enableSwipe: true,
-          swipeHorizontal: true,
-          autoSpacing: false,
-          pageFling: false,
-          onRender: (pages) => setState(() => this.pages = pages!),
-          onViewCreated: (controller) =>
-              setState(() => this.controller = controller),
-          onPageChanged: (indexpage, _) =>
-              setState(() => this.indexpage = indexpage!),
+      body: Container(
+        decoration: const BoxDecoration(
+          color: Colors.white,
+        ),
+        child: InteractiveViewer(
+          minScale: 0.5,
+          maxScale: double.infinity,
+          panEnabled: true,
+          scaleEnabled: true,
+          trackpadScrollCausesScale: false,
+          child: PDFView(
+            filePath: widget.file.path,
+            enableSwipe: true,
+            swipeHorizontal: true,
+            autoSpacing: false,
+            pageFling: false,
+            onRender: (pages) => setState(() => this.pages = pages!),
+            onViewCreated: (controller) =>
+                setState(() => this.controller = controller),
+            onPageChanged: (indexpage, _) =>
+                setState(() => this.indexpage = indexpage!),
+          ),
         ),
       ),
     );
