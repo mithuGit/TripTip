@@ -198,7 +198,9 @@ class _ProfilePageState extends State<ProfilePage> {
                                   title: "Game: Choose a Loser ",
                                   icon: Icons.games, // so Game Icon wär gut
                                   textcolor: Colors.purpleAccent,
-                                  onTap: () {},
+                                  onTap: () {
+                                    context.pushNamed("gameChooser");
+                                  },
                                 ),
                                 ProfileButton(
                                   title: "Logout",

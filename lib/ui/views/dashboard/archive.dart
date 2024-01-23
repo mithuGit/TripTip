@@ -8,8 +8,7 @@ import 'package:internet_praktikum/ui/widgets/dashboardWidgets/mainDasboardiniti
 import 'package:intl/intl.dart';
 
 class Archive extends StatefulWidget {
-  Archive({super.key, this.day});
-  var day;
+  Archive({super.key});
 
   @override
   State<Archive> createState() => _Archive();

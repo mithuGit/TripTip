@@ -29,7 +29,7 @@ class _DashBoardState extends State<DashBoard> {
             icon: const Icon(Icons.menu_rounded),
             onSelected: (value) => {
               switch (value) {
-                "archive" => {context.pushNamed("archive")},
+                "archive" => {context.pushReplacementNamed("archive")},
                 "changeTrip" => {context.goNamed("changetrip")},
                 "createWidget" => {
                     CustomBottomSheet.show(context,
@@ -87,7 +87,7 @@ class _DashBoardState extends State<DashBoard> {
             decoration: const BoxDecoration(
               image: DecorationImage(
                 image: AssetImage(
-                    'assets/background_forest.png'), // assets/BackgroundCity.png
+                    'assets/bg_test.png'), // assets/BackgroundCity.png
                 fit: BoxFit.fitWidth,
               ),
             ),
