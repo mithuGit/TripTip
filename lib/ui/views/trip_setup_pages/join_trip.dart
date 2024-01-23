@@ -9,6 +9,7 @@ import 'package:internet_praktikum/ui/widgets/inputfield.dart';
 import 'package:internet_praktikum/ui/widgets/my_button.dart';
 
 class JoinTrip extends StatelessWidget {
+  
   JoinTrip({super.key});
   final CollectionReference trips =
       FirebaseFirestore.instance.collection('trips');

@@ -26,24 +26,23 @@ class _ProfilePageState extends State<ProfilePage> {
     }
   }
 
-  void deleteUser() async {
+  Future<void> deleteUser() async {
     FirebaseFunctions functions = FirebaseFunctions.instance;
-    HttpsCallableResult callable = await functions.httpsCallable('stripeRemoveCustomer').call();
+    HttpsCallableResult callable =
+        await functions.httpsCallable('removeUser').call();
     Map<String, dynamic> data = Map<String, dynamic>.from(callable.data);
 
-    if(data['success']) {
-
-      await FirebaseAuth.instance.currentUser!.delete();
-      await FirebaseFirestore.instance.collection('users').doc(FirebaseAuth.instance.currentUser!.uid).delete();
-      await FirebaseStorage.instance.ref('profilePictures/${FirebaseAuth.instance.currentUser!.uid}').delete();
-    } else {
-      if(mounted) {
-        ErrorSnackbar.showErrorSnackbar(context, data['message']);
+    if (data['success']) {
+      await FirebaseStorage.instance
+          .ref('profilePictures/${FirebaseAuth.instance.currentUser!.uid}')
+          .delete();
+      if (context.mounted) {
+        GoRouter.of(context).go('/loginorregister');
       }
-    }
-
-    if (context.mounted) {
-      GoRouter.of(context).go('/loginorregister');
+    } else {
+      if (mounted) {
+        ErrorSnackbar.showErrorSnackbar(context, data['error']);
+      }
     }
   }
 

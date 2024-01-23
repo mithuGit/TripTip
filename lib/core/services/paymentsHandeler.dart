@@ -9,6 +9,7 @@ class NoPayOutinformation implements Exception {
 }
 
 class PaymentsHandeler {
+  
   static FirebaseFunctions functions = FirebaseFunctions.instance;
   static Future<String> createAccoutAndAddPaymentsMethode(
       DocumentReference user) async {
