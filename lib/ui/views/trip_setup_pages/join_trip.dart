@@ -7,6 +7,7 @@ import 'package:internet_praktikum/ui/widgets/container.dart';
 import 'package:internet_praktikum/ui/widgets/errorSnackbar.dart';
 import 'package:internet_praktikum/ui/widgets/inputfield.dart';
 import 'package:internet_praktikum/ui/widgets/my_button.dart';
+import 'package:path/path.dart';
 
 class JoinTrip extends StatelessWidget {
   
@@ -18,24 +19,24 @@ class JoinTrip extends StatelessWidget {
   final groupController = TextEditingController();
   FirebaseFunctions functions = FirebaseFunctions.instance;
 
-  Future<void> joinTrip(BuildContext context) async {
+  void joinTrip(BuildContext context) async {
     final self = _auth.currentUser?.uid;
 
     final dir = groupController.text;
-    if (dir.isEmpty) {
-      throw "Please enter a Trip ID";
-    }
 
-    final result = await FirebaseFunctions.instance
-        .httpsCallable('joinTrip')
-        .call({"trip": dir, "user": self});
-
-
-    final response = result.data as Map<String, dynamic>;    
-
-    if (!response["success"]) {
-      throw response["error"];
-    }
+    trips.doc(dir).get().then((doc) => {
+      if(doc.exists){
+        trips.doc(dir).update({
+      "members": FieldValue.arrayUnion(
+          [FirebaseFirestore.instance.doc("/users/" + self.toString())])
+    }), FirebaseFirestore.instance
+        .doc("/users/$self")
+        .update({"selectedtrip": dir}),
+        context.goNamed("home")
+      } else {
+        ErrorSnackbar.showErrorSnackbar(context, "Trip does not exist")
+      }
+    });
   }
 
   @override
@@ -64,14 +65,8 @@ class JoinTrip extends StatelessWidget {
                           obscureText: false),
                       MyButton(
                           margin: const EdgeInsets.only(bottom: 10),
-                          onTap: () async {
-                            try {
-                              await joinTrip(context);
-                              context.go("/changeTrip");
-                            } catch (e) {
-                              ErrorSnackbar.showErrorSnackbar(
-                                  context, e.toString());
-                            }
+                          onTap: () {
+                            joinTrip(context);
                           },
                           text: "Next"),
                       MyButton(

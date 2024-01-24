@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -29,7 +30,7 @@ class _DashBoardState extends State<DashBoard> {
             onSelected: (value) => {
               switch (value) {
                 "archive" => {context.pushReplacementNamed("archive")},
-                "changeTrip" => {context.goNamed("changeTrip")},
+                "changeTrip" => {context.goNamed("changetrip")},
                 "createWidget" => {
                     CustomBottomSheet.show(context,
                         title: "Add new Widget to your Dashboard",
@@ -86,7 +87,7 @@ class _DashBoardState extends State<DashBoard> {
             decoration: const BoxDecoration(
               image: DecorationImage(
                 image: AssetImage(
-                    'assets/background_forest.png'), // assets/BackgroundCity.png
+                    'assets/bg_test.png'), // assets/BackgroundCity.png
                 fit: BoxFit.fitWidth,
               ),
             ),

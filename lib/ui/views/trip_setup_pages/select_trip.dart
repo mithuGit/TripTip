@@ -4,7 +4,9 @@ import 'package:internet_praktikum/ui/widgets/container.dart';
 import 'package:internet_praktikum/ui/widgets/my_button.dart';
 
 class SelectTrip extends StatelessWidget {
-  const SelectTrip({super.key});
+  SelectTrip({super.key, required this.noTrip});
+
+  bool noTrip;
 
   @override
   Widget build(BuildContext context) {
@@ -34,17 +36,18 @@ class SelectTrip extends StatelessWidget {
                               },
                               text: "Create Trip"),
                           MyButton(
-                            margin: const EdgeInsets.only(bottom: 10),
+                              margin: EdgeInsets.only(bottom: 10),
                               onTap: () {
                                 context.push('/jointrip');
                               },
                               text: "Join Trip"),
+                          if(!noTrip) ...[
                           MyButton(
-                            margin: const EdgeInsets.only(bottom: 10),
-                            onTap: () {
-                              context.pop();
-                            },
-                            text: "Cancel"),
+                              margin: EdgeInsets.only(bottom: 10),
+                              onTap: () {
+                                context.pop();
+                              },
+                              text: "Cancel")],
                         ])),
               )),
         ])));
