@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -105,8 +104,10 @@ class _DashBoardState extends State<DashBoard> {
                         DashBoardData.getUserData(),
                         DashBoardData.getCurrentDaySubCollection(selectedDay!),
                       ]),
-                      builder: (context, AsyncSnapshot<List<dynamic>> snapshot) {
-                        if (snapshot.connectionState == ConnectionState.waiting) {
+                      builder:
+                          (context, AsyncSnapshot<List<dynamic>> snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
                           return const Center(
                             child: CircularProgressIndicator(),
                           );
@@ -119,7 +120,8 @@ class _DashBoardState extends State<DashBoard> {
                           );
                         }
                         return ScrollViewWidget(
-                            day: snapshot.data![1], userdata: snapshot.data![0]);
+                            day: snapshot.data![1],
+                            userdata: snapshot.data![0]);
                       })
               ]),
             ),
