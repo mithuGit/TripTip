@@ -34,6 +34,10 @@ class _CalendarState extends State<Calendar> {
   }
 
   void fetchDate() async {
+<<<<<<< lib/calendar.dart
+    if (await _checkSelectedTrip()) {
+      return;
+    }
     DateTime startDate = await DateService.getStartDate();
     if (DateTime.now().isBefore(startDate)) {
       // Hole Startdatum aus Firebase und initialisiere selectedDate, firstDate und lastDate
@@ -143,6 +147,39 @@ class _CalendarState extends State<Calendar> {
       lastDate = lastDate!.subtract(const Duration(days: 1));
     });
     widget.onDateSelected(selectedDate!);
+  }
+
+  Future<bool> _checkSelectedTrip() async {
+    var auth = FirebaseAuth.instance.currentUser!;
+    var trips = [];
+    await FirebaseFirestore.instance
+        .collection("trips")
+        .where("members",
+            arrayContains: FirebaseFirestore.instance.doc("/users/${auth.uid}"))
+        .get()
+        .then((QuerySnapshot doc) {
+      trips = doc.docs;
+    });
+    final DocumentSnapshot<Map<String, dynamic>> userDoc =
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(auth.uid)
+            .get();
+    
+    if (userDoc.data()!['selectedtrip'] == '') {
+      if (trips.isEmpty) {
+        context.pushReplacementNamed("selecttrip",
+            pathParameters: {"noTrip": "true"});
+        return true;
+      } else {
+        await FirebaseFirestore.instance
+            .collection("users")
+            .doc(auth.uid)
+            .update({"selectedtrip": trips.first.id});
+        context.pushReplacementNamed("home");
+      }
+    }
+    return false;
   }
 
   @override

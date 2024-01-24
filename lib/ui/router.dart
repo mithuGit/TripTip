@@ -24,6 +24,7 @@ import 'package:internet_praktikum/ui/views/trip_setup_pages/select_trip.dart';
 import 'package:internet_praktikum/ui/views/verification/OTP_form.dart';
 import 'package:internet_praktikum/ui/views/weather/weather.dart';
 import 'package:internet_praktikum/ui/views/weather/weather_page.dart';
+import 'package:internet_praktikum/ui/widgets/game/gameChooser.dart';
 
 class MyRouter {
   MyRouter._();
@@ -163,8 +164,9 @@ class MyRouter {
       ),
       GoRoute(
         name: 'selecttrip',
-        path: '/selecttrip',
+        path: '/selecttrip/:noTrip',
         builder: (context, state) => SelectTrip(
+          noTrip: state.pathParameters["noTrip"] == "true",
           key: state.pageKey,
         ),
       ),
@@ -204,8 +206,8 @@ class MyRouter {
             );
           }),
       GoRoute(
-        name: 'changeTrip',
-        path: '/changeTrip',
+        name: 'changetrip',
+        path: '/changetrip',
         builder: (context, state) => ChangeTrip(
           key: state.pageKey,
         ),
@@ -248,6 +250,13 @@ class MyRouter {
               return ReadDiary(day: day!);
             }
           }),
+      GoRoute(
+        name: 'gameChooser',
+        path: '/gameChooser',
+        builder: (context, state) => GameWidgetReturn(
+          key: state.pageKey,
+        ),
+      ),
     ],
   );
 }
