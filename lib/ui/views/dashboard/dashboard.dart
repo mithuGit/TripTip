@@ -87,7 +87,7 @@ class _DashBoardState extends State<DashBoard> {
             decoration: const BoxDecoration(
               image: DecorationImage(
                 image: AssetImage(
-                    'assets/bg_test.png'), // assets/BackgroundCity.png
+                    'assets/background_city_persona.png'), // assets/BackgroundCity.png
                 fit: BoxFit.fitWidth,
               ),
             ),
