@@ -788,11 +788,12 @@ class _MapPageState extends State<MapPage> {
     } else {
       return Column(
         children: [
-          const SizedBox(height: 5.0),
-          Container(
-            height: 250.0,
-            width: 250.0,
+          const SizedBox(height: 20.0),
+          SizedBox(
+            height: 270.0,
+            width: 275.0,
             child: PageView.builder(
+              scrollDirection: Axis.vertical,
               itemCount: photoElement.length,
               controller: PageController(
                 initialPage: 0,
@@ -803,42 +804,50 @@ class _MapPageState extends State<MapPage> {
                 });
               },
               itemBuilder: (context, index) {
-                return Image(
-                  image: photoElement[index].imageProvider,
-                  fit: BoxFit.cover,
-                  loadingBuilder: (context, child, loadingProgress) {
-                    if (loadingProgress == null) {
-                      return child;
-                    } else {
-                      return const CircularProgressIndicator();
-                    }
-                  },
+                return Column(
+                  children: [
+                    Container(
+                      height: 250.0,
+                      width: 250.0,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(
+                          color: Colors.white,
+                          width: 4.0,
+                        ),
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(10),
+                        child: Container(
+                          height: 250.0,
+                          width: 250.0,
+                          child: Image(
+                            image: photoElement[index].imageProvider,
+                            fit: BoxFit.cover,
+                            loadingBuilder: (context, child, loadingProgress) {
+                              if (loadingProgress == null) {
+                                return child;
+                              } else {
+                                return const CircularProgressIndicator();
+                              }
+                            },
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 );
               },
             ),
           ),
-          const SizedBox(height: 15.0),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Expanded(
-                child: Center(
-                  child: Text(
-                    photoGalleryIndex < photoElement.length - 1
-                        ? "Swipe to see more Pictures of the location"
-                        : "No more pictures to see. Please swipe back.", // Updated message
-                    style: TextStyle(
-                      color: photoGalleryIndex < photoElement.length - 1
-                          ? Colors.white
-                          : Colors.red,
-                      fontFamily: 'Ubuntu',
-                      fontSize: 14.0,
-                      fontWeight: FontWeight.w400,
-                    ),
-                  ),
-                ),
-              ),
-            ],
+          Text(
+            "${photoGalleryIndex + 1}/${photoElement.length}",
+            style: Styles.endCredits,
+          ),
+          const Icon(
+            Icons.swipe_vertical,
+            color: Colors.white,
+            size: 15.0,
           ),
         ],
       );

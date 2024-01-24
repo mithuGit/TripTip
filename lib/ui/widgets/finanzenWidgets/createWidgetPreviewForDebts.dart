@@ -8,7 +8,6 @@ import 'package:internet_praktikum/ui/widgets/errorSnackbar.dart';
 import 'package:internet_praktikum/ui/widgets/finanzenWidgets/getMember.dart';
 import 'package:internet_praktikum/ui/widgets/inputfield.dart';
 import 'package:internet_praktikum/ui/widgets/my_button.dart';
-import 'package:path/path.dart';
 
 class CreateDebts extends StatefulWidget {
   final DocumentReference selectedTrip;
@@ -279,8 +278,11 @@ class _CreateDebtsState extends State<CreateDebts> {
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
+              const SizedBox(
+                width: 10,
+              ),
               SizedBox(
-                  width: 155,
+                  width: 130,
                   height: 50,
                   child: InputField(
                       textAlignCenter: true,
@@ -297,15 +299,21 @@ class _CreateDebtsState extends State<CreateDebts> {
                               ? Colors.green
                               : Colors.red))),
               const SizedBox(
-                width: 10,
+                width: 15,
               ),
               if (widget.preview != null)
-                Text(
-                  memberStatusList[index] == true ? "paid" : "open",
-                  style: TextStyle(
-                      color: memberStatusList[index] == true
-                          ? Colors.green
-                          : Colors.red),
+                SizedBox(
+                  width: 50,
+                  child: Text(
+                    memberStatusList[index] == true ? "paid" : "unpaid",
+                    style: TextStyle(
+                        fontSize: 14,
+                        fontFamily: 'Ubuntu',
+                        fontWeight: FontWeight.w500,
+                        color: memberStatusList[index] == true
+                            ? Colors.green
+                            : Colors.red),
+                  ),
                 ),
             ],
           ),

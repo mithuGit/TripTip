@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:internet_praktikum/core/services/dashboardData.dart';
 import 'package:internet_praktikum/core/services/date_service.dart';
 import 'package:internet_praktikum/core/services/map_service.dart';
@@ -58,7 +59,7 @@ class _CreateWidgetFromMapToDashboardState
                 await showCupertinoModalPopup<void>(
                   context: context,
                   builder: (BuildContext context) => FutureBuilder<Container>(
-                    future: buildContainerAsync(MediaQuery.of(context).size),
+                    future: getDateRangeCupertiono(MediaQuery.of(context).size),
                     builder: (BuildContext context,
                         AsyncSnapshot<Container> snapshot) {
                       if (snapshot.connectionState == ConnectionState.done) {
@@ -216,7 +217,7 @@ class _CreateWidgetFromMapToDashboardState
   }
 
   // Die Funktion, die den Container asynchron erstellt
-  Future<Container> buildContainerAsync(Size size) async {
+  Future<Container> getDateRangeCupertiono(Size size) async {
     return Container(
       decoration: const BoxDecoration(
         color: Colors.white,
@@ -226,18 +227,42 @@ class _CreateWidgetFromMapToDashboardState
         ),
       ),
       height: size.height * 0.35,
-      child: CupertinoDatePicker(
-        minimumDate: (await DateService.getStartDate()).isAfter(DateTime.now())
-            ? await DateService.getStartDate()
-            : DateTime.now(),
-        maximumDate: await DateService.getEndDate(),
-        mode: CupertinoDatePickerMode.date,
-        onDateTimeChanged: (value) {
-          setState(() {
-            selectedDate = value;
-            getDayReference(value);
-          });
-        },
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(top: 5.0, right: 8.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                TextButton(
+                  onPressed: () {
+                    context.pop();
+                  },
+                  child: const Text('Done'),
+                ),
+              ],
+            ),
+          ),
+          Flexible(
+            child: SizedBox(
+              height: size.height * 0.25,
+              child: CupertinoDatePicker(
+                minimumDate:
+                    (await DateService.getStartDate()).isAfter(DateTime.now())
+                        ? await DateService.getStartDate()
+                        : DateTime.now(),
+                maximumDate: await DateService.getEndDate(),
+                mode: CupertinoDatePickerMode.date,
+                onDateTimeChanged: (value) {
+                  setState(() {
+                    selectedDate = value;
+                    getDayReference(value);
+                  });
+                },
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

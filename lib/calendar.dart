@@ -1,5 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:internet_praktikum/core/services/date_service.dart';
 import 'package:internet_praktikum/ui/widgets/errorSnackbar.dart';
 import 'package:intl/intl.dart';
@@ -180,9 +182,34 @@ class _CalendarState extends State<Calendar> {
                         ? _buildDateText(lastDate!)
                         : _loadingContainer(),
                   ),
-                  selectedDate != null
-                      ? _buildDateText(selectedDate!, size: 15, selected: true)
-                      : _loadingContainer(),
+                  GestureDetector(
+                    onTap: () async {
+                      await showCupertinoModalPopup<void>(
+                        context: context,
+                        builder: (BuildContext context) =>
+                            FutureBuilder<Container>(
+                          future: getDateRangeCupertino(
+                              MediaQuery.of(context).size),
+                          builder: (BuildContext context,
+                              AsyncSnapshot<Container> snapshot) {
+                            if (snapshot.connectionState ==
+                                ConnectionState.done) {
+                              if (snapshot.hasData) {
+                                return snapshot.data!;
+                              } else if (snapshot.hasError) {
+                                return Text('Error: ${snapshot.error}');
+                              }
+                            }
+                            return const CircularProgressIndicator();
+                          },
+                        ),
+                      );
+                    },
+                    child: selectedDate != null
+                        ? _buildDateText(selectedDate!,
+                            size: 15, selected: true)
+                        : _loadingContainer(),
+                  ),
                   GestureDetector(
                     onTap: () {
                       _goToNextDate();
@@ -288,5 +315,59 @@ class _CalendarState extends State<Calendar> {
     return date1.year == date2.year &&
         date1.month == date2.month &&
         date1.day == date2.day;
+  }
+
+  // Die Funktion, die den Container asynchron erstellt
+  Future<Container> getDateRangeCupertino(Size size) async {
+    DateTime? tmpDate;
+    return Container(
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(34.5),
+          topRight: Radius.circular(34.5),
+        ),
+      ),
+      height: size.height * 0.32,
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(top: 5.0, right: 8.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                TextButton(
+                  onPressed: () {
+                    setState(() {
+                      if (tmpDate != null) {
+                        selectedDate = tmpDate!;
+                        firstDate = tmpDate!.add(const Duration(days: 1));
+                        lastDate = tmpDate!.subtract(const Duration(days: 1));
+                        widget.onDateSelected(selectedDate!);
+                      }
+                    });
+                    context.pop();
+                  },
+                  child: const Text('Done'),
+                ),
+              ],
+            ),
+          ),
+          Flexible(
+            child: SizedBox(
+              height: size.height * 0.25,
+              child: CupertinoDatePicker(
+                minimumDate: await DateService.getStartDate(),
+                maximumDate: await DateService.getEndDate(),
+                mode: CupertinoDatePickerMode.date,
+                onDateTimeChanged: (value) {
+                  tmpDate = value;
+                },
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
