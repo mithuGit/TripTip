@@ -88,15 +88,24 @@ class _MapPageState extends State<MapPage> {
   @override
   void initState() {
     super.initState();
-    GoogleMapService().getLatLng().then((value) => setState(() {
-          latLng = value;
-          _initialCameraPosition = CameraPosition(
-            target: latLng != null ? latLng! : const LatLng(0, 0),
-            zoom: 11.5,
-          );
-        }));
-    _pageController = PageController(initialPage: 1, viewportFraction: 0.85)
-      ..addListener(_swipe);
+    if (widget.place == null) {
+      GoogleMapService().getLatLng().then((value) => setState(() {
+            latLng = value;
+            _initialCameraPosition = CameraPosition(
+              target: latLng != null ? latLng! : const LatLng(0, 0),
+              zoom: 11.5,
+            );
+          }));
+      _pageController = PageController(initialPage: 1, viewportFraction: 0.85)
+        ..addListener(_swipe);
+    } else {
+      _initialCameraPosition = CameraPosition(
+          target: LatLng(widget.place!.location.latitude,
+              widget.place!.location.longitude),
+          zoom: 14.0,
+          bearing: 180.0,
+          tilt: 45.0);
+    }
   }
 
   @override
@@ -338,6 +347,528 @@ class _MapPageState extends State<MapPage> {
                     },
                   ),
                 ),
+                if (widget.place != null) ...[
+                  Positioned(
+                      bottom: isExpanded ? 40.0 : 28.0,
+                      child: SizedBox(
+                        height: isExpanded ? 480.0 : 200.0,
+                        width: MediaQuery.of(context).size.width,
+                        child: Stack(
+                          children: [
+                            Center(
+                              child: GestureDetector(
+                                onTap: () async {
+                                  isExpanded = !isExpanded;
+                                  goToTappedPlace();
+                                },
+                                child: FlipCard(
+                                  flipOnTouch: isExpanded ? true : false,
+                                  front: AnimatedContainer(
+                                    duration: const Duration(milliseconds: 500),
+                                    curve: Curves.easeInOut,
+                                    height: isExpanded ? 500.0 : 125.0,
+                                    width: 325.0,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(34.5),
+                                      color:
+                                          const Color.fromARGB(255, 43, 43, 43)
+                                              .withOpacity(0.90),
+                                    ),
+                                    child: SingleChildScrollView(
+                                      child: Padding(
+                                        padding: const EdgeInsets.only(
+                                            left: 18,
+                                            right: 18,
+                                            top: 14,
+                                            bottom: 16),
+                                        child: Column(
+                                          children: [
+                                            isExpanded
+                                                ? Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .center,
+                                                    children: [
+                                                      IconButton(
+                                                          onPressed: () {
+                                                            setState(() {
+                                                              isExpanded =
+                                                                  !isExpanded;
+                                                            });
+                                                          },
+                                                          icon: const Icon(
+                                                            Icons
+                                                                .keyboard_arrow_down,
+                                                            color: Colors.white,
+                                                            size: 30,
+                                                          ))
+                                                    ],
+                                                  )
+                                                : const SizedBox(
+                                                    width: 0, height: 0),
+                                            Row(
+                                              children: [
+                                                Container(
+                                                  height: 90.0,
+                                                  width: 90.0,
+                                                  decoration: BoxDecoration(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              10.0),
+                                                      image: DecorationImage(
+                                                          image: placeImage !=
+                                                                  ''
+                                                              ? widget
+                                                                  .place!
+                                                                  .firstImage
+                                                                  .imageProvider
+                                                              : Image.asset(
+                                                                      height:
+                                                                          80.0,
+                                                                      width:
+                                                                          80.0,
+                                                                      "assets/no_camera.png")
+                                                                  .image,
+                                                          fit: BoxFit.cover),
+                                                      border: Border.all(
+                                                        color: Colors.white,
+                                                        width: 4,
+                                                      )),
+                                                ),
+                                                const SizedBox(width: 15.0),
+                                                Column(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment
+                                                          .spaceEvenly,
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    SizedBox(
+                                                      width: 130.0,
+                                                      height: 50.0,
+                                                      child: Text(
+                                                          widget.place!.name,
+                                                          style:
+                                                              Styles.maptitle),
+                                                    ),
+                                                    RatingStars(
+                                                      value:
+                                                          widget.place!.rating,
+                                                      starCount: 5,
+                                                      starSize: 20,
+                                                      starColor: Colors.white,
+                                                      starOffColor: const Color(
+                                                          0xff9b9b9b),
+                                                      valueLabelColor:
+                                                          const Color(
+                                                              0xff9b9b9b),
+                                                      valueLabelTextStyle:
+                                                          const TextStyle(
+                                                              color:
+                                                                  Colors.white,
+                                                              fontFamily:
+                                                                  'WorkSans',
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w400,
+                                                              fontStyle:
+                                                                  FontStyle
+                                                                      .normal,
+                                                              fontSize: 12.0),
+                                                      valueLabelRadius: 10,
+                                                      maxValue: 5,
+                                                      starSpacing: 2,
+                                                      maxValueVisibility: false,
+                                                      valueLabelVisibility:
+                                                          false,
+                                                      animationDuration:
+                                                          const Duration(
+                                                              milliseconds:
+                                                                  3000),
+                                                      valueLabelPadding:
+                                                          const EdgeInsets
+                                                              .symmetric(
+                                                              vertical: 1,
+                                                              horizontal: 8),
+                                                      valueLabelMargin:
+                                                          const EdgeInsets.only(
+                                                              right: 8),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ],
+                                            ),
+                                            isExpanded
+                                                ? const SizedBox(height: 20.0)
+                                                : Container(),
+                                            isExpanded
+                                                ? Container(
+                                                    padding:
+                                                        const EdgeInsets.all(
+                                                            7.0),
+                                                    child: Row(
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .start,
+                                                      children: [
+                                                        const Text(
+                                                          'Address: ',
+                                                          style:
+                                                              Styles.mapadress,
+                                                        ),
+                                                        Flexible(
+                                                          child: SizedBox(
+                                                            width: 150.0,
+                                                            child: Text(
+                                                              widget.place!
+                                                                  .formattedAddress,
+                                                              style: Styles
+                                                                  .mapadressformatted,
+                                                              maxLines: 4,
+                                                            ),
+                                                          ),
+                                                        )
+                                                      ],
+                                                    ),
+                                                  )
+                                                : Container(),
+                                            isExpanded
+                                                ? Container(
+                                                    padding:
+                                                        const EdgeInsets.all(
+                                                            7.0),
+                                                    child: Row(
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .start,
+                                                      children: [
+                                                        const Text(
+                                                          'Contact: ',
+                                                          style:
+                                                              Styles.mapcontact,
+                                                          overflow: TextOverflow
+                                                              .ellipsis,
+                                                        ),
+                                                        SizedBox(
+                                                            width: 150.0,
+                                                            child: Text(
+                                                              widget.place!
+                                                                  .internationalPhoneNumber,
+                                                              style: Styles
+                                                                  .mapcontactformatted,
+                                                              overflow:
+                                                                  TextOverflow
+                                                                      .ellipsis,
+                                                            ))
+                                                      ],
+                                                    ),
+                                                  )
+                                                : Container(),
+                                            isExpanded
+                                                ? Container(
+                                                    padding:
+                                                        const EdgeInsets.all(
+                                                            7.0),
+                                                    child: Row(
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .start,
+                                                      children: [
+                                                        const Text(
+                                                          'Availability: ',
+                                                          style:
+                                                              Styles.mapcontact,
+                                                        ),
+                                                        SizedBox(
+                                                          width: 150.0,
+                                                          child: Text(
+                                                            widget.place!
+                                                                        .buisnessStatus ==
+                                                                    'OPERATIONAL'
+                                                                ? 'Operational '
+                                                                : widget.place!
+                                                                            .buisnessStatus ==
+                                                                        'CLOSED_TEMPORARILY'
+                                                                    ? "Closed temporarily"
+                                                                    : widget.place!.buisnessStatus ==
+                                                                            'CLOSED_PERMANENTLY'
+                                                                        ? "Closed permanently"
+                                                                        : 'None given',
+                                                            style: TextStyle(
+                                                                color: widget
+                                                                            .place!
+                                                                            .buisnessStatus ==
+                                                                        'OPERATIONAL'
+                                                                    ? Colors
+                                                                        .green
+                                                                    : Colors
+                                                                        .red,
+                                                                fontSize: 15.0,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold,
+                                                                fontFamily:
+                                                                    'Ubuntu'),
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  )
+                                                : Container(),
+                                            isExpanded
+                                                ? const SizedBox(height: 20.0)
+                                                : Container(),
+                                            isExpanded
+                                                ? MyButton(
+                                                    onTap: () {
+                                                      CustomBottomSheet.show(
+                                                          context,
+                                                          title:
+                                                              "Add new Widget to your Dashboard",
+                                                          content: [
+                                                            FutureBuilder(
+                                                                future: Future
+                                                                    .wait([
+                                                                  DashBoardData
+                                                                      .getUserData(),
+                                                                ]),
+                                                                builder: (context,
+                                                                    AsyncSnapshot<
+                                                                            List<dynamic>>
+                                                                        snapshot) {
+                                                                  if (snapshot
+                                                                          .connectionState ==
+                                                                      ConnectionState
+                                                                          .waiting) {
+                                                                    return const Center(
+                                                                      child:
+                                                                          CircularProgressIndicator(),
+                                                                    );
+                                                                  }
+                                                                  if (snapshot
+                                                                      .hasError) {
+                                                                    return const Center(
+                                                                      child: Text(
+                                                                          'An error occured!'),
+                                                                    );
+                                                                  }
+                                                                  return CreateWidgetFromMapToDashboard(
+                                                                      place: widget
+                                                                          .place!,
+                                                                      userdata:
+                                                                          snapshot
+                                                                              .data![0]);
+                                                                })
+                                                          ]);
+                                                    },
+                                                    text: "Add to Dashboard")
+                                                : Container(),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  back: AnimatedContainer(
+                                    duration: const Duration(milliseconds: 500),
+                                    curve: Curves.easeInOut,
+                                    height: isExpanded ? 500.0 : 125.0,
+                                    width: 325.0,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(34.5),
+                                      color:
+                                          const Color.fromARGB(255, 43, 43, 43)
+                                              .withOpacity(0.90),
+                                    ),
+                                    child: SingleChildScrollView(
+                                      child: Padding(
+                                        padding: isExpanded
+                                            ? const EdgeInsets.all(8)
+                                            : EdgeInsets.zero,
+                                        child: isExpanded
+                                            ? Column(
+                                                children: [
+                                                  Padding(
+                                                    padding:
+                                                        const EdgeInsets.all(
+                                                            8.0),
+                                                    child: Row(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .spaceEvenly,
+                                                      children: [
+                                                        MySmallButton(
+                                                            onTap: () {
+                                                              setState(() {
+                                                                isReviews =
+                                                                    true;
+                                                                isPhotos =
+                                                                    false;
+                                                              });
+                                                            },
+                                                            text: 'Review'),
+                                                        MySmallButton(
+                                                            onTap: () {
+                                                              setState(() {
+                                                                isReviews =
+                                                                    false;
+                                                                isPhotos = true;
+                                                              });
+                                                            },
+                                                            text: 'Photos'),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                  isExpanded
+                                                      ? SizedBox(
+                                                          height: MediaQuery.of(
+                                                                      context)
+                                                                  .size
+                                                                  .height *
+                                                              0.4,
+                                                          child: isReviews
+                                                              ? ListView(
+                                                                  children: [
+                                                                    if (isReviews)
+                                                                      ...widget
+                                                                          .place!
+                                                                          .reviews
+                                                                          .map(
+                                                                              (e) {
+                                                                        return _showReview(
+                                                                            e);
+                                                                      })
+                                                                  ],
+                                                                )
+                                                              : showPhoto(widget
+                                                                  .place!
+                                                                  .photosElements))
+                                                      : Container(),
+                                                ],
+                                              )
+                                            : Padding(
+                                                padding: const EdgeInsets.only(
+                                                    left: 18,
+                                                    right: 18,
+                                                    top: 18,
+                                                    bottom: 16),
+                                                child: Column(
+                                                  children: [
+                                                    Row(
+                                                      children: [
+                                                        Container(
+                                                          height: 90.0,
+                                                          width: 90.0,
+                                                          decoration:
+                                                              BoxDecoration(
+                                                                  borderRadius:
+                                                                      BorderRadius
+                                                                          .circular(
+                                                                              10.0),
+                                                                  image: DecorationImage(
+                                                                      image: placeImage !=
+                                                                              ''
+                                                                          ? widget
+                                                                              .place!
+                                                                              .firstImage
+                                                                              .imageProvider
+                                                                          : Image.asset(height: 80.0, width: 80.0, "assets/no_camera.png")
+                                                                              .image,
+                                                                      fit: BoxFit
+                                                                          .cover),
+                                                                  border: Border
+                                                                      .all(
+                                                                    color: Colors
+                                                                        .white,
+                                                                    width: 4,
+                                                                  )),
+                                                        ),
+                                                        const SizedBox(
+                                                            width: 15.0),
+                                                        Column(
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .spaceEvenly,
+                                                          crossAxisAlignment:
+                                                              CrossAxisAlignment
+                                                                  .start,
+                                                          children: [
+                                                            SizedBox(
+                                                              width: 130.0,
+                                                              height: 50.0,
+                                                              child: Text(
+                                                                  widget.place!
+                                                                      .name,
+                                                                  style: Styles
+                                                                      .maptitle),
+                                                            ),
+                                                            RatingStars(
+                                                              value: widget
+                                                                  .place!
+                                                                  .rating,
+                                                              starCount: 5,
+                                                              starSize: 20,
+                                                              starColor:
+                                                                  Colors.white,
+                                                              starOffColor:
+                                                                  const Color(
+                                                                      0xff9b9b9b),
+                                                              valueLabelColor:
+                                                                  const Color(
+                                                                      0xff9b9b9b),
+                                                              valueLabelTextStyle: const TextStyle(
+                                                                  color: Colors
+                                                                      .white,
+                                                                  fontFamily:
+                                                                      'WorkSans',
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w400,
+                                                                  fontStyle:
+                                                                      FontStyle
+                                                                          .normal,
+                                                                  fontSize:
+                                                                      12.0),
+                                                              valueLabelRadius:
+                                                                  10,
+                                                              maxValue: 5,
+                                                              starSpacing: 2,
+                                                              maxValueVisibility:
+                                                                  false,
+                                                              valueLabelVisibility:
+                                                                  false,
+                                                              animationDuration:
+                                                                  const Duration(
+                                                                      milliseconds:
+                                                                          3000),
+                                                              valueLabelPadding:
+                                                                  const EdgeInsets
+                                                                      .symmetric(
+                                                                      vertical:
+                                                                          1,
+                                                                      horizontal:
+                                                                          8),
+                                                              valueLabelMargin:
+                                                                  const EdgeInsets
+                                                                      .only(
+                                                                      right: 8),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            )
+                          ],
+                        ),
+                      ))
+                ],
                 Column(
                   children: [
                     if (infoDistanceAndDuration == null &&
@@ -369,7 +900,7 @@ class _MapPageState extends State<MapPage> {
                         ),
                       ),
                   ],
-                ) ,
+                ),
                 if (infoDistanceAndDuration != null)
                   Positioned(
                     top: 50.0,
@@ -632,7 +1163,7 @@ class _MapPageState extends State<MapPage> {
                                                 child:
                                                     CircularProgressIndicator(
                                                   color: Colors.white,
-                                                )) // Zeige CircularProgressIndicator während des Ladens
+                                                ))
                                             : const ImageIcon(
                                                 AssetImage(
                                                     'assets/recommend_pic/recommend.png'),
@@ -819,7 +1350,7 @@ class _MapPageState extends State<MapPage> {
                       ),
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(10),
-                        child: Container(
+                        child: SizedBox(
                           height: 250.0,
                           width: 250.0,
                           child: Image(
@@ -843,12 +1374,18 @@ class _MapPageState extends State<MapPage> {
           ),
           Text(
             "${photoGalleryIndex + 1}/${photoElement.length}",
-            style: Styles.endCredits,
+            style: const TextStyle(
+              color: Colors.white,
+              fontFamily: 'Ubuntu',
+              fontSize: 14.0,
+              fontWeight: FontWeight.w500,
+            ),
           ),
+          const SizedBox(height: 5.0),
           const Icon(
             Icons.swipe_vertical,
             color: Colors.white,
-            size: 15.0,
+            size: 22.0,
           ),
         ],
       );
