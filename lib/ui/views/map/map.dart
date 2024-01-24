@@ -22,7 +22,8 @@ import 'package:internet_praktikum/ui/widgets/my_button.dart';
 import 'package:location/location.dart';
 
 class MapPage extends StatefulWidget {
-  const MapPage({super.key});
+  final Place? place;
+  const MapPage({super.key, this.place});
 
   @override
   State<MapPage> createState() => _MapPageState();
@@ -368,7 +369,7 @@ class _MapPageState extends State<MapPage> {
                         ),
                       ),
                   ],
-                ),
+                ) ,
                 if (infoDistanceAndDuration != null)
                   Positioned(
                     top: 50.0,
