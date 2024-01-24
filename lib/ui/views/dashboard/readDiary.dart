@@ -60,21 +60,31 @@ class ReadDiaryState extends State<ReadDiary> {
                   if (snapshot.hasError) {
                     return const Center(child: Text("Error in FutureBuilder"));
                   }
-            
+
                   return StreamBuilder<DocumentSnapshot>(
                       stream: snapshot.data!.snapshots(),
                       builder: (context, snapshot) {
-                        if (snapshot.connectionState == ConnectionState.waiting) {
-                          return const Center(child: CircularProgressIndicator());
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const Center(
+                              child: CircularProgressIndicator());
                         }
                         if (snapshot.hasError) {
-                          return const Center(child: Text("Error in StremBuilder"));
+                          return const Center(
+                              child: Text("Error in StremBuilder"));
                         }
                         Map<String, dynamic> data =
                             snapshot.data!.data() as Map<String, dynamic>;
-                        _controller = QuillController(
-                            document: Document.fromJson(data["content"]),
-                            selection: const TextSelection.collapsed(offset: 0));
+
+                        // This block is used to prevent null error    
+                        try {
+                          _controller = QuillController(
+                              document: Document.fromJson(data["content"]),
+                              selection:
+                                  const TextSelection.collapsed(offset: 0));
+                        } catch (e) {
+                          _controller = QuillController.basic();
+                        }
                         return Expanded(
                           child: QuillEditor.basic(
                             configurations: QuillEditorConfigurations(
@@ -121,7 +131,8 @@ class ReadDiaryState extends State<ReadDiary> {
                                     VerticalSpacing(5, 5),
                                     null),
                               ),
-                              sharedConfigurations: const QuillSharedConfigurations(
+                              sharedConfigurations:
+                                  const QuillSharedConfigurations(
                                 locale: Locale('en'),
                               ),
                             ),

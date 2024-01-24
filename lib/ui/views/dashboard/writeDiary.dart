@@ -28,7 +28,6 @@ class WriteDiaryState extends State<WriteDiary> {
       if ((await widget.day.collection("diary").get()).docs.isNotEmpty) {
         QuerySnapshot diary =
             await widget.day.collection("diary").limit(1).get();
-        
 
         return await diary.docs[0].reference.get();
       } else {
@@ -69,9 +68,14 @@ class WriteDiaryState extends State<WriteDiary> {
               }
               Map<String, dynamic> data =
                   snapshot.data!.data() as Map<String, dynamic>;
-               _controller = QuillController(
-                  document: Document.fromJson(data["content"]),
-                  selection: const TextSelection.collapsed(offset: 0)); 
+              final content = data["content"] as List<dynamic>;
+              try {
+                _controller = QuillController(
+                    document: Document.fromJson(data["content"]),
+                    selection: const TextSelection.collapsed(offset: 0));
+              } catch (e) {
+                _controller = QuillController.basic();
+              }
               _controller.addListener(() async {
                 debugPrint("sdf");
                 await snapshot.data!.reference.update(
