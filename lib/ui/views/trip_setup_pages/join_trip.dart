@@ -4,13 +4,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:internet_praktikum/ui/widgets/container.dart';
-import 'package:internet_praktikum/ui/widgets/errorSnackbar.dart';
 import 'package:internet_praktikum/ui/widgets/inputfield.dart';
 import 'package:internet_praktikum/ui/widgets/my_button.dart';
-import 'package:path/path.dart';
 
+// ignore: must_be_immutable
 class JoinTrip extends StatelessWidget {
-  
   JoinTrip({super.key});
   final CollectionReference trips =
       FirebaseFirestore.instance.collection('trips');
@@ -19,24 +17,28 @@ class JoinTrip extends StatelessWidget {
   final groupController = TextEditingController();
   FirebaseFunctions functions = FirebaseFunctions.instance;
 
-  void joinTrip(BuildContext context) async {
+  Future<void> joinTrip(BuildContext context) async {
     final self = _auth.currentUser?.uid;
 
     final dir = groupController.text;
+    if (dir.isEmpty) {
+      throw "Please enter a Trip ID";
+    }
 
-    trips.doc(dir).get().then((doc) => {
-      if(doc.exists){
-        trips.doc(dir).update({
-      "members": FieldValue.arrayUnion(
-          [FirebaseFirestore.instance.doc("/users/" + self.toString())])
-    }), FirebaseFirestore.instance
-        .doc("/users/$self")
-        .update({"selectedtrip": dir}),
-        context.goNamed("home")
-      } else {
-        ErrorSnackbar.showErrorSnackbar(context, "Trip does not exist")
+    final result = await FirebaseFunctions.instance
+        .httpsCallable('joinTrip')
+        .call({"trip": dir, "user": self});
+
+    final response = result.data as Map<String, dynamic>;
+
+    if (!response["success"]) {
+      throw response["error"];
+    }
+    if (response["success"]) {
+      if (context.mounted) {
+        context.go('/changetrip');
       }
-    });
+    }
   }
 
   @override
