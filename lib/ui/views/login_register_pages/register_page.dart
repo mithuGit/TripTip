@@ -187,9 +187,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         ],
                       ),
                     ),
-
                     const SizedBox(height: 30),
-
                     MyButton(
                       onTap: () async {
                         await signInWithGoogle();

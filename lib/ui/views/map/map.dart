@@ -619,6 +619,9 @@ class _MapPageState extends State<MapPage> {
                                             if (places.isEmpty) {
                                               pressToGetRecommend = false;
                                               markers = {};
+                                              setState(() {
+                                                loadingRecommendations = false;
+                                              });
                                               // ignore: use_build_context_synchronously
                                               return ErrorSnackbar
                                                   .showErrorSnackbar(context,
@@ -648,7 +651,10 @@ class _MapPageState extends State<MapPage> {
                                             // ignore: use_build_context_synchronously
                                             ErrorSnackbar.showErrorSnackbar(
                                                 context,
-                                                "Error fetching recommendations");
+                                                "Error fetching recommendations \nPlease try again later");
+                                            setState(() {
+                                              loadingRecommendations = false;
+                                            });
                                           }
                                         },
                                         icon: loadingRecommendations
