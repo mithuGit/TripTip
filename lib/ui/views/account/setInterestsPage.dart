@@ -30,11 +30,13 @@ class _SetInterestsPageState extends State<SetInterestsPage> {
             context, "Please select at least 1 interest");
         return;
       }
-      await firestore.collection('users').doc(auth.currentUser!.uid).update(
-          {'interests': selectedInterests});
+      await firestore
+          .collection('users')
+          .doc(auth.currentUser!.uid)
+          .update({'interests': selectedInterests});
       if (context.mounted) {
         widget.isCreate == true
-            ? context.push('/selecttrip')
+            ? context.push('/selecttrip/false')
             : context.go('/profile');
       }
     }
@@ -98,7 +100,6 @@ class _SetInterestsPageState extends State<SetInterestsPage> {
                                           .map<String>((e) => e.toString())
                                           .toList();
                                     }
-                          
 
                                     List<String> selectedCategories = [];
                                     List<String> uninterestedCategories = [];
