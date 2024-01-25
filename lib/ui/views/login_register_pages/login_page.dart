@@ -30,7 +30,9 @@ class _LoginPageState extends State<LoginPage> {
   // sign user in method
   void signUserIn() async {
     // try sign in
+
     try {
+      emailController.text = emailController.text.trim();
       await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: emailController.text,
         password: passwordController.text,
@@ -319,6 +321,8 @@ class _LoginPageState extends State<LoginPage> {
                         colors: Colors.black,
                         text: 'Next',
                         onTap: () {
+                          passwordforgotController.text =
+                              passwordforgotController.text.trim();
                           String emailToCheck = passwordforgotController.text;
                           if (isValidEmail(emailToCheck)) {
                             resetPassword(emailToCheck);
