@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:internet_praktikum/core/services/Interests.dart';
 
-class ImageContainer extends StatefulWidget {
+class ImageContainerToSetInterest extends StatefulWidget {
   final String image;
 
   final ValueChanged<List<String>> setInterested;
@@ -9,7 +9,7 @@ class ImageContainer extends StatefulWidget {
 
   final bool? isSelected;
   final bool? isNotinterested;
-  const ImageContainer(
+  const ImageContainerToSetInterest(
       {required this.image,
       super.key,
       required this.setInterested,
@@ -18,10 +18,10 @@ class ImageContainer extends StatefulWidget {
       this.isNotinterested});
 
   @override
-  State<ImageContainer> createState() => _ImageContainerState();
+  State<ImageContainerToSetInterest> createState() => _ImageContainerToSetInterestState();
 }
 
-class _ImageContainerState extends State<ImageContainer> {
+class _ImageContainerToSetInterestState extends State<ImageContainerToSetInterest> {
   bool isSelected = false;
   bool isNotinterested = false;
   @override

@@ -1,3 +1,4 @@
+// ignore: file_names
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -9,14 +10,16 @@ import 'package:internet_praktikum/ui/widgets/my_button.dart';
 import 'package:internet_praktikum/ui/widgets/profileWidgets/imageContainer.dart';
 import 'package:internet_praktikum/ui/widgets/usernamebagageCreateTrip.dart';
 
+// This is the page where the user can set his interests
 class SetInterestsPage extends StatefulWidget {
+  // This bool is needed to redirect the user to the right page
   final bool isCreate;
   const SetInterestsPage({super.key, required this.isCreate});
   @override
-  _SetInterestsPageState createState() => _SetInterestsPageState();
+  SetInterestsPageState createState() => SetInterestsPageState();
 }
 
-class _SetInterestsPageState extends State<SetInterestsPage> {
+class SetInterestsPageState extends State<SetInterestsPage> {
   @override
   Widget build(BuildContext context) {
     FirebaseFirestore firestore = FirebaseFirestore.instance;
@@ -34,14 +37,13 @@ class _SetInterestsPageState extends State<SetInterestsPage> {
           .collection('users')
           .doc(auth.currentUser!.uid)
           .update({'interests': selectedInterests});
+      // here you go back    
       if (context.mounted) {
         widget.isCreate == true
             ? context.push('/selecttrip/false')
             : context.go('/profile');
       }
     }
-
-    //TODO: Was soll passieren wenn nix angedrückt wird ?
     return Scaffold(
         backgroundColor: const Color(0xFFCBEFFF),
         resizeToAvoidBottomInset: true,
@@ -74,6 +76,7 @@ class _SetInterestsPageState extends State<SetInterestsPage> {
                                     color: Colors.white),
                               ),
                               const SizedBox(height: 10),
+                              // here we build the gridview with the interests
                               FutureBuilder<DocumentSnapshot>(
                                   future: firestore
                                       .collection('users')
@@ -106,7 +109,7 @@ class _SetInterestsPageState extends State<SetInterestsPage> {
                                     selectedCategories =
                                         Interests.evaluateCategories(
                                             selectedInterests);
-
+                                    //Here the Gridview is beeing built      
                                     return GridView.count(
                                       physics:
                                           const NeverScrollableScrollPhysics(),
@@ -115,7 +118,7 @@ class _SetInterestsPageState extends State<SetInterestsPage> {
                                       crossAxisSpacing: 10,
                                       shrinkWrap: true,
                                       children: Interests.available.keys
-                                          .map((interest) => ImageContainer(
+                                          .map((interest) => ImageContainerToSetInterest(
                                                 image: interest,
                                                 isSelected: selectedCategories
                                                     .contains(interest),
@@ -144,6 +147,7 @@ class _SetInterestsPageState extends State<SetInterestsPage> {
                     )),
               ),
             ),
+            // This is the widget that contains the username and a ProfilePicture
             UsernameBagageCreateTrip(
               firestore: firestore,
               auth: auth,

@@ -15,6 +15,14 @@ import 'package:go_router/go_router.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_cropper/image_cropper.dart';
 
+
+/*
+This class is being used to display the account details of the user. 
+It is also used to edit the account details of the user.
+to set the profile picture of the user, the user can click on the profile picture and select a picture from the gallery.
+
+*/
+
 class Account extends StatefulWidget {
   final bool isEditProfile;
   const Account({super.key, required this.isEditProfile});
@@ -56,6 +64,8 @@ class _AccountState extends State<Account> {
     setState(() {
       loarding = true;
     });
+
+    // get user data from firestore... after the widget is build
     SchedulerBinding.instance.addPostFrameCallback((_) async {
       Map<String, dynamic> userData =
           (await getUserdata()).data() as Map<String, dynamic>;
@@ -159,6 +169,7 @@ class _AccountState extends State<Account> {
                           pickedFile = await imagePicker.pickImage(
                               source: ImageSource.gallery);
                           if (pickedFile != null) {
+                            // The filecroper Class is used to crop the image
                             CroppedFile? croppedFile =
                                 await ImageCropper().cropImage(
                               sourcePath: pickedFile.path,
@@ -171,7 +182,7 @@ class _AccountState extends State<Account> {
                               uiSettings: [
                                 AndroidUiSettings(
                                     toolbarTitle: 'Crop Your Profile Picture',
-                                    toolbarColor: Colors.deepOrange,
+                                    toolbarColor: Colors.blue,
                                     toolbarWidgetColor: Colors.white,
                                     initAspectRatio:
                                         CropAspectRatioPreset.square,
@@ -212,9 +223,10 @@ class _AccountState extends State<Account> {
                                 print(
                                     "Something went wrong while uploading your image $e");
                               }
-                              // ignore: use_build_context_synchronously
-                              ErrorSnackbar.showErrorSnackbar(context,
-                                  "Something went wrong while uploading your image");
+                              if (mounted) {
+                                ErrorSnackbar.showErrorSnackbar(context,
+                                    "Something went wrong while uploading your image");
+                              }
                             }
                           }
                           setState(() {
@@ -333,7 +345,7 @@ class _AccountState extends State<Account> {
                     onTap: () async {
                       try {
                         await updateUserData();
-                        if (context.mounted) {
+                        if (mounted) {
                           widget.isEditProfile == true
                               ? context.go('/profile')
                               : context.go('/setinterests/true');
@@ -348,6 +360,8 @@ class _AccountState extends State<Account> {
                         }
                       }
                     },
+                    // The Widget can be used to initalize the profile page or to modify the profile page
+                    // when its only modified the user will be redirected to the settings page
                     text: widget.isEditProfile == true
                         ? "Finish"
                         : 'Select your Interests',
