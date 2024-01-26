@@ -64,6 +64,20 @@ class _TicketContainerState extends State<TicketContainer> {
         getDownloadUrlLink,
         fit: BoxFit.cover,
         width: double.infinity,
+        loadingBuilder: (BuildContext context, Widget child,
+            ImageChunkEvent? loadingProgress) {
+          if (loadingProgress == null) {
+            return child;
+          }
+          return Center(
+            child: CircularProgressIndicator(
+              value: loadingProgress.expectedTotalBytes != null
+                  ? loadingProgress.cumulativeBytesLoaded /
+                      loadingProgress.expectedTotalBytes!
+                  : null,
+            ),
+          );
+        },
       );
       height = 350.0;
     }
@@ -84,7 +98,7 @@ class _TicketContainerState extends State<TicketContainer> {
                 );
               }
               return Column(
-                  // hier Modal für Preview des Belegs
+                  //This is the content of the bottom sheet. It contains the ticket
                   children: [
                     const SizedBox(height: 20.0),
                     Container(
@@ -105,8 +119,8 @@ class _TicketContainerState extends State<TicketContainer> {
                             file.data!.isPdf
                                 ? (openPDF(
                                     context, file.data!.pdf!, data!["title"]))
-                                : (openImage(context, file.data!.image,
-                                    data!["title"]));
+                                : (openImage(
+                                    context, file.data!.image, data!["title"]));
                           },
                           child: file.data!.widget,
                         )),
