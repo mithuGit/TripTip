@@ -33,14 +33,7 @@ class JoinTrip extends StatelessWidget {
     final response = result.data as Map<String, dynamic>;
 
     if (!response["success"]) {
-      if (context.mounted) {
-        ErrorSnackbar.showErrorSnackbar(context, "Error: ${response["error"]}");
-      }
-    }
-    if (response["success"]) {
-      if (context.mounted) {
-        context.go('/changetrip');
-      }
+      throw response["error"];
     }
   }
 
@@ -70,13 +63,23 @@ class JoinTrip extends StatelessWidget {
                           obscureText: false),
                       MyButton(
                           margin: const EdgeInsets.only(bottom: 10),
-                          onTap: () {
+                          onTap: () async {
                             if (groupController.text.isEmpty) {
                               ErrorSnackbar.showErrorSnackbar(
                                   context, "Please enter a Trip ID");
                               return;
                             }
-                            joinTrip(context);
+                            try {
+                              await joinTrip(context);
+                              if (context.mounted) {
+                                context.go("/changetrip");
+                              }
+                            } catch (e) {
+                              if (context.mounted) {
+                                ErrorSnackbar.showErrorSnackbar(
+                                    context, e.toString());
+                              }
+                            }
                           },
                           text: "Next"),
                       MyButton(
