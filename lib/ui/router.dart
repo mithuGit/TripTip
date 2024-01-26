@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:internet_praktikum/core/services/map_service.dart';
 import 'package:internet_praktikum/ui/views/account/account_details.dart';
 import 'package:internet_praktikum/ui/views/account/setInterestsPage.dart';
 import 'package:internet_praktikum/ui/views/dashboard/archive.dart';
@@ -97,6 +98,7 @@ class MyRouter {
                 path: '/map',
                 builder: (context, state) => MapPage(
                   key: state.pageKey,
+                  place: state.extra as Place?,
                 ),
               ),
             ],

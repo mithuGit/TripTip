@@ -35,7 +35,9 @@ class _UsernameBagageCreateTripState extends State<UsernameBagageCreateTrip> {
         final data = ref.docs.first.data();
         prename = data['prename'];
         lastname = data['lastname'];
-        if(data['profilePicture'] != null) pb = NetworkImage(data['profilePicture']);
+        if (data['profilePicture'] != null && data['profilePicture'] != '') {
+          pb = NetworkImage(data['profilePicture']);
+        }
       }
 
       return User(prename, lastname, pb);
@@ -54,12 +56,15 @@ class _UsernameBagageCreateTripState extends State<UsernameBagageCreateTrip> {
         child: FutureBuilder<User>(
             future: _getNames(),
             builder: (BuildContext context, AsyncSnapshot<User> snapshot) {
-              if(snapshot.connectionState == ConnectionState.waiting) return const Text('Loading...');
-              if (snapshot.hasError) {
-                return const Text('Something went wrong while fetching the user');
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Text('Loading...');
               }
-              User user = User(
-                  "Maximilian", "Laue", const AssetImage('assets/Personavatar.png'));
+              if (snapshot.hasError) {
+                return const Text(
+                    'Something went wrong while fetching the user');
+              }
+              User user = User("Maximilian", "Laue",
+                  const AssetImage('assets/Personavatar.png'));
               if (snapshot.hasData) {
                 user = snapshot.data!;
               }

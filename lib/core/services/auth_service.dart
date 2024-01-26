@@ -16,7 +16,6 @@ Future<UserCredential> signInWithGoogle() async {
     idToken: gAuth.idToken,
   );
 
-  // hier muss noch eingebaut werden, wegen OTP Verifizierung
   UserCredential userCredential =
       await FirebaseAuth.instance.signInWithCredential(credential);
 

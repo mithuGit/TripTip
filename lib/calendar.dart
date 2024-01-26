@@ -1,4 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:internet_praktikum/core/services/date_service.dart';
@@ -25,6 +27,9 @@ class _CalendarState extends State<Calendar> {
   bool? isTomorrow = false;
   bool? isYesterday = false;
 
+  DateTime? startDate;
+  DateTime? endDate;
+
   @override
   void initState() {
     super.initState();
@@ -33,17 +38,17 @@ class _CalendarState extends State<Calendar> {
   }
 
   void fetchDate() async {
-<<<<<<< lib/calendar.dart
     if (await _checkSelectedTrip()) {
       return;
     }
-    DateTime startDate = await DateService.getStartDate();
-    if (DateTime.now().isBefore(startDate)) {
+    endDate = await DateService.getEndDate();
+    startDate = await DateService.getStartDate();
+    if (DateTime.now().isBefore(startDate!)) {
       // Hole Startdatum aus Firebase und initialisiere selectedDate, firstDate und lastDate
       setState(() {
         selectedDate = startDate;
-        firstDate = startDate.add(const Duration(days: 1));
-        lastDate = startDate.subtract(const Duration(days: 1));
+        firstDate = startDate!.add(const Duration(days: 1));
+        lastDate = startDate!.subtract(const Duration(days: 1));
       });
     } else {
       // Hole aktuelles Datum und initialisiere selectedDate, firstDate und lastDate
@@ -57,12 +62,10 @@ class _CalendarState extends State<Calendar> {
   }
 
   Future<void> _showDateRangePicker() async {
-    DateTime start = await DateService.getStartDate();
-    DateTime end = await DateService.getEndDate();
     if (context.mounted) {
       DateTimeRange? pickedRange = await showDateRangePicker(
         context: context,
-        initialDateRange: DateTimeRange(start: start, end: end),
+        initialDateRange: DateTimeRange(start: startDate!, end: endDate!),
         firstDate: DateTime(2023),
         lastDate: DateTime(2060),
         currentDate: DateTime.now(),
@@ -114,14 +117,13 @@ class _CalendarState extends State<Calendar> {
   }
 
   void _goToLatestDate() async {
-    DateTime startTrip = await DateService.getStartDate();
     setState(() {
-      if (selectedDate!.isBefore(startTrip)) {
-        selectedDate = startTrip;
-        firstDate = startTrip.add(const Duration(days: 1));
-        lastDate = startTrip.subtract(const Duration(days: 1));
+      if (selectedDate!.isBefore(startDate!)) {
+        selectedDate = startDate!;
+        firstDate = startDate!.add(const Duration(days: 1));
+        lastDate = startDate!.subtract(const Duration(days: 1));
       }
-      if (selectedDate!.isAfter(startTrip)) {
+      if (selectedDate!.isAfter(startDate!)) {
         selectedDate = DateTime.now();
         firstDate = DateTime.now().add(const Duration(days: 1));
         lastDate = DateTime.now().subtract(const Duration(days: 1));
@@ -132,18 +134,24 @@ class _CalendarState extends State<Calendar> {
 
   void _goToNextDate() {
     setState(() {
-      selectedDate = selectedDate!.add(const Duration(days: 1));
-      firstDate = firstDate!.add(const Duration(days: 1));
-      lastDate = lastDate!.add(const Duration(days: 1));
+      if (selectedDate!.isAfter(endDate!) == false &&
+          isSameDay(selectedDate!, endDate!) == false) {
+        selectedDate = selectedDate!.add(const Duration(days: 1));
+        firstDate = firstDate!.add(const Duration(days: 1));
+        lastDate = lastDate!.add(const Duration(days: 1));
+      }
     });
     widget.onDateSelected(selectedDate!);
   }
 
   void _goToPreviousDate() {
     setState(() {
-      selectedDate = selectedDate!.subtract(const Duration(days: 1));
-      firstDate = firstDate!.subtract(const Duration(days: 1));
-      lastDate = lastDate!.subtract(const Duration(days: 1));
+      if (selectedDate!.isBefore(startDate!) == false &&
+          isSameDay(selectedDate!, startDate!) == false) {
+        selectedDate = selectedDate!.subtract(const Duration(days: 1));
+        firstDate = firstDate!.subtract(const Duration(days: 1));
+        lastDate = lastDate!.subtract(const Duration(days: 1));
+      }
     });
     widget.onDateSelected(selectedDate!);
   }
@@ -164,18 +172,22 @@ class _CalendarState extends State<Calendar> {
             .collection('users')
             .doc(auth.uid)
             .get();
-    
+
     if (userDoc.data()!['selectedtrip'] == '') {
       if (trips.isEmpty) {
-        context.pushReplacementNamed("selecttrip",
-            pathParameters: {"noTrip": "true"});
+        if (context.mounted) {
+          context.pushReplacementNamed("selecttrip",
+              pathParameters: {"noTrip": "true"});
+        }
         return true;
       } else {
         await FirebaseFirestore.instance
             .collection("users")
             .doc(auth.uid)
             .update({"selectedtrip": trips.first.id});
-        context.pushReplacementNamed("home");
+        if (context.mounted) {
+          context.pushReplacementNamed("home");
+        }
       }
     }
     return false;
@@ -188,7 +200,6 @@ class _CalendarState extends State<Calendar> {
       width: double.infinity,
       child: Column(
         children: [
-          // Zeige ausgewähltes Datum oder Zeitintervall an
           Stack(
             alignment: AlignmentDirectional.centerStart,
             children: [
@@ -200,9 +211,9 @@ class _CalendarState extends State<Calendar> {
                   child: const Padding(
                     padding: EdgeInsets.all(8.0),
                     child: Icon(
-                      Icons.today, // Verwende das gewünschte Icon
+                      Icons.today,
                       size: 32.5,
-                      color: Colors.black, // Ändere die Farbe nach Bedarf
+                      color: Colors.black,
                     ),
                   ),
                 ),
@@ -218,9 +229,34 @@ class _CalendarState extends State<Calendar> {
                         ? _buildDateText(lastDate!)
                         : _loadingContainer(),
                   ),
-                  selectedDate != null
-                      ? _buildDateText(selectedDate!, size: 15, selected: true)
-                      : _loadingContainer(),
+                  GestureDetector(
+                    onTap: () async {
+                      await showCupertinoModalPopup<void>(
+                        context: context,
+                        builder: (BuildContext context) =>
+                            FutureBuilder<Container>(
+                          future: getDateRangeCupertino(
+                              MediaQuery.of(context).size),
+                          builder: (BuildContext context,
+                              AsyncSnapshot<Container> snapshot) {
+                            if (snapshot.connectionState ==
+                                ConnectionState.done) {
+                              if (snapshot.hasData) {
+                                return snapshot.data!;
+                              } else if (snapshot.hasError) {
+                                return Text('Error: ${snapshot.error}');
+                              }
+                            }
+                            return const CircularProgressIndicator();
+                          },
+                        ),
+                      );
+                    },
+                    child: selectedDate != null
+                        ? _buildDateText(selectedDate!,
+                            size: 15, selected: true)
+                        : _loadingContainer(),
+                  ),
                   GestureDetector(
                     onTap: () {
                       _goToNextDate();
@@ -280,11 +316,10 @@ class _CalendarState extends State<Calendar> {
                 fontWeight: selected ? FontWeight.bold : FontWeight.normal),
           ), // Spacer zwischen Text und Kreis
           Container(
-            width: selected ? 35 : 22 + size, // Durchmesser des Kreises
+            width: selected ? 35 : 22 + size, // Diameter of the circle
             height: selected ? 35 : 28,
             decoration: const BoxDecoration(
-              shape:
-                  BoxShape.circle, // Farbe des Kreises ändern, falls gewünscht
+              shape: BoxShape.circle,
               border: Border.fromBorderSide(
                   BorderSide(color: Colors.black, width: 2)),
             ),
@@ -326,5 +361,59 @@ class _CalendarState extends State<Calendar> {
     return date1.year == date2.year &&
         date1.month == date2.month &&
         date1.day == date2.day;
+  }
+
+  // Die Funktion, die den Container asynchron erstellt
+  Future<Container> getDateRangeCupertino(Size size) async {
+    DateTime? tmpDate;
+    return Container(
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(34.5),
+          topRight: Radius.circular(34.5),
+        ),
+      ),
+      height: size.height * 0.32,
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(top: 5.0, right: 8.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                TextButton(
+                  onPressed: () {
+                    setState(() {
+                      if (tmpDate != null) {
+                        selectedDate = tmpDate!;
+                        firstDate = tmpDate!.add(const Duration(days: 1));
+                        lastDate = tmpDate!.subtract(const Duration(days: 1));
+                        widget.onDateSelected(selectedDate!);
+                      }
+                    });
+                    context.pop();
+                  },
+                  child: const Text('Done'),
+                ),
+              ],
+            ),
+          ),
+          Flexible(
+            child: SizedBox(
+              height: size.height * 0.25,
+              child: CupertinoDatePicker(
+                minimumDate: startDate!,
+                maximumDate: endDate!,
+                mode: CupertinoDatePickerMode.date,
+                onDateTimeChanged: (value) {
+                  tmpDate = value;
+                },
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

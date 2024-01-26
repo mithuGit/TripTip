@@ -56,6 +56,7 @@ class _TopBarState extends State<TopBar> {
   @override
   Widget build(BuildContext context) {
     return AppBar(
+        scrolledUnderElevation: 0,
         backgroundColor: Colors.white,
         centerTitle: true,
         title: widget.isDash != null

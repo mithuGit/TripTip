@@ -36,14 +36,14 @@ class SelectTrip extends StatelessWidget {
                               },
                               text: "Create Trip"),
                           MyButton(
-                              margin: EdgeInsets.only(bottom: 10),
+                              margin: const EdgeInsets.only(bottom: 10),
                               onTap: () {
                                 context.push('/jointrip');
                               },
                               text: "Join Trip"),
                           if(!noTrip) ...[
                           MyButton(
-                              margin: EdgeInsets.only(bottom: 10),
+                              margin: const EdgeInsets.only(bottom: 10),
                               onTap: () {
                                 context.pop();
                               },

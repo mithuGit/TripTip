@@ -1,12 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:go_router/go_router.dart';
 import 'package:internet_praktikum/ui/styles/Styles.dart';
 import 'package:internet_praktikum/ui/widgets/bottom_sheet.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:internet_praktikum/ui/widgets/errorSnackbar.dart';
 import 'package:internet_praktikum/ui/widgets/modalButton.dart';
 
 class ChangeTrip extends StatefulWidget {
@@ -73,8 +74,7 @@ class _ChangeTrip extends State<ChangeTrip> {
     return users;
   }
 
-  Future<void> deleteAllWidgets(
-      dynamic user, String trip) async {
+  Future<void> deleteAllWidgets(dynamic user, String trip) async {
     var ref = db.collection("trips").doc(trip).collection("days");
     await ref.get().then(
       (QuerySnapshot col) {
@@ -130,19 +130,27 @@ class _ChangeTrip extends State<ChangeTrip> {
                                             children: [
                                           ModalButton(
                                               icon: Icons.remove_circle_outline,
-                                              onTap: () {
-                                                var members =
-                                                    trip["members"] as List;
-                                                members.remove(FirebaseFirestore
-                                                    .instance
-                                                    .doc(
-                                                        "/users/${con['uid']}"));
-                                                db
-                                                    .collection("trips")
-                                                    .doc(tripid)
-                                                    .update(
-                                                        {"members": members});
-
+                                              onTap: () async {
+                                                final result =
+                                                    await FirebaseFunctions
+                                                        .instance
+                                                        .httpsCallable(
+                                                            'leaveTrip')
+                                                        .call({
+                                                  "trip": tripid,
+                                                  "usertokick": con['uid']
+                                                });
+                                                final response = result.data
+                                                    as Map<String, dynamic>;
+                                                if (!response["success"]) {
+                                                  if (mounted) {
+                                                    ErrorSnackbar
+                                                        .showErrorSnackbar(
+                                                            context,
+                                                            response["error"]
+                                                                as String);
+                                                  }
+                                                }
                                                 setState(() {});
                                                 context.goNamed("home");
                                               },
@@ -216,7 +224,7 @@ class _ChangeTrip extends State<ChangeTrip> {
             },
             icon: const Icon(Icons.arrow_back_ios),
           ),
-          title: const Text("Select a Trip"),
+          title: const Text("Trip Management"),
           titleTextStyle: const TextStyle(color: Colors.black, fontSize: 20),
           actions: [
             IconButton(
@@ -243,25 +251,22 @@ class _ChangeTrip extends State<ChangeTrip> {
                               children: [
                                 if (userTrip != con.id) ...[
                                   SlidableAction(
-                                    onPressed: (sdf) {
-                                      var members = con["members"] as List;
-                                      members.remove(FirebaseFirestore.instance
-                                          .doc("/users/" + user.uid));
-                                      if (con["createdBy"] ==
-                                          FirebaseFirestore.instance
-                                              .doc("/users/${user.uid}")) {
-                                        db
-                                            .collection("trips")
-                                            .doc(con.id)
-                                            .update({
-                                          "members": members,
-                                          "createdBy": members[0]
-                                        });
-                                      } else {
-                                        db
-                                            .collection("trips")
-                                            .doc(con.id)
-                                            .update({"members": members});
+                                    onPressed: (sdf) async {
+                                      final result = await FirebaseFunctions
+                                          .instance
+                                          .httpsCallable('leaveTrip')
+                                          .call({
+                                        "trip": con.id,
+                                        "usertokick": user.uid
+                                      });
+                                      final response =
+                                          result.data as Map<String, dynamic>;
+                                      if (!response["success"]) {
+                                        if (mounted) {
+                                          ErrorSnackbar.showErrorSnackbar(
+                                              context,
+                                              response["error"] as String);
+                                        }
                                       }
                                       setState(() {});
                                     },
@@ -340,11 +345,8 @@ class _ChangeTrip extends State<ChangeTrip> {
                                               image: DecorationImage(
                                                   fit: BoxFit.fitWidth,
                                                   image: Image.network(
-                                                          'https://places.googleapis.com/v1/' +
-                                                              con["placedetails"]
-                                                                      ["photos"]
-                                                                  [0]["name"] +
-                                                              "/media?maxHeightPx=500&maxWidthPx=500&key=AIzaSyBUh4YsufaUkM8XQqdO8TSXKpBf_3dJOmA")
+                                                          // ignore: prefer_interpolation_to_compose_strings
+                                                          'https://places.googleapis.com/v1/' + con["placedetails"]["photos"][0]["name"] + "/media?maxHeightPx=500&maxWidthPx=500&key=AIzaSyBUh4YsufaUkM8XQqdO8TSXKpBf_3dJOmA")
                                                       .image)))
                                     ],
                                   ),

@@ -7,10 +7,9 @@ import 'package:internet_praktikum/ui/widgets/container.dart';
 import 'package:internet_praktikum/ui/widgets/errorSnackbar.dart';
 import 'package:internet_praktikum/ui/widgets/inputfield.dart';
 import 'package:internet_praktikum/ui/widgets/my_button.dart';
-import 'package:path/path.dart';
 
+// ignore: must_be_immutable
 class JoinTrip extends StatelessWidget {
-  
   JoinTrip({super.key});
   final CollectionReference trips =
       FirebaseFirestore.instance.collection('trips');
@@ -19,24 +18,23 @@ class JoinTrip extends StatelessWidget {
   final groupController = TextEditingController();
   FirebaseFunctions functions = FirebaseFunctions.instance;
 
-  void joinTrip(BuildContext context) async {
+  Future<void> joinTrip(BuildContext context) async {
     final self = _auth.currentUser?.uid;
 
     final dir = groupController.text;
+    if (dir.isEmpty) {
+      throw "Please enter a Trip ID";
+    }
 
-    trips.doc(dir).get().then((doc) => {
-      if(doc.exists){
-        trips.doc(dir).update({
-      "members": FieldValue.arrayUnion(
-          [FirebaseFirestore.instance.doc("/users/" + self.toString())])
-    }), FirebaseFirestore.instance
-        .doc("/users/$self")
-        .update({"selectedtrip": dir}),
-        context.goNamed("home")
-      } else {
-        ErrorSnackbar.showErrorSnackbar(context, "Trip does not exist")
-      }
-    });
+    final result = await FirebaseFunctions.instance
+        .httpsCallable('joinTrip')
+        .call({"trip": dir, "user": self});
+
+    final response = result.data as Map<String, dynamic>;
+
+    if (!response["success"]) {
+      throw response["error"];
+    }
   }
 
   @override
@@ -65,8 +63,23 @@ class JoinTrip extends StatelessWidget {
                           obscureText: false),
                       MyButton(
                           margin: const EdgeInsets.only(bottom: 10),
-                          onTap: () {
-                            joinTrip(context);
+                          onTap: () async {
+                            if (groupController.text.isEmpty) {
+                              ErrorSnackbar.showErrorSnackbar(
+                                  context, "Please enter a Trip ID");
+                              return;
+                            }
+                            try {
+                              await joinTrip(context);
+                              if (context.mounted) {
+                                context.go("/changetrip");
+                              }
+                            } catch (e) {
+                              if (context.mounted) {
+                                ErrorSnackbar.showErrorSnackbar(
+                                    context, e.toString());
+                              }
+                            }
                           },
                           text: "Next"),
                       MyButton(

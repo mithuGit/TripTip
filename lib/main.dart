@@ -19,6 +19,7 @@ Future<void> main() async {
   if (FirebaseAuth.instance.currentUser != null) {
     await PushNotificationService().checkInitialized();
   }
+  
   runApp(const Main());
 }
 

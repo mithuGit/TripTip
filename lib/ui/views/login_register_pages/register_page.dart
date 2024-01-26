@@ -31,6 +31,7 @@ class _RegisterPageState extends State<RegisterPage> {
     try {
       // check if passwords match
       if (passwordController.text == confirmPasswordController.text) {
+        emailController.text = emailController.text.trim();
         UserCredential userCredential =
             await FirebaseAuth.instance.createUserWithEmailAndPassword(
           email: emailController.text,
@@ -186,9 +187,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         ],
                       ),
                     ),
-
                     const SizedBox(height: 30),
-
                     MyButton(
                       onTap: () async {
                         await signInWithGoogle();
