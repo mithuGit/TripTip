@@ -4,13 +4,14 @@ import 'package:internet_praktikum/ui/widgets/dashboardWidgets/usernameBagageDas
 
 class SimpleNoteWidget extends StatefulWidget {
   final Map<String, dynamic>? data;
-  SimpleNoteWidget({required this.data});
+  const SimpleNoteWidget({super.key, required this.data});
 
   @override
-  _SimpleNoteWidgetState createState() => _SimpleNoteWidgetState();
+  SimpleNoteWidgetState createState() => SimpleNoteWidgetState();
 }
-
-class _SimpleNoteWidgetState extends State<SimpleNoteWidget> {
+// This class is the widget for the simple note
+// not much to say here
+class SimpleNoteWidgetState extends State<SimpleNoteWidget> {
   @override
   Widget build(BuildContext context) {
     return Column(

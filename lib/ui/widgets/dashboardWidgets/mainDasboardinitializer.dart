@@ -8,20 +8,25 @@ import 'package:internet_praktikum/ui/widgets/dashboardWidgets/diaryWidget.dart'
 import 'package:internet_praktikum/ui/widgets/dashboardWidgets/simpleNoteWidget.dart';
 import 'package:internet_praktikum/ui/widgets/dashboardWidgets/survey.dart';
 
-// ignore: must_be_immutable
+/*
+This Class is the initializer for the widgets on the dashboard
+and decides which widget is shown and calls the corresoinding class for it
+*/
 class MainDasboardinitializer extends StatefulWidget {
-  double elevation = 0;
+  final double elevation = 0;
   final String title;
-  Map<String, dynamic> data;
-  Map<String, dynamic>? userdata;
-  DocumentReference? day;
-  MainDasboardinitializer({
+  final Map<String, dynamic> data;
+  final Map<String, dynamic>? userdata;
+  final DocumentReference? day;
+  final bool isEditable;
+  const MainDasboardinitializer({
     super.key,
     double? elevation,
     required this.title,
     required this.data,
     this.userdata,
     this.day,
+    this.isEditable = true,
   });
   @override
   State<MainDasboardinitializer> createState() =>
@@ -53,6 +58,7 @@ class _MainDasboardinitializerState extends State<MainDasboardinitializer> {
                   ),
                 )
               ]),
+              // here the widget is decided which is shown
               LayoutBuilder(builder: (context, constraints) {
                 if (widget.data["type"] == null) {
                   return const Text("No type is specified");
@@ -68,9 +74,11 @@ class _MainDasboardinitializerState extends State<MainDasboardinitializer> {
                   } else if (widget.data["type"] == "appointment") {
                     return AppointmentWidget(data: widget.data);
                   } else if (widget.data["type"] == "survey") {
+                    // the survey Widget is the only widget which needs the userdata and the day and isEditable
                     return SurveyWidget(
                         data: widget.data,
                         userdata: widget.userdata,
+                        isEditable : widget.isEditable,
                         day: widget.day);
                   } else if (widget.data["type"] == "diary") {
                     return DiaryWidget(data: widget.data, day: widget.day);

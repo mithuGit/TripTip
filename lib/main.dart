@@ -16,15 +16,25 @@ Future<void> main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  if (FirebaseAuth.instance.currentUser != null) {
-    await PushNotificationService().checkInitialized();
-  }
-  
   runApp(const Main());
 }
 
-class Main extends StatelessWidget {
+class Main extends StatefulWidget {
   const Main({super.key});
+
+  @override
+  State<Main> createState() => _MainState();
+}
+
+class _MainState extends State<Main> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      PushNotificationService().checkInitialized(context);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(

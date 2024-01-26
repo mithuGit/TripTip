@@ -1,40 +1,40 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+
 import 'package:flutter/material.dart';
 
-class VotingPoll extends StatefulWidget {
+//this Class is every Voting Point in the Voting Widget
+class VotingWidgetItem extends StatefulWidget {
   final Map<String, dynamic> data;
   final int index;
-  DocumentReference? day;
-  Map<String, dynamic>? userdata;
-  ValueChanged<bool> onTap;
+  final Map<String, dynamic>? userdata;
+  final ValueChanged<bool> onTap;
   
-  VotingPoll(
+  const VotingWidgetItem(
       {super.key,
       required this.data,
       required this.index,
       required this.userdata,
-      required this.day,
       required this.onTap});
 
   @override
-  State<VotingPoll> createState() => _VotingPollState();
+  State<VotingWidgetItem> createState() => _VotingWidgetItemState();
 }
 
-class _VotingPollState extends State<VotingPoll> {
+class _VotingWidgetItemState extends State<VotingWidgetItem> {
   bool isClicked = false;
   @override
   void initState() {
     super.initState();
+    // we first have to check if the user has already voted for this option
     Map<String, dynamic> voteelement = widget.data["options"][widget.index];
     if (voteelement["voters"] != null) {
-      if (voteelement["voters"].contains(widget.userdata!["uid"])) { // TODO: Hier kommt fehler
+      if (voteelement["voters"].contains(widget.userdata!["uid"])) { 
         setState(() {
           isClicked = true;
         });
       }
     }
   }
-
+  
   int getNumberOfVoters() {
     Map<String, dynamic> voteelement = widget.data["options"][widget.index];
     if (voteelement["voters"] != null) {
@@ -83,7 +83,7 @@ class _VotingPollState extends State<VotingPoll> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(widget.data!["options"][widget.index]["string"],
+                    Text(widget.data["options"][widget.index]["string"],
                         style:
                             const TextStyle(fontSize: 20, color: Colors.white)),
                     Text("${getNumberOfVoters()}/${getNumberOfUsers()}",

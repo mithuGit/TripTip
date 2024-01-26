@@ -1,4 +1,5 @@
 // ignore: file_names
+// ignore: file_names
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -78,7 +79,7 @@ class AddSurveyWidgetToDashboardState
     extends State<AddSurveyWidgetToDashboard> {
   final nameofSurvey = TextEditingController();
   late SelectedOption selectedOption;
-  late DateTime dateofDay;
+  DateTime? dateofDay;
   DateTime? deadline;
 
   bool allowmultipleAnswers = true;
@@ -287,7 +288,7 @@ class AddSurveyWidgetToDashboardState
                   showFuture: true,
                   use24hFormat: true,
                   mode: CupertinoDatePickerMode.time,
-                  boundingDate: DateTime(2023),
+                  boundingDate:getBoundingDate(),
                   presetDate: selectedOption.value != null
                       ? selectedOption.toString()
                       : "select time",
@@ -368,5 +369,15 @@ class AddSurveyWidgetToDashboardState
           )
       ]),
     );
+  }
+  DateTime getBoundingDate() {
+    if (dateofDay != null) {
+      if(dateofDay!.isBefore(DateTime.now()) || dateofDay!.isAtSameMomentAs(DateTime.now())) {
+        return DateTime.now();
+      }
+      return DateTime(dateofDay!.year, dateofDay!.month, dateofDay!.day, 0, 0);
+    } else {
+      return DateTime(2021, 1, 1, 0, 0);
+    }
   }
 }

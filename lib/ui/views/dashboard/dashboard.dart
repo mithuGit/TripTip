@@ -81,8 +81,8 @@ class _DashBoardState extends State<DashBoard> {
             onSelected: (value) => {
               // This is the popup menu in the dashboard
               switch (value) {
-                "archive" => {context.go("archive")},
-                "changeTrip" => {context.go("changetrip")},
+                "archive" => {context.go("/archive")},
+                "changeTrip" => {context.go("/changetrip")},
                 "createWidget" => {
                     CustomBottomSheet.show(context,
                         title: "Add new Widget to your Dashboard",
@@ -118,11 +118,10 @@ class _DashBoardState extends State<DashBoard> {
               return [
                 const PopupMenuItem(
                   value: "changeTrip",
-                  child: Text("Change Trip"),
+                  child: Text("Trip Management"),
                 ),
                 // You can't create widgets for days in the past
-                if (selectedDay != null &&
-                    selectedDay!.isAfter(DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day)) || selectedDay!.isAtSameMomentAs(DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day))) ...[
+                if (dashboardIsEditable()) ...[
                   const PopupMenuItem(
                     value: "createWidget",
                     child: Text("Create Widget"),
@@ -168,9 +167,10 @@ class _DashBoardState extends State<DashBoard> {
                         text:
                             "An error occured while loading User data: ${errorWhileLoadingUser!.toString()}");
                   }
+
                   // here are all Scrollview Widgets loaded
                   return ScrollViewWidget(
-                      day: selectedDayReference!, userdata: userdata!);
+                      day: selectedDayReference!, userdata: userdata!, isEditable: dashboardIsEditable(),);
                 })
               ]),
             ),
@@ -178,5 +178,12 @@ class _DashBoardState extends State<DashBoard> {
         ],
       ),
     );
+  }
+
+  bool dashboardIsEditable() {
+    return selectedDay!.isAfter(DateTime(
+            DateTime.now().year, DateTime.now().month, DateTime.now().day)) ||
+        selectedDay!.isAtSameMomentAs(DateTime(
+            DateTime.now().year, DateTime.now().month, DateTime.now().day));
   }
 }

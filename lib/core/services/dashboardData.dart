@@ -63,7 +63,23 @@ class DashBoardData {
 
       // only within the trip duration a diary widget will be created
       if (selectedDay.isAfter(tripStart) && selectedDay.isBefore(tripEnd)) {
-        day.update({
+        DocumentReference? diary;
+        DateTime today = DateTime(DateTime.now().year, DateTime.now().month,
+            DateTime.now().day, 0, 0, 0, 0);
+        if (filteredDay.toDate().isAfter(DateTime.now()) ||
+            filteredDay.toDate().isAtSameMomentAs(today)) {
+          diary = await FirebaseFirestore.instance.collection("tasks").add({
+            'performAt': diaryTime,
+            'status': 'pending',
+            'active': true,
+            'worker': 'WriteDiaryNotification',
+            'options': {
+              'day': day,
+              'trip': currentTrip,
+            },
+          });
+        }
+        await day.update({
           'active': {
             'diary': {
               'key': 'diary',
@@ -75,21 +91,10 @@ class DashBoardData {
               'diaryEndTime': diaryTime.add(const Duration(hours: 2)),
               'type': 'diary',
               'due': 'Diary',
+              'workers': [diary]
             },
           }
         });
-        if (selectedDay.isAfter(DateTime.now())) {
-          await FirebaseFirestore.instance.collection("tasks").add({
-            'performAt': diaryTime,
-            'status': 'pending',
-            'active' : true,
-            'worker': 'WriteDiaryNotification',
-            'options': {
-              'day': day,
-              'trip': currentTrip,
-            },
-          });
-        }
       }
 
       return day;
@@ -100,7 +105,23 @@ class DashBoardData {
             ((await day.get()).data()! as Map<String, dynamic>)["active"];
         if (active["diary"] == null) {
           DateTime diaryTime = await calculateDiaryTime(selectedDay);
-          day.update({
+          DocumentReference? diary;
+          DateTime today = DateTime(DateTime.now().year, DateTime.now().month,
+              DateTime.now().day, 0, 0, 0, 0);
+          if (filteredDay.toDate().isAfter(DateTime.now()) ||
+              filteredDay.toDate().isAtSameMomentAs(today)) {
+            diary = await FirebaseFirestore.instance.collection("tasks").add({
+              'performAt': diaryTime,
+              'status': 'pending',
+              'active': true,
+              'worker': 'WriteDiaryNotification',
+              'options': {
+                'day': day,
+                'trip': currentTrip,
+              },
+            });
+          }
+          await day.update({
             'active': {
               'diary': {
                 'key': 'diary',
@@ -112,22 +133,11 @@ class DashBoardData {
                 'diaryEndTime': diaryTime.add(const Duration(hours: 2)),
                 'type': 'diary',
                 'due': 'Diary',
+                'workers': [diary]
               },
             }
           });
           // otherwise you will get notifications for past Days
-          if (selectedDay.isAfter(DateTime.now())) {
-            await FirebaseFirestore.instance.collection("tasks").add({
-              'performAt': diaryTime,
-              'status': 'pending',
-              'active' : true,
-              'worker': 'WriteDiaryNotification',
-              'options': {
-                'day': day,
-                'trip': currentTrip,
-              },
-            });
-          }
         }
       }
       return day;

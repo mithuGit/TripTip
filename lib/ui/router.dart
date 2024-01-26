@@ -131,12 +131,17 @@ class MyRouter {
       ),
       GoRoute(
           name: 'dashboardwithPath',
-          path: '/dashboard/:showDateViaLink',
+          path: '/dashboard',
           builder: (context, state) {
-            final showDateViaLink = state.pathParameters['showDateViaLink'];
+            if (state.extra == null) {
+              return DashBoard(
+                key: state.pageKey,
+              );
+            }
+            final day = state.extra as String;
             return DashBoard(
               key: state.pageKey,
-              showDateViaLink: showDateViaLink,
+              showDateViaLink: day,
             );
           }),
       GoRoute(

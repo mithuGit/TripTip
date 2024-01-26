@@ -21,7 +21,7 @@ class ReadDiaryState extends State<ReadDiary> {
   void initState() {
     super.initState();
   }
-
+  // Since we are using a StreamBuilder we need an extra collection to store the diary
   @override
   Widget build(BuildContext context) {
     Future<DocumentReference> createDiary() async {
@@ -85,6 +85,7 @@ class ReadDiaryState extends State<ReadDiary> {
                         } catch (e) {
                           _controller = QuillController.basic();
                         }
+                        // here we use the Quill Text Editor to Edit a Text
                         return Expanded(
                           child: QuillEditor.basic(
                             configurations: QuillEditorConfigurations(
