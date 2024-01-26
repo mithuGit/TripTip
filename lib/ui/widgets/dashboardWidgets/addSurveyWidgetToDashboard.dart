@@ -55,14 +55,13 @@ class SelectedQuestion extends SelectedOption {
   String toString() => question.text;
 }
 
-// ignore: must_be_immutable
 class AddSurveyWidgetToDashboard extends StatefulWidget {
-  Place? place;
-  DocumentReference day;
-  String typeOfSurvey;
-  Map<String, dynamic> userdata;
-  Map<String, dynamic>? data;
-  AddSurveyWidgetToDashboard(
+  final Place? place;
+  final DocumentReference day;
+  final String typeOfSurvey;
+  final Map<String, dynamic> userdata;
+  final Map<String, dynamic>? data;
+  const AddSurveyWidgetToDashboard(
       {super.key,
       required this.day,
       required this.userdata,
@@ -154,12 +153,19 @@ class AddSurveyWidgetToDashboardState
     if (widget.data == null) {
       String key = const Uuid().v4();
       if (deadline != null) {
+        // A Worker to convert the survey to special Widget
         DocumentReference converter =
             await JobworkerService.generateSurveyConvertionWorker(
                 deadline!, widget.day, by, trip, key, nameofSurvey.text);
+        // A Worker 15inutes before the deadline to alert the user        
         DocumentReference alerter =
             await JobworkerService.generateLastChanceSurveryWorker(
-                deadline!, widget.day, by, trip, key, nameofSurvey.text);
+                deadline!.subtract(const Duration(minutes: 15)),
+                widget.day,
+                by,
+                trip,
+                key,
+                nameofSurvey.text);
         data["workers"] = [converter, alerter];
       }
       await ManageDashboardWidged()
@@ -180,7 +186,6 @@ class AddSurveyWidgetToDashboardState
         onDismissed: (direction) {
           setState(() {
             _optionList.removeAt(index);
-            print("removed");
           });
         },
         background: Container(
@@ -342,7 +347,8 @@ class AddSurveyWidgetToDashboardState
         const SizedBox(height: 10),
         if (_optionList.length >= 2)
           MyButton(
-              colors: Colors.blue,
+              borderColor: Colors.black,
+              textStyle: Styles.buttonFontStyleModal,
               onTap: () =>
                   createorUpdateSurvey().onError((error, stackTrace) => {
                         // ignore: avoid_print

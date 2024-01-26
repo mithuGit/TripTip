@@ -16,6 +16,7 @@ class JobworkerService {
       "worker": "AppoinmentNotification",
       "performAt": selectedDate,
       "status": "pending",
+      "active" : true,
       "options": {
         "day": day,
         "widgetCreatedBy": createdBy,
@@ -36,6 +37,7 @@ class JobworkerService {
       "worker": "SurveyConvertion",
       "performAt": deadline,
       "status": "pending",
+      "active" : true,
       "options": {
         "day": day,
         "widgetCreatedBy": createdBy,
@@ -56,6 +58,7 @@ class JobworkerService {
       "worker": "LastChanceSurvey",
       "performAt": deadline,
       "status": "pending",
+      "active" : true,
       "options": {
         "day": day,
         "widgetCreatedBy": createdBy,
@@ -68,7 +71,7 @@ class JobworkerService {
 
   static Future<void> deleteAllWorkers(List<DocumentReference> workers) async {
     for (var worker in workers) {
-      await worker.delete();
+      await worker.update({"active": false});
     }
   }
 }

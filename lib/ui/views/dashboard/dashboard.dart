@@ -12,7 +12,8 @@ import 'package:internet_praktikum/ui/widgets/dashboardWidgets/createNewWidgetOn
 import 'package:internet_praktikum/ui/widgets/headerWidgets/topbar.dart';
 
 class DashBoard extends StatefulWidget {
-  const DashBoard({super.key});
+  final String? showDateViaLink;
+  const DashBoard({super.key, this.showDateViaLink});
   @override
   State<DashBoard> createState() => _DashBoardState();
 }

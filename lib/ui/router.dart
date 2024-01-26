@@ -130,6 +130,16 @@ class MyRouter {
         ],
       ),
       GoRoute(
+          name: 'dashboardwithPath',
+          path: '/dashboard/:showDateViaLink',
+          builder: (context, state) {
+            final showDateViaLink = state.pathParameters['showDateViaLink'];
+            return DashBoard(
+              key: state.pageKey,
+              showDateViaLink: showDateViaLink,
+            );
+          }),
+      GoRoute(
         name: 'loginOrRegister',
         path: '/loginorregister',
         builder: (context, state) => LoginOrRegisterPage(
