@@ -79,6 +79,9 @@ class _AddAppointmentWidgetToDashboardState
       if (nameOfAppointment.text.isEmpty) {
         throw Exception("Please enter a title for this appointment");
       }
+      if (selectedDate == null) {
+        throw Exception("Please select a time for this appointment");
+      } 
       DocumentSnapshot daySnapshot = await widget.day.get();
       Map<String, dynamic> dayData = daySnapshot.data() as Map<String, dynamic>;
       // check if the starttime is not null and if the starttime is not on the selected day

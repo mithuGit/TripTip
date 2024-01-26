@@ -20,7 +20,7 @@ class DashBoard extends StatefulWidget {
 
 class _DashBoardState extends State<DashBoard> {
   final user = FirebaseAuth.instance.currentUser!;
-  //DateTime? selectedDay;
+  DateTime? selectedDay;
   bool isLoading = true;
   bool hasErrorWhileLoadingUser = false;
   bool hasErrorWhileLoadingDay = false;
@@ -49,7 +49,7 @@ class _DashBoardState extends State<DashBoard> {
   }
 
   // When ever the selectedDay is changed, the the current selectedDay is loaded
-  Future<void> changeDay(DateTime selectedDay) async {
+  Future<void> changeDay(DateTime selectedDayParam) async {
     if (selectedDayReference == null) {
       setState(() {
         isLoading = true;
@@ -57,9 +57,10 @@ class _DashBoardState extends State<DashBoard> {
     }
     try {
       selectedDayReference =
-          await DashBoardData.getCurrentDaySubCollection(selectedDay);
+          await DashBoardData.getCurrentDaySubCollection(selectedDayParam);
       setState(() {
         isLoading = false;
+        selectedDay = selectedDayParam;
       });
     } catch (e) {
       setState(() {
@@ -114,16 +115,20 @@ class _DashBoardState extends State<DashBoard> {
               }
             },
             itemBuilder: (BuildContext c) {
-              return const [
-                PopupMenuItem(
+              return [
+                const PopupMenuItem(
                   value: "changeTrip",
                   child: Text("Change Trip"),
                 ),
-                PopupMenuItem(
-                  value: "createWidget",
-                  child: Text("Create Widget"),
-                ),
-                PopupMenuItem(
+                // You can't create widgets for days in the past
+                if (selectedDay != null &&
+                    selectedDay!.isAfter(DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day)) || selectedDay!.isAtSameMomentAs(DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day))) ...[
+                  const PopupMenuItem(
+                    value: "createWidget",
+                    child: Text("Create Widget"),
+                  ),
+                ],
+                const PopupMenuItem(
                   value: "archive",
                   child: Text("Archive"),
                 )
@@ -136,8 +141,7 @@ class _DashBoardState extends State<DashBoard> {
             width: MediaQuery.of(context).size.width,
             decoration: const BoxDecoration(
               image: DecorationImage(
-                image: AssetImage(
-                    'assets/background_forest.png'),
+                image: AssetImage('assets/background_forest.png'),
                 fit: BoxFit.fitWidth,
               ),
             ),

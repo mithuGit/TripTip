@@ -1,3 +1,4 @@
+// ignore: file_names
 import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -77,15 +78,18 @@ class DashBoardData {
             },
           }
         });
-        await FirebaseFirestore.instance.collection("tasks").add({
-          'performAt': diaryTime,
-          'status': 'pending',
-          'worker': 'WriteDiaryNotification',
-          'options': {
-            'day': day,
-            'trip': currentTrip,
-          },
-        });
+        if (selectedDay.isAfter(DateTime.now())) {
+          await FirebaseFirestore.instance.collection("tasks").add({
+            'performAt': diaryTime,
+            'status': 'pending',
+            'active' : true,
+            'worker': 'WriteDiaryNotification',
+            'options': {
+              'day': day,
+              'trip': currentTrip,
+            },
+          });
+        }
       }
 
       return day;
@@ -111,15 +115,19 @@ class DashBoardData {
               },
             }
           });
-          await FirebaseFirestore.instance.collection("tasks").add({
-            'performAt': diaryTime,
-            'status': 'pending',
-            'worker': 'WriteDiaryNotification',
-            'options': {
-              'day': day,
-              'trip': currentTrip,
-            },
-          });
+          // otherwise you will get notifications for past Days
+          if (selectedDay.isAfter(DateTime.now())) {
+            await FirebaseFirestore.instance.collection("tasks").add({
+              'performAt': diaryTime,
+              'status': 'pending',
+              'active' : true,
+              'worker': 'WriteDiaryNotification',
+              'options': {
+                'day': day,
+                'trip': currentTrip,
+              },
+            });
+          }
         }
       }
       return day;
