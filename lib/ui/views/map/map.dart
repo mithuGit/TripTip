@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
@@ -92,9 +93,7 @@ class _MapPageState extends State<MapPage> {
       _initialCameraPosition = CameraPosition(
           target: LatLng(widget.place!.location.latitude,
               widget.place!.location.longitude),
-          zoom: 14.0,
-          bearing: 180.0,
-          tilt: 45.0);
+          zoom: 11.5);
     }
   }
 
@@ -318,7 +317,7 @@ class _MapPageState extends State<MapPage> {
                       if (infoDistanceAndDuration != null)
                         Polyline(
                           polylineId: const PolylineId('overview_polyline'),
-                          color: Colors.red,
+                          color: Theme.of(context).primaryColor,
                           width: 4,
                           points: infoDistanceAndDuration!.polylinePoints
                               .map((e) => LatLng(e.latitude, e.longitude))
@@ -454,7 +453,6 @@ class _MapPageState extends State<MapPage> {
                                         CameraPosition(
                                           target: origin!.position,
                                           zoom: 14.5,
-                                          tilt: 50.0,
                                         ),
                                       ),
                                     );
@@ -495,7 +493,6 @@ class _MapPageState extends State<MapPage> {
                                         CameraPosition(
                                           target: destination!.position,
                                           zoom: 14.5,
-                                          tilt: 50.0,
                                         ),
                                       ),
                                     );
@@ -535,7 +532,6 @@ class _MapPageState extends State<MapPage> {
                                           currentLocationData!.latitude!,
                                           currentLocationData!.longitude!),
                                       zoom: 14.5,
-                                      tilt: 50.0,
                                     ),
                                   ),
                                 );
