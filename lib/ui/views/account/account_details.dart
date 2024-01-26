@@ -189,8 +189,10 @@ class _AccountState extends State<Account> {
                               Reference referenceImageToUpload =
                                   referenceDirImages.child(currentUser.uid);
                               if (croppedFile != null) {
-                                await referenceImageToUpload
-                                    .putFile(File(croppedFile.path), SettableMetadata(contentType: 'image/jpeg'));
+                                await referenceImageToUpload.putFile(
+                                    File(croppedFile.path),
+                                    SettableMetadata(
+                                        contentType: 'image/jpeg'));
                                 String newUploadURL =
                                     await referenceImageToUpload
                                         .getDownloadURL();
@@ -221,7 +223,8 @@ class _AccountState extends State<Account> {
                         },
                         child: CircleAvatar(
                           radius: 37.5,
-                          backgroundImage: imageProvider,
+                          backgroundImage: imageProvider ??
+                              const AssetImage('assets/Personavatar.png'),
                         ),
                       ),
                     ],
