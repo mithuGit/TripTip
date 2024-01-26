@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:internet_praktikum/ui/widgets/container.dart';
+import 'package:internet_praktikum/ui/widgets/errorSnackbar.dart';
 import 'package:internet_praktikum/ui/widgets/inputfield.dart';
 import 'package:internet_praktikum/ui/widgets/my_button.dart';
 
@@ -32,7 +33,9 @@ class JoinTrip extends StatelessWidget {
     final response = result.data as Map<String, dynamic>;
 
     if (!response["success"]) {
-      throw response["error"];
+      if (context.mounted) {
+        ErrorSnackbar.showErrorSnackbar(context, "Error: ${response["error"]}");
+      }
     }
     if (response["success"]) {
       if (context.mounted) {
@@ -68,6 +71,11 @@ class JoinTrip extends StatelessWidget {
                       MyButton(
                           margin: const EdgeInsets.only(bottom: 10),
                           onTap: () {
+                            if (groupController.text.isEmpty) {
+                              ErrorSnackbar.showErrorSnackbar(
+                                  context, "Please enter a Trip ID");
+                              return;
+                            }
                             joinTrip(context);
                           },
                           text: "Next"),
