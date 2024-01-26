@@ -8,7 +8,15 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert' as convert;
 
-class PlacePhoto {
+
+abstract class PlacePhoto {
+  final String name;
+  final int widthPx;
+  final int heightPx;
+  ImageProvider get imageProvider;
+  PlacePhoto({required this.name, required this.heightPx, required this.widthPx});
+}
+class PlacePhotoNetwork extends PlacePhoto {
   final String name;
   int widthPx;
   int heightPx;
@@ -17,11 +25,11 @@ class PlacePhoto {
   ImageProvider get imageProvider => NetworkImage(
         "https://places.googleapis.com/v1/$name/media?maxHeightPx=$heightPx&maxWidthPx=$widthPx&key=$_key",
       );
-  PlacePhoto({
+  PlacePhotoNetwork({
     required this.name,
     required this.heightPx,
     required this.widthPx,
-  }) {
+  }) : super(name: '', heightPx: 0, widthPx: 0) {
     if (widthPx >= 4800) {
       widthPx = 4800;
     }
@@ -29,6 +37,10 @@ class PlacePhoto {
       heightPx = 4800;
     }
   }
+}
+class PlacePhotoAsset extends PlacePhoto {
+  ImageProvider get imageProvider => const AssetImage("assets/placeholder.jpg");
+  PlacePhotoAsset() : super(name: '', heightPx: 0, widthPx: 0);
 }
 
 class Place {
@@ -45,13 +57,21 @@ class Place {
   final List<dynamic> reviews;
   get typesString => types.join(", ");
   get photosElements => photos.map((photo) {
-        return PlacePhoto(
+        if (photo == null) {
+          return null;
+        }
+        return PlacePhotoNetwork(
           name: photo["name"],
           heightPx: photo["widthPx"],
           widthPx: photo["heightPx"],
         );
       }).toList();
-  PlacePhoto get firstImage => photosElements.first; //TODO: check if first Photo is null => was soll dann passieren?
+  PlacePhoto get firstImage {
+    if (photosElements.first == null) {
+      return PlacePhotoAsset();
+    }
+    return photosElements.first;
+  } //TODO: check if first Photo is null => was soll dann passieren?
   Place(
       {required this.name,
       required this.types,
@@ -103,8 +123,8 @@ class Place {
 class GoogleMapService {
   static const key = "AIzaSyBUh4YsufaUkM8XQqdO8TSXKpBf_3dJOmA";
 
-  Future<dynamic> getPlacesNew(LatLng coords, int radius,
-      List<String> interests) async {
+  Future<dynamic> getPlacesNew(
+      LatLng coords, int radius, List<String> interests) async {
     var lat = coords.latitude;
     var lng = coords.longitude;
 
@@ -121,7 +141,7 @@ class GoogleMapService {
       }
     }
     String maxAmount = "5";
-    if(interestsList2.isEmpty) {
+    if (interestsList2.isEmpty) {
       maxAmount = "10";
     }
 
