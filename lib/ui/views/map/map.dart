@@ -15,9 +15,10 @@ import 'package:internet_praktikum/ui/widgets/mapWidgets/mapButton.dart';
 import 'package:internet_praktikum/ui/widgets/mapWidgets/mapcard.dart';
 import 'package:location/location.dart';
 
+// ignore: must_be_immutable
 class MapPage extends StatefulWidget {
-  final Place? place;
-  const MapPage({super.key, this.place});
+  Place? place;
+  MapPage({super.key, this.place});
 
   @override
   State<MapPage> createState() => _MapPageState();
@@ -86,20 +87,31 @@ class _MapPageState extends State<MapPage> {
               zoom: 11.5,
             );
           }));
-      _pageController = PageController(initialPage: 1, viewportFraction: 0.85)
-        ..addListener(_swipe);
     } else {
       _initialCameraPosition = CameraPosition(
           target: LatLng(widget.place!.location.latitude,
               widget.place!.location.longitude),
           zoom: 11.5);
+      setState(() {
+        placeImage = widget.place!.photos[0]['name'];
+        radiusSlider = false;
+        pressToGetRecommend = false;
+        currentLocationData = null;
+        origin = null;
+        destination = null;
+        infoDistanceAndDuration = null;
+      });
     }
+    _pageController = PageController(initialPage: 1, viewportFraction: 0.85)
+      ..addListener(_swipe);
   }
 
   @override
   void dispose() {
-    _pageController.removeListener(_swipe);
-    _pageController.dispose();
+    if (widget.place == null) {
+      _pageController.removeListener(_swipe);
+      _pageController.dispose();
+    }
     super.dispose();
   }
 
@@ -115,7 +127,9 @@ class _MapPageState extends State<MapPage> {
     final GoogleMapController controller = await _googleMapController.future;
     markers = {};
 
-    var selectedPlace = allFavoritePlaces[_pageController.page!.toInt()];
+    var selectedPlace = widget.place == null
+        ? allFavoritePlaces[_pageController.page!.toInt()]
+        : widget.place!;
 
     _setNearMarker(
       LatLng(selectedPlace.location.latitude, selectedPlace.location.longitude),
@@ -339,27 +353,38 @@ class _MapPageState extends State<MapPage> {
                       child: SizedBox(
                         height: isExpanded ? 480.0 : 200.0,
                         width: MediaQuery.of(context).size.width,
-                        child: Stack(
-                          children: [
-                            Center(
-                              child: GestureDetector(
-                                  onTap: () async {
-                                    isExpanded = !isExpanded;
-                                    goToTappedPlace();
-                                  },
-                                  child: MapCard(
-                                      place: widget.place!,
-                                      isExpanded: isExpanded,
-                                      onExpandedChanged: (newIsExpanded) {
-                                        setState(() {
-                                          isExpanded = newIsExpanded;
-                                        });
-                                      },
-                                      photoGalleryIndex: photoGalleryIndex,
-                                      placeImage: placeImage)),
-                            )
-                          ],
-                        ),
+                        child: Builder(builder: (BuildContext context) {
+                          return Center(
+                            child: SizedBox(
+                              height: Curves.easeInOut.transform(1) *
+                                  MediaQuery.of(context).size.height *
+                                  0.5,
+                              width: Curves.easeInOut.transform(1) * 350.0,
+                              child: Stack(
+                                children: [
+                                  Center(
+                                    child: GestureDetector(
+                                        onTap: () async {
+                                          isExpanded = !isExpanded;
+                                          goToTappedPlace();
+                                        },
+                                        child: MapCard(
+                                            place: widget.place!,
+                                            isExpanded: isExpanded,
+                                            onExpandedChanged: (newIsExpanded) {
+                                              setState(() {
+                                                isExpanded = newIsExpanded;
+                                              });
+                                            },
+                                            photoGalleryIndex:
+                                                photoGalleryIndex,
+                                            placeImage: placeImage)),
+                                  )
+                                ],
+                              ),
+                            ),
+                          );
+                        }),
                       ))
                 ],
                 Column(
@@ -368,7 +393,8 @@ class _MapPageState extends State<MapPage> {
                         !radiusSlider &&
                         !pressToGetRecommend &&
                         !isExpanded &&
-                        destination == null)
+                        destination == null &&
+                        widget.place == null)
                       Padding(
                         padding: const EdgeInsets.fromLTRB(0, 15, 0, 0),
                         child: Center(

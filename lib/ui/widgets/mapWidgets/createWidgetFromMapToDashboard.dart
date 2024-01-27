@@ -235,7 +235,21 @@ class _CreateWidgetFromMapToDashboardState
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 TextButton(
-                  onPressed: () {
+                  onPressed: () async {
+                    // Führen Sie die asynchrone Arbeit außerhalb von setState durch
+                    DateTime? newSelectedDate;
+                    if (selectedDate == null) {
+                      newSelectedDate = (await DateService.getStartDate())
+                              .isAfter(DateTime.now())
+                          ? await DateService.getStartDate()
+                          : DateTime.now();
+
+                      await getDayReference(newSelectedDate);
+                      setState(() {
+                        selectedDate = newSelectedDate;
+                      });
+                    }
+
                     context.pop();
                   },
                   child: const Text('Done'),
@@ -247,10 +261,11 @@ class _CreateWidgetFromMapToDashboardState
             child: SizedBox(
               height: size.height * 0.25,
               child: CupertinoDatePicker(
-                minimumDate:
+                initialDateTime:
                     (await DateService.getStartDate()).isAfter(DateTime.now())
                         ? await DateService.getStartDate()
                         : DateTime.now(),
+                minimumDate: await DateService.getStartDate(),
                 maximumDate: await DateService.getEndDate(),
                 mode: CupertinoDatePickerMode.date,
                 onDateTimeChanged: (value) {
