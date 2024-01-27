@@ -245,10 +245,11 @@ class _MapCardState extends State<MapCard> {
                       ),
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(10.0),
-                        child: Image.network(
-                          widget.placeImage != ''
-                              ? widget.place.firstImage.imageProviderAsUrl
-                              : 'assets/no_camera.png', // Fallback to 'no_camera.png' if widget.placeImage is empty
+                        child: Image(
+                          image: widget.placeImage != ''
+                              ? widget.place.firstImage.imageProvider
+                              : const AssetImage(
+                                  'assets/no_camera.png'), // Fallback to 'no_camera.png' if widget.placeImage is empty
                           fit: BoxFit.cover,
                           height: 80.0,
                           width: 80.0,
@@ -482,7 +483,8 @@ class _MapCardState extends State<MapCard> {
                                           })
                                       ],
                                     )
-                                  : showPhoto(widget.place.photosElements))
+                                  : showPhoto(
+                                      widget.place.photosElements ))
                           : Container(),
                     ],
                   )

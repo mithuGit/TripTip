@@ -58,7 +58,7 @@ class Place {
   get typesString => types.join(", ");
   get photosElements => photos.map((photo) {
         if (photo == null) {
-          return null;
+          return PlacePhotoAsset();
         }
         return PlacePhotoNetwork(
           name: photo["name"],
