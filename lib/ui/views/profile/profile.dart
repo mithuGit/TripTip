@@ -160,7 +160,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                               await _openSettings();
                                             } else {
                                               await PushNotificationService()
-                                                  .initialise();
+                                                  .gantPushNotifications();
                                             }
                                           }
                                           setState(() {});

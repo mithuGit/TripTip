@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:internet_praktikum/core/services/init_pushnotifications.dart';
 import 'package:internet_praktikum/ui/views/login_register_pages/login_page.dart';
 import 'package:internet_praktikum/ui/widgets/container.dart';
 import 'package:internet_praktikum/ui/widgets/errorSnackbar.dart';
@@ -61,6 +62,7 @@ class _RegisterPageState extends State<RegisterPage> {
             // Add other data fields as needed
           });
         }
+        await PushNotificationService().gantPushNotifications();
         if (context.mounted) {
           GoRouter.of(context).go('/otp');
         }

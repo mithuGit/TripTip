@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -7,12 +8,17 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:go_router/go_router.dart';
+import 'package:internet_praktikum/ui/router.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:rxdart/rxdart.dart';
 
+// This class is used to handel the push notifications in Firebase
 // Must be here: https://stackoverflow.com/questions/67304706/flutter-fcm-unhandled-exception-null-check-operator-used-on-a-null-value
 Future handelBackgroundMessage(RemoteMessage message) async {
   await Firebase.initializeApp();
-  print('Handling a background message ${message.messageId}');
+  debugPrint('Handling a background message ${message.messageId}');
+  debugPrint('Handling a background message ${message.data}');
 }
 
 class PushNotificationService {
@@ -21,50 +27,72 @@ class PushNotificationService {
   final FirebaseAuth auth = FirebaseAuth.instance;
   final FlutterLocalNotificationsPlugin notificationsPlugin =
       FlutterLocalNotificationsPlugin();
+  static final onNotifications = BehaviorSubject<String?>();
 
   final android = const AndroidNotificationDetails(
     'my_app_channel',
     'my_app_channel',
-    channelDescription: 'channel description',
+    channelDescription: 'A Notification Channel for the TripTip App',
     importance: Importance.max,
     priority: Priority.high,
     ticker: 'ticker',
   );
 
-  Future checkInitialized(BuildContext context) async {
-    if (!_fcm.isAutoInitEnabled) {
-      await _fcm.setAutoInitEnabled(true);
+  void handleMessage(RemoteMessage? message) {
+    if (message == null) return;
+    debugPrint('Handling a foreground message ${message.messageId}');
+    if (message.data["goToDay"] != null) {
+      if (message.data["day"] == null) return;
+      if (message.data["trip"] == null) return;
+      BuildContext? context =  MyRouter.router.routerDelegate.navigatorKey.currentContext;
+      if (context == null) return;
+      context.go('/', extra: {"day": message.data["day"], "trip": message.data["trip"]});
     }
-    FirebaseMessaging.instance.onTokenRefresh.listen((fcmToken) async {
-      if (auth.currentUser != null) {
-        DocumentSnapshot doc = await firestore
-            .collection('users')
-            .doc(auth.currentUser!.uid)
-            .get();
-        if (doc.exists) {
-          await firestore
-              .collection('users')
-              .doc(auth.currentUser!.uid)
-              .update({'fcm_token': fcmToken});
-        }
-      }
-    }).onError((err) {
-      // Error getting token.
-    });
-    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) async {
-      print("onMessageOpenedApp: $message");
-      if (message.data["navigation"] == "/dashboard") {
-        GoRouter.of(context).go("/dashboard");
-      }
-    });
-    await enableLocalNotification();
   }
 
-  Future initialise() async {
+  Future initalize() async {
+    final prefs = await SharedPreferences.getInstance();
+    final bool userWantsPushNotifications =
+        prefs.getBool('userwantspushnotifications') ?? false;
+    if (userWantsPushNotifications) {
+      if (!_fcm.isAutoInitEnabled) {
+        await _fcm.setAutoInitEnabled(true);
+      }
+      FirebaseMessaging.instance.onTokenRefresh.listen((fcmToken) async {
+        if (auth.currentUser != null) {
+          DocumentSnapshot doc = await firestore
+              .collection('users')
+              .doc(auth.currentUser!.uid)
+              .get();
+          if (doc.exists) {
+            await firestore
+                .collection('users')
+                .doc(auth.currentUser!.uid)
+                .update({'fcm_token': fcmToken});
+          }
+        }
+      }).onError((err) {
+        // Error getting token.
+      });
+      FirebaseMessaging.instance.getInitialMessage().then(handleMessage);
+      FirebaseMessaging.onMessageOpenedApp.listen(handleMessage);
+      FirebaseMessaging.onBackgroundMessage(handelBackgroundMessage);
+      await enableLocalNotification();
+
+      onNotifications.stream.listen((String? payload) {
+        if (payload != null) {
+          final message = RemoteMessage.fromMap(jsonDecode(payload));
+          handleMessage(message);
+        }
+      });
+    }
+  }
+
+  Future<void> gantPushNotifications() async {
     if (await _fcm.isSupported()) {
-      print('FCM is supported');
+      debugPrint('FCM is supported');
     } else {
-      print('FCM is not supported');
+      debugPrint('FCM is not supported');
       return;
     }
     NotificationSettings settings = await _fcm.requestPermission(
@@ -89,7 +117,7 @@ class PushNotificationService {
         alert: true, badge: true, sound: true);
 
     final token = await _fcm.getToken();
-    print('FirebaseMessaging token: $token');
+    debugPrint('FirebaseMessaging token: $token');
     if (token != null && auth.currentUser != null) {
       DocumentSnapshot doc =
           await firestore.collection('users').doc(auth.currentUser!.uid).get();
@@ -100,11 +128,10 @@ class PushNotificationService {
             .update({'fcm_token': token});
       }
     }
-    if (token != null) {
-      FirebaseMessaging.onBackgroundMessage(handelBackgroundMessage);
 
-      await enableLocalNotification();
-    }
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setBool('userwantspushnotifications', true);
+    await enableLocalNotification();
   }
 
   Future<bool> checkIfNotificationIsEnabled() async {
@@ -120,7 +147,10 @@ class PushNotificationService {
         return (doc.data()! as Map<String, dynamic>)['fcm_token'] != null;
       }
     }
-    return false;
+    final prefs = await SharedPreferences.getInstance();
+    final bool userWantsPushNotifications =
+        prefs.getBool('userwantspushnotifications') ?? false;
+    return userWantsPushNotifications;
   }
 
   Future<void> disable() async {
@@ -137,6 +167,8 @@ class PushNotificationService {
     await _fcm.deleteToken();
     await _fcm.setAutoInitEnabled(false);
     await notificationsPlugin.cancelAll();
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setBool('userwantspushnotifications', false);
   }
 
   Future enableLocalNotification() async {
@@ -149,8 +181,12 @@ class PushNotificationService {
         playSound: true);
     const InitializationSettings initializationSettings =
         InitializationSettings(
-            android: AndroidInitializationSettings('@mipmap/ic_launcher'));       
-    await notificationsPlugin.initialize(initializationSettings);
+            android: AndroidInitializationSettings('@mipmap/ic_launcher'));
+    await notificationsPlugin.initialize(initializationSettings,
+        // this is the callback that is called when the user taps on a notification
+        onDidReceiveNotificationResponse: (payload) async {
+      onNotifications.add(payload.payload);
+    });
     await notificationsPlugin
         .resolvePlatformSpecificImplementation<
             AndroidFlutterLocalNotificationsPlugin>()
@@ -163,7 +199,8 @@ class PushNotificationService {
 
         if (notification != null) {
           notificationsPlugin.show(notification.hashCode, notification.title,
-              notification.body, platform);
+              notification.body, platform,
+              payload: jsonEncode(message.toMap()));
         }
       }
     });

@@ -60,9 +60,28 @@ class MyRouter {
               GoRoute(
                 name: 'home',
                 path: '/',
-                builder: (context, state) => DashBoard(
-                  key: state.pageKey,
-                ),
+                builder: (context, state) {
+                  if (state.extra != null &&
+                      state.extra is Map<String, String>) {
+                    Map<String, String> data =
+                        state.extra as Map<String, String>;
+                    if (data["day"] != null && data["trip"] != null) {
+                      return DashBoard(
+                        key: state.pageKey,
+                        showDay: data["day"] as String,
+                        showTrip: data["trip"] as String,
+                      );
+                    } else {
+                      return DashBoard(
+                        key: state.pageKey,
+                      );
+                    }
+                  } else {
+                    return DashBoard(
+                      key: state.pageKey,
+                    );
+                  }
+                },
                 redirect: (BuildContext context, GoRouterState state) {
                   FirebaseAuth auth = FirebaseAuth.instance;
                   if (auth.currentUser == null) {
@@ -129,21 +148,6 @@ class MyRouter {
           ),
         ],
       ),
-      GoRoute(
-          name: 'dashboardwithPath',
-          path: '/dashboard',
-          builder: (context, state) {
-            if (state.extra == null) {
-              return DashBoard(
-                key: state.pageKey,
-              );
-            }
-            final day = state.extra as String;
-            return DashBoard(
-              key: state.pageKey,
-              showDateViaLink: day,
-            );
-          }),
       GoRoute(
         name: 'loginOrRegister',
         path: '/loginorregister',

@@ -3,7 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:go_router/go_router.dart';
-import 'package:internet_praktikum/calendar.dart';
+import 'package:internet_praktikum/ui/widgets/dashboardWidgets/calendar.dart';
 import 'package:internet_praktikum/core/services/dashboardData.dart';
 import 'package:internet_praktikum/ui/widgets/bottom_sheet.dart';
 import 'package:internet_praktikum/ui/views/dashboard/scrollview.dart';
@@ -12,8 +12,9 @@ import 'package:internet_praktikum/ui/widgets/dashboardWidgets/createNewWidgetOn
 import 'package:internet_praktikum/ui/widgets/headerWidgets/topbar.dart';
 
 class DashBoard extends StatefulWidget {
-  final String? showDateViaLink;
-  const DashBoard({super.key, this.showDateViaLink});
+  final String? showDay;
+  final String? showTrip;
+  const DashBoard({super.key, this.showDay, this.showTrip});
   @override
   State<DashBoard> createState() => _DashBoardState();
 }
@@ -37,6 +38,7 @@ class _DashBoardState extends State<DashBoard> {
     super.initState();
     SchedulerBinding.instance.addPostFrameCallback((_) async {
       try {
+
         userdata = await DashBoardData.getUserData();
       } catch (e) {
         setState(() {
@@ -170,7 +172,10 @@ class _DashBoardState extends State<DashBoard> {
 
                   // here are all Scrollview Widgets loaded
                   return ScrollViewWidget(
-                      day: selectedDayReference!, userdata: userdata!, isEditable: dashboardIsEditable(),);
+                    day: selectedDayReference!,
+                    userdata: userdata!,
+                    isEditable: dashboardIsEditable(),
+                  );
                 })
               ]),
             ),

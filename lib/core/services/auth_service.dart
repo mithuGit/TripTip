@@ -36,7 +36,7 @@ Future<UserCredential> signInWithGoogle() async {
     }
     
   }
-  await PushNotificationService().initialise();
+  await PushNotificationService().gantPushNotifications();
   // finally, lets sign in the user
   return userCredential;
 }
@@ -66,7 +66,7 @@ Future<void> signInWithFacebook() async {
         'dateOfBirth': null
       });
     }
-    await PushNotificationService().initialise();
+    await PushNotificationService().gantPushNotifications();
   }
 
   await FirebaseAuth.instance.signInWithCredential(credential);
