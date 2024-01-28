@@ -15,6 +15,7 @@ import 'package:internet_praktikum/ui/widgets/mapWidgets/mapButton.dart';
 import 'package:internet_praktikum/ui/widgets/mapWidgets/mapcard.dart';
 import 'package:location/location.dart';
 
+// class for the map page so the user can see the map and the recommendations
 // ignore: must_be_immutable
 class MapPage extends StatefulWidget {
   Place? place;
@@ -115,6 +116,7 @@ class _MapPageState extends State<MapPage> {
     super.dispose();
   }
 
+// Swipe to change the place left and right
   void _swipe() {
     if (_pageController.page!.toInt() != previewCard) {
       previewCard = _pageController.page!.toInt();
@@ -123,6 +125,7 @@ class _MapPageState extends State<MapPage> {
     }
   }
 
+// Camera Positioning for the tapped place
   Future<void> goToTappedPlace() async {
     final GoogleMapController controller = await _googleMapController.future;
     markers = {};
@@ -145,6 +148,7 @@ class _MapPageState extends State<MapPage> {
         tilt: 45.0)));
   }
 
+// Live Tracking of the current location of the user
   void getCurrentLocation() async {
     bool serviceEnabled;
     PermissionStatus permissionGranted;
@@ -759,6 +763,7 @@ class _MapPageState extends State<MapPage> {
     );
   }
 
+// set the blue circle on the map for the recommendation
   void _setCircle(LatLng point) async {
     final GoogleMapController controller = await _googleMapController.future;
     controller.animateCamera(CameraUpdate.newCameraPosition(
@@ -775,6 +780,7 @@ class _MapPageState extends State<MapPage> {
     });
   }
 
+// set the markers on the map for the recommendation
   _setNearMarker(LatLng point, String name, List types) async {
     var counter = markerIdCounter++;
 
@@ -948,6 +954,7 @@ class _MapPageState extends State<MapPage> {
     });
   }
 
+// set the markers on the map for the  origin and destination
   void _addMarker(LatLng pos) async {
     if (origin == null || (origin != null && destination != null)) {
       // Origin is not set OR Origin/Destination are both set
@@ -988,6 +995,7 @@ class _MapPageState extends State<MapPage> {
     }
   }
 
+// method to show the nearby places
   _nearbyPlacesList(index) {
     return AnimatedBuilder(
       animation: _pageController,

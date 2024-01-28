@@ -4,6 +4,8 @@ import 'package:internet_praktikum/core/services/paymentsHandeler.dart';
 import 'package:internet_praktikum/ui/widgets/errorSnackbar.dart';
 import 'package:internet_praktikum/ui/widgets/finanzenWidgets/slidablebutton.dart';
 
+// class ,,You Owe" Container with the amount of money you owe to the user and the list of open refunds you have to pay
+// SlideButton is used to pay the user
 class ExpandableContainer extends StatefulWidget {
   final double sum;
   final EdgeInsetsGeometry? margin;
@@ -192,8 +194,10 @@ class _ExpandableContainerState extends State<ExpandableContainer> {
                 bottom: 5,
                 child: SlideButton(
                   onSubmit: () => PaymentsHandeler.payOpenRefundsPerUser(
-                      widget.currentUser.reference,
-                      widget.trip).onError((error, stackTrace) => ErrorSnackbar.showErrorSnackbar(context, error.toString())),
+                          widget.currentUser.reference, widget.trip)
+                      .onError((error, stackTrace) =>
+                          ErrorSnackbar.showErrorSnackbar(
+                              context, error.toString())),
                   buttonText: 'Slide to Pay',
                   margin: const EdgeInsets.only(bottom: 8),
                 ),

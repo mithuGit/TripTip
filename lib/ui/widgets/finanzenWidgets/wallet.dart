@@ -7,6 +7,7 @@ import 'package:internet_praktikum/ui/widgets/errorSnackbar.dart';
 import 'package:internet_praktikum/ui/widgets/finanzenWidgets/collectPayoutInformation.dart';
 import 'package:internet_praktikum/ui/widgets/my_button.dart';
 
+// class to display the wallet of the user
 class Wallet extends StatefulWidget {
   final DocumentReference user;
   const Wallet({required this.user, super.key});
@@ -17,6 +18,7 @@ class Wallet extends StatefulWidget {
 
 class _WalletState extends State<Wallet> {
   bool loading = false;
+  // Recharge the wallet of the user
   Future<void> recharge(DocumentSnapshot user, BuildContext context) async {
     try {
       await PaymentsHandeler.refund(user);
@@ -27,6 +29,7 @@ class _WalletState extends State<Wallet> {
     }
   }
 
+// Book the money from the wallet to the bank account of the user
   Future<void> bookToBankAccount(
       DocumentSnapshot user, BuildContext context) async {
     try {

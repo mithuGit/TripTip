@@ -10,6 +10,7 @@ import '../../../core/services/auth_service.dart';
 import '../../widgets/my_button.dart';
 import '../../widgets/inputfield_password_or_icon.dart';
 
+// Page to register a new user
 class RegisterPage extends StatefulWidget {
   final Function()? onTap;
 

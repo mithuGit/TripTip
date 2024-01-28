@@ -9,6 +9,7 @@ import 'package:internet_praktikum/ui/widgets/mapWidgets/smallButton.dart';
 import 'package:internet_praktikum/ui/widgets/my_button.dart';
 import 'package:internet_praktikum/ui/widgets/mapWidgets/createWidgetFromMapToDashboard.dart';
 
+// class to show the card with the information of the place, contact, address, availability, photos and reviews
 // ignore: must_be_immutable
 class MapCard extends StatefulWidget {
   final Place place;
@@ -33,6 +34,7 @@ class _MapCardState extends State<MapCard> {
   bool isPhotos = false;
   bool showBlankCard = false;
 
+// method to show the reviews of the place
   _showReview(review) {
     return Column(
       children: [
@@ -99,6 +101,7 @@ class _MapCardState extends State<MapCard> {
     );
   }
 
+// method to show the photos of the place
   showPhoto(List<PlacePhoto> photoElement) {
     if (photoElement.isEmpty) {
       showBlankCard = true;
@@ -483,8 +486,7 @@ class _MapCardState extends State<MapCard> {
                                           })
                                       ],
                                     )
-                                  : showPhoto(
-                                      widget.place.photosElements ))
+                                  : showPhoto(widget.place.photosElements))
                           : Container(),
                     ],
                   )

@@ -10,6 +10,7 @@ import 'package:internet_praktikum/ui/widgets/my_button.dart';
 import 'package:internet_praktikum/ui/widgets/inputfield_password_or_icon.dart';
 import '../../../core/services/auth_service.dart';
 
+// Page to login the user
 class LoginPage extends StatefulWidget {
   final Function()? onTap;
 
@@ -268,6 +269,7 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
+// BottomSheet to send email for reset password
   List<Widget> sendEmailforRestPassword(BuildContext context) {
     return [
       GestureDetector(
@@ -362,6 +364,7 @@ class _LoginPageState extends State<LoginPage> {
     ];
   }
 
+// check if email is valid
   bool isValidEmail(String email) {
     String emailRegex =
         r'^[\w-]+(\.[\w-]+)*@([a-z\d-]+(\.[a-z\d-]+)*?\.[a-z]{2,6}|(\d{1,3}\.){3}\d{1,3})$';
@@ -369,6 +372,7 @@ class _LoginPageState extends State<LoginPage> {
     return regex.hasMatch(email);
   }
 
+// reset password method to send email
   Future resetPassword(String email) async {
     try {
       await FirebaseAuth.instance.sendPasswordResetEmail(email: email.trim());
@@ -379,7 +383,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 }
 
-// Mit dieser Klasse kann man eine gestrichelte Linie zeichnen lassen
+// With this class you can draw a dashed line
 class DashedLinePainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
