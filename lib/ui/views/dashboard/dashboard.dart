@@ -44,10 +44,16 @@ class _DashBoardState extends State<DashBoard> {
         DateTime startDate =
             (selectedDaySnapshot.data()! as Map<String, dynamic>)["starttime"]
                 .toDate();
+        try {
+          DocumentSnapshot selectedTripSnapshot =
+              await FirebaseFirestore.instance.doc(widget.showTrip!).get();
+          if (!selectedTripSnapshot.exists) throw "Trip does not exist";
+        } catch (e) {
+          throw UserIsNotInTripException();
+        }        
         DocumentReference selectedTripReferenceP =
             FirebaseFirestore.instance.doc(widget.showTrip!);
 
-        
         Map<String, dynamic> userdataP = await DashBoardData.getUserData();
         setState(() {
           isLoading = false;
@@ -65,7 +71,15 @@ class _DashBoardState extends State<DashBoard> {
           selectedTripReference = selectedTripReferenceP;
         });
       }
-    } catch (e) {
+    } on UserIsNotInTripException catch (_) {
+      if (mounted) {
+        context.go("/changetrip");
+      }
+    } on UserHasNoSelectedTripException catch (_) {
+      if (mounted) {
+        context.go("/changetrip");
+      }
+    }  catch (e) {
       debugPrint(e.toString());
       setState(() {
         isLoading = false;

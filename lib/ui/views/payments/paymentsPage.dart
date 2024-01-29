@@ -13,7 +13,7 @@ import 'package:internet_praktikum/ui/widgets/paymentsWidgets/ExpansionTile.dart
 import 'package:internet_praktikum/ui/widgets/paymentsWidgets/wallet.dart';
 import 'package:internet_praktikum/ui/widgets/headerWidgets/topbar.dart';
 import 'package:internet_praktikum/ui/widgets/paymentsWidgets/createWidgetPreviewForDebts.dart';
-import '../../widgets/paymentsWidgets/extendablecontainer.dart';
+import '../../widgets/paymentsWidgets/openRefundsPerUser.dart';
 import 'package:rxdart/rxdart.dart';
 
 
@@ -187,8 +187,18 @@ class _FinanzenState extends State<Finanzen> {
                         if (openRefundsPerUser[key]!.isEmpty) {
                           continue;
                         }
-                        peopleYouOwe.add(ExpandableContainer(
+                        peopleYouOwe.add(OpenRefundsPerUser(
                           margin: const EdgeInsets.only(bottom: 8),
+                          onRefundPressed: (refund) {
+                            CustomBottomSheet.show(context,
+                                title: "Refund:",
+                                content: [
+                                  CreateDebts(
+                                      selectedTrip: selectedtrip!,
+                                      preview: refund,
+                                  )
+                            ]);
+                          },
                           me: currentUser!.reference,
                           currentUser: members.data!
                               .firstWhere((element) => element.id == key),

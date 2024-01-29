@@ -20,6 +20,7 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   void signUserOut() async {
+    await PushNotificationService().disable();
     await FirebaseAuth.instance.signOut();
     if (context.mounted) {
       GoRouter.of(context).go('/loginorregister');

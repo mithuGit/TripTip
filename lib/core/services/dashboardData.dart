@@ -4,6 +4,12 @@ import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
+class UserIsNotInTripException implements Exception {
+  String errMsg() => 'User is not in a trip';
+}
+class UserHasNoSelectedTripException implements Exception {
+  String errMsg() => 'User has no selected trip';
+}
 class DashBoardData {
   static final user = FirebaseAuth.instance.currentUser!;
 
@@ -23,15 +29,13 @@ class DashBoardData {
     final userCollection = FirebaseFirestore.instance.collection('users');
     final userDoc = await userCollection.doc(user.uid).get();
     Map<String, dynamic> _userData = userDoc.data() as Map<String, dynamic>;
-    if (_userData['selectedtrip'] == null) throw Exception('No trip selected');
+    if (_userData['selectedtrip'] == null) throw UserHasNoSelectedTripException();
 
     final tripId = _userData['selectedtrip'];
     try {
       await FirebaseFirestore.instance.collection('trips').doc(tripId).get();
     } catch (e) {
-      print('Trip does not exist anymore');
-      await userCollection.doc(user.uid).update({'selectedtrip': null});
-      throw Exception('Trip does not exist anymore');
+      throw UserIsNotInTripException();
     }
 
     final currentTrip =

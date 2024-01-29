@@ -45,6 +45,18 @@ class MyRouter {
   static final router = GoRouter(
     initialLocation: '/',
     navigatorKey: _rootNavigatorKey,
+    redirect: (context, state) {
+      FirebaseAuth auth = FirebaseAuth.instance;
+      
+      if (auth.currentUser == null || auth.currentUser!.isAnonymous) {
+        return '/loginorregister';
+      } else if (auth.currentUser != null && !auth.currentUser!.emailVerified) {
+        print(!auth.currentUser!.emailVerified);
+        return '/otp';
+      } else {
+        return null; // return "null" to display the intended route without redirecting
+      }
+    },
     routes: <RouteBase>[
       // HomePage Route
       StatefulShellRoute.indexedStack(
@@ -81,18 +93,6 @@ class MyRouter {
                     return DashBoard(
                       key: state.pageKey,
                     );
-                  }
-                },
-                redirect: (BuildContext context, GoRouterState state) {
-                  FirebaseAuth auth = FirebaseAuth.instance;
-                  if (auth.currentUser == null) {
-                    return '/loginorregister';
-                  } else if (auth.currentUser != null &&
-                      !auth.currentUser!.emailVerified) {
-                    print(!auth.currentUser!.emailVerified);
-                    return '/otp';
-                  } else {
-                    return null; // return "null" to display the intended route without redirecting
                   }
                 },
               ),

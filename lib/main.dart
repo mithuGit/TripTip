@@ -16,7 +16,18 @@ Future<void> main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-
+  // when ever the app is started, the user is reloaded
+  // if the user is not logged in, the user is null
+  if (FirebaseAuth.instance.currentUser != null) {
+    try {
+      await FirebaseAuth.instance.currentUser!.reload();
+    } catch (e) {
+      await FirebaseAuth.instance.signOut();
+      //await PushNotificationService().disable();
+    }
+    
+  }
+  
   runApp(const Main());
 }
 
@@ -32,6 +43,7 @@ class _MainState extends State<Main> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
+      
       await PushNotificationService().initalize();
     });
   }
