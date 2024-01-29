@@ -9,11 +9,21 @@ import 'package:internet_praktikum/core/services/paymentsHandeler.dart';
 import 'package:internet_praktikum/ui/widgets/bottom_sheet.dart';
 import 'package:internet_praktikum/ui/widgets/centerText.dart';
 import 'package:internet_praktikum/ui/widgets/errorSnackbar.dart';
-import 'package:internet_praktikum/ui/widgets/finanzenWidgets/ExpansionTile.dart';
-import 'package:internet_praktikum/ui/widgets/finanzenWidgets/wallet.dart';
+import 'package:internet_praktikum/ui/widgets/paymentsWidgets/ExpansionTile.dart';
+import 'package:internet_praktikum/ui/widgets/paymentsWidgets/wallet.dart';
 import 'package:internet_praktikum/ui/widgets/headerWidgets/topbar.dart';
-import 'package:internet_praktikum/ui/widgets/finanzenWidgets/createWidgetPreviewForDebts.dart';
-import '../../widgets/finanzenWidgets/extendablecontainer.dart';
+import 'package:internet_praktikum/ui/widgets/paymentsWidgets/createWidgetPreviewForDebts.dart';
+import '../../widgets/paymentsWidgets/extendablecontainer.dart';
+import 'package:rxdart/rxdart.dart';
+
+
+// for perfomance Reasons we combine the UserStream and the PaymentStream.
+// Otherwise the class would flicker every time the user changes something, or a new payment is added.
+class CombinedUserStreamAndPaymentStream {
+  final DocumentSnapshot user;
+  final QuerySnapshot payments;
+  CombinedUserStreamAndPaymentStream(this.user, this.payments);
+}
 
 /*
 This class is for seeing all the payments and requests of the user.
@@ -76,12 +86,13 @@ class _FinanzenState extends State<Finanzen> {
                 decoration: const BoxDecoration(
                   image: DecorationImage(
                     image: AssetImage('assets/background_beach.png'),
-                    fit: BoxFit.cover, // Maintain width, adjust height
+                    fit: BoxFit.cover,
                   ),
                 ),
               ),
             ),
           ),
+          // This FutureBuilder is for getting the groupmembers, we don't have to Listen on them
           FutureBuilder(
               future: getGroupmembers(),
               builder: (context, members) {
@@ -93,9 +104,21 @@ class _FinanzenState extends State<Finanzen> {
                   return const CenterText(
                       text: "Error while fetching Groupmembers");
                 }
-
-                return StreamBuilder<QuerySnapshot>(
-                    stream: selectedtrip!.collection("payments").snapshots(),
+                MergeStream([
+                  TimerStream(1, Duration(days: 10)),
+                  Stream.fromIterable([2])
+                ]);
+                MergeStream([
+                  currentUser!.reference.snapshots(),
+                  selectedtrip!.collection("payments").snapshots()
+                ]);
+                final combinedStream =  CombineLatestStream.combine2(
+                  currentUser!.reference.snapshots(),
+                  selectedtrip!.collection("payments").snapshots(),
+                  (a, b) => CombinedUserStreamAndPaymentStream(a, b),
+                );
+                return StreamBuilder<CombinedUserStreamAndPaymentStream>(
+                    stream: combinedStream,
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return const Center(child: CircularProgressIndicator());
@@ -105,7 +128,7 @@ class _FinanzenState extends State<Finanzen> {
                         return const CenterText(
                             text: "Error while fetching Payments");
                       }
-                      List<DocumentSnapshot> payments = snapshot.data!.docs;
+                      List<DocumentSnapshot> payments = snapshot.data!.payments.docs;
                       Map<String, List<Map<String, dynamic>>>
                           openRefundsPerUser = {};
                       Map<String, double> sumsPerUser = {};
@@ -177,8 +200,7 @@ class _FinanzenState extends State<Finanzen> {
 
                       List<Widget> yourRequests = [];
                       List<QueryDocumentSnapshot> myRequests = snapshot
-                          .data!.docs
-                          .where((el) => el.get("createdBy").id == user.uid)
+                          .data!.payments.docs.where((el) => el.get("createdBy").id == user.uid)
                           .toList();
 
                       // add for every Request a Widget
@@ -270,7 +292,7 @@ class _FinanzenState extends State<Finanzen> {
                                     top: 10, left: 15, right: 15, bottom: 10),
                                 sliver: SliverToBoxAdapter(
                                   child: Wallet(
-                                    user: currentUser!.reference,
+                                    userdata: snapshot.data!.user,
                                   ),
                                 )),
                             SliverPadding(

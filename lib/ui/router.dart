@@ -8,7 +8,7 @@ import 'package:internet_praktikum/ui/views/account/setInterestsPage.dart';
 import 'package:internet_praktikum/ui/views/dashboard/archive.dart';
 import 'package:internet_praktikum/ui/views/dashboard/readDiary.dart';
 import 'package:internet_praktikum/ui/views/dashboard/writeDiary.dart';
-import 'package:internet_praktikum/ui/views/finanzen/finazen.dart';
+import 'package:internet_praktikum/ui/views/payments/paymentsPage.dart';
 import 'package:internet_praktikum/ui/views/dashboard/dashboard.dart';
 import 'package:internet_praktikum/ui/views/map/map.dart';
 import 'package:internet_praktikum/ui/views/profile/info_page.dart';

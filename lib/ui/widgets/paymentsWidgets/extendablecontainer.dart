@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:internet_praktikum/core/services/paymentsHandeler.dart';
 import 'package:internet_praktikum/ui/widgets/errorSnackbar.dart';
-import 'package:internet_praktikum/ui/widgets/finanzenWidgets/slidablebutton.dart';
+import 'package:internet_praktikum/ui/widgets/paymentsWidgets/slidablebutton.dart';
 
 class ExpandableContainer extends StatefulWidget {
   final double sum;
