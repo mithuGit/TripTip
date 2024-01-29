@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:internet_praktikum/core/services/placeApiProvider.dart';
 import 'package:internet_praktikum/ui/styles/Styles.dart';
@@ -158,6 +159,9 @@ class _MapPageState extends State<MapPage> {
     if (!serviceEnabled) {
       serviceEnabled = await location!.requestService();
       if (!serviceEnabled) {
+        setState(() {
+          isLocationLoading = false;
+        });
         return;
       }
     }
@@ -166,6 +170,9 @@ class _MapPageState extends State<MapPage> {
     if (permissionGranted == PermissionStatus.denied) {
       permissionGranted = await location!.requestPermission();
       if (permissionGranted != PermissionStatus.granted) {
+        setState(() {
+          isLocationLoading = false;
+        });
         return;
       }
     }
@@ -210,6 +217,15 @@ class _MapPageState extends State<MapPage> {
     });
   }
 
+  locationOfVaction() async {
+    var controller = await _googleMapController.future;
+    controller.animateCamera(
+      infoDistanceAndDuration != null
+          ? CameraUpdate.newLatLngBounds(infoDistanceAndDuration!.bounds, 100.0)
+          : CameraUpdate.newCameraPosition(_initialCameraPosition!),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -228,36 +244,18 @@ class _MapPageState extends State<MapPage> {
           backgroundColor: Colors.transparent,
           leading: Column(
             children: [
-              if (isLocationLoading == true && currentLocationData == null) ...{
-                // Show CircularProgressIndicator only when data is not available
-                const Column(
-                  children: [
-                    SizedBox(height: 14),
-                    SizedBox(
-                      child: CircularProgressIndicator(
-                        strokeWidth: 3,
-                      ),
-                    )
-                  ],
-                ),
-              } else if (isLocationLoading == false ||
-                  currentLocationData != null) ...{
+              if (widget.place != null) ...{
                 Column(
                   children: [
                     IconButton(
-                      icon: const Icon(Icons.directions_outlined,
+                      icon: const Icon(Icons.arrow_back,
                           color: Colors.black, size: 30),
-                      onPressed: () async {
-                        setState(() {
-                          isLocationLoading = true;
-                          currentLocationData = null;
-                          isInitialCameraMove = true;
-                        });
-                        getCurrentLocation();
+                      onPressed: () {
+                        context.go('/');
                       },
                     ),
                     const Text(
-                      'Location',
+                      'Back',
                       style: TextStyle(
                         color: Colors.black,
                         fontSize: 12,
@@ -265,32 +263,128 @@ class _MapPageState extends State<MapPage> {
                     ),
                   ],
                 ),
+              } else ...{
+                if (isLocationLoading == true &&
+                    currentLocationData == null) ...{
+                  // Show CircularProgressIndicator only when data is not available
+                  const Column(
+                    children: [
+                      SizedBox(height: 14),
+                      SizedBox(
+                        child: CircularProgressIndicator(
+                          strokeWidth: 3,
+                        ),
+                      )
+                    ],
+                  ),
+                } else if (isLocationLoading == false ||
+                    currentLocationData != null) ...{
+                  Column(
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.directions_outlined,
+                            color: Colors.black, size: 30),
+                        onPressed: () async {
+                          setState(() {
+                            isLocationLoading = true;
+                            currentLocationData = null;
+                            isInitialCameraMove = true;
+                          });
+                          getCurrentLocation();
+                        },
+                      ),
+                      const Text(
+                        'Location',
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  ),
+                }
               }
             ],
           ),
           actions: [
             Column(
               children: [
-                IconButton(
-                  icon: const Icon(Icons.center_focus_strong),
-                  onPressed: () async {
-                    var controller = await _googleMapController.future;
-                    controller.animateCamera(
-                      infoDistanceAndDuration != null
-                          ? CameraUpdate.newLatLngBounds(
-                              infoDistanceAndDuration!.bounds, 100.0)
-                          : CameraUpdate.newCameraPosition(
-                              _initialCameraPosition!),
-                    );
-                  },
-                ),
-                Text(
-                  infoDistanceAndDuration != null
-                      ? 'Zoom to route'
-                      : 'Vacation',
-                  style: const TextStyle(
-                      color: Colors.black, fontFamily: 'Ubuntu', fontSize: 12),
-                ),
+                if (widget.place == null) ...{
+                  IconButton(
+                    icon: const Icon(Icons.center_focus_strong),
+                    onPressed: () async {
+                      locationOfVaction();
+                    },
+                  ),
+                  Text(
+                    infoDistanceAndDuration != null
+                        ? 'Zoom to route'
+                        : 'Vacation',
+                    style: const TextStyle(
+                        color: Colors.black,
+                        fontFamily: 'Ubuntu',
+                        fontSize: 12),
+                  ),
+                } else ...{
+                  if (isLocationLoading == true &&
+                      currentLocationData == null) ...{
+                    // Show CircularProgressIndicator only when data is not available
+                    const Column(
+                      children: [
+                        SizedBox(height: 14),
+                        SizedBox(
+                          child: CircularProgressIndicator(
+                            strokeWidth: 3,
+                          ),
+                        ),
+                      ],
+                    ),
+                  } else if (isLocationLoading == false ||
+                      currentLocationData != null) ...{
+                    Column(
+                      children: [
+                        PopupMenuButton(
+                          icon: const Icon(Icons.menu),
+                          onSelected: (value) => {
+                            switch (value) {
+                              "currentLocation" => {
+                                  setState(() {
+                                    isLocationLoading = true;
+                                    currentLocationData = null;
+                                    isInitialCameraMove = true;
+                                  }),
+                                  getCurrentLocation(),
+                                },
+                              "vacationLocation" => locationOfVaction(),
+                              _ => (),
+                            }
+                          },
+                          itemBuilder: (BuildContext context) {
+                            return [
+                              const PopupMenuItem(
+                                value: "currentLocation",
+                                child: Text("Current Location"),
+                              ),
+                              PopupMenuItem(
+                                value: "vacationLocation",
+                                child: infoDistanceAndDuration != null
+                                    ? const Text("Location of Path")
+                                    : const Text("Location of Vacation"),
+                              )
+                            ];
+                          },
+                        ),
+                        const Text(
+                          'Location',
+                          style: TextStyle(
+                              color: Colors.black,
+                              fontFamily: 'Ubuntu',
+                              fontSize: 12),
+                        ),
+                      ],
+                    ),
+                  }
+                }
               ],
             ),
             const SizedBox(width: 3),
@@ -344,10 +438,12 @@ class _MapPageState extends State<MapPage> {
                     onLongPress: _addMarker,
                     circles: _circles,
                     onTap: (point) {
-                      tappedPointInCircle = point;
-                      _setCircle(point);
-                      markers = {};
-                      pressToGetRecommend = false;
+                      if (widget.place == null) {
+                        tappedPointInCircle = point;
+                        _setCircle(point);
+                        markers = {};
+                        pressToGetRecommend = false;
+                      }
                     },
                   ),
                 ),
