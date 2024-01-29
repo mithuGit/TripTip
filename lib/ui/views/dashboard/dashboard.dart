@@ -26,27 +26,62 @@ class _DashBoardState extends State<DashBoard> {
   bool hasErrorWhileLoadingUser = false;
   bool hasErrorWhileLoadingDay = false;
 
-  Error? errorWhileLoadingUser;
-  Error? errorWhileLoadingDay;
+  String? errorWhileLoadingUser;
+  String? errorWhileLoadingDay;
 
   Map<String, dynamic>? userdata;
   DocumentReference? selectedDayReference;
+  DocumentReference? selectedTripReference;
+
+  Future<void> loadData() async {
+    try {
+      if (widget.showDay != null && widget.showTrip != null) {
+        DocumentReference selectedDayReferenceP =
+            FirebaseFirestore.instance.doc(widget.showDay!);
+        DocumentSnapshot selectedDaySnapshot =
+            await selectedDayReferenceP.get();
+        if (!selectedDaySnapshot.exists) throw "Day does not exist";
+        DateTime startDate =
+            (selectedDaySnapshot.data()! as Map<String, dynamic>)["starttime"]
+                .toDate();
+        DocumentReference selectedTripReferenceP =
+            FirebaseFirestore.instance.doc(widget.showTrip!);
+
+        
+        Map<String, dynamic> userdataP = await DashBoardData.getUserData();
+        setState(() {
+          isLoading = false;
+          selectedDay = startDate;
+          selectedDayReference = selectedDayReferenceP;
+          selectedTripReference = selectedTripReferenceP;
+          userdata = userdataP;
+        });
+      } else {
+        Map<String, dynamic> userdataP = await DashBoardData.getUserData();
+        DocumentReference selectedTripReferenceP =
+            await DashBoardData.getCurrentTrip();
+        setState(() {
+          userdata = userdataP;
+          selectedTripReference = selectedTripReferenceP;
+        });
+      }
+    } catch (e) {
+      debugPrint(e.toString());
+      setState(() {
+        isLoading = false;
+        hasErrorWhileLoadingUser = true;
+        errorWhileLoadingUser = e.toString();
+      });
+    }
+  }
 
   // After the DashBoard is loaded, the userdata is loaded
   @override
   void initState() {
     super.initState();
+    //  loadData();
     SchedulerBinding.instance.addPostFrameCallback((_) async {
-      try {
-
-        userdata = await DashBoardData.getUserData();
-      } catch (e) {
-        setState(() {
-          isLoading = false;
-          hasErrorWhileLoadingUser = true;
-          errorWhileLoadingUser = e as Error;
-        });
-      }
+      await loadData();
     });
   }
 
@@ -58,8 +93,8 @@ class _DashBoardState extends State<DashBoard> {
       });
     }
     try {
-      selectedDayReference =
-          await DashBoardData.getCurrentDaySubCollection(selectedDayParam);
+      selectedDayReference = await DashBoardData.getCurrentDaySubCollection(
+          selectedDayParam, selectedTripReference!);
       setState(() {
         isLoading = false;
         selectedDay = selectedDayParam;
@@ -68,13 +103,14 @@ class _DashBoardState extends State<DashBoard> {
       setState(() {
         isLoading = false;
         hasErrorWhileLoadingDay = true;
-        errorWhileLoadingDay = e as Error;
+        errorWhileLoadingDay = e.toString();
       });
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    // loadData();
     return Scaffold(
       appBar: TopBar(
           isDash: true,
@@ -150,24 +186,29 @@ class _DashBoardState extends State<DashBoard> {
             child: Padding(
               padding: const EdgeInsets.only(bottom: 65),
               child: Column(children: [
-                Calendar(onDateSelected: (date) {
-                  changeDay(date);
-                }),
+                if (selectedTripReference != null) ...[
+                  Calendar(
+                      selectedTrip: selectedTripReference!,
+                      initSelectedDate: selectedDay,
+                      onDateSelected: (date) {
+                        changeDay(date);
+                      }),
+                ],
                 Builder(builder: (context) {
                   if (isLoading) {
                     return const Center(
                       child: CircularProgressIndicator(),
                     );
                   }
-                  if (hasErrorWhileLoadingDay) {
-                    return CenterText(
-                        text:
-                            "An error occured while loading Daydata data: ${errorWhileLoadingDay!.toString()}");
-                  }
                   if (hasErrorWhileLoadingUser) {
                     return CenterText(
                         text:
-                            "An error occured while loading User data: ${errorWhileLoadingUser!.toString()}");
+                            "An error occured while loading User data: ${errorWhileLoadingUser!}");
+                  }
+                  if (hasErrorWhileLoadingDay) {
+                    return CenterText(
+                        text:
+                            "An error occured while loading Daydata data: ${errorWhileLoadingDay!}");
                   }
 
                   // here are all Scrollview Widgets loaded

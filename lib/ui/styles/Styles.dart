@@ -79,12 +79,12 @@ class Styles {
       color: Colors.black);
   static const buttonStyle = TextStyle(
       fontFamily: 'fonts/Ubuntu-Regular.ttf',
-      fontSize: 18,
+      fontSize: 16,
       fontWeight: FontWeight.w400,
       color: Colors.white);
   static const buttonStyleRed = TextStyle(
       fontFamily: 'fonts/Ubuntu-Regular.ttf',
-      fontSize: 18,
+      fontSize: 16,
       fontWeight: FontWeight.w400,
       color: Colors.red);
   static const characterStyle = TextStyle(

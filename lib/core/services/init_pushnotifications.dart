@@ -18,7 +18,6 @@ import 'package:rxdart/rxdart.dart';
 Future handelBackgroundMessage(RemoteMessage message) async {
   await Firebase.initializeApp();
   debugPrint('Handling a background message ${message.messageId}');
-  debugPrint('Handling a background message ${message.data}');
 }
 
 class PushNotificationService {
@@ -29,6 +28,8 @@ class PushNotificationService {
       FlutterLocalNotificationsPlugin();
   static final onNotifications = BehaviorSubject<String?>();
 
+  // Every Andoird local Nottifcation must have a channel
+
   final android = const AndroidNotificationDetails(
     'my_app_channel',
     'my_app_channel',
@@ -38,19 +39,38 @@ class PushNotificationService {
     ticker: 'ticker',
   );
 
+   final AndroidNotificationChannel channel =  const AndroidNotificationChannel(
+        'my_app_channel', 'my_app_channel',
+        description: 'This channel is used for important notifications.',
+        importance: Importance.defaultImportance,
+        showBadge: true,
+        enableVibration: true,
+        playSound: true);
+  // This Function is called when a User clicks on a Notification
+
   void handleMessage(RemoteMessage? message) {
     if (message == null) return;
     debugPrint('Handling a foreground message ${message.messageId}');
     if (message.data["goToDay"] != null) {
       if (message.data["day"] == null) return;
       if (message.data["trip"] == null) return;
-      BuildContext? context =  MyRouter.router.routerDelegate.navigatorKey.currentContext;
+      BuildContext? context =
+          MyRouter.router.routerDelegate.navigatorKey.currentContext;
+      //MyRouter.rootNavigatorDashboard.currentState?.popUntil((route) => route.isFirst);
       if (context == null) return;
-      context.go('/', extra: {"day": message.data["day"], "trip": message.data["trip"]});
+      context.push('/',
+          extra: {"day": message.data["day"], "trip": message.data["trip"]});
     }
   }
 
+  // This Function is called when the App is started
   Future initalize() async {
+    if (await _fcm.isSupported()) {
+      debugPrint('FCM is supported and will be initalized');
+    } else {
+      debugPrint('FCM is not supported');
+      return;
+    }
     final prefs = await SharedPreferences.getInstance();
     final bool userWantsPushNotifications =
         prefs.getBool('userwantspushnotifications') ?? false;
@@ -69,6 +89,7 @@ class PushNotificationService {
                 .collection('users')
                 .doc(auth.currentUser!.uid)
                 .update({'fcm_token': fcmToken});
+            debugPrint('FirebaseMessaging token: $fcmToken');    
           }
         }
       }).onError((err) {
@@ -87,6 +108,7 @@ class PushNotificationService {
       });
     }
   }
+  // This Function is called when the User wants to enable Push Notifications
 
   Future<void> gantPushNotifications() async {
     if (await _fcm.isSupported()) {
@@ -109,7 +131,7 @@ class PushNotificationService {
     } else {
       var status = await Permission.notification.status;
       if (status.isDenied || status.isPermanentlyDenied) {
-        openAppSettings();
+        return;
       }
       return;
     }
@@ -131,8 +153,9 @@ class PushNotificationService {
 
     final prefs = await SharedPreferences.getInstance();
     prefs.setBool('userwantspushnotifications', true);
-    await enableLocalNotification();
+    await initalize();
   }
+  // This Function is called on the Settings Page to check if the User has enabled Push Notifications
 
   Future<bool> checkIfNotificationIsEnabled() async {
     print("checkIfNotificationIsEnabled");
@@ -140,17 +163,24 @@ class PushNotificationService {
     if (status.isDenied || status.isPermanentlyDenied) {
       return false;
     }
-    if (auth.currentUser != null) {
-      DocumentSnapshot doc =
-          await firestore.collection('users').doc(auth.currentUser!.uid).get();
-      if (doc.exists) {
-        return (doc.data()! as Map<String, dynamic>)['fcm_token'] != null;
-      }
-    }
     final prefs = await SharedPreferences.getInstance();
     final bool userWantsPushNotifications =
         prefs.getBool('userwantspushnotifications') ?? false;
-    return userWantsPushNotifications;
+    if (!userWantsPushNotifications) {
+      if (auth.currentUser != null) {
+        DocumentSnapshot doc = await firestore
+            .collection('users')
+            .doc(auth.currentUser!.uid)
+            .get();
+        if (doc.exists) {
+          return (doc.data()! as Map<String, dynamic>)['fcm_token'] != null;
+        }
+        
+      }
+      return false;
+    } else {
+      return true;
+    }
   }
 
   Future<void> disable() async {
@@ -172,13 +202,6 @@ class PushNotificationService {
   }
 
   Future enableLocalNotification() async {
-    const AndroidNotificationChannel channel = AndroidNotificationChannel(
-        'my_app_channel', 'my_app_channel',
-        description: 'This channel is used for important notifications.',
-        importance: Importance.high,
-        showBadge: true,
-        enableVibration: true,
-        playSound: true);
     const InitializationSettings initializationSettings =
         InitializationSettings(
             android: AndroidInitializationSettings('@mipmap/ic_launcher'));

@@ -9,8 +9,14 @@ import 'package:intl/intl.dart';
 
 class Calendar extends StatefulWidget {
   final Function(DateTime) onDateSelected;
-  
-  const Calendar({Key? key, required this.onDateSelected}) : super(key: key);
+  final DateTime? initSelectedDate;
+  final DocumentReference selectedTrip;
+  const Calendar(
+      {Key? key,
+      required this.onDateSelected,
+      this.initSelectedDate,
+      required this.selectedTrip})
+      : super(key: key);
 
   @override
   State<Calendar> createState() => _CalendarState();
@@ -42,8 +48,21 @@ class _CalendarState extends State<Calendar> {
     if (await _checkSelectedTrip()) {
       return;
     }
-    endDate = await DateService.getEndDate();
-    startDate = await DateService.getStartDate();
+    StartEndDate startEndDate =
+        await DateService.getStartEndDate(widget.selectedTrip);
+    endDate = startEndDate.endDate;
+    startDate = startEndDate.startDate;
+
+    if (widget.initSelectedDate != null) {
+      setState(() {
+        selectedDate = widget.initSelectedDate;
+        firstDate = widget.initSelectedDate!.add(const Duration(days: 1));
+        lastDate = widget.initSelectedDate!.subtract(const Duration(days: 1));
+      });
+      widget.onDateSelected(selectedDate!);
+      return;
+    }
+
     if (DateTime.now().isBefore(startDate!)) {
       // Hole Startdatum aus Firebase und initialisiere selectedDate, firstDate und lastDate
       setState(() {
@@ -92,11 +111,8 @@ class _CalendarState extends State<Calendar> {
 
   void _setNewDateRange(DateTime? newStart, DateTime? newEnd) async {
     if (newStart != null && newEnd != null) {
-      final String selectedTripDoc = await DateService.getSelectedTripId();
-      final DocumentReference<Map<String, dynamic>> documentReference =
-          FirebaseFirestore.instance.collection('trips').doc(selectedTripDoc);
       try {
-        await documentReference.update({
+        await widget.selectedTrip.update({
           'startdate': newStart,
           'enddate': newEnd,
         });
@@ -207,16 +223,14 @@ class _CalendarState extends State<Calendar> {
               Positioned(
                 left: 10,
                 bottom: 7,
-                child: GestureDetector(
-                  onTap: _goToLatestDate,
-                  child: const Padding(
-                    padding: EdgeInsets.all(8.0),
-                    child: Icon(
-                      Icons.today,
-                      size: 32.5,
-                      color: Colors.black,
-                    ),
+                child: IconButton(
+                  onPressed: _goToLatestDate,
+                  icon: const Icon(
+                    Icons.today,
+                    size: 30.0,
+                    color: Colors.black,
                   ),
+                  tooltip: 'go to trip Start',
                 ),
               ),
               Row(
@@ -278,7 +292,7 @@ class _CalendarState extends State<Calendar> {
                     size: 30.0,
                     color: Colors.black,
                   ),
-                  tooltip: 'Zeitintervall auswählen',
+                  tooltip: 'Change Date Range',
                 ),
               ),
             ],
@@ -293,6 +307,9 @@ class _CalendarState extends State<Calendar> {
     DateTime today = DateTime.now();
     DateTime tomorrow = DateTime.now().add(const Duration(days: 1));
     DateTime yesterday = DateTime.now().subtract(const Duration(days: 1));
+    today = DateTime(today.year, today.month, today.day);
+    tomorrow = DateTime(tomorrow.year, tomorrow.month, tomorrow.day);
+    yesterday = DateTime(yesterday.year, yesterday.month, yesterday.day);
 
     return Container(
       width: selected ? 101 : 92.8,

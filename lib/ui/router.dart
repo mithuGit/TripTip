@@ -31,7 +31,7 @@ class MyRouter {
 
   // Private NavigatorKey
   static final _rootNavigatorKey = GlobalKey<NavigatorState>();
-  static final _rootNavigatorDashboard =
+  static final rootNavigatorDashboard =
       GlobalKey<NavigatorState>(debugLabel: 'shellDashboard');
   static final _rootNavigatorFinazen =
       GlobalKey<NavigatorState>(debugLabel: 'shellFinazen');
@@ -55,16 +55,17 @@ class MyRouter {
         },
         branches: <StatefulShellBranch>[
           StatefulShellBranch(
-            navigatorKey: _rootNavigatorDashboard,
+            navigatorKey: rootNavigatorDashboard,
             routes: [
               GoRoute(
                 name: 'home',
                 path: '/',
                 builder: (context, state) {
-                  if (state.extra != null &&
-                      state.extra is Map<String, String>) {
-                    Map<String, String> data =
-                        state.extra as Map<String, String>;
+                  if (state.extra != null) {
+                    Map<String, dynamic> data =
+                        state.extra as Map<String, dynamic>;
+
+                    debugPrint(data.toString());
                     if (data["day"] != null && data["trip"] != null) {
                       return DashBoard(
                         key: state.pageKey,

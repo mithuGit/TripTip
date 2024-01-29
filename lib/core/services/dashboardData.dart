@@ -6,6 +6,19 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 class DashBoardData {
   static final user = FirebaseAuth.instance.currentUser!;
+
+  static Future<DocumentReference> getCurrentTrip() async {
+    final userCollection = FirebaseFirestore.instance.collection('users');
+    final userDoc = await userCollection.doc(user.uid).get();
+    if (userDoc.data()?['selectedtrip'] == null)
+      throw Exception('No trip selected');
+
+    final tripId = userDoc.data()?['selectedtrip'];
+    final currentTrip =
+        FirebaseFirestore.instance.collection('trips').doc(tripId);
+    return currentTrip;
+  }
+
   static Future<Map<String, dynamic>> getUserData() async {
     final userCollection = FirebaseFirestore.instance.collection('users');
     final userDoc = await userCollection.doc(user.uid).get();
@@ -30,23 +43,16 @@ class DashBoardData {
 
   // A function that returns the current day for the Widget list and also saves it in the currentDay variable for later use
   static Future<DocumentReference> getCurrentDaySubCollection(
-      DateTime selectedDay) async {
-    final userCollection = FirebaseFirestore.instance.collection('users');
-    final userDoc = await userCollection.doc(user.uid).get();
-    if (userDoc.data()?['selectedtrip'] == null)
-      throw Exception('No trip selected');
-
-    final tripId = userDoc.data()?['selectedtrip'];
-    final currentTrip =
-        FirebaseFirestore.instance.collection('trips').doc(tripId);
-    Map<String, dynamic> currentTripdata = (await currentTrip.get()).data()!;
+      DateTime selectedDay, DocumentReference selectedTripReference) async {
+    
+    Map<String, dynamic> currentTripdata = (await selectedTripReference.get()).data()! as Map<String, dynamic>;
     final DateTime tripStart = currentTripdata['startdate'].toDate();
     final DateTime tripEnd = currentTripdata['enddate'].toDate();
     // issue: that the day doesnt starts at 0:00, thats why we need to filter the day
     final filteredDay = Timestamp.fromDate(DateTime(
         selectedDay.year, selectedDay.month, selectedDay.day, 0, 0, 0));
 
-    QuerySnapshot currentDay = await currentTrip
+    QuerySnapshot currentDay = await selectedTripReference
         .collection("days")
         .where("starttime", isEqualTo: filteredDay)
         .get();
@@ -55,7 +61,7 @@ class DashBoardData {
       // every Day has a starttime, active and archive
       // the first widget is the diary, wiche is always active and cant be deleted
       DateTime diaryTime = await calculateDiaryTime(selectedDay);
-      DocumentReference day = await currentTrip.collection("days").add({
+      DocumentReference day = await selectedTripReference.collection("days").add({
         'starttime': filteredDay,
         'active': {},
         'archive': {},
@@ -75,7 +81,7 @@ class DashBoardData {
             'worker': 'WriteDiaryNotification',
             'options': {
               'day': day,
-              'trip': currentTrip,
+              'trip': selectedTripReference,
             },
           });
         }
@@ -100,7 +106,8 @@ class DashBoardData {
       return day;
     } else {
       DocumentReference day = currentDay.docs.first.reference;
-      if (selectedDay.isAfter(tripStart) && selectedDay.isBefore(tripEnd)) {
+      final tripEndPlusDay = tripEnd.add(const Duration(days: 1));
+      if (selectedDay.isAfter(tripStart) && selectedDay.isBefore(tripEndPlusDay)) {
         Map<String, dynamic> active =
             ((await day.get()).data()! as Map<String, dynamic>)["active"];
         if (active["diary"] == null) {
@@ -117,7 +124,7 @@ class DashBoardData {
               'worker': 'WriteDiaryNotification',
               'options': {
                 'day': day,
-                'trip': currentTrip,
+                'trip': selectedTripReference,
               },
             });
           }

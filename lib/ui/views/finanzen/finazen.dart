@@ -267,7 +267,7 @@ class _FinanzenState extends State<Finanzen> {
                           slivers: [
                             SliverPadding(
                                 padding: const EdgeInsets.only(
-                                    top: 10, left: 20, right: 20, bottom: 10),
+                                    top: 10, left: 15, right: 15, bottom: 10),
                                 sliver: SliverToBoxAdapter(
                                   child: Wallet(
                                     user: currentUser!.reference,
@@ -275,7 +275,7 @@ class _FinanzenState extends State<Finanzen> {
                                 )),
                             SliverPadding(
                               padding: const EdgeInsets.only(
-                                  top: 10, left: 20, right: 20, bottom: 10),
+                                  top: 10, left: 15, right: 15, bottom: 10),
                               sliver: SliverToBoxAdapter(
                                 child: ExpansionTileWidget(
                                   title: "Your Requests",
@@ -285,7 +285,7 @@ class _FinanzenState extends State<Finanzen> {
                             ),
                             SliverPadding(
                               padding: const EdgeInsets.only(
-                                  top: 10, left: 20, right: 20, bottom: 10),
+                                  top: 10, left: 15, right: 15, bottom: 10),
                               sliver: SliverToBoxAdapter(
                                 child: ExpansionTileWidget(
                                   title: "You Owe",

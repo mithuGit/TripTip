@@ -72,139 +72,141 @@ class _ProfilePageState extends State<ProfilePage> {
       appBar: const TopBar(
         title: "Profile",
       ),
-      body: Stack(
-        children: [
-          Container(
-              decoration: const BoxDecoration(
-                image: DecorationImage(
-                  image: AssetImage(
-                      'assets/background_forest.png'), // assets/BackgroundCity.png
-                  fit: BoxFit.cover,
-                ),
+      body: Container(
+          padding: const EdgeInsets.only(bottom: 65),
+          decoration: const BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage(
+                  'assets/background_forest.png'), // assets/BackgroundCity.png
+              fit: BoxFit.cover,
+            ),
+          ),
+          child: ListView(
+            children: [
+              CircleAvatar(
+                radius: 37.5,
+                backgroundImage: imageProvider,
               ),
-              child: Column(
+              const SizedBox(height: 10),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  CircleAvatar(
-                    radius: 37.5,
-                    backgroundImage: imageProvider,
-                  ),
-                  const SizedBox(height: 10),
                   Text('Welcome ${user.displayName}',
-                      style: const TextStyle(
-                          fontSize: 20, fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 15),
-                  SizedBox(
-                      width: 200,
-                      child: ElevatedButton(
-                          onPressed: () {
-                            context.pushReplacement("/accountdetails/true");
-                          },
-                          style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.grey[300],
-                              side: BorderSide.none,
-                              shape: const StadiumBorder()),
-                          child: const Text('Edit Profile',
-                              style: TextStyle(color: Colors.black)))),
-                  const SizedBox(height: 15),
-                  Center(
+                      style:
+                          const TextStyle(fontSize: 20, fontFamily: 'Ubuntu'))
+                ],
+              ),
+              const SizedBox(height: 15),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 100),
+                child: ElevatedButton(
+                    onPressed: () {
+                      context.pushReplacement("/accountdetails/true");
+                    },
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.grey[300],
+                        side: BorderSide.none,
+                        shape: const StadiumBorder()),
+                    child: const Text('Edit your Profile',
+                        style: TextStyle(color: Colors.black, fontFamily: 'Ubuntu'))),
+              ),
+              const SizedBox(height: 10),
+              Center(
+                child: Padding(
+                  padding:
+                      const EdgeInsets.only(left: 14, right: 14, bottom: 45),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: const Color.fromARGB(255, 43, 43, 43)
+                          .withOpacity(0.90),
+                      borderRadius: BorderRadius.circular(34.5),
+                    ),
                     child: Padding(
-                      padding: const EdgeInsets.only(
-                          left: 14, right: 14, bottom: 45),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: const Color.fromARGB(255, 43, 43, 43)
-                              .withOpacity(0.90),
-                          borderRadius: BorderRadius.circular(34.5),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(22),
-                          child: SingleChildScrollView(
-                            child: Column(
-                              children: [
-                                ProfileButton(
-                                  title: "Information",
-                                  icon: Icons.info,
-                                  textcolor: Colors.white,
-                                  onTap: () => context.go("/info"),
-                                ),
-                                FutureBuilder(
-                                    future: PushNotificationService()
-                                        .checkIfNotificationIsEnabled(),
-                                    builder: (context, snapshot) {
-                                      if (snapshot.connectionState ==
-                                          ConnectionState.waiting) {
-                                        return const Center(
-                                          child: CircularProgressIndicator(),
-                                        );
-                                      }
-                                      if (snapshot.hasError) {
-                                        return const Center(
-                                          child: Text('An error occured!'),
-                                        );
-                                      }
-                                      return ProfileButton(
-                                        title: snapshot.data!
-                                            ? "Disable PushNotifications"
-                                            : "Enable PushNotifications",
-                                        icon: Icons.notifications,
-                                        textcolor: Colors.white,
-                                        onTap: () async {
-                                          if (snapshot.data!) {
-                                            await PushNotificationService()
-                                                .disable();
-                                          } else {
-                                            var status = await Permission
-                                                .notification.status;
-                                            if (status.isDenied ||
-                                                status.isPermanentlyDenied) {
-                                              await _openSettings();
-                                            } else {
-                                              await PushNotificationService()
-                                                  .gantPushNotifications();
-                                            }
-                                          }
-                                          setState(() {});
-                                        },
-                                      );
-                                    }),
-                                ProfileButton(
-                                  title: "Your Interests",
-                                  icon: Icons.stars,
-                                  textcolor: Colors.white,
-                                  onTap: () =>
-                                      context.go('/setinterests/false'),
-                                ),
-                                ProfileButton(
-                                  title: "Game: Choose a Loser ",
-                                  icon: Icons.games, // so Game Icon wär gut
-                                  textcolor: Colors.purpleAccent,
-                                  onTap: () {
-                                    context.pushNamed("gameChooser");
-                                  },
-                                ),
-                                ProfileButton(
-                                  title: "Logout",
-                                  icon: Icons.logout,
-                                  textcolor: Colors.red,
-                                  onTap: signUserOut,
-                                ),
-                                ProfileButton(
-                                  title: "Delete Account",
-                                  icon: Icons.delete,
-                                  textcolor: Colors.red,
-                                  onTap: deleteUser,
-                                ),
-                              ],
+                      padding: const EdgeInsets.all(22),
+                      child: SingleChildScrollView(
+                        child: Column(
+                          children: [
+                            ProfileButton(
+                              title: "Information",
+                              icon: Icons.info,
+                              textcolor: Colors.white,
+                              onTap: () => context.go("/info"),
                             ),
-                          ),
+                            FutureBuilder(
+                                future: PushNotificationService()
+                                    .checkIfNotificationIsEnabled(),
+                                builder: (context, snapshot) {
+                                  if (snapshot.connectionState ==
+                                      ConnectionState.waiting) {
+                                    return const Center(
+                                      child: CircularProgressIndicator(),
+                                    );
+                                  }
+                                  if (snapshot.hasError) {
+                                    return const Center(
+                                      child: Text('An error occured!'),
+                                    );
+                                  }
+                                  return ProfileButton(
+                                    title: snapshot.data!
+                                        ? "Disable PushNotifications"
+                                        : "Enable PushNotifications",
+                                    icon: Icons.notifications,
+                                    textcolor: Colors.white,
+                                    onTap: () async {
+                                      if (snapshot.data!) {
+                                        await PushNotificationService()
+                                            .disable();
+                                      } else {
+                                        var status = await Permission
+                                            .notification.status;
+                                        if (status.isDenied ||
+                                            status.isPermanentlyDenied) {
+                                          await _openSettings();
+                                        } else {
+                                          await PushNotificationService()
+                                              .gantPushNotifications();
+                                        }
+                                      }
+                                      setState(() {});
+                                    },
+                                  );
+                                }),
+                            ProfileButton(
+                              title: "Your Interests",
+                              icon: Icons.stars,
+                              textcolor: Colors.white,
+                              onTap: () => context.go('/setinterests/false'),
+                            ),
+                            ProfileButton(
+                              title: "Game: Choose a Loser ",
+                              icon: Icons.games, // so Game Icon wär gut
+                              textcolor: Colors.purpleAccent,
+                              onTap: () {
+                                context.pushNamed("gameChooser");
+                              },
+                            ),
+                            ProfileButton(
+                              title: "Logout",
+                              icon: Icons.logout,
+                              textcolor: Colors.red,
+                              onTap: signUserOut,
+                            ),
+                            ProfileButton(
+                              title: "Delete Account",
+                              icon: Icons.delete,
+                              textcolor: Colors.red,
+                              onTap: deleteUser,
+                            ),
+                          ],
                         ),
                       ),
                     ),
                   ),
-                ],
-              )),
-        ],
-      ),
+                ),
+              ),
+            ],
+          )),
     );
   }
 
