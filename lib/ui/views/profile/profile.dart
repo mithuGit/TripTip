@@ -42,9 +42,6 @@ class _ProfilePageState extends State<ProfilePage> {
       Map<String, dynamic> data = Map<String, dynamic>.from(callable.data);
 
       if (data['success']) {
-        await FirebaseStorage.instance
-            .ref('profilePictures/${FirebaseAuth.instance.currentUser!.uid}')
-            .delete();
         if (context.mounted) {
           GoRouter.of(context).go('/loginorregister');
         }
@@ -208,12 +205,15 @@ class _ProfilePageState extends State<ProfilePage> {
                               textcolor: Colors.red,
                               onTap: signUserOut,
                             ),
+                            if(!isDeleting)
                             ProfileButton(
                               title: "Delete Account",
                               icon: Icons.delete,
                               textcolor: Colors.red,
                               onTap: deleteUser,
                             ),
+                            if(isDeleting)
+                            const Center(child: CircularProgressIndicator(),)
                           ],
                         ),
                       ),
