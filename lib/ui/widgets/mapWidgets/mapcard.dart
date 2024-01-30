@@ -119,10 +119,10 @@ class _MapCardState extends State<MapCard> {
     } else {
       return Column(
         children: [
-          const SizedBox(height: 20.0),
+          const SizedBox(height: 10.0),
           SizedBox(
-            height: 270.0,
-            width: 275.0,
+            height: MediaQuery.of(context).size.height * 0.3,
+            width: MediaQuery.of(context).size.width * 0.6,
             child: PageView.builder(
               scrollDirection: Axis.vertical,
               itemCount: photoElement.length,
@@ -138,8 +138,8 @@ class _MapCardState extends State<MapCard> {
                 return Column(
                   children: [
                     Container(
-                      height: 250.0,
-                      width: 250.0,
+                      height: MediaQuery.of(context).size.height * 0.3,
+                      width: MediaQuery.of(context).size.width * 0.6,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(10),
                         border: Border.all(
@@ -150,8 +150,6 @@ class _MapCardState extends State<MapCard> {
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(10),
                         child: SizedBox(
-                          height: 250.0,
-                          width: 250.0,
                           child: Image(
                             image: photoElement[index].imageProvider,
                             fit: BoxFit.cover,
@@ -178,6 +176,7 @@ class _MapCardState extends State<MapCard> {
               },
             ),
           ),
+          const SizedBox(height: 10.0),
           Text(
             "${widget.photoGalleryIndex + 1}/${photoElement.length}",
             style: const TextStyle(
@@ -205,8 +204,10 @@ class _MapCardState extends State<MapCard> {
       front: AnimatedContainer(
         duration: const Duration(milliseconds: 500),
         curve: Curves.easeInOut,
-        height: widget.isExpanded ? 500.0 : 125.0,
-        width: 325.0,
+        height: widget.isExpanded
+            ? MediaQuery.of(context).size.height * 0.5
+            : 125.0,
+        width: MediaQuery.of(context).size.width * 0.8,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(34.5),
           color: const Color.fromARGB(255, 43, 43, 43).withOpacity(0.90),
@@ -437,7 +438,9 @@ class _MapCardState extends State<MapCard> {
       back: AnimatedContainer(
         duration: const Duration(milliseconds: 500),
         curve: Curves.easeInOut,
-        height: widget.isExpanded ? 500.0 : 125.0,
+        height: widget.isExpanded
+            ? MediaQuery.of(context).size.height * 0.5
+            : 125.0,
         width: 325.0,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(34.5),
