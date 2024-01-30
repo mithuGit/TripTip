@@ -290,6 +290,7 @@ class AddSurveyWidgetToDashboardState
               Expanded(
                   flex: 2,
                   child: InputField(
+                    readOnly: widget.place != null,
                     controller: (selectedOption as SelectedQuestion).question,
                     hintText: widget.place == null
                         ? "Question or Answer you can add"
