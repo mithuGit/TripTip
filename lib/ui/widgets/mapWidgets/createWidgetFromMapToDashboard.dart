@@ -222,6 +222,7 @@ class _CreateWidgetFromMapToDashboardState
   Future<Container> getDateRangeCupertiono(Size size) async {
     StartEndDate startEndDate =
         await DateService.getStartEndDate(await DashBoardData.getCurrentTrip());
+
     return Container(
       decoration: const BoxDecoration(
         color: Colors.white,
@@ -243,11 +244,10 @@ class _CreateWidgetFromMapToDashboardState
                     // Führen Sie die asynchrone Arbeit außerhalb von setState durch
                     DateTime? newSelectedDate;
                     if (selectedDate == null) {
-                      newSelectedDate = (await DateService.getStartDate())
+                      newSelectedDate = (await DateService.getStartEndDate(await DashBoardData.getCurrentTrip())).startDate
                               .isAfter(DateTime.now())
-                          ? await DateService.getStartDate()
+                          ? (await DateService.getStartEndDate(await DashBoardData.getCurrentTrip())).startDate
                           : DateTime.now();
-
                       await getDayReference(newSelectedDate);
                       setState(() {
                         selectedDate = newSelectedDate;
@@ -265,16 +265,10 @@ class _CreateWidgetFromMapToDashboardState
             child: SizedBox(
               height: size.height * 0.25,
               child: CupertinoDatePicker(
-                minimumDate: (startEndDate.startDate).isAfter(DateTime.now())
+              minimumDate: (startEndDate.startDate).isAfter(DateTime.now())
                     ? startEndDate.startDate
                     : DateTime.now(),
                 maximumDate: startEndDate.endDate,
-                initialDateTime:
-                    (await DateService.getStartDate()).isAfter(DateTime.now())
-                        ? await DateService.getStartDate()
-                        : DateTime.now(),
-                minimumDate: await DateService.getStartDate(),
-                maximumDate: await DateService.getEndDate(),
                 mode: CupertinoDatePickerMode.date,
                 onDateTimeChanged: (value) {
                   setState(() {
