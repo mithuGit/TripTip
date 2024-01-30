@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -89,8 +87,7 @@ class _ProfilePageState extends State<ProfilePage> {
           padding: const EdgeInsets.only(bottom: 65),
           decoration: const BoxDecoration(
             image: DecorationImage(
-              image: AssetImage(
-                  'assets/background_forest.png'), 
+              image: AssetImage('assets/background_forest.png'),
               fit: BoxFit.cover,
             ),
           ),
@@ -130,6 +127,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   padding:
                       const EdgeInsets.only(left: 14, right: 14, bottom: 45),
                   child: Container(
+                    height: (MediaQuery.of(context).size.height - 65) * 0.6,
                     decoration: BoxDecoration(
                       color: const Color.fromARGB(255, 43, 43, 43)
                           .withOpacity(0.90),
@@ -206,15 +204,17 @@ class _ProfilePageState extends State<ProfilePage> {
                               textcolor: Colors.red,
                               onTap: signUserOut,
                             ),
-                            if(!isDeleting)
-                            ProfileButton(
-                              title: "Delete Account",
-                              icon: Icons.delete,
-                              textcolor: Colors.red,
-                              onTap: deleteUser,
-                            ),
-                            if(isDeleting)
-                            const Center(child: CircularProgressIndicator(),)
+                            if (!isDeleting)
+                              ProfileButton(
+                                title: "Delete Account",
+                                icon: Icons.delete,
+                                textcolor: Colors.red,
+                                onTap: deleteUser,
+                              ),
+                            if (isDeleting)
+                              const Center(
+                                child: CircularProgressIndicator(),
+                              )
                           ],
                         ),
                       ),
