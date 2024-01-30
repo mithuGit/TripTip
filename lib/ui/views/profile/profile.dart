@@ -42,6 +42,7 @@ class _ProfilePageState extends State<ProfilePage> {
       Map<String, dynamic> data = Map<String, dynamic>.from(callable.data);
 
       if (data['success']) {
+        await FirebaseAuth.instance.signOut();
         if (context.mounted) {
           GoRouter.of(context).go('/loginorregister');
         }
@@ -89,7 +90,7 @@ class _ProfilePageState extends State<ProfilePage> {
           decoration: const BoxDecoration(
             image: DecorationImage(
               image: AssetImage(
-                  'assets/background_forest.png'), // assets/BackgroundCity.png
+                  'assets/background_forest.png'), 
               fit: BoxFit.cover,
             ),
           ),

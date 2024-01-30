@@ -16,7 +16,9 @@ String getLastname() {
     return '';
   }
   String displayName = FirebaseAuth.instance.currentUser!.displayName!;
-  return displayName.split(' ').removeAt(0);
+  List<String> name = displayName.split(' ');
+  name.removeAt(0);
+  return name.join(' ');
 }
 
 // Google Sign In
