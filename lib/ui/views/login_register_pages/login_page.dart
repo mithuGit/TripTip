@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:internet_praktikum/core/services/init_pushnotifications.dart';
 import 'package:internet_praktikum/ui/widgets/container.dart';
 import 'package:internet_praktikum/ui/widgets/errorSnackbar.dart';
 import 'package:internet_praktikum/ui/widgets/inputfield.dart';
@@ -38,6 +39,7 @@ class _LoginPageState extends State<LoginPage> {
         email: emailController.text,
         password: passwordController.text,
       );
+      await PushNotificationService().gantPushNotifications();
       if (context.mounted) {
         context.go("/");
       }
@@ -161,37 +163,41 @@ class _LoginPageState extends State<LoginPage> {
                     const SizedBox(height: 30),
                     MyButton(
                       onTap: () async {
-                        await signInWithGoogle();
-                        bool isDateOfBirth = true;
+                        try {
+                          await signInWithGoogle();
+                          bool isDateOfBirth = true;
 
-                        // testen ob DateOfBirth == null, dann soll AccountDetails aufgerufen werden
-                        FirebaseAuth.instance
-                            .authStateChanges()
-                            .listen((user) async {
-                          if (user != null) {
-                            DocumentSnapshot documentSnapshot =
-                                await FirebaseFirestore.instance
-                                    .collection('users')
-                                    .doc(user.uid)
-                                    .get();
+                          // testen ob DateOfBirth == null, dann soll AccountDetails aufgerufen werden
+                          FirebaseAuth.instance
+                              .authStateChanges()
+                              .listen((user) async {
+                            if (user != null) {
+                              DocumentSnapshot documentSnapshot =
+                                  await FirebaseFirestore.instance
+                                      .collection('users')
+                                      .doc(user.uid)
+                                      .get();
 
-                            if (documentSnapshot.exists) {
-                              if ((documentSnapshot.data()
-                                      as Map<String, dynamic>)['dateOfBirth'] ==
-                                  null) {
-                                isDateOfBirth = false;
+                              if (documentSnapshot.exists) {
+                                if ((documentSnapshot.data() as Map<String,
+                                        dynamic>)['dateOfBirth'] ==
+                                    null) {
+                                  isDateOfBirth = false;
+                                }
                               }
                             }
-                          }
 
-                          if (isDateOfBirth == false) {
-                            if (context.mounted) {
-                              context.go('/accountdetails/:isEditProfile');
+                            if (isDateOfBirth == false) {
+                              if (context.mounted) {
+                                context.go('/accountdetails/:isEditProfile');
+                              }
+                            } else {
+                              if (context.mounted) context.go('/');
                             }
-                          } else {
-                            if (context.mounted) context.go('/');
-                          }
-                        });
+                          });
+                        } catch (e) {
+                          if(context.mounted) ErrorSnackbar.showMessage(e.toString(),context, counter);
+                        }
                       },
                       imagePath: 'assets/google_logo.png',
                       text: "Login with Google",

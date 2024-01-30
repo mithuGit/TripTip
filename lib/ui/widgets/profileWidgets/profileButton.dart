@@ -26,14 +26,14 @@ class ProfileButton extends StatelessWidget {
     ).createShader(const Rect.fromLTWH(0.0, 0.0, 200.0, 70.0));
 
     return Container(
-      margin: const EdgeInsets.only(top: 10, bottom: 10),
+      margin: const EdgeInsets.only(top: 5, bottom: 5),
       child: OutlinedButton(
         onPressed: onTap,
         style: OutlinedButton.styleFrom(
           backgroundColor: backgroundColor ??
               const Color.fromARGB(255, 43, 43, 43).withOpacity(0.90),
           foregroundColor: textcolor,
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(14),
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(11)),
           side: const BorderSide(
@@ -55,7 +55,7 @@ class ProfileButton extends StatelessWidget {
                         ? Text(
                             title,
                             style: TextStyle(
-                                fontSize: 18,
+                                fontSize: 15,
                                 fontWeight: FontWeight.w400,
                                 foreground: Paint()..shader = linearGradient),
                           )
@@ -64,7 +64,7 @@ class ProfileButton extends StatelessWidget {
                             : Text(title,
                                 style: TextStyle(
                                     fontFamily: 'fonts/Ubuntu-Regular.ttf',
-                                    fontSize: 18,
+                                    fontSize: 15,
                                     fontWeight: FontWeight.w400,
                                     color: textcolor)),
               ],

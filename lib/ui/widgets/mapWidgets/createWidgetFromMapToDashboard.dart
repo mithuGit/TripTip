@@ -197,6 +197,8 @@ class _CreateWidgetFromMapToDashboardState
 
     if (userDoc.exists) {
       final String tripId = userDoc.data()!['selectedtrip'].toString();
+      final DocumentReference selectedTripDoc =
+          FirebaseFirestore.instance.collection('trips').doc(tripId);
 
       final QuerySnapshot<Map<String, dynamic>> doc = await FirebaseFirestore
           .instance
@@ -209,7 +211,7 @@ class _CreateWidgetFromMapToDashboardState
       if (doc.docs.isNotEmpty) {
         day = doc.docs.first.reference;
       } else {
-        DashBoardData.getCurrentDaySubCollection(selectedDate);
+        DashBoardData.getCurrentDaySubCollection(selectedDate, selectedTripDoc);
       }
     } else {
       ErrorSnackbar.showErrorSnackbar(context, "No user found for this trip");
@@ -218,6 +220,9 @@ class _CreateWidgetFromMapToDashboardState
 
   // Die Funktion, die den Container asynchron erstellt
   Future<Container> getDateRangeCupertiono(Size size) async {
+    StartEndDate startEndDate =
+        await DateService.getStartEndDate(await DashBoardData.getCurrentTrip());
+
     return Container(
       decoration: const BoxDecoration(
         color: Colors.white,
@@ -239,11 +244,10 @@ class _CreateWidgetFromMapToDashboardState
                     // Führen Sie die asynchrone Arbeit außerhalb von setState durch
                     DateTime? newSelectedDate;
                     if (selectedDate == null) {
-                      newSelectedDate = (await DateService.getStartDate())
+                      newSelectedDate = (await DateService.getStartEndDate(await DashBoardData.getCurrentTrip())).startDate
                               .isAfter(DateTime.now())
-                          ? await DateService.getStartDate()
+                          ? (await DateService.getStartEndDate(await DashBoardData.getCurrentTrip())).startDate
                           : DateTime.now();
-
                       await getDayReference(newSelectedDate);
                       setState(() {
                         selectedDate = newSelectedDate;
@@ -261,12 +265,10 @@ class _CreateWidgetFromMapToDashboardState
             child: SizedBox(
               height: size.height * 0.25,
               child: CupertinoDatePicker(
-                initialDateTime:
-                    (await DateService.getStartDate()).isAfter(DateTime.now())
-                        ? await DateService.getStartDate()
-                        : DateTime.now(),
-                minimumDate: await DateService.getStartDate(),
-                maximumDate: await DateService.getEndDate(),
+              minimumDate: (startEndDate.startDate).isAfter(DateTime.now())
+                    ? startEndDate.startDate
+                    : DateTime.now(),
+                maximumDate: startEndDate.endDate,
                 mode: CupertinoDatePickerMode.date,
                 onDateTimeChanged: (value) {
                   setState(() {

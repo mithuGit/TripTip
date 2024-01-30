@@ -6,7 +6,6 @@ import 'package:internet_praktikum/core/services/JobworkerService.dart';
 import 'package:internet_praktikum/core/services/updateWidgetListeners.dart';
 import 'package:internet_praktikum/ui/styles/Styles.dart';
 import 'package:internet_praktikum/ui/widgets/dashboardWidgets/mainDasboardinitializer.dart';
-import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:internet_praktikum/ui/widgets/listSlidAble.dart';
 
 // This class is used to display the widgets on the dashboard
@@ -56,6 +55,8 @@ class ScrollViewWidget extends StatelessWidget {
                     userdata["profilePicture"];
                 localbufferArray[i]["prename"] = userdata["prename"];
                 localbufferArray[i]["lastname"] = userdata["lastname"];
+              } else {
+                localbufferArray[i]["prename"] = "Deleted User";
               }
             }
           }
@@ -114,7 +115,7 @@ class ScrollViewWidget extends StatelessWidget {
                 buildDefaultDragHandles: true,
                 scrollDirection: Axis.vertical,
                 shrinkWrap: true,
-                padding: const EdgeInsets.symmetric(horizontal: 23),
+                padding: const EdgeInsets.symmetric(horizontal: 15),
                 proxyDecorator: proxyDecorator,
                 // whe the user stops dragging, the order of the widgets is updated
                 onReorder: (int oldIndex, int newIndex) {

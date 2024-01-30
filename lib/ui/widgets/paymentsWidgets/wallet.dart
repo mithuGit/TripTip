@@ -4,13 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:internet_praktikum/core/services/paymentsHandeler.dart';
 import 'package:internet_praktikum/ui/widgets/bottom_sheet.dart';
 import 'package:internet_praktikum/ui/widgets/errorSnackbar.dart';
-import 'package:internet_praktikum/ui/widgets/finanzenWidgets/collectPayoutInformation.dart';
+import 'package:internet_praktikum/ui/widgets/paymentsWidgets/collectPayoutInformation.dart';
 import 'package:internet_praktikum/ui/widgets/my_button.dart';
 
 // class to display the wallet of the user
 class Wallet extends StatefulWidget {
-  final DocumentReference user;
-  const Wallet({required this.user, super.key});
+  final DocumentSnapshot userdata;
+  const Wallet({required this.userdata, super.key});
 
   @override
   State<Wallet> createState() => _WalletState();
@@ -52,28 +52,13 @@ class _WalletState extends State<Wallet> {
           borderRadius: BorderRadius.circular(34.5),
           color: const Color(0xE51E1E1E)),
       padding: const EdgeInsets.all(20),
-      child: StreamBuilder<DocumentSnapshot>(
-          stream: widget.user.snapshots(),
+      child: LayoutBuilder(
+
           builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(
-                child: CircularProgressIndicator(),
-              );
-            }
-            if (snapshot.hasError) {
-              return const Center(
-                child: Text("Error while collecting Wallet Data"),
-              );
-            }
             double balance = 0.0;
-            try {
-              balance =
-                  (snapshot.data!.data() as Map<String, dynamic>)["balance"] *
-                      1.0;
-            } catch (e) {
-              if (kDebugMode) {
-                print(e);
-              }
+            Map<String, dynamic> userObj =  widget.userdata.data() as Map<String, dynamic>;
+            if(userObj.containsKey("balance")) {
+              balance = userObj["balance"] * 1.0;
             }
             return Column(
               //    crossAxisAlignment: CrossAxisAlignment.start,
@@ -99,15 +84,7 @@ class _WalletState extends State<Wallet> {
                         fontWeight: FontWeight.bold,
                         fontFamily: "Ubuntu"),
                     textAlign: TextAlign.left,
-                  ),
-                  const Text(
-                    "nothing to do here!",
-                    style: TextStyle(
-                        fontSize: 15,
-                        color: Colors.white,
-                        fontWeight: FontWeight.normal,
-                        fontFamily: "Ubuntu"),
-                  ),
+                  )
                 ] else
                   Text(
                     //    "${(balance).toStringAsFixed(2)} €",
@@ -135,7 +112,7 @@ class _WalletState extends State<Wallet> {
                           setState(() {
                             loading = true;
                           });
-                          await recharge(snapshot.data!, context);
+                          await recharge(widget.userdata, context);
                           setState(() {
                             loading = false;
                           });
@@ -147,7 +124,7 @@ class _WalletState extends State<Wallet> {
                           setState(() {
                             loading = true;
                           });
-                          await bookToBankAccount(snapshot.data!, context);
+                          await bookToBankAccount(widget.userdata, context);
                           setState(() {
                             loading = false;
                           });

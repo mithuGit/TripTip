@@ -6,6 +6,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class JobworkerService {
   static var firestore = FirebaseFirestore.instance;
+  // every Worker is linked to a appointment
   static Future<DocumentReference> generateAppointmentWorker(
       DateTime selectedDate,
       DocumentReference day,
@@ -16,7 +17,6 @@ class JobworkerService {
       "worker": "AppoinmentNotification",
       "performAt": selectedDate,
       "status": "pending",
-      "active" : true,
       "options": {
         "day": day,
         "widgetCreatedBy": createdBy,
@@ -26,6 +26,7 @@ class JobworkerService {
     });
   }
 
+  // This Function is used to create a new Diary Worker, that converts a Diary to a dedicated Widget
   static Future<DocumentReference> generateSurveyConvertionWorker(
       DateTime deadline,
       DocumentReference day,
@@ -37,7 +38,6 @@ class JobworkerService {
       "worker": "SurveyConvertion",
       "performAt": deadline,
       "status": "pending",
-      "active" : true,
       "options": {
         "day": day,
         "widgetCreatedBy": createdBy,
@@ -47,6 +47,7 @@ class JobworkerService {
       }
     });
   }
+  // 15 min before the survey ends, a notification will be sent
   static Future<DocumentReference> generateLastChanceSurveryWorker(
       DateTime deadline,
       DocumentReference day,
@@ -58,7 +59,6 @@ class JobworkerService {
       "worker": "LastChanceSurvey",
       "performAt": deadline,
       "status": "pending",
-      "active" : true,
       "options": {
         "day": day,
         "widgetCreatedBy": createdBy,
@@ -68,10 +68,24 @@ class JobworkerService {
       }
     });
   }
-
+  // This Function is used to delete all workers of a widget
   static Future<void> deleteAllWorkers(List<DocumentReference> workers) async {
     for (var worker in workers) {
-      await worker.update({"active": false});
+      DocumentSnapshot workerSnap = await worker.get();
+      if (workerSnap.exists) {
+        await worker.update({
+          "status": "archived",});
+      }
+    }
+  }
+  // this function is used to reactivate all workers
+  static Future<void> reactivateAllWorkers(List<DocumentReference> workers) async {
+    for (var worker in workers) {
+      DocumentSnapshot workerSnap = await worker.get();
+      if (workerSnap.exists) {
+        await worker.update({
+          "status": "pending",});
+      }
     }
   }
 }

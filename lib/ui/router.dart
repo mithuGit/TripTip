@@ -8,7 +8,7 @@ import 'package:internet_praktikum/ui/views/account/setInterestsPage.dart';
 import 'package:internet_praktikum/ui/views/dashboard/archive.dart';
 import 'package:internet_praktikum/ui/views/dashboard/readDiary.dart';
 import 'package:internet_praktikum/ui/views/dashboard/writeDiary.dart';
-import 'package:internet_praktikum/ui/views/finanzen/finazen.dart';
+import 'package:internet_praktikum/ui/views/payments/paymentsPage.dart';
 import 'package:internet_praktikum/ui/views/dashboard/dashboard.dart';
 import 'package:internet_praktikum/ui/views/map/map.dart';
 import 'package:internet_praktikum/ui/views/profile/info_page.dart';
@@ -31,7 +31,7 @@ class MyRouter {
 
   // Private NavigatorKey
   static final _rootNavigatorKey = GlobalKey<NavigatorState>();
-  static final _rootNavigatorDashboard =
+  static final rootNavigatorDashboard =
       GlobalKey<NavigatorState>(debugLabel: 'shellDashboard');
   static final _rootNavigatorFinazen =
       GlobalKey<NavigatorState>(debugLabel: 'shellFinazen');
@@ -45,6 +45,18 @@ class MyRouter {
   static final router = GoRouter(
     initialLocation: '/',
     navigatorKey: _rootNavigatorKey,
+    redirect: (context, state) {
+      FirebaseAuth auth = FirebaseAuth.instance;
+      
+      if (auth.currentUser == null || auth.currentUser!.isAnonymous) {
+        return '/loginorregister';
+      } else if (auth.currentUser != null && !auth.currentUser!.emailVerified) {
+        print(!auth.currentUser!.emailVerified);
+        return '/otp';
+      } else {
+        return null; // return "null" to display the intended route without redirecting
+      }
+    },
     routes: <RouteBase>[
       // HomePage Route
       StatefulShellRoute.indexedStack(
@@ -55,24 +67,32 @@ class MyRouter {
         },
         branches: <StatefulShellBranch>[
           StatefulShellBranch(
-            navigatorKey: _rootNavigatorDashboard,
+            navigatorKey: rootNavigatorDashboard,
             routes: [
               GoRoute(
                 name: 'home',
                 path: '/',
-                builder: (context, state) => DashBoard(
-                  key: state.pageKey,
-                ),
-                redirect: (BuildContext context, GoRouterState state) {
-                  FirebaseAuth auth = FirebaseAuth.instance;
-                  if (auth.currentUser == null) {
-                    return '/loginorregister';
-                  } else if (auth.currentUser != null &&
-                      !auth.currentUser!.emailVerified) {
-                    print(!auth.currentUser!.emailVerified);
-                    return '/otp';
+                builder: (context, state) {
+                  if (state.extra != null) {
+                    Map<String, dynamic> data =
+                        state.extra as Map<String, dynamic>;
+
+                    debugPrint(data.toString());
+                    if (data["day"] != null && data["trip"] != null) {
+                      return DashBoard(
+                        key: state.pageKey,
+                        showDay: data["day"] as String,
+                        showTrip: data["trip"] as String,
+                      );
+                    } else {
+                      return DashBoard(
+                        key: state.pageKey,
+                      );
+                    }
                   } else {
-                    return null; // return "null" to display the intended route without redirecting
+                    return DashBoard(
+                      key: state.pageKey,
+                    );
                   }
                 },
               ),
@@ -129,21 +149,6 @@ class MyRouter {
           ),
         ],
       ),
-      GoRoute(
-          name: 'dashboardwithPath',
-          path: '/dashboard',
-          builder: (context, state) {
-            if (state.extra == null) {
-              return DashBoard(
-                key: state.pageKey,
-              );
-            }
-            final day = state.extra as String;
-            return DashBoard(
-              key: state.pageKey,
-              showDateViaLink: day,
-            );
-          }),
       GoRoute(
         name: 'loginOrRegister',
         path: '/loginorregister',

@@ -7,6 +7,18 @@ class User {
   String lastname;
   ImageProvider profileImage;
   User(this.prename, this.lastname, this.profileImage);
+
+  @override
+  operator == (Object other) {
+    if (identical(this, other)) return true;
+
+    return other is User &&
+        other.prename == prename &&
+        other.lastname == lastname &&
+        other.profileImage == profileImage;
+  }
+  @override
+  int get hashCode => prename.hashCode ^ lastname.hashCode ^ profileImage.hashCode;
 }
 
 class UsernameBagageCreateTrip extends StatefulWidget {
@@ -56,17 +68,18 @@ class _UsernameBagageCreateTripState extends State<UsernameBagageCreateTrip> {
         child: FutureBuilder<User>(
             future: _getNames(),
             builder: (BuildContext context, AsyncSnapshot<User> snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Text('Loading...');
-              }
               if (snapshot.hasError) {
                 return const Text(
                     'Something went wrong while fetching the user');
               }
-              User user = User("Maximilian", "Laue",
+              User user = User("Max", "Musterman",
                   const AssetImage('assets/Personavatar.png'));
               if (snapshot.hasData) {
-                user = snapshot.data!;
+                if (snapshot.data != null) {
+                  if(user != snapshot.data) {
+                    user = snapshot.data!;
+                  }
+                }
               }
 
               List<Widget> children = [

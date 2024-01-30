@@ -9,16 +9,28 @@ import 'package:internet_praktikum/ui/widgets/inputfield.dart';
 import 'package:internet_praktikum/ui/widgets/my_button.dart';
 
 // ignore: must_be_immutable
-class JoinTrip extends StatelessWidget {
-  JoinTrip({super.key});
+class JoinTrip extends StatefulWidget {
+  const JoinTrip({super.key});
+
+  @override
+  State<JoinTrip> createState() => _JoinTripState();
+}
+
+class _JoinTripState extends State<JoinTrip> {
+  bool isLoading = false;
   final CollectionReference trips =
       FirebaseFirestore.instance.collection('trips');
+
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   final groupController = TextEditingController();
+
   FirebaseFunctions functions = FirebaseFunctions.instance;
 
   Future<void> joinTrip(BuildContext context) async {
+    setState(() {
+      isLoading = true;
+    });
     final self = _auth.currentUser?.uid;
 
     final dir = groupController.text;
@@ -56,38 +68,48 @@ class JoinTrip extends StatelessWidget {
                         top: 200, left: 14, right: 14, bottom: 230),
                     child:
                         CustomContainer(title: "Join your Friends", children: [
-                      InputField(
-                          margin: const EdgeInsets.only(top: 15, bottom: 10),
-                          controller: groupController,
-                          hintText: "Trip ID",
-                          obscureText: false),
-                      MyButton(
-                          margin: const EdgeInsets.only(bottom: 10),
-                          onTap: () async {
-                            if (groupController.text.isEmpty) {
-                              ErrorSnackbar.showErrorSnackbar(
-                                  context, "Please enter a Trip ID");
-                              return;
-                            }
-                            try {
-                              await joinTrip(context);
-                              if (context.mounted) {
-                                context.go("/changetrip");
-                              }
-                            } catch (e) {
-                              if (context.mounted) {
+                      if (!isLoading) ...[
+                        InputField(
+                            margin: const EdgeInsets.only(top: 15, bottom: 10),
+                            controller: groupController,
+                            hintText: "Trip ID",
+                            obscureText: false),
+                        MyButton(
+                            margin: const EdgeInsets.only(bottom: 10),
+                            onTap: () async {
+                              if (groupController.text.isEmpty) {
                                 ErrorSnackbar.showErrorSnackbar(
-                                    context, e.toString());
+                                    context, "Please enter a Trip ID");
+                                return;
                               }
-                            }
-                          },
-                          text: "Next"),
-                      MyButton(
-                          margin: const EdgeInsets.only(bottom: 10),
-                          onTap: () {
-                            context.pop();
-                          },
-                          text: "Cancel")
+                              try {
+                                await joinTrip(context);
+                                if (context.mounted) {
+                                  context.go("/changetrip");
+                                }
+                              } catch (e) {
+                                if (context.mounted) {
+                                  ErrorSnackbar.showErrorSnackbar(
+                                      context, e.toString());
+                                }
+                              }
+                              setState(() {
+                                isLoading = false;
+                              });
+                            },
+                            text: "Next"),
+                        MyButton(
+                            margin: const EdgeInsets.only(bottom: 10),
+                            onTap: () {
+                              context.pop();
+                            },
+                            text: "Cancel")
+                      ] else ...[
+                        const Center(
+                            child: CircularProgressIndicator(
+                          color: Colors.white,
+                        ))
+                      ]
                     ])),
               )),
         ])));

@@ -66,12 +66,7 @@ class Place {
           widthPx: photo["heightPx"],
         );
       }).toList();
-  PlacePhoto get firstImage {
-    if (photosElements.first == null) {
-      return PlacePhotoAsset();
-    }
-    return photosElements.first;
-  } //TODO: check if first Photo is null => was soll dann passieren?
+  PlacePhoto get firstImage => photosElements.first;  //TODO: check if first Photo is null => was soll dann passieren?
   Place(
       {required this.name,
       required this.types,

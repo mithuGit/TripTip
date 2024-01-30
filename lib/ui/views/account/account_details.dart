@@ -47,6 +47,7 @@ class _AccountState extends State<Account> {
 
   //sonst late inizalisiert fehler
   String selectedDate = '';
+  DateTime? selectedAge;
   ImageProvider<Object>? imageProvider;
 
   DateTime? selectedDateTime;
@@ -106,6 +107,11 @@ class _AccountState extends State<Account> {
     if (prenameController.text == "") throw "Please enter your first name";
     if (lastnameController.text == "") throw "Please enter your last name";
     if (selectedDate == "") throw "Please enter your date of birth";
+    if(selectedAge != null) {
+      if (selectedAge!.isAfter(DateTime.now())) throw "Please enter a valid date of birth";
+      if (selectedAge!.isBefore(DateTime(1900))) throw "Please enter a valid date of birth (you are too old)";
+      if (selectedAge!.isAfter(DateTime.now().subtract(const Duration(days: 365 * 13)))) throw "You must be at least 13 years old";
+    }
     if (newImageURL != '') {
       imageURL = newImageURL;
       await currentUser.updatePhotoURL(imageURL);
@@ -243,24 +249,23 @@ class _AccountState extends State<Account> {
                   const SizedBox(height: 5),
                   if (uploading) const Center(child: LinearProgressIndicator()),
                   const SizedBox(
-                    height: 25,
+                    height: 15,
                   ),
                   InputField(
                     controller: prenameController,
                     hintText: 'First Name',
                     obscureText: false,
-                    margin: const EdgeInsets.only(bottom: 25),
+                    margin: const EdgeInsets.only(bottom: 15),
                   ),
                   InputField(
                     controller: lastnameController,
                     hintText: 'Last Name',
                     obscureText: false,
-                    margin: const EdgeInsets.only(bottom: 10),
                   ),
                   const SizedBox(height: 10),
                   const SizedBox(
                     width: 148,
-                    height: 18,
+                    height: 25,
                     child: Text(
                       'Date of Birth:',
                       style: TextStyle(
@@ -272,15 +277,16 @@ class _AccountState extends State<Account> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 10),
                   CupertinoDatePickerButton(
                     presetDate: selectedDate,
-                    margin: const EdgeInsets.only(bottom: 25),
+                    margin: const EdgeInsets.only(bottom: 15),
                     onDateSelected: (DateStringTupel dateStringTupel) {
                       setState(() {
+                        selectedAge = dateStringTupel.date;
                         selectedDate = dateStringTupel.dateString;
                       });
                     },
+                    boundingDate: DateTime.now(),
                     showFuture: false,
                   ),
                   InputField(
@@ -289,10 +295,9 @@ class _AccountState extends State<Account> {
                     hintText: "Email",
                     obscureText: false,
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 10),
                   const SizedBox(
-                    width: 148,
-                    height: 18,
+                    height: 25,
                     child: Text(
                       'User ID:',
                       style: TextStyle(
@@ -304,7 +309,6 @@ class _AccountState extends State<Account> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 10),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -339,7 +343,7 @@ class _AccountState extends State<Account> {
                       )
                     ],
                   ),
-                  const SizedBox(height: 25),
+                  const SizedBox(height: 15),
                   MyButton(
                     onTap: () async {
                       try {

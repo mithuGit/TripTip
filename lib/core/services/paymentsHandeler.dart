@@ -10,11 +10,11 @@ class NoPayOutinformation implements Exception {
 
 class PaymentsHandeler {
   
-  static FirebaseFunctions functions = FirebaseFunctions.instance;
+  static FirebaseFunctions functions = FirebaseFunctions.instanceFor(region: "europe-west3");
   static Future<String> createAccoutAndAddPaymentsMethode(
       DocumentReference user) async {
-    final result = await FirebaseFunctions.instance
-        .httpsCallable('stripeAddPaymentsMethode')
+    final result = await functions
+        .httpsCallable('stripeAddPaymentsMethode', )
         .call();
 
     final response = result.data;
@@ -42,7 +42,7 @@ class PaymentsHandeler {
     String? cachedPaymentIntend;
     try {
       final result =
-          await FirebaseFunctions.instance.httpsCallable('stripeRefund').call(
+          await functions.httpsCallable('stripeRefund').call(
         {
           "customer": _stripeId,
         },
@@ -69,7 +69,7 @@ class PaymentsHandeler {
       if (error.error.code == FailureCode.Canceled) {
         debugPrint("Canceled");
         if (cachedPaymentIntend != null) {
-          final cancelResult = await FirebaseFunctions.instance
+          final cancelResult = await functions
               .httpsCallable("stripeCancelRefund")
               .call(
             {
@@ -96,7 +96,7 @@ class PaymentsHandeler {
     if (data["payoutInformation"] == null) {
       throw NoPayOutinformation("No Payout Information");
     }
-    final result = await FirebaseFunctions.instance
+    final result = await functions
         .httpsCallable('bookToBankAccount')
         .call();
     final response = result.data as Map<String, dynamic>;
@@ -107,7 +107,7 @@ class PaymentsHandeler {
 
   static Future<void> payOpenRefundsPerUser(
       DocumentReference userToPayFor, DocumentReference trip) async {
-    final result = await FirebaseFunctions.instance
+    final result = await functions
         .httpsCallable('payOpenRefundsPerUser')
         .call({
       "destinationUser": userToPayFor.id,
@@ -120,7 +120,7 @@ class PaymentsHandeler {
   }
   static Future<void> deleteRequest(DocumentReference request) async {
     debugPrint(request.path);
-    final result = await FirebaseFunctions.instance
+    final result = await functions
         .httpsCallable('deleteRequest')
         .call({
       "request": request.path,
