@@ -4,11 +4,11 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:internet_praktikum/ui/widgets/bottom_sheet.dart';
 import 'package:internet_praktikum/ui/widgets/centerText.dart';
+import 'package:internet_praktikum/ui/widgets/errorSnackbar.dart';
 import 'package:internet_praktikum/ui/widgets/headerWidgets/topbar.dart';
 import 'package:internet_praktikum/ui/widgets/listSlidAble.dart';
 import 'package:internet_praktikum/ui/widgets/ticketWidgets/createTicketWidget.dart';
 import 'package:internet_praktikum/ui/widgets/ticketWidgets/ticketContainer.dart';
-
 
 /*
   This class is the widget for the ticket page
@@ -32,6 +32,57 @@ class _TicketState extends State<Ticket> {
     return (sn.data()! as Map<String, dynamic>)["selectedtrip"];
   }
 
+  // This function checks if the member of the trip have already uploaded 100 tickets
+  // If so, the user can't upload a new ticket
+  Future<void> checkIfTicketsMaxReached() async {
+    try {
+      String selectedTrip = await getSelectedtrip();
+      QuerySnapshot<Map<String, dynamic>> tickets = await firestore
+          .collection("trips")
+          .doc(selectedTrip)
+          .collection("tickets")
+          .get();
+
+      int maxTickets = tickets.docs.length;
+
+      if (maxTickets >= 100) {
+        if (context.mounted) {
+          ErrorSnackbar.showErrorSnackbar(
+              context, "You can't upload more than 100 tickets");
+          return;
+        }
+      }
+      if (context.mounted) {
+        CustomBottomSheet.show(context, title: "Upload a Ticket", content: [
+          FutureBuilder(
+              future: getSelectedtrip(),
+              builder: (context, selectedTrip) {
+                if (selectedTrip.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                if (selectedTrip.hasError) {
+                  return const Center(
+                      child: Text("Error while fetching Selectedtrip"));
+                }
+                if (selectedTrip.data == null) {
+                  return const CenterText(
+                      text: "No Trip selected, please select a trip first");
+                }
+                DocumentReference trip = firestore
+                    .collection("trips")
+                    .doc(selectedTrip.data as String);
+                return CreateTicketsWidget(selectedTrip: trip);
+              })
+        ]);
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ErrorSnackbar.showErrorSnackbar(context,
+            "Error while checking if to max tickets count has reached");
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -45,27 +96,7 @@ class _TicketState extends State<Ticket> {
         title: "Tickets",
         icon: Icons.add,
         onTapForIconWidget: () {
-          CustomBottomSheet.show(context, title: "Upload a Ticket", content: [
-            FutureBuilder(
-                future: getSelectedtrip(),
-                builder: (context, selectedTrip) {
-                  if (selectedTrip.connectionState == ConnectionState.waiting) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
-                  if (selectedTrip.hasError) {
-                    return const Center(
-                        child: Text("Error while fetching Selectedtrip"));
-                  }
-                  if (selectedTrip.data == null) {
-                    return const CenterText(
-                        text: "No Trip selected, please select a trip first");
-                  }
-                  DocumentReference trip = firestore
-                      .collection("trips")
-                      .doc(selectedTrip.data as String);
-                  return CreateTicketsWidget(selectedTrip: trip);
-                })
-          ]);
+          checkIfTicketsMaxReached();
         },
       ),
       body: Stack(
