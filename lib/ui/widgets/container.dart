@@ -27,7 +27,7 @@ class CustomContainer extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Container(
-                      margin: const EdgeInsets.only(bottom: 30),
+                      margin: const EdgeInsets.only(bottom: 25),
                       child: Text(
                         title,
                         style: Styles.overlayTitle,

@@ -53,14 +53,9 @@ class _WalletState extends State<Wallet> {
 
           builder: (context, snapshot) {
             double balance = 0.0;
-            try {
-              balance =
-                  (widget.userdata.data() as Map<String, dynamic>)["balance"] *
-                      1.0;
-            } catch (e) {
-              if (kDebugMode) {
-                print(e);
-              }
+            Map<String, dynamic> userObj =  widget.userdata.data() as Map<String, dynamic>;
+            if(userObj.containsKey("balance")) {
+              balance = userObj["balance"] * 1.0;
             }
             return Column(
               //    crossAxisAlignment: CrossAxisAlignment.start,
@@ -86,15 +81,7 @@ class _WalletState extends State<Wallet> {
                         fontWeight: FontWeight.bold,
                         fontFamily: "Ubuntu"),
                     textAlign: TextAlign.left,
-                  ),
-                  const Text(
-                    "nothing to do here!",
-                    style: TextStyle(
-                        fontSize: 15,
-                        color: Colors.white,
-                        fontWeight: FontWeight.normal,
-                        fontFamily: "Ubuntu"),
-                  ),
+                  )
                 ] else
                   Text(
                     //    "${(balance).toStringAsFixed(2)} €",

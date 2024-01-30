@@ -55,6 +55,8 @@ class ScrollViewWidget extends StatelessWidget {
                     userdata["profilePicture"];
                 localbufferArray[i]["prename"] = userdata["prename"];
                 localbufferArray[i]["lastname"] = userdata["lastname"];
+              } else {
+                localbufferArray[i]["prename"] = "Deleted User";
               }
             }
           }
