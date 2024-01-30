@@ -103,7 +103,7 @@ class _CreateWidgetFromMapToDashboardState
               crossAxisCount: 2,
               crossAxisSpacing: 10,
               children: [
-                ModalButton(
+                /*ModalButton(
                     icon: Icons.note_add,
                     onTap: selectedDate != null && day != null
                         ? () => {
@@ -115,7 +115,7 @@ class _CreateWidgetFromMapToDashboardState
                             ErrorSnackbar.showErrorSnackbar(
                                 context, "Please select a date first");
                           },
-                    text: "Add Note"),
+                    text: "Add Note"),*/
                 ModalButton(
                     icon: Icons.date_range,
                     onTap: selectedDate != null && day != null
@@ -160,10 +160,9 @@ class _CreateWidgetFromMapToDashboardState
           ],
         );
 
-      case 'note':
+      /*case 'note':
         return AddNoteWidgetToDashboard(
-            userdata: widget.userdata, day: day!, place: widget.place);
-
+            userdata: widget.userdata, day: day!, place: widget.place);*/
       case 'appointment':
         return AddAppointmentWidgetToDashboard(
             userdata: widget.userdata, day: day!, place: widget.place);
@@ -209,9 +208,12 @@ class _CreateWidgetFromMapToDashboardState
           .get();
 
       if (doc.docs.isNotEmpty) {
-        day = doc.docs.first.reference;
+        setState(() {
+          day = doc.docs.first.reference;
+        });
       } else {
-        DashBoardData.getCurrentDaySubCollection(selectedDate, selectedTripDoc);
+        day = await DashBoardData.getCurrentDaySubCollection(
+            selectedDate, selectedTripDoc);
       }
     } else {
       ErrorSnackbar.showErrorSnackbar(context, "No user found for this trip");
@@ -244,9 +246,13 @@ class _CreateWidgetFromMapToDashboardState
                     // Führen Sie die asynchrone Arbeit außerhalb von setState durch
                     DateTime? newSelectedDate;
                     if (selectedDate == null) {
-                      newSelectedDate = (await DateService.getStartEndDate(await DashBoardData.getCurrentTrip())).startDate
+                      newSelectedDate = (await DateService.getStartEndDate(
+                                  await DashBoardData.getCurrentTrip()))
+                              .startDate
                               .isAfter(DateTime.now())
-                          ? (await DateService.getStartEndDate(await DashBoardData.getCurrentTrip())).startDate
+                          ? (await DateService.getStartEndDate(
+                                  await DashBoardData.getCurrentTrip()))
+                              .startDate
                           : DateTime.now();
                       await getDayReference(newSelectedDate);
                       setState(() {
@@ -265,7 +271,7 @@ class _CreateWidgetFromMapToDashboardState
             child: SizedBox(
               height: size.height * 0.25,
               child: CupertinoDatePicker(
-              minimumDate: (startEndDate.startDate).isAfter(DateTime.now())
+                minimumDate: (startEndDate.startDate).isAfter(DateTime.now())
                     ? startEndDate.startDate
                     : DateTime.now(),
                 maximumDate: startEndDate.endDate,

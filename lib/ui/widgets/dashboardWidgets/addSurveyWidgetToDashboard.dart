@@ -117,7 +117,9 @@ class AddSurveyWidgetToDashboardState
   void getPlaceDetails() {
     if (widget.place != null) {
       String title = widget.place!.name;
-      nameofSurvey.text = "Do you want to go to $title?";
+      nameofSurvey.text = widget.typeOfSurvey == "questionsurvey"
+          ? "Do you want to go to $title?"
+          : "When do you want to go to $title?";
       if (widget.typeOfSurvey == "questionsurvey") {
         _optionList.add(SelectedQuestion()..value = "Yes?");
         _optionList.add(SelectedQuestion()..value = "No?");
@@ -158,7 +160,7 @@ class AddSurveyWidgetToDashboardState
         DocumentReference converter =
             await JobworkerService.generateSurveyConvertionWorker(
                 deadline!, widget.day, by, trip, key, nameofSurvey.text);
-        // A Worker 15inutes before the deadline to alert the user        
+        // A Worker 15inutes before the deadline to alert the user
         DocumentReference alerter =
             await JobworkerService.generateLastChanceSurveryWorker(
                 deadline!.subtract(const Duration(minutes: 15)),
@@ -183,7 +185,10 @@ class AddSurveyWidgetToDashboardState
     Widget buildTenableListTile(SelectedOption item, int index) {
       return Dismissible(
         key: Key(_optionList[index].toString() + index.toString()),
-        direction: DismissDirection.endToStart,
+        direction:
+            widget.place != null && widget.typeOfSurvey == "questionsurvey"
+                ? DismissDirection.none
+                : DismissDirection.endToStart,
         onDismissed: (direction) {
           setState(() {
             _optionList.removeAt(index);
@@ -239,6 +244,16 @@ class AddSurveyWidgetToDashboardState
         const SizedBox(height: 10),
         // you can only change the deadline if you create a new survey
 
+        if (widget.place != null) ...[
+          const SizedBox(height: 10),
+          Text(
+            "Is bound to location: ${widget.place!.name}",
+            style: Styles.inputField,
+            textAlign: TextAlign.left,
+          ),
+          const SizedBox(height: 20),
+        ],
+
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -276,7 +291,9 @@ class AddSurveyWidgetToDashboardState
                   flex: 2,
                   child: InputField(
                     controller: (selectedOption as SelectedQuestion).question,
-                    hintText: "Question or Answer you can add",
+                    hintText: widget.place == null
+                        ? "Question or Answer you can add"
+                        : "Question or Answer can't be added",
                     borderColor: Colors.grey.shade400,
                     focusedBorderColor: const Color.fromARGB(255, 84, 113, 255),
                     obscureText: false,
@@ -288,7 +305,7 @@ class AddSurveyWidgetToDashboardState
                   showFuture: true,
                   use24hFormat: true,
                   mode: CupertinoDatePickerMode.time,
-                  boundingDate:getBoundingDate(),
+                  boundingDate: getBoundingDate(),
                   presetDate: selectedOption.value != null
                       ? selectedOption.toString()
                       : "select time",
@@ -303,21 +320,26 @@ class AddSurveyWidgetToDashboardState
             const SizedBox(width: 5),
             IconButton(
                 onPressed: () => {
-                      if (_optionList
-                          .where((element) =>
-                              element.value == selectedOption.value)
-                          .isEmpty)
+                      if (widget.place == null ||
+                          (widget.place != null &&
+                              widget.typeOfSurvey == "appointmentsurvey"))
                         {
-                          if (selectedOption.isNotEmpty &&
-                              _optionList.length <= 5)
+                          if (_optionList
+                              .where((element) =>
+                                  element.value == selectedOption.value)
+                              .isEmpty)
                             {
-                              setState(() {
-                                _optionList.add(selectedOption);
-                                selectedOption =
-                                    widget.typeOfSurvey == "questionsurvey"
-                                        ? SelectedQuestion()
-                                        : SelectedDate();
-                              })
+                              if (selectedOption.isNotEmpty &&
+                                  _optionList.length <= 5)
+                                {
+                                  setState(() {
+                                    _optionList.add(selectedOption);
+                                    selectedOption =
+                                        widget.typeOfSurvey == "questionsurvey"
+                                            ? SelectedQuestion()
+                                            : SelectedDate();
+                                  })
+                                }
                             }
                         }
                     },
@@ -370,9 +392,11 @@ class AddSurveyWidgetToDashboardState
       ]),
     );
   }
+
   DateTime getBoundingDate() {
     if (dateofDay != null) {
-      if(dateofDay!.isBefore(DateTime.now()) || dateofDay!.isAtSameMomentAs(DateTime.now())) {
+      if (dateofDay!.isBefore(DateTime.now()) ||
+          dateofDay!.isAtSameMomentAs(DateTime.now())) {
         return DateTime.now();
       }
       return DateTime(dateofDay!.year, dateofDay!.month, dateofDay!.day, 0, 0);

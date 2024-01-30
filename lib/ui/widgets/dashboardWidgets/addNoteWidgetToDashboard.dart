@@ -94,6 +94,15 @@ class _AddNoteWidgetToDashboardState extends State<AddNoteWidgetToDashboard> {
       const SizedBox(
         height: 10,
       ), // creating mode when no data is passed
+      /*if (widget.place != null) ...[
+        const SizedBox(height: 10),
+        Text(
+          "Is bound to location: ${widget.place!.name}",
+          style: Styles.inputField,
+          textAlign: TextAlign.left,
+        ),
+        const SizedBox(height: 20),
+      ],*/
       MyButton(
           borderColor: Colors.black,
           textStyle: Styles.buttonFontStyleModal,
