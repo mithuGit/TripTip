@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
+// class to select member of the trip to request a refund
 class Member {
   String? name;
   DocumentReference? reference;
@@ -43,6 +44,7 @@ class _GetMemberButtonState extends State<GetMemberButton> {
     getMembers();
   }
 
+// Get all members of the selected trip and add them to a list
   getMembers() async {
     currentUser = await firestore.collection("users").doc(user.uid).get();
     String selectedTripID =

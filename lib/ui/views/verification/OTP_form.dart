@@ -9,6 +9,7 @@ import 'package:internet_praktikum/ui/widgets/container.dart';
 import 'package:internet_praktikum/ui/widgets/errorSnackbar.dart';
 import '../../widgets/my_button.dart';
 
+// Verify the email address of the user in this page
 class OTPForm extends StatefulWidget {
   const OTPForm({
     Key? key,
@@ -33,6 +34,7 @@ class _OTPFormState extends State<OTPForm> {
     }
   }
 
+// checkEmailVerified checks if the email is verified
   Future checkEmailVerified() async {
     await FirebaseAuth.instance.currentUser!.reload(); //TODO: Brauchen wir das?
 
@@ -51,7 +53,6 @@ class _OTPFormState extends State<OTPForm> {
   @override
   Widget build(BuildContext context) {
     const String message = "We have sent a verification link to your email. \n";
-
     return Scaffold(
       body: SafeArea(
         child: Stack(
@@ -147,6 +148,7 @@ class _OTPFormState extends State<OTPForm> {
     );
   }
 
+// method to resend the verification email
   Future<void> resendVerificationEmail() async {
     try {
       if (FirebaseAuth.instance.currentUser!.emailVerified) {

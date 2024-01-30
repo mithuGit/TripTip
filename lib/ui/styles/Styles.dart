@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 
+// class to store all the styles used in the app
 class Styles {
   static const overlayTitle = TextStyle(
       fontFamily: 'Ubuntu',

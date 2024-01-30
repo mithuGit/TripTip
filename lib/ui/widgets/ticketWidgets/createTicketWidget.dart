@@ -16,6 +16,7 @@ import 'package:pdf_render/pdf_render_widgets.dart';
 import 'package:internet_praktikum/ui/widgets/errorSnackbar.dart';
 import 'package:uuid/uuid.dart';
 
+// class for creating a ticket
 class CreateTicketsWidget extends StatefulWidget {
   final DocumentReference? selectedTrip;
   const CreateTicketsWidget({super.key, required this.selectedTrip});
@@ -33,11 +34,12 @@ class _CreateTicketsWidgetState extends State<CreateTicketsWidget> {
 
   bool isUploading = false;
 
+// Function to upload a file to firebase storage
   Future<void> uploadFile() async {
     if (titleOfTicket.text.isEmpty) {
       throw "Please enter a title for the ticket";
     }
-    if(selectedImage == null && pickedFile == null){
+    if (selectedImage == null && pickedFile == null) {
       throw "No File selected";
     }
     File file;
@@ -92,6 +94,7 @@ class _CreateTicketsWidgetState extends State<CreateTicketsWidget> {
     }
   }
 
+// Function to select a file from the device
   Future selectedFile() async {
     try {
       final result = await FilePicker.platform.pickFiles(
@@ -110,6 +113,7 @@ class _CreateTicketsWidgetState extends State<CreateTicketsWidget> {
     }
   }
 
+// Function to take a picture with the camera
   void takePicture() async {
     try {
       final imagePicker = ImagePicker();
@@ -128,47 +132,7 @@ class _CreateTicketsWidgetState extends State<CreateTicketsWidget> {
     }
   }
 
-  void showAlertDialog(BuildContext context,
-      {String? title = "Select an Option",
-      String? button1 = "Take a Picture",
-      bool? button2 = true}) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          actionsAlignment: MainAxisAlignment.center,
-          title: Text(title!),
-          titleTextStyle: const TextStyle(
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
-            fontSize: 20,
-          ),
-          actionsOverflowButtonSpacing: 20,
-          actions: [
-            ElevatedButton(
-              onPressed: () {
-                button2! ? takePicture() : null;
-                Navigator.of(context).pop();
-              },
-              child: Text(button1!),
-            ),
-            button2!
-                ? ElevatedButton(
-                    onPressed: () {
-                      // Funktion File hin
-                      selectedFile();
-                      Navigator.of(context).pop();
-                    },
-                    child: const Text("Upload a File"))
-                : Container(
-                    width: 0,
-                  ), // hier muss width = 0, damit actionsAlignment: MainAxisAlignment.center,
-          ],
-        );
-      },
-    );
-  }
-
+// Build the Custom Bottom Sheet with the InputField, the Buttons to take a picture or upload a file and the Upload Button
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -256,7 +220,10 @@ class _CreateTicketsWidgetState extends State<CreateTicketsWidget> {
                     )),
         const SizedBox(height: 10),
         if (isUploading)
-          const Center(child: CircularProgressIndicator(color: Colors.black,))
+          const Center(
+              child: CircularProgressIndicator(
+            color: Colors.black,
+          ))
         else
           MyButton(
             borderColor: Colors.black,

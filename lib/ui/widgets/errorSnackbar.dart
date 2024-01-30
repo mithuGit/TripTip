@@ -7,6 +7,7 @@ import 'package:internet_praktikum/ui/views/login_register_pages/login_or_regist
 import 'package:internet_praktikum/ui/views/profile/profile.dart';
 import 'package:webview_flutter_plus/webview_flutter_plus.dart';
 
+// Class for showing error messages
 class ErrorSnackbar {
   static Future<void> showErrorSnackbar(
       BuildContext context, String errorMessage) {

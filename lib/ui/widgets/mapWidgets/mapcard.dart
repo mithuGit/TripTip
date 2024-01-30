@@ -9,6 +9,7 @@ import 'package:internet_praktikum/ui/widgets/mapWidgets/smallButton.dart';
 import 'package:internet_praktikum/ui/widgets/my_button.dart';
 import 'package:internet_praktikum/ui/widgets/mapWidgets/createWidgetFromMapToDashboard.dart';
 
+// class to show the card with the information of the place, contact, address, availability, photos and reviews
 // ignore: must_be_immutable
 class MapCard extends StatefulWidget {
   final Place place;
@@ -33,6 +34,7 @@ class _MapCardState extends State<MapCard> {
   bool isPhotos = false;
   bool showBlankCard = false;
 
+// method to show the reviews of the place
   _showReview(review) {
     return Column(
       children: [
@@ -99,6 +101,7 @@ class _MapCardState extends State<MapCard> {
     );
   }
 
+// method to show the photos of the place
   showPhoto(List<PlacePhoto> photoElement) {
     if (photoElement.isEmpty) {
       showBlankCard = true;
@@ -156,7 +159,14 @@ class _MapCardState extends State<MapCard> {
                               if (loadingProgress == null) {
                                 return child;
                               } else {
-                                return const CircularProgressIndicator();
+                                return CircularProgressIndicator(
+                                  color: Colors.white,
+                                  value: loadingProgress.expectedTotalBytes !=
+                                          null
+                                      ? loadingProgress.cumulativeBytesLoaded /
+                                          loadingProgress.expectedTotalBytes!
+                                      : null,
+                                );
                               }
                             },
                           ),
@@ -203,8 +213,7 @@ class _MapCardState extends State<MapCard> {
         ),
         child: SingleChildScrollView(
           child: Padding(
-            padding:
-                const EdgeInsets.all(18),
+            padding: const EdgeInsets.all(18),
             child: Column(
               children: [
                 widget.isExpanded
@@ -218,11 +227,10 @@ class _MapCardState extends State<MapCard> {
                                   widget.isExpanded = !widget.isExpanded;
                                 });
                               },
-                              icon: const Icon(
-                                Icons.arrow_drop_down_circle_outlined,
-                                color: Colors.white,
-                                size: 35,
-                              ))
+                              icon: Image.asset(
+                                  "assets/moveModalDown_white.png",
+                                  height: 45.0,
+                                  width: 45.0)),
                         ],
                       )
                     : const SizedBox(width: 0, height: 0),
@@ -232,20 +240,41 @@ class _MapCardState extends State<MapCard> {
                       height: 90.0,
                       width: 90.0,
                       decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(10.0),
-                          image: DecorationImage(
-                              image: widget.placeImage != ''
-                                  ? widget.place.firstImage.imageProvider
-                                  : Image.asset(
-                                          height: 80.0,
-                                          width: 80.0,
-                                          "assets/no_camera.png")
-                                      .image,
-                              fit: BoxFit.cover),
-                          border: Border.all(
-                            color: Colors.white,
-                            width: 4,
-                          )),
+                        borderRadius: BorderRadius.circular(10.0),
+                        border: Border.all(
+                          color: Colors.white,
+                          width: 4,
+                        ),
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(10.0),
+                        child: Image(
+                          image: widget.placeImage != ''
+                              ? widget.place.firstImage.imageProvider
+                              : const AssetImage(
+                                  'assets/no_camera.png'), // Fallback to 'no_camera.png' if widget.placeImage is empty
+                          fit: BoxFit.cover,
+                          height: 80.0,
+                          width: 80.0,
+                          loadingBuilder: (BuildContext context, Widget child,
+                              ImageChunkEvent? loadingProgress) {
+                            if (loadingProgress == null) {
+                              return child;
+                            } else {
+                              return Center(
+                                child: CircularProgressIndicator(
+                                  color: Colors.white,
+                                  value: loadingProgress.expectedTotalBytes !=
+                                          null
+                                      ? loadingProgress.cumulativeBytesLoaded /
+                                          loadingProgress.expectedTotalBytes!
+                                      : null,
+                                ),
+                              );
+                            }
+                          },
+                        ),
+                      ),
                     ),
                     const SizedBox(width: 15.0),
                     Column(

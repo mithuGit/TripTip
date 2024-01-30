@@ -8,6 +8,7 @@ import 'package:internet_praktikum/ui/styles/Styles.dart';
 import 'package:internet_praktikum/ui/widgets/dashboardWidgets/mainDasboardinitializer.dart';
 import 'package:intl/intl.dart';
 
+// this is the archive page where the user can see all the deleted widgets and can restore them
 class Archive extends StatefulWidget {
   Archive({super.key});
 

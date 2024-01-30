@@ -9,6 +9,7 @@ import 'package:internet_praktikum/ui/widgets/paymentsWidgets/getMember.dart';
 import 'package:internet_praktikum/ui/widgets/inputfield.dart';
 import 'package:internet_praktikum/ui/widgets/my_button.dart';
 
+// class to show the user the preview of the debt request
 class CreateDebts extends StatefulWidget {
   final DocumentReference selectedTrip;
   final QueryDocumentSnapshot? preview;

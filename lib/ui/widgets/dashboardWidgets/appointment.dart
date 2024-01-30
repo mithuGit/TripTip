@@ -59,7 +59,7 @@ class _AppointmentWidgetState extends State<AppointmentWidget> {
                           color: Colors.white,
                           iconSize: 35,
                           onPressed: () {
-                            context.push("/map",
+                            context.pushReplacement("/map",
                                 extra: Place.fromMap(widget.data!["place"]));
                           });
                     }

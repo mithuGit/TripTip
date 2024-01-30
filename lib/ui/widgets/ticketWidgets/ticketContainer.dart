@@ -9,6 +9,7 @@ import 'package:internet_praktikum/ui/widgets/bottom_sheet.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf_render/pdf_render_widgets.dart';
 
+// Page to display the ticket in a preview
 // ignore: must_be_immutable
 class TicketContainer extends StatefulWidget {
   DocumentSnapshot ticket;
@@ -41,6 +42,7 @@ class _TicketContainerState extends State<TicketContainer> {
     data = widget.ticket.data() as Map<String, dynamic>;
   }
 
+// fetchFile is used to fetch the file from firebase storage
   Future<FetchFile> fetchFile() async {
     var getDownloadUrlLink =
         await FirebaseStorage.instance.ref(data!["url"]).getDownloadURL();
@@ -166,10 +168,11 @@ class _TicketContainerState extends State<TicketContainer> {
     );
   }
 
+  // openPDF is used to open the ticket in a new page
   void openPDF(BuildContext context, File file, String title) =>
       Navigator.of(context).push(MaterialPageRoute(
           builder: (context) => PDFViewerPage(file: file, title: title)));
-
+// openImage is used to open the ticket in a new page
   void openImage(BuildContext context, Image image, String title) =>
       Navigator.of(context).push(MaterialPageRoute(
           builder: (context) => ImageViewerPage(image: image, title: title)));

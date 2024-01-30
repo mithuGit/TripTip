@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:internet_praktikum/core/services/placeApiProvider.dart';
 import 'package:internet_praktikum/ui/styles/Styles.dart';
@@ -15,9 +16,11 @@ import 'package:internet_praktikum/ui/widgets/mapWidgets/mapButton.dart';
 import 'package:internet_praktikum/ui/widgets/mapWidgets/mapcard.dart';
 import 'package:location/location.dart';
 
+// class for the map page so the user can see the map and the recommendations
+// ignore: must_be_immutable
 class MapPage extends StatefulWidget {
-  final Place? place;
-  const MapPage({super.key, this.place});
+  Place? place;
+  MapPage({super.key, this.place});
 
   @override
   State<MapPage> createState() => _MapPageState();
@@ -86,23 +89,35 @@ class _MapPageState extends State<MapPage> {
               zoom: 11.5,
             );
           }));
-      _pageController = PageController(initialPage: 1, viewportFraction: 0.85)
-        ..addListener(_swipe);
     } else {
       _initialCameraPosition = CameraPosition(
           target: LatLng(widget.place!.location.latitude,
               widget.place!.location.longitude),
           zoom: 11.5);
+      setState(() {
+        placeImage = widget.place!.photos[0]['name'];
+        radiusSlider = false;
+        pressToGetRecommend = false;
+        currentLocationData = null;
+        origin = null;
+        destination = null;
+        infoDistanceAndDuration = null;
+      });
     }
+    _pageController = PageController(initialPage: 1, viewportFraction: 0.85)
+      ..addListener(_swipe);
   }
 
   @override
   void dispose() {
-    _pageController.removeListener(_swipe);
-    _pageController.dispose();
+    if (widget.place == null) {
+      _pageController.removeListener(_swipe);
+      _pageController.dispose();
+    }
     super.dispose();
   }
 
+// Swipe to change the place left and right
   void _swipe() {
     if (_pageController.page!.toInt() != previewCard) {
       previewCard = _pageController.page!.toInt();
@@ -111,11 +126,14 @@ class _MapPageState extends State<MapPage> {
     }
   }
 
+// Camera Positioning for the tapped place
   Future<void> goToTappedPlace() async {
     final GoogleMapController controller = await _googleMapController.future;
     markers = {};
 
-    var selectedPlace = allFavoritePlaces[_pageController.page!.toInt()];
+    var selectedPlace = widget.place == null
+        ? allFavoritePlaces[_pageController.page!.toInt()]
+        : widget.place!;
 
     _setNearMarker(
       LatLng(selectedPlace.location.latitude, selectedPlace.location.longitude),
@@ -131,6 +149,7 @@ class _MapPageState extends State<MapPage> {
         tilt: 45.0)));
   }
 
+// Live Tracking of the current location of the user
   void getCurrentLocation() async {
     bool serviceEnabled;
     PermissionStatus permissionGranted;
@@ -140,6 +159,9 @@ class _MapPageState extends State<MapPage> {
     if (!serviceEnabled) {
       serviceEnabled = await location!.requestService();
       if (!serviceEnabled) {
+        setState(() {
+          isLocationLoading = false;
+        });
         return;
       }
     }
@@ -148,6 +170,9 @@ class _MapPageState extends State<MapPage> {
     if (permissionGranted == PermissionStatus.denied) {
       permissionGranted = await location!.requestPermission();
       if (permissionGranted != PermissionStatus.granted) {
+        setState(() {
+          isLocationLoading = false;
+        });
         return;
       }
     }
@@ -192,6 +217,15 @@ class _MapPageState extends State<MapPage> {
     });
   }
 
+  locationOfVaction() async {
+    var controller = await _googleMapController.future;
+    controller.animateCamera(
+      infoDistanceAndDuration != null
+          ? CameraUpdate.newLatLngBounds(infoDistanceAndDuration!.bounds, 100.0)
+          : CameraUpdate.newCameraPosition(_initialCameraPosition!),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -210,36 +244,18 @@ class _MapPageState extends State<MapPage> {
           backgroundColor: Colors.transparent,
           leading: Column(
             children: [
-              if (isLocationLoading == true && currentLocationData == null) ...{
-                // Show CircularProgressIndicator only when data is not available
-                const Column(
-                  children: [
-                    SizedBox(height: 14),
-                    SizedBox(
-                      child: CircularProgressIndicator(
-                        strokeWidth: 3,
-                      ),
-                    )
-                  ],
-                ),
-              } else if (isLocationLoading == false ||
-                  currentLocationData != null) ...{
+              if (widget.place != null) ...{
                 Column(
                   children: [
                     IconButton(
-                      icon: const Icon(Icons.directions_outlined,
+                      icon: const Icon(Icons.arrow_back,
                           color: Colors.black, size: 30),
-                      onPressed: () async {
-                        setState(() {
-                          isLocationLoading = true;
-                          currentLocationData = null;
-                          isInitialCameraMove = true;
-                        });
-                        getCurrentLocation();
+                      onPressed: () {
+                        context.go('/');
                       },
                     ),
                     const Text(
-                      'Location',
+                      'Back',
                       style: TextStyle(
                         color: Colors.black,
                         fontSize: 12,
@@ -247,32 +263,128 @@ class _MapPageState extends State<MapPage> {
                     ),
                   ],
                 ),
+              } else ...{
+                if (isLocationLoading == true &&
+                    currentLocationData == null) ...{
+                  // Show CircularProgressIndicator only when data is not available
+                  const Column(
+                    children: [
+                      SizedBox(height: 14),
+                      SizedBox(
+                        child: CircularProgressIndicator(
+                          strokeWidth: 3,
+                        ),
+                      )
+                    ],
+                  ),
+                } else if (isLocationLoading == false ||
+                    currentLocationData != null) ...{
+                  Column(
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.directions_outlined,
+                            color: Colors.black, size: 30),
+                        onPressed: () async {
+                          setState(() {
+                            isLocationLoading = true;
+                            currentLocationData = null;
+                            isInitialCameraMove = true;
+                          });
+                          getCurrentLocation();
+                        },
+                      ),
+                      const Text(
+                        'Location',
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  ),
+                }
               }
             ],
           ),
           actions: [
             Column(
               children: [
-                IconButton(
-                  icon: const Icon(Icons.center_focus_strong),
-                  onPressed: () async {
-                    var controller = await _googleMapController.future;
-                    controller.animateCamera(
-                      infoDistanceAndDuration != null
-                          ? CameraUpdate.newLatLngBounds(
-                              infoDistanceAndDuration!.bounds, 100.0)
-                          : CameraUpdate.newCameraPosition(
-                              _initialCameraPosition!),
-                    );
-                  },
-                ),
-                Text(
-                  infoDistanceAndDuration != null
-                      ? 'Zoom to route'
-                      : 'Vacation',
-                  style: const TextStyle(
-                      color: Colors.black, fontFamily: 'Ubuntu', fontSize: 12),
-                ),
+                if (widget.place == null) ...{
+                  IconButton(
+                    icon: const Icon(Icons.center_focus_strong),
+                    onPressed: () async {
+                      locationOfVaction();
+                    },
+                  ),
+                  Text(
+                    infoDistanceAndDuration != null
+                        ? 'Zoom to route'
+                        : 'Vacation',
+                    style: const TextStyle(
+                        color: Colors.black,
+                        fontFamily: 'Ubuntu',
+                        fontSize: 12),
+                  ),
+                } else ...{
+                  if (isLocationLoading == true &&
+                      currentLocationData == null) ...{
+                    // Show CircularProgressIndicator only when data is not available
+                    const Column(
+                      children: [
+                        SizedBox(height: 14),
+                        SizedBox(
+                          child: CircularProgressIndicator(
+                            strokeWidth: 3,
+                          ),
+                        ),
+                      ],
+                    ),
+                  } else if (isLocationLoading == false ||
+                      currentLocationData != null) ...{
+                    Column(
+                      children: [
+                        PopupMenuButton(
+                          icon: const Icon(Icons.menu),
+                          onSelected: (value) => {
+                            switch (value) {
+                              "currentLocation" => {
+                                  setState(() {
+                                    isLocationLoading = true;
+                                    currentLocationData = null;
+                                    isInitialCameraMove = true;
+                                  }),
+                                  getCurrentLocation(),
+                                },
+                              "vacationLocation" => locationOfVaction(),
+                              _ => (),
+                            }
+                          },
+                          itemBuilder: (BuildContext context) {
+                            return [
+                              const PopupMenuItem(
+                                value: "currentLocation",
+                                child: Text("Current Location"),
+                              ),
+                              PopupMenuItem(
+                                value: "vacationLocation",
+                                child: infoDistanceAndDuration != null
+                                    ? const Text("Location of Path")
+                                    : const Text("Location of Vacation"),
+                              )
+                            ];
+                          },
+                        ),
+                        const Text(
+                          'Location',
+                          style: TextStyle(
+                              color: Colors.black,
+                              fontFamily: 'Ubuntu',
+                              fontSize: 12),
+                        ),
+                      ],
+                    ),
+                  }
+                }
               ],
             ),
             const SizedBox(width: 3),
@@ -326,10 +438,12 @@ class _MapPageState extends State<MapPage> {
                     onLongPress: _addMarker,
                     circles: _circles,
                     onTap: (point) {
-                      tappedPointInCircle = point;
-                      _setCircle(point);
-                      markers = {};
-                      pressToGetRecommend = false;
+                      if (widget.place == null) {
+                        tappedPointInCircle = point;
+                        _setCircle(point);
+                        markers = {};
+                        pressToGetRecommend = false;
+                      }
                     },
                   ),
                 ),
@@ -339,27 +453,38 @@ class _MapPageState extends State<MapPage> {
                       child: SizedBox(
                         height: isExpanded ? 480.0 : 200.0,
                         width: MediaQuery.of(context).size.width,
-                        child: Stack(
-                          children: [
-                            Center(
-                              child: GestureDetector(
-                                  onTap: () async {
-                                    isExpanded = !isExpanded;
-                                    goToTappedPlace();
-                                  },
-                                  child: MapCard(
-                                      place: widget.place!,
-                                      isExpanded: isExpanded,
-                                      onExpandedChanged: (newIsExpanded) {
-                                        setState(() {
-                                          isExpanded = newIsExpanded;
-                                        });
-                                      },
-                                      photoGalleryIndex: photoGalleryIndex,
-                                      placeImage: placeImage)),
-                            )
-                          ],
-                        ),
+                        child: Builder(builder: (BuildContext context) {
+                          return Center(
+                            child: SizedBox(
+                              height: Curves.easeInOut.transform(1) *
+                                  MediaQuery.of(context).size.height *
+                                  0.5,
+                              width: Curves.easeInOut.transform(1) * 350.0,
+                              child: Stack(
+                                children: [
+                                  Center(
+                                    child: GestureDetector(
+                                        onTap: () async {
+                                          isExpanded = !isExpanded;
+                                          goToTappedPlace();
+                                        },
+                                        child: MapCard(
+                                            place: widget.place!,
+                                            isExpanded: isExpanded,
+                                            onExpandedChanged: (newIsExpanded) {
+                                              setState(() {
+                                                isExpanded = newIsExpanded;
+                                              });
+                                            },
+                                            photoGalleryIndex:
+                                                photoGalleryIndex,
+                                            placeImage: placeImage)),
+                                  )
+                                ],
+                              ),
+                            ),
+                          );
+                        }),
                       ))
                 ],
                 Column(
@@ -368,7 +493,8 @@ class _MapPageState extends State<MapPage> {
                         !radiusSlider &&
                         !pressToGetRecommend &&
                         !isExpanded &&
-                        destination == null)
+                        destination == null &&
+                        widget.place == null)
                       Padding(
                         padding: const EdgeInsets.fromLTRB(0, 15, 0, 0),
                         child: Center(
@@ -733,6 +859,7 @@ class _MapPageState extends State<MapPage> {
     );
   }
 
+// set the blue circle on the map for the recommendation
   void _setCircle(LatLng point) async {
     final GoogleMapController controller = await _googleMapController.future;
     controller.animateCamera(CameraUpdate.newCameraPosition(
@@ -749,6 +876,7 @@ class _MapPageState extends State<MapPage> {
     });
   }
 
+// set the markers on the map for the recommendation
   _setNearMarker(LatLng point, String name, List types) async {
     var counter = markerIdCounter++;
 
@@ -922,6 +1050,7 @@ class _MapPageState extends State<MapPage> {
     });
   }
 
+// set the markers on the map for the  origin and destination
   void _addMarker(LatLng pos) async {
     if (origin == null || (origin != null && destination != null)) {
       // Origin is not set OR Origin/Destination are both set
@@ -962,6 +1091,7 @@ class _MapPageState extends State<MapPage> {
     }
   }
 
+// method to show the nearby places
   _nearbyPlacesList(index) {
     return AnimatedBuilder(
       animation: _pageController,
