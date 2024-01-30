@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -19,6 +21,7 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
+  bool isDeleting = false;
   void signUserOut() async {
     await PushNotificationService().disable();
     await FirebaseAuth.instance.signOut();
@@ -28,23 +31,34 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Future<void> deleteUser() async {
-    FirebaseFunctions functions = FirebaseFunctions.instance;
-    HttpsCallableResult callable =
-        await functions.httpsCallable('removeUser').call();
-    Map<String, dynamic> data = Map<String, dynamic>.from(callable.data);
+    FirebaseFunctions functions =
+        FirebaseFunctions.instanceFor(region: "europe-west3");
+    setState(() {
+      isDeleting = true;
+    });
+    try {
+      HttpsCallableResult callable =
+          await functions.httpsCallable('removeUser').call();
+      Map<String, dynamic> data = Map<String, dynamic>.from(callable.data);
 
-    if (data['success']) {
-      await FirebaseStorage.instance
-          .ref('profilePictures/${FirebaseAuth.instance.currentUser!.uid}')
-          .delete();
-      if (context.mounted) {
-        GoRouter.of(context).go('/loginorregister');
+      if (data['success']) {
+        await FirebaseStorage.instance
+            .ref('profilePictures/${FirebaseAuth.instance.currentUser!.uid}')
+            .delete();
+        if (context.mounted) {
+          GoRouter.of(context).go('/loginorregister');
+        }
+      } else {
+        throw Exception(data['error']);
       }
-    } else {
+    } catch (e) {
       if (mounted) {
-        ErrorSnackbar.showErrorSnackbar(context, data['error']);
+        ErrorSnackbar.showErrorSnackbar(context, e.toString());
       }
     }
+    setState(() {
+      isDeleting = false;
+    });
   }
 
   final auth = FirebaseAuth.instance;
@@ -109,7 +123,8 @@ class _ProfilePageState extends State<ProfilePage> {
                         side: BorderSide.none,
                         shape: const StadiumBorder()),
                     child: const Text('Edit your Profile',
-                        style: TextStyle(color: Colors.black, fontFamily: 'Ubuntu'))),
+                        style: TextStyle(
+                            color: Colors.black, fontFamily: 'Ubuntu'))),
               ),
               const SizedBox(height: 10),
               Center(
