@@ -28,7 +28,6 @@ class CustomContainer extends StatelessWidget {
                   children: [
                     Container(
                       margin: const EdgeInsets.only(bottom: 30),
-                      height: 25,
                       child: Text(
                         title,
                         style: Styles.overlayTitle,

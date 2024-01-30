@@ -1,7 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:internet_praktikum/core/services/init_pushnotifications.dart';
 import 'package:internet_praktikum/core/services/placeApiProvider.dart';
 import 'package:internet_praktikum/ui/widgets/datepicker.dart';
 import 'package:internet_praktikum/ui/widgets/errorSnackbar.dart';
@@ -13,6 +12,8 @@ import '../../widgets/container.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class CreateTrip extends StatefulWidget {
+  // beacuse of Testing we need to pass the firestore and auth object
+  // but this is not required in the final app
   final FirebaseFirestore firestore;
   final FirebaseAuth auth;
   const CreateTrip({super.key, required this.firestore, required this.auth});
@@ -20,6 +21,8 @@ class CreateTrip extends StatefulWidget {
   State<CreateTrip> createState() => _TripCreateState();
 }
 
+// This class is used to store the data of the user
+// thogeter with the profile image
 class User {
   String prename;
   String lastname;
@@ -36,12 +39,7 @@ class _TripCreateState extends State<CreateTrip> {
   DateTime? selectedStartDate;
   DateTime? selectedEndDate;
 
-  void connectPhotosAlbum() async {
-    setState(() {
-      //  name = "Hallo";
-    });
-  }
-
+  // Simple function to create a trip
   Future<void> create_trip() async {
     try {
       final members = [];
@@ -57,10 +55,17 @@ class _TripCreateState extends State<CreateTrip> {
         throw Exception("End date must be after start date!");
       }
 
+      final duration = selectedStartDate!.difference(selectedEndDate!);
+      if (duration.inDays > 100) {
+        throw Exception("Trip can't be longer than 100 days!");
+      }
+
+      // Here no cloud Function is required, beacuse the user is already logged in and is owner of the trip
       var self = FirebaseFirestore.instance
           .doc("/users/${widget.auth.currentUser!.uid}");
       members.add(self);
 
+      // By now the Trip has no dates, they are created whem the user goes to the dashboard
       DocumentReference trip = await trips.add({
         'city': destination?.cityName,
         'placedetails': destination?.placeDetails,
@@ -90,7 +95,7 @@ class _TripCreateState extends State<CreateTrip> {
     // Get Screen Size
     return Scaffold(
         backgroundColor: const Color(0xFFCBEFFF),
-        resizeToAvoidBottomInset: true,
+        resizeToAvoidBottomInset: false,
         body: SafeArea(
           child: Stack(children: [
             Container(

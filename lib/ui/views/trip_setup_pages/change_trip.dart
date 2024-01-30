@@ -7,8 +7,10 @@ import 'package:go_router/go_router.dart';
 import 'package:internet_praktikum/ui/styles/Styles.dart';
 import 'package:internet_praktikum/ui/widgets/bottom_sheet.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:internet_praktikum/ui/widgets/centerText.dart';
 import 'package:internet_praktikum/ui/widgets/errorSnackbar.dart';
 import 'package:internet_praktikum/ui/widgets/modalButton.dart';
+import 'package:internet_praktikum/ui/widgets/my_button.dart';
 
 class ChangeTrip extends StatefulWidget {
   const ChangeTrip({super.key});
@@ -240,6 +242,10 @@ class _ChangeTrip extends State<ChangeTrip> {
           builder: (BuildContext context, snapshot) {
             if (snapshot.connectionState == ConnectionState.done) {
               final data = snapshot.data;
+              // if user is not in any trip
+              if(data!.isEmpty){
+                return const CenterText(text: "You are not in any trip yet");
+              }
               return ListView(
                   children: data!
                       .map((con) {
