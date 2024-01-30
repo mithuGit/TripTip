@@ -111,6 +111,8 @@ class _ProfilePageState extends State<ProfilePage> {
                       padding: const EdgeInsets.only(
                           left: 14, right: 14, bottom: 45),
                       child: Container(
+                        height:
+                            (MediaQuery.of(context).size.height - 65) * 0.64,
                         decoration: BoxDecoration(
                           color: const Color.fromARGB(255, 43, 43, 43)
                               .withOpacity(0.90),

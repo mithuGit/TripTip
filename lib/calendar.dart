@@ -66,6 +66,7 @@ class _CalendarState extends State<Calendar> {
       DateTimeRange? pickedRange = await showDateRangePicker(
         context: context,
         initialDateRange: DateTimeRange(start: startDate!, end: endDate!),
+        initialEntryMode: DatePickerEntryMode.calendarOnly,
         firstDate: DateTime(2023),
         lastDate: DateTime(2060),
         currentDate: DateTime.now(),
@@ -103,6 +104,8 @@ class _CalendarState extends State<Calendar> {
           selectedDate = newStart;
           firstDate = newStart.add(const Duration(days: 1));
           lastDate = newStart.subtract(const Duration(days: 1));
+          startDate = newStart;
+          endDate = newEnd;
         });
       } catch (e) {
         //print(e);
@@ -295,6 +298,7 @@ class _CalendarState extends State<Calendar> {
 
     bool isNotInTripRange =
         date.isAfter(endDate!.add(const Duration(days: 1))) ||
+            isSameDay(date, endDate!.add(const Duration(days: 1))) ||
             date.isBefore(startDate!);
 
     return Container(

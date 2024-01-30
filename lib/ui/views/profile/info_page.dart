@@ -29,8 +29,7 @@ class InfoPage extends StatelessWidget {
           child: Column(
             children: [
               SizedBox(
-                height: MediaQuery.of(context).size.height * 0.3 -
-                    kToolbarHeight / 3,
+                height: MediaQuery.of(context).size.height * 0.3,
                 child: const Row(
                   children: [
                     CharakterContainer(
@@ -55,8 +54,7 @@ class InfoPage extends StatelessWidget {
                 ),
               ),
               SizedBox(
-                height: MediaQuery.of(context).size.height * 0.3 -
-                    kToolbarHeight / 3,
+                height: MediaQuery.of(context).size.height * 0.3,
                 child: const Row(
                   children: [
                     CharakterContainer(
@@ -79,8 +77,7 @@ class InfoPage extends StatelessWidget {
                 ),
               ),
               SizedBox(
-                height: MediaQuery.of(context).size.height * 0.3 -
-                    kToolbarHeight / 3,
+                height: MediaQuery.of(context).size.height * 0.3,
                 child: const Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
