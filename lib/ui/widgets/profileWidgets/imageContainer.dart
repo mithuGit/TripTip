@@ -18,10 +18,12 @@ class ImageContainerToSetInterest extends StatefulWidget {
       this.isNotinterested});
 
   @override
-  State<ImageContainerToSetInterest> createState() => _ImageContainerToSetInterestState();
+  State<ImageContainerToSetInterest> createState() =>
+      _ImageContainerToSetInterestState();
 }
 
-class _ImageContainerToSetInterestState extends State<ImageContainerToSetInterest> {
+class _ImageContainerToSetInterestState
+    extends State<ImageContainerToSetInterest> {
   bool isSelected = false;
   bool isNotinterested = false;
   @override
@@ -33,11 +35,12 @@ class _ImageContainerToSetInterestState extends State<ImageContainerToSetInteres
 
   @override
   Widget build(BuildContext context) {
-    int length = 0;
+    // Testing the length of the interests to check the length of the list
+    /*int length = 0;
     for (final key in Interests.available.keys) {
       length += Interests.available[key]!.length;
     }
-    print(length);
+    print(length);*/
     return GestureDetector(
       onTap: () {
         setState(() {
@@ -52,8 +55,8 @@ class _ImageContainerToSetInterestState extends State<ImageContainerToSetInteres
       child: Column(
         children: [
           Container(
-            width: 85,
-            height: 85,
+            width: MediaQuery.of(context).size.width * 0.2,
+            height: MediaQuery.of(context).size.width * 0.2,
             decoration: BoxDecoration(
               border: Border.all(
                 color: isSelected ? Colors.green : Colors.white,

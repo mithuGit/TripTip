@@ -146,7 +146,7 @@ class _MapPageState extends State<MapPage> {
             selectedPlace.location.longitude),
         zoom: 14.0,
         bearing: 180.0,
-        tilt: 45.0)));
+        tilt: widget.place == null ? 45.0 : 0.0)));
   }
 
 // Live Tracking of the current location of the user
@@ -449,9 +449,11 @@ class _MapPageState extends State<MapPage> {
                 ),
                 if (widget.place != null) ...[
                   Positioned(
-                      bottom: isExpanded ? 40.0 : 28.0,
+                      bottom: isExpanded ? 10.0 : -10.0,
                       child: SizedBox(
-                        height: isExpanded ? 480.0 : 200.0,
+                        height: isExpanded
+                            ? MediaQuery.of(context).size.height * 0.55
+                            : 200.0,
                         width: MediaQuery.of(context).size.width,
                         child: Builder(builder: (BuildContext context) {
                           return Center(
@@ -680,7 +682,7 @@ class _MapPageState extends State<MapPage> {
                                   borderRadius: BorderRadius.circular(34.5),
                                   color: const Color.fromARGB(255, 43, 43, 43)
                                       .withOpacity(0.90)),
-                              width: 50,
+                              width: MediaQuery.of(context).size.width * 0.12,
                               height: MediaQuery.of(context).size.height * 0.28,
                               child: Column(children: [
                                 Expanded(
@@ -842,9 +844,13 @@ class _MapPageState extends State<MapPage> {
                     : Container(),
                 pressToGetRecommend
                     ? Positioned(
-                        bottom: isExpanded ? 40.0 : 28.0,
+                        bottom: isExpanded
+                            ? MediaQuery.of(context).size.height * 0.05
+                            : 28.0,
                         child: SizedBox(
-                          height: isExpanded ? 480.0 : 200.0,
+                          height: isExpanded
+                              ? MediaQuery.of(context).size.height * 0.55
+                              : 200.0,
                           width: MediaQuery.of(context).size.width,
                           child: PageView.builder(
                               controller: _pageController,

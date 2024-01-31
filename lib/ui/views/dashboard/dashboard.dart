@@ -9,6 +9,7 @@ import 'package:internet_praktikum/ui/widgets/bottom_sheet.dart';
 import 'package:internet_praktikum/ui/views/dashboard/scrollview.dart';
 import 'package:internet_praktikum/ui/widgets/centerText.dart';
 import 'package:internet_praktikum/ui/widgets/dashboardWidgets/createNewWidgetOnDashboard.dart';
+import 'package:internet_praktikum/ui/widgets/errorSnackbar.dart';
 import 'package:internet_praktikum/ui/widgets/headerWidgets/topbar.dart';
 
 class DashBoard extends StatefulWidget {
@@ -50,7 +51,7 @@ class _DashBoardState extends State<DashBoard> {
           if (!selectedTripSnapshot.exists) throw "Trip does not exist";
         } catch (e) {
           throw UserIsNotInTripException();
-        }        
+        }
         DocumentReference selectedTripReferenceP =
             FirebaseFirestore.instance.doc(widget.showTrip!);
 
@@ -79,7 +80,7 @@ class _DashBoardState extends State<DashBoard> {
       if (mounted) {
         context.go("/changetrip");
       }
-    }  catch (e) {
+    } catch (e) {
       debugPrint(e.toString());
       setState(() {
         isLoading = false;
@@ -122,6 +123,59 @@ class _DashBoardState extends State<DashBoard> {
     }
   }
 
+  // This function checks if the user has already created 100 widgets for the selected day
+  // If so, the user can't create more widgets
+  Future<void> checkIfMaxWidgetIsReached(DocumentReference selectedDayReference,
+      Map<String, dynamic> userdata) async {
+    try {
+      DocumentSnapshot daySnapshot = await selectedDayReference.get();
+      if (!daySnapshot.exists) throw "Day does not exist";
+      Map<String, dynamic> dayData =
+          daySnapshot.data()! as Map<String, dynamic>;
+      if (dayData["active"] != null) {
+        if (dayData["active"].length >= 100) {
+          if (context.mounted) {
+            ErrorSnackbar.showErrorSnackbar(
+                context, "You can't create more than 100");
+            return;
+          }
+        }
+      }
+      if (context.mounted) {
+        CustomBottomSheet.show(context,
+            title: "Add new Widget to your Dashboard",
+            content: [
+              Builder(builder: (context) {
+                if (isLoading) {
+                  return const Center(
+                    child: CircularProgressIndicator(),
+                  );
+                }
+                if (hasErrorWhileLoadingDay) {
+                  return Center(
+                    child: Text(
+                        "An error occured while loading Daydata data: ${errorWhileLoadingDay!.toString()}"),
+                  );
+                }
+                if (hasErrorWhileLoadingUser) {
+                  return Center(
+                    child: Text(
+                        "An error occured while loading User data: ${errorWhileLoadingUser!.toString()}"),
+                  );
+                }
+                return CreateNewWidgetOnDashboard(
+                    day: selectedDayReference, userdata: userdata);
+              })
+            ]);
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ErrorSnackbar.showErrorSnackbar(
+            context, "Error while checking if to many widgets are created");
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     // loadData();
@@ -136,32 +190,7 @@ class _DashBoardState extends State<DashBoard> {
                 "archive" => {context.go("/archive")},
                 "changeTrip" => {context.go("/changetrip")},
                 "createWidget" => {
-                    CustomBottomSheet.show(context,
-                        title: "Add new Widget to your Dashboard",
-                        content: [
-                          Builder(builder: (context) {
-                            if (isLoading) {
-                              return const Center(
-                                child: CircularProgressIndicator(),
-                              );
-                            }
-                            if (hasErrorWhileLoadingDay) {
-                              return Center(
-                                child: Text(
-                                    "An error occured while loading Daydata data: ${errorWhileLoadingDay!.toString()}"),
-                              );
-                            }
-                            if (hasErrorWhileLoadingUser) {
-                              return Center(
-                                child: Text(
-                                    "An error occured while loading User data: ${errorWhileLoadingUser!.toString()}"),
-                              );
-                            }
-                            return CreateNewWidgetOnDashboard(
-                                day: selectedDayReference!,
-                                userdata: userdata!);
-                          })
-                        ])
+                    checkIfMaxWidgetIsReached(selectedDayReference!, userdata!),
                   },
                 _ => (),
               }

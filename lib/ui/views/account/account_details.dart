@@ -15,7 +15,6 @@ import 'package:go_router/go_router.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_cropper/image_cropper.dart';
 
-
 /*
 This class is being used to display the account details of the user. 
 It is also used to edit the account details of the user.
@@ -314,7 +313,7 @@ class _AccountState extends State<Account> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       SizedBox(
-                        width: 275,
+                        width: MediaQuery.of(context).size.width * 0.66,
                         child: InputField(
                           readOnly: true,
                           controller:

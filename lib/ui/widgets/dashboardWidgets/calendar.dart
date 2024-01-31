@@ -86,6 +86,7 @@ class _CalendarState extends State<Calendar> {
       DateTimeRange? pickedRange = await showDateRangePicker(
         context: context,
         initialDateRange: DateTimeRange(start: startDate!, end: endDate!),
+        initialEntryMode: DatePickerEntryMode.calendarOnly,
         firstDate: DateTime(2023),
         lastDate: DateTime(2060),
         currentDate: DateTime.now(),
@@ -120,6 +121,8 @@ class _CalendarState extends State<Calendar> {
           selectedDate = newStart;
           firstDate = newStart.add(const Duration(days: 1));
           lastDate = newStart.subtract(const Duration(days: 1));
+          startDate = newStart;
+          endDate = newEnd;
         });
       } catch (e) {
         //print(e);
@@ -311,6 +314,11 @@ class _CalendarState extends State<Calendar> {
     tomorrow = DateTime(tomorrow.year, tomorrow.month, tomorrow.day);
     yesterday = DateTime(yesterday.year, yesterday.month, yesterday.day);
 
+    bool isNotInTripRange =
+        date.isAfter(endDate!.add(const Duration(days: 1))) ||
+            isSameDay(date, endDate!.add(const Duration(days: 1))) ||
+            date.isBefore(startDate!);
+
     return Container(
       width: selected ? 101 : 92.8,
       height: selected ? 76 : 66,
@@ -330,15 +338,20 @@ class _CalendarState extends State<Calendar> {
                         ? "Yesterday"
                         : DateFormat('dd.MM.yyyy').format(date),
             style: TextStyle(
+                color: isNotInTripRange ? Colors.grey[900] : Colors.black,
                 fontSize: size,
                 fontWeight: selected ? FontWeight.bold : FontWeight.normal),
           ), // Spacer zwischen Text und Kreis
           Container(
             width: selected ? 35 : 22 + size, // Diameter of the circle
             height: selected ? 35 : 28,
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
+              color: isNotInTripRange
+                  ? Colors.grey[400]
+                  : Colors
+                      .white, // Change color of circle if date is not in range
               shape: BoxShape.circle,
-              border: Border.fromBorderSide(
+              border: const Border.fromBorderSide(
                   BorderSide(color: Colors.black, width: 2)),
             ),
           ),

@@ -95,6 +95,7 @@ class _OTPFormState extends State<OTPForm> {
                         height: 45,
                       ),
                       Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           SizedBox(
                             width: MediaQuery.of(context).size.width * 0.4,
@@ -107,9 +108,6 @@ class _OTPFormState extends State<OTPForm> {
                                 text: 'Back',
                               ),
                             ),
-                          ),
-                          const SizedBox(
-                            width: 10,
                           ),
                           if (canResendEmail)
                             SizedBox(

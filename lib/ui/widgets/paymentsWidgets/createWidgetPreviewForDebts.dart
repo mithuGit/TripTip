@@ -222,13 +222,12 @@ class _CreateDebtsState extends State<CreateDebts> {
       }
       myAmount.text = "";
     } else if (shareEqually == true) {
+      double diff = double.parse(totalAmount.text) / (optionList.length + 1);
       for (int i = 0; i < optionList.length; i++) {
-        amountList[i].text =
-            (double.parse(totalAmount.text) / (optionList.length + 1))
-                .toStringAsFixed(2);
+        amountList[i].text = ((diff * 100).ceil() / 100).toStringAsFixed(2);
       }
-      myAmount.text = (double.parse(totalAmount.text) / (optionList.length + 1))
-          .toStringAsFixed(2);
+      myAmount.text = diff.toStringAsFixed(2);
+      calculateMyAmount();
     }
   }
 
@@ -272,7 +271,7 @@ class _CreateDebtsState extends State<CreateDebts> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               SizedBox(
-                width: 130,
+                width: MediaQuery.of(context).size.width * 0.28,
                 child: Text(
                   optionList[index].toString(),
                   style: Styles.inputField,
@@ -304,7 +303,7 @@ class _CreateDebtsState extends State<CreateDebts> {
               ),
               if (widget.preview != null)
                 SizedBox(
-                  width: 50,
+                  width: MediaQuery.of(context).size.width * 0.14,
                   child: Text(
                     memberStatusList[index] == true ? "paid" : "unpaid",
                     style: TextStyle(
