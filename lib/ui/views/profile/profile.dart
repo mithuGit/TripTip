@@ -66,16 +66,25 @@ class _ProfilePageState extends State<ProfilePage> {
   final currentUser = FirebaseAuth.instance.currentUser!;
   final userCollection = FirebaseFirestore.instance.collection('users');
   final storage = FirebaseStorage.instance;
-  late ImageProvider<Object>? imageProvider;
+  ImageProvider<Object>? imageProvider;
 
-  XFile? pickedFile;
+  void loadProfilePicture() async {
+    final user = FirebaseAuth.instance.currentUser!;
+    final userDoc = await userCollection.doc(user.uid).get();
+    if (userDoc.data()?['profilePicture'] != null) {
+      setState(() {
+        imageProvider = NetworkImage(userDoc.data()?['profilePicture']);
+      });
+    }
+  }
 
   @override
   void initState() {
+    loadProfilePicture();
     super.initState();
-    currentUser.photoURL != null
-        ? imageProvider = NetworkImage(currentUser.photoURL!)
-        : imageProvider = const AssetImage('assets/Personavatar.png');
+    // currentUser.photoURL != null
+    //   ? imageProvider = NetworkImage(currentUser.photoURL!)
+    // : imageProvider = const AssetImage('assets/Personavatar.png');
   }
 
   @override
@@ -89,16 +98,22 @@ class _ProfilePageState extends State<ProfilePage> {
           padding: const EdgeInsets.only(bottom: 65),
           decoration: const BoxDecoration(
             image: DecorationImage(
-              image: AssetImage(
-                  'assets/background_forest.png'), 
+              image: AssetImage('assets/background_forest.png'),
               fit: BoxFit.cover,
             ),
           ),
           child: ListView(
             children: [
-              CircleAvatar(
-                radius: 37.5,
-                backgroundImage: imageProvider,
+              // Strange Error
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  CircleAvatar(
+                      radius: 37.5,
+                      backgroundImage: imageProvider ??
+                          const AssetImage('assets/Personavatar.png'),
+                  ),
+                ],
               ),
               const SizedBox(height: 10),
               Row(
@@ -206,15 +221,17 @@ class _ProfilePageState extends State<ProfilePage> {
                               textcolor: Colors.red,
                               onTap: signUserOut,
                             ),
-                            if(!isDeleting)
-                            ProfileButton(
-                              title: "Delete Account",
-                              icon: Icons.delete,
-                              textcolor: Colors.red,
-                              onTap: deleteUser,
-                            ),
-                            if(isDeleting)
-                            const Center(child: CircularProgressIndicator(),)
+                            if (!isDeleting)
+                              ProfileButton(
+                                title: "Delete Account",
+                                icon: Icons.delete,
+                                textcolor: Colors.red,
+                                onTap: deleteUser,
+                              ),
+                            if (isDeleting)
+                              const Center(
+                                child: CircularProgressIndicator(),
+                              )
                           ],
                         ),
                       ),
