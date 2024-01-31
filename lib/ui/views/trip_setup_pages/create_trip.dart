@@ -55,11 +55,10 @@ class _TripCreateState extends State<CreateTrip> {
         throw Exception("End date must be after start date!");
       }
 
-      final duration = selectedStartDate!.difference(selectedEndDate!);
+      final duration = selectedEndDate!.difference(selectedStartDate!);
       if (duration.inDays > 100) {
         throw Exception("Trip can't be longer than 100 days!");
       }
-
       // Here no cloud Function is required, beacuse the user is already logged in and is owner of the trip
       var self = FirebaseFirestore.instance
           .doc("/users/${widget.auth.currentUser!.uid}");
@@ -140,8 +139,9 @@ class _TripCreateState extends State<CreateTrip> {
                         CupertinoDatePickerButton(
                           margin: const EdgeInsets.only(bottom: 25),
                           showFuture: true,
+                          boundingDate: DateTime.now(),
                           presetDate: selectedStartDate != null
-                              ? DateFormat('dd-MM-yyyy')
+                              ? DateFormat('dd/MM/yyyy')
                                   .format(selectedStartDate ?? DateTime.now())
                               : 'select start Date',
                           onDateSelected: (DateStringTupel formattedDate) {
@@ -168,8 +168,9 @@ class _TripCreateState extends State<CreateTrip> {
                         CupertinoDatePickerButton(
                           margin: const EdgeInsets.only(bottom: 25),
                           showFuture: true,
+                           boundingDate: DateTime.now(),
                           presetDate: selectedEndDate != null
-                              ? DateFormat('dd-MM-yyyy')
+                              ? DateFormat('dd/MM/yyyy')
                                   .format(selectedEndDate ?? DateTime.now())
                               : 'select end Date',
                           onDateSelected: (DateStringTupel formattedDate) {

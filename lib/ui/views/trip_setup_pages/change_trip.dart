@@ -10,7 +10,6 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:internet_praktikum/ui/widgets/centerText.dart';
 import 'package:internet_praktikum/ui/widgets/errorSnackbar.dart';
 import 'package:internet_praktikum/ui/widgets/modalButton.dart';
-import 'package:internet_praktikum/ui/widgets/my_button.dart';
 
 class ChangeTrip extends StatefulWidget {
   const ChangeTrip({super.key});

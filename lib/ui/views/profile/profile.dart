@@ -151,88 +151,87 @@ class _ProfilePageState extends State<ProfilePage> {
                     ),
                     child: Padding(
                       padding: const EdgeInsets.all(22),
-                      child: SingleChildScrollView(
-                        child: Column(
-                          children: [
-                            ProfileButton(
-                              title: "Information",
-                              icon: Icons.info,
-                              textcolor: Colors.white,
-                              onTap: () => context.go("/info"),
-                            ),
-                            FutureBuilder(
-                                future: PushNotificationService()
-                                    .checkIfNotificationIsEnabled(),
-                                builder: (context, snapshot) {
-                                  if (snapshot.connectionState ==
-                                      ConnectionState.waiting) {
-                                    return const Center(
-                                      child: CircularProgressIndicator(),
-                                    );
-                                  }
-                                  if (snapshot.hasError) {
-                                    return const Center(
-                                      child: Text('An error occured!'),
-                                    );
-                                  }
-                                  return ProfileButton(
-                                    title: snapshot.data!
-                                        ? "Disable PushNotifications"
-                                        : "Enable PushNotifications",
-                                    icon: Icons.notifications,
-                                    textcolor: Colors.white,
-                                    onTap: () async {
-                                      if (snapshot.data!) {
-                                        await PushNotificationService()
-                                            .disable();
-                                      } else {
-                                        var status = await Permission
-                                            .notification.status;
-                                        if (status.isDenied ||
-                                            status.isPermanentlyDenied) {
-                                          await _openSettings();
-                                        } else {
-                                          await PushNotificationService()
-                                              .gantPushNotifications();
-                                        }
-                                      }
-                                      setState(() {});
-                                    },
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          ProfileButton(
+                            title: "Information",
+                            icon: Icons.info,
+                            textcolor: Colors.white,
+                            onTap: () => context.go("/info"),
+                          ),
+                          FutureBuilder(
+                              future: PushNotificationService()
+                                  .checkIfNotificationIsEnabled(),
+                              builder: (context, snapshot) {
+                                if (snapshot.connectionState ==
+                                    ConnectionState.waiting) {
+                                  return const Center(
+                                    child: CircularProgressIndicator(),
                                   );
-                                }),
+                                }
+                                if (snapshot.hasError) {
+                                  return const Center(
+                                    child: Text('An error occured!'),
+                                  );
+                                }
+                                return ProfileButton(
+                                  title: snapshot.data!
+                                      ? "Disable PushNotifications"
+                                      : "Enable PushNotifications",
+                                  icon: Icons.notifications,
+                                  textcolor: Colors.white,
+                                  onTap: () async {
+                                    if (snapshot.data!) {
+                                      await PushNotificationService()
+                                          .disable();
+                                    } else {
+                                      var status = await Permission
+                                          .notification.status;
+                                      if (status.isDenied ||
+                                          status.isPermanentlyDenied) {
+                                        await _openSettings();
+                                      } else {
+                                        await PushNotificationService()
+                                            .gantPushNotifications();
+                                      }
+                                    }
+                                    setState(() {});
+                                  },
+                                );
+                              }),
+                          ProfileButton(
+                            title: "Your Interests",
+                            icon: Icons.stars,
+                            textcolor: Colors.white,
+                            onTap: () => context.go('/setinterests/false'),
+                          ),
+                          ProfileButton(
+                            title: "Game: Choose a Loser ",
+                            icon: Icons.games, // so Game Icon wär gut
+                            textcolor: Colors.purpleAccent,
+                            onTap: () {
+                              context.pushNamed("gameChooser");
+                            },
+                          ),
+                          ProfileButton(
+                            title: "Logout",
+                            icon: Icons.logout,
+                            textcolor: Colors.red,
+                            onTap: signUserOut,
+                          ),
+                          if (!isDeleting)
                             ProfileButton(
-                              title: "Your Interests",
-                              icon: Icons.stars,
-                              textcolor: Colors.white,
-                              onTap: () => context.go('/setinterests/false'),
-                            ),
-                            ProfileButton(
-                              title: "Game: Choose a Loser ",
-                              icon: Icons.games, // so Game Icon wär gut
-                              textcolor: Colors.purpleAccent,
-                              onTap: () {
-                                context.pushNamed("gameChooser");
-                              },
-                            ),
-                            ProfileButton(
-                              title: "Logout",
-                              icon: Icons.logout,
+                              title: "Delete Account",
+                              icon: Icons.delete,
                               textcolor: Colors.red,
-                              onTap: signUserOut,
+                              onTap: deleteUser,
                             ),
-                            if (!isDeleting)
-                              ProfileButton(
-                                title: "Delete Account",
-                                icon: Icons.delete,
-                                textcolor: Colors.red,
-                                onTap: deleteUser,
-                              ),
-                            if (isDeleting)
-                              const Center(
-                                child: CircularProgressIndicator(),
-                              )
-                          ],
-                        ),
+                          if (isDeleting)
+                            const Center(
+                              child: CircularProgressIndicator(),
+                            )
+                        ],
                       ),
                     ),
                   ),
