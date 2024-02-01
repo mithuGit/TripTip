@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:internet_praktikum/core/services/paymentsHandeler.dart';
 import 'package:internet_praktikum/ui/widgets/bottom_sheet.dart';
@@ -52,89 +51,88 @@ class _WalletState extends State<Wallet> {
           borderRadius: BorderRadius.circular(34.5),
           color: const Color(0xE51E1E1E)),
       padding: const EdgeInsets.all(20),
-      child: LayoutBuilder(
-
-          builder: (context, snapshot) {
-            double balance = 0.0;
-            Map<String, dynamic> userObj =  widget.userdata.data() as Map<String, dynamic>;
-            if(userObj.containsKey("balance")) {
-              balance = userObj["balance"] * 1.0;
-            }
-            return Column(
-              //    crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  "Your Balance",
-                  style: TextStyle(
-                      fontSize: 25,
-                      color: Colors.white,
-                      fontWeight: FontWeight.normal,
-                      fontFamily: "Ubuntu"),
-                  textAlign: TextAlign.left,
+      child: LayoutBuilder(builder: (context, snapshot) {
+        double balance = 0.0;
+        Map<String, dynamic> userObj =
+            widget.userdata.data() as Map<String, dynamic>;
+        if (userObj.containsKey("balance")) {
+          balance = userObj["balance"] * 1.0;
+        }
+        return Column(
+          //    crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              "Your Balance",
+              style: TextStyle(
+                  fontSize: 25,
+                  color: Colors.white,
+                  fontWeight: FontWeight.normal,
+                  fontFamily: "Ubuntu"),
+              textAlign: TextAlign.left,
+            ),
+            const SizedBox(
+              height: 5,
+            ),
+            if (balance == 0.0) ...[
+              const Text(
+                "0 €",
+                style: TextStyle(
+                    fontSize: 40,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: "Ubuntu"),
+                textAlign: TextAlign.left,
+              )
+            ] else
+              Text(
+                //    "${(balance).toStringAsFixed(2)} €",
+                "${(balance * 100).ceil() / 100} €",
+                style: TextStyle(
+                    fontSize: 40,
+                    color: balance < 0 ? Colors.red : Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: "Ubuntu"),
+                textAlign: TextAlign.left,
+              ),
+            const SizedBox(
+              height: 30,
+            ),
+            if (loading) ...[
+              const Center(
+                child: LinearProgressIndicator(
+                  color: Colors.blue,
                 ),
-                const SizedBox(
-                  height: 5,
-                ),
-                if (balance == 0.0) ...[
-                  const Text(
-                    "0 €",
-                    style: TextStyle(
-                        fontSize: 40,
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontFamily: "Ubuntu"),
-                    textAlign: TextAlign.left,
-                  )
-                ] else
-                  Text(
-                    //    "${(balance).toStringAsFixed(2)} €",
-                    "${(balance * 100).ceil() / 100} €",
-                    style: TextStyle(
-                        fontSize: 40,
-                        color: balance < 0 ? Colors.red : Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontFamily: "Ubuntu"),
-                    textAlign: TextAlign.left,
-                  ),
-                const SizedBox(
-                  height: 30,
-                ),
-                if (loading) ...[
-                  const Center(
-                    child: LinearProgressIndicator(
-                      color: Colors.blue,
-                    ),
-                  )
-                ] else ...[
-                  if (balance < 0) ...[
-                    MyButton(
-                        onTap: () async {
-                          setState(() {
-                            loading = true;
-                          });
-                          await recharge(widget.userdata, context);
-                          setState(() {
-                            loading = false;
-                          });
-                        },
-                        text: "Recharge"),
-                  ] else if (balance > 0) ...[
-                    MyButton(
-                        onTap: () async {
-                          setState(() {
-                            loading = true;
-                          });
-                          await bookToBankAccount(widget.userdata, context);
-                          setState(() {
-                            loading = false;
-                          });
-                        },
-                        text: "Book to my Bank-Account"),
-                  ]
-                ],
-              ],
-            );
-          }),
+              )
+            ] else ...[
+              if (balance < 0) ...[
+                MyButton(
+                    onTap: () async {
+                      setState(() {
+                        loading = true;
+                      });
+                      await recharge(widget.userdata, context);
+                      setState(() {
+                        loading = false;
+                      });
+                    },
+                    text: "Recharge"),
+              ] else if (balance > 0) ...[
+                MyButton(
+                    onTap: () async {
+                      setState(() {
+                        loading = true;
+                      });
+                      await bookToBankAccount(widget.userdata, context);
+                      setState(() {
+                        loading = false;
+                      });
+                    },
+                    text: "Book to my Bank-Account"),
+              ]
+            ],
+          ],
+        );
+      }),
     );
   }
 }
