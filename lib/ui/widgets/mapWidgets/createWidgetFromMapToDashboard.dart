@@ -10,7 +10,6 @@ import 'package:internet_praktikum/core/services/date_service.dart';
 import 'package:internet_praktikum/core/services/map_service.dart';
 import 'package:internet_praktikum/ui/styles/Styles.dart';
 import 'package:internet_praktikum/ui/widgets/dashboardWidgets/addAppointmentWidgetToDashboard.dart';
-import 'package:internet_praktikum/ui/widgets/dashboardWidgets/addNoteWidgetToDashboard.dart';
 import 'package:internet_praktikum/ui/widgets/dashboardWidgets/addSurveyWidgetToDashboard.dart';
 import 'package:internet_praktikum/ui/widgets/errorSnackbar.dart';
 import 'package:internet_praktikum/ui/widgets/modalButton.dart';
@@ -271,9 +270,11 @@ class _CreateWidgetFromMapToDashboardState
             child: SizedBox(
               height: size.height * 0.25,
               child: CupertinoDatePicker(
-                minimumDate: (startEndDate.startDate).isAfter(DateTime.now())
-                    ? startEndDate.startDate
-                    : DateTime.now(),
+                minimumDate: startEndDate.startDate,
+                initialDateTime:
+                    (startEndDate.startDate).isAfter(DateTime.now())
+                        ? startEndDate.startDate
+                        : DateTime.now(),
                 maximumDate: startEndDate.endDate,
                 mode: CupertinoDatePickerMode.date,
                 onDateTimeChanged: (value) {

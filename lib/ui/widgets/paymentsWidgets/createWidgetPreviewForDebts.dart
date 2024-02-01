@@ -55,6 +55,11 @@ class _CreateDebtsState extends State<CreateDebts> {
 
   //create the debt in the database
   Future<void> createDebt() async {
+    if (amountList.isEmpty || optionList.isEmpty) {
+      ErrorSnackbar.showErrorSnackbar(
+          context, "Please fill at least one member to the request");
+      return;
+    }
     List<dynamic> to = [];
 
     for (int i = 0; i < amountList.length; i++) {
@@ -249,23 +254,29 @@ class _CreateDebtsState extends State<CreateDebts> {
           });
         }
       },
-      background: Container(
-        color: Colors.red,
-        child: const Align(
-            alignment: Alignment.centerRight,
-            child: Padding(
-              padding: EdgeInsets.only(left: 20),
-              child: Text(
-                "Swipe to Delete   ",
-                style: Styles.buttonFontStyle,
-                textAlign: TextAlign.center,
-              ),
-            )),
+      background: Padding(
+        padding: const EdgeInsets.all(4.0),
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(11.0),
+            color: Colors.red,
+          ),
+          child: const Align(
+              alignment: Alignment.centerRight,
+              child: Padding(
+                padding: EdgeInsets.only(left: 20),
+                child: Text(
+                  "Swipe to Delete   ",
+                  style: Styles.buttonFontStyle,
+                  textAlign: TextAlign.center,
+                ),
+              )),
+        ),
       ),
       child: ListTile(
         title: Padding(
-          padding: const EdgeInsets.only(
-            top: 8.0,
+          padding: const EdgeInsets.all(
+            4.0,
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -301,6 +312,7 @@ class _CreateDebtsState extends State<CreateDebts> {
               const SizedBox(
                 width: 15,
               ),
+              if (widget.preview == null) const Icon(Icons.drag_handle),
               if (widget.preview != null)
                 SizedBox(
                   width: MediaQuery.of(context).size.width * 0.14,

@@ -97,12 +97,13 @@ class _TopBarState extends State<TopBar> {
                                 return Center(
                                   child: Column(
                                     children: [
-                                      const SizedBox(height: 32),
+                                      const SizedBox(height: 16),
                                       const Text(
-                                          "Currently only Credit Card is supported."),
-                                      const SizedBox(
-                                          height:
-                                              8), // Hier kannst du die gewünschte vertikale Distanz einstellen
+                                          "Currently you can only Recharge \nto your Account with Credit Card."),
+                                      const SizedBox(height: 12),
+                                      const Text(
+                                          "And you can only Refund to your Bank Account."),
+                                      const SizedBox(height: 12),
                                       const Text(
                                           "We are working on adding more payment methods."),
                                       const SizedBox(height: 32),

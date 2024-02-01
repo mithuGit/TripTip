@@ -104,7 +104,12 @@ class _CalendarState extends State<Calendar> {
         setState(() {
           newStart = pickedRange.start;
           newEnd = pickedRange.end;
-          _setNewDateRange(newStart, newEnd);
+          if (newEnd!.difference(newStart!).inDays > 100) {
+            ErrorSnackbar.showErrorSnackbar(
+                context, 'Date range can\'t be longer than 100 days');
+          } else {
+            _setNewDateRange(newStart, newEnd);
+          }
         });
       }
     }

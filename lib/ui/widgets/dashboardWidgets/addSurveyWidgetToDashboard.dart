@@ -194,18 +194,24 @@ class AddSurveyWidgetToDashboardState
             _optionList.removeAt(index);
           });
         },
-        background: Container(
-          color: Colors.red,
-          child: const Align(
-              alignment: Alignment.centerRight,
-              child: Padding(
-                padding: EdgeInsets.only(left: 20),
-                child: Text(
-                  "Swipe to Delete   ",
-                  style: Styles.buttonFontStyle,
-                  textAlign: TextAlign.center,
-                ),
-              )),
+        background: Padding(
+          padding: const EdgeInsets.all(4.0),
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(11.0),
+              color: Colors.red,
+            ),
+            child: const Align(
+                alignment: Alignment.centerRight,
+                child: Padding(
+                  padding: EdgeInsets.only(left: 20),
+                  child: Text(
+                    "Swipe to Delete   ",
+                    style: Styles.buttonFontStyle,
+                    textAlign: TextAlign.center,
+                  ),
+                )),
+          ),
         ),
         child: Container(
           decoration: BoxDecoration(
