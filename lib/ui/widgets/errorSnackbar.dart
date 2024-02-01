@@ -1,10 +1,9 @@
-import 'dart:async';
+// ignore_for_file: file_names
 
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:internet_praktikum/ui/styles/Styles.dart';
-import 'package:internet_praktikum/ui/views/login_register_pages/login_or_register_page.dart';
-import 'package:internet_praktikum/ui/views/profile/profile.dart';
 import 'package:webview_flutter_plus/webview_flutter_plus.dart';
 
 // Class for showing error messages
@@ -66,12 +65,11 @@ class ErrorSnackbar {
                       JavascriptChannel(
                           name: 'Captcha',
                           onMessageReceived: (JavascriptMessage message) {
-                            Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => forDeleteButton
-                                        ? ProfilePage()
-                                        : const LoginOrRegisterPage()));
+                            if (forDeleteButton) {
+                              context.pushReplacement('/profile');
+                            } else {
+                              context.pushReplacement('/loginOrRegister');
+                            }
                           })
                     },
                   ),
