@@ -39,6 +39,12 @@ class PlacePhotoNetwork extends PlacePhoto {
   }
 }
 class PlacePhotoAsset extends PlacePhoto {
+  @override
+  final String name = "no name";
+  @override
+  final int heightPx = 100;
+  @override
+  final int widthPx = 100;
   ImageProvider get imageProvider => const AssetImage("assets/placeholder.jpg");
   PlacePhotoAsset() : super(name: '', heightPx: 0, widthPx: 0);
 }
@@ -66,7 +72,7 @@ class Place {
           widthPx: photo["heightPx"],
         );
       }).toList();
-  PlacePhoto get firstImage => photosElements.first;  //TODO: check if first Photo is null => was soll dann passieren?
+  PlacePhoto get firstImage => photos.isNotEmpty ? photosElements.first : PlacePhotoAsset();  //TODO: check if first Photo is null => was soll dann passieren?
   Place(
       {required this.name,
       required this.types,

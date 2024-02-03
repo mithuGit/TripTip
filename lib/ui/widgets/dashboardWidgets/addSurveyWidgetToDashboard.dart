@@ -1,5 +1,4 @@
 // ignore: file_names
-// ignore: file_names
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -143,6 +142,9 @@ class AddSurveyWidgetToDashboardState
       "typeOfSurvey": widget.typeOfSurvey,
       "allowmultipleanswers": allowmultipleAnswers,
     };
+    if (widget.place != null) {
+      data["place"] = widget.place!.toMap();
+    }
     if (deadline != null) {
       data["deadline"] = deadline;
     }

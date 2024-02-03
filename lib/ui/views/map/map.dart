@@ -762,9 +762,11 @@ class _MapPageState extends State<MapPage> {
                                             pressToGetRecommend = true;
 
                                             setState(() {
-                                              placeImage =
-                                                  places[1].photos[0]['name'];
-                                              loadingRecommendations = false;
+                                              if (places[1].photos.isNotEmpty) {
+                                                placeImage =
+                                                    places[1].photos[0]['name'];
+                                                loadingRecommendations = false;
+                                              }
                                             });
                                           } catch (e) {
                                             if (kDebugMode) {
