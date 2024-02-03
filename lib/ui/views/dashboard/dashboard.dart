@@ -36,6 +36,7 @@ class _DashBoardState extends State<DashBoard> {
 
   Future<void> loadData() async {
     try {
+      debugPrint("loading data: " + FirebaseAuth.instance.currentUser!.uid);
       if (widget.showDay != null && widget.showTrip != null) {
         DocumentReference selectedDayReferenceP =
             FirebaseFirestore.instance.doc(widget.showDay!);

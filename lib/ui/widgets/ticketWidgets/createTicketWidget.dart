@@ -244,13 +244,10 @@ class _CreateTicketsWidgetState extends State<CreateTicketsWidget> {
 
   // Function to check if a file already exists in the specified path
   Future<bool> doesFileExist(String tripId, String titleOfTicketText) async {
-    final pathToCheck = "files/$tripId/$titleOfTicketText";
-    final ref =
-        await FirebaseStorage.instance.ref().child(pathToCheck).listAll();
-    if (ref.items.isNotEmpty) {
-      return true;
-    } else {
-      return false;
-    }
+    QuerySnapshot ticket = await FirebaseFirestore.instance
+        .collection("trips")
+        .doc(tripId)
+        .collection("tickets").where("title", isEqualTo: titleOfTicketText).get();
+    return ticket.docs.isNotEmpty;
   }
 }

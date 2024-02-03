@@ -1,6 +1,8 @@
 // ignore_for_file: file_names
 import 'dart:async';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -102,8 +104,22 @@ class _OTPFormState extends State<OTPForm> {
                             child: Padding(
                               padding: const EdgeInsets.all(8.0),
                               child: MyButton(
-                                onTap: () => {
-                                  context.go('/loginorregister'),
+                                onTap: ()  async {  
+                                  DocumentSnapshot userDoc = await FirebaseFirestore.instance
+                                      .collection('users')
+                                      .doc(FirebaseAuth.instance.currentUser!.uid).get();
+                                      
+                                  if(userDoc.exists){
+                                  await FirebaseFirestore.instance
+                                      .collection('users')
+                                      .doc(FirebaseAuth.instance.currentUser!.uid)
+                                      .delete();
+                                      
+                                  await FirebaseAuth.instance.currentUser!.delete();}
+                                  if(context.mounted){
+ context.go('/loginorregister');
+                                  }
+                                 
                                 },
                                 text: 'Back',
                               ),

@@ -4,6 +4,8 @@ import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
+// this Error is thrown if the user is not in a trip
+
 class UserIsNotInTripException implements Exception {
   String errMsg() => 'User is not in a trip';
 }
@@ -11,9 +13,11 @@ class UserHasNoSelectedTripException implements Exception {
   String errMsg() => 'User has no selected trip';
 }
 class DashBoardData {
-  static final user = FirebaseAuth.instance.currentUser!;
-
+  
+  // A function that returns the current trip for the Widget list
   static Future<DocumentReference> getCurrentTrip() async {
+    // Can't be a static method because it uses the FirebaseAuth.instance.currentUser
+    final user = FirebaseAuth.instance.currentUser!;
     final userCollection = FirebaseFirestore.instance.collection('users');
     final userDoc = await userCollection.doc(user.uid).get();
     if (userDoc.data()?['selectedtrip'] == null)
@@ -24,11 +28,13 @@ class DashBoardData {
         FirebaseFirestore.instance.collection('trips').doc(tripId);
     return currentTrip;
   }
-
+  // used to get the userdata for the dashboard
   static Future<Map<String, dynamic>> getUserData() async {
+    final user = FirebaseAuth.instance.currentUser!;
     final userCollection = FirebaseFirestore.instance.collection('users');
     final userDoc = await userCollection.doc(user.uid).get();
-    Map<String, dynamic> _userData = userDoc.data() as Map<String, dynamic>;
+    if (!userDoc.exists) throw 'User does not exist';
+    Map<String, dynamic> _userData = userDoc.data()!;
     if (_userData['selectedtrip'] == null) throw UserHasNoSelectedTripException();
 
     final tripId = _userData['selectedtrip'];
@@ -70,9 +76,9 @@ class DashBoardData {
         'active': {},
         'archive': {},
       });
-
+      final tripEndPlusDay = tripEnd.add(const Duration(days: 1));
       // only within the trip duration a diary widget will be created
-      if (selectedDay.isAfter(tripStart) && selectedDay.isBefore(tripEnd)) {
+      if (selectedDay.isAfter(tripStart) && selectedDay.isBefore(tripEndPlusDay) || selectedDay.isAtSameMomentAs(tripStart)) {
         DocumentReference? diary;
         DateTime today = DateTime(DateTime.now().year, DateTime.now().month,
             DateTime.now().day, 0, 0, 0, 0);
@@ -111,7 +117,7 @@ class DashBoardData {
     } else {
       DocumentReference day = currentDay.docs.first.reference;
       final tripEndPlusDay = tripEnd.add(const Duration(days: 1));
-      if (selectedDay.isAfter(tripStart) && selectedDay.isBefore(tripEndPlusDay)) {
+      if (selectedDay.isAfter(tripStart) && selectedDay.isBefore(tripEndPlusDay) || selectedDay.isAtSameMomentAs(tripStart)) {
         Map<String, dynamic> active =
             ((await day.get()).data()! as Map<String, dynamic>)["active"];
         if (active["diary"] == null) {
@@ -155,6 +161,7 @@ class DashBoardData {
     }
   }
 
+// A function that returns the current day for the Widget list and also saves it in the currentDay variable for later use
   static Future<DateTime> calculateDiaryTime(DateTime starttime) {
     int randomHour = Random().nextInt(14);
     // since People are not awake at 0:00, we add 8 hours to the randomHour

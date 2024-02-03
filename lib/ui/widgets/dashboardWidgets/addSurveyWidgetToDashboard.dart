@@ -1,5 +1,6 @@
 // ignore: file_names
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:internet_praktikum/core/services/JobworkerService.dart';
@@ -175,6 +176,15 @@ class AddSurveyWidgetToDashboardState
       }
       await ManageDashboardWidged()
           .addWidget(day: widget.day, user: by, data: data, key: key);
+
+      final result = await FirebaseFunctions.instance.httpsCallable('surveyCreated').call({
+        "trip": widget.userdata["selectedtrip"],
+        "day": widget.day.id,
+        "title": nameofSurvey.text,
+      });
+      if(result.data["error"] != null){
+        throw Exception(result.data["error"]);
+      }
     } else {
       await ManageDashboardWidged()
           .updateWidget(widget.day, by, data, widget.data!["key"]);

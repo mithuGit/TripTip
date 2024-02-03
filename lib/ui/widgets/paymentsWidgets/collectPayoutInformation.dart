@@ -129,6 +129,9 @@ class CollectPayoutInformationState extends State<CollectPayoutInformation> {
   TextEditingController ibanController = TextEditingController();
   TextEditingController bicController = TextEditingController();
   TextEditingController nameController = TextEditingController();
+
+  bool loading = false;
+
   @override
   void initState() {
     super.initState();
@@ -147,6 +150,9 @@ class CollectPayoutInformationState extends State<CollectPayoutInformation> {
   }
 
   Future<void> savePayoutInformation() async {
+    setState(() {
+      loading = true;
+    });
     if (ibanController.text.isEmpty ||
         bicController.text.isEmpty ||
         nameController.text.isEmpty) {
@@ -169,6 +175,9 @@ class CollectPayoutInformationState extends State<CollectPayoutInformation> {
       await PaymentsHandeler.bookToBankAccount(user);
     }
     if (context.mounted) Navigator.pop(context);
+    setState(() {
+      loading = false;
+    });
   }
 
   @override
@@ -205,6 +214,9 @@ class CollectPayoutInformationState extends State<CollectPayoutInformation> {
           obscureText: false,
         ),
         const SizedBox(height: 20),
+        loading
+            ? const CircularProgressIndicator(color: Colors.black,)
+            :
         MyButton(
           onTap: () => savePayoutInformation().onError((error, stackTrace) =>
               ErrorSnackbar.showErrorSnackbar(context, error.toString())),

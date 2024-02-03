@@ -166,6 +166,7 @@ class ScrollViewWidget extends StatelessWidget {
                                 }
 
                                 archive[con["key"]] = con;
+                                archive[con["key"]]["archivedAt"] = DateTime.now();
                                 List<dynamic>? tempArray = bufferArray;
                                 tempArray?.remove(con);
                                 dayStreamFiltered.add(tempArray!);

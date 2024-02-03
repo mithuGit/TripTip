@@ -53,6 +53,10 @@ Future<UserCredential> signInWithGoogle() async {
     }
     
   }
+  if(FirebaseAuth.instance.currentUser != null) {
+    await FirebaseAuth.instance.currentUser!.reload();
+  }
+ 
   await PushNotificationService().gantPushNotifications();
   // finally, lets sign in the user
   return userCredential;
