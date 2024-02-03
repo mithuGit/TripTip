@@ -1,12 +1,14 @@
 import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:internet_praktikum/ui/views/weather/weather.dart';
 import 'package:http/http.dart' as http;
 
 class WeatherService {
+  // ignore: constant_identifier_names
   static const BASE_URL = 'https://api.openweathermap.org/data/2.5/weather';
   final String apiKey;
   WeatherService(this.apiKey);
@@ -16,14 +18,28 @@ class WeatherService {
 
   Future<Weather?> fetchWeather() async {
     try {
-      //String cityName = await getCurrentCity(); // das ist aktuelle Standort vom Handy
-      //final weather = await getWeather(cityName);
-      final weather = await getWeatherData(); // das ist der Standort vom Trip
+      final weather = await getWeatherData();
       actualWeather = weather;
       return weather;
     } catch (e) {
-      print(e);
-      return null;
+      if (kDebugMode) {
+        print(e);
+      }
+      return Future.error('Failed to load weather data');
+    }
+  }
+
+  Future<Weather> fetchWeatherForCurrentCity() async {
+    try {
+      String cityName = await getCurrentCity();
+      final weather = await getWeather(cityName);
+      actualWeather = weather;
+      return weather;
+    } catch (e) {
+      if (kDebugMode) {
+        print(e);
+      }
+      return Future.error('Failed to load weather data');
     }
   }
 
@@ -129,7 +145,9 @@ class WeatherService {
         throw Exception('Failed to get city name from coordinates');
       }
     } catch (e) {
-      print(e);
+      if (kDebugMode) {
+        print(e);
+      }
       return ""; // oder eine Standardstadt, falls ein Fehler auftritt
     }
   }
@@ -143,16 +161,15 @@ class WeatherService {
     }
 
     final DocumentSnapshot<Map<String, dynamic>> userDoc =
-      await FirebaseFirestore.instance.collection('users')
-      .doc(auth.uid).get(); 
-    
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(auth.uid)
+            .get();
+
     final String tripId = userDoc.data()!['selectedtrip'].toString();
 
     final DocumentSnapshot<Map<String, dynamic>> selectedTripDoc =
-        await FirebaseFirestore.instance
-            .collection('trips')
-            .doc(tripId)
-            .get();
+        await FirebaseFirestore.instance.collection('trips').doc(tripId).get();
 
     if (selectedTripDoc.exists == false) {
       // Handle the case where no trip is found for the user

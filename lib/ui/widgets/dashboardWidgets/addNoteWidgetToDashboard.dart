@@ -1,21 +1,31 @@
+// ignore_for_file: avoid_print
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:internet_praktikum/core/services/manageDashboardWidget.dart';
+import 'package:internet_praktikum/core/services/map_service.dart';
 import 'package:internet_praktikum/ui/styles/Styles.dart';
 import 'package:internet_praktikum/ui/widgets/errorSnackbar.dart';
 import 'package:internet_praktikum/ui/widgets/inputfield.dart';
-import 'package:internet_praktikum/ui/widgets/modalButton.dart';
 import 'package:internet_praktikum/ui/widgets/my_button.dart';
 import 'package:uuid/uuid.dart';
 
+// ignore: must_be_immutable
 class AddNoteWidgetToDashboard extends StatefulWidget {
   Map<String, dynamic> userdata;
   DocumentReference day;
   Map<String, dynamic>? data;
+  Place? place;
   @override
   AddNoteWidgetToDashboard(
-      {super.key, required this.day, required this.userdata, this.data});
+      {super.key,
+      required this.day,
+      required this.userdata,
+      this.data,
+      this.place});
 
+  @override
+  // ignore: library_private_types_in_public_api
   _AddNoteWidgetToDashboardState createState() =>
       _AddNoteWidgetToDashboardState();
 }
@@ -27,9 +37,16 @@ class _AddNoteWidgetToDashboardState extends State<AddNoteWidgetToDashboard> {
   @override
   void initState() {
     super.initState();
+    getPlaceDetails();
     if (widget.data != null) {
       nameOfNote.text = widget.data!["title"];
       note.text = widget.data!["content"];
+    }
+  }
+
+  void getPlaceDetails() {
+    if (widget.place != null) {
+      nameOfNote.text = widget.place!.name;
     }
   }
 
@@ -46,13 +63,13 @@ class _AddNoteWidgetToDashboardState extends State<AddNoteWidgetToDashboard> {
       };
       DocumentReference by = FirebaseFirestore.instance
           .collection('users')
-          .doc(widget.userdata!["uid"]);
+          .doc(widget.userdata["uid"]);
       if (widget.data == null) {
         await ManageDashboardWidged()
-            .addWidget(day: widget.day!, user: by, data: data);
+            .addWidget(day: widget.day, user: by, data: data);
       } else {
         await ManageDashboardWidged()
-            .updateWidget(widget.day!, by, data, widget.data!["key"]);
+            .updateWidget(widget.day, by, data, widget.data!["key"]);
       }
       if (context.mounted) Navigator.pop(context);
     }
@@ -77,6 +94,15 @@ class _AddNoteWidgetToDashboardState extends State<AddNoteWidgetToDashboard> {
       const SizedBox(
         height: 10,
       ), // creating mode when no data is passed
+      /*if (widget.place != null) ...[
+        const SizedBox(height: 10),
+        Text(
+          "Is bound to location: ${widget.place!.name}",
+          style: Styles.inputField,
+          textAlign: TextAlign.left,
+        ),
+        const SizedBox(height: 20),
+      ],*/
       MyButton(
           borderColor: Colors.black,
           textStyle: Styles.buttonFontStyleModal,

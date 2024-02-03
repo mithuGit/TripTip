@@ -3,13 +3,14 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:go_router/go_router.dart';
+import 'package:internet_praktikum/core/services/dashboardData.dart';
 import 'package:internet_praktikum/ui/styles/Styles.dart';
 import 'package:internet_praktikum/ui/widgets/dashboardWidgets/mainDasboardinitializer.dart';
 import 'package:intl/intl.dart';
 
+// this is the archive page where the user can see all the deleted widgets and can restore them
 class Archive extends StatefulWidget {
-  Archive({super.key, this.day});
-  var day;
+  Archive({super.key});
 
   @override
   State<Archive> createState() => _Archive();
@@ -18,10 +19,12 @@ class Archive extends StatefulWidget {
 class _Archive extends State<Archive> {
   final userCollection = FirebaseFirestore.instance.collection('users');
   static final user = FirebaseAuth.instance.currentUser!;
+  var userdata;
   CollectionReference currentTrip =
       FirebaseFirestore.instance.collection('trips');
 
   Future<List> getArchives() async {
+    userdata = await DashBoardData.getUserData();
     final userDoc = await userCollection.doc(user.uid).get();
     if (userDoc.data()?['selectedtrip'] == null) {
       throw Exception('No trip selected');
@@ -46,7 +49,6 @@ class _Archive extends State<Archive> {
             });
           },
         );
-
 
     archiveList.sort((a, b) => a["daytime"].compareTo(b["daytime"]));
 
@@ -106,7 +108,7 @@ class _Archive extends State<Archive> {
                           label: "Add back"),
                     ]),
                 child: MainDasboardinitializer(
-                    title: item["title"], data: item))));
+                    title: item["title"], data: item, userdata: userdata))));
       });
     });
     return returnList;
@@ -120,6 +122,13 @@ class _Archive extends State<Archive> {
           centerTitle: true,
           title: const Text("Archive"),
           titleTextStyle: const TextStyle(color: Colors.black, fontSize: 20),
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back_ios),
+            color: Colors.black,
+            onPressed: () {
+              context.go('/');
+            },
+          ),
         ),
         body: FutureBuilder(
             future: getArchives(),

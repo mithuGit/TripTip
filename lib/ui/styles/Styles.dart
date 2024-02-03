@@ -1,5 +1,8 @@
+// ignore_for_file: file_names
+
 import 'package:flutter/material.dart';
 
+// class to store all the styles used in the app
 class Styles {
   static const overlayTitle = TextStyle(
       fontFamily: 'Ubuntu',
@@ -77,12 +80,12 @@ class Styles {
       color: Colors.black);
   static const buttonStyle = TextStyle(
       fontFamily: 'fonts/Ubuntu-Regular.ttf',
-      fontSize: 18,
+      fontSize: 16,
       fontWeight: FontWeight.w400,
       color: Colors.white);
   static const buttonStyleRed = TextStyle(
       fontFamily: 'fonts/Ubuntu-Regular.ttf',
-      fontSize: 18,
+      fontSize: 16,
       fontWeight: FontWeight.w400,
       color: Colors.red);
   static const characterStyle = TextStyle(
@@ -114,8 +117,7 @@ class Styles {
       fontFamily: 'fonts/Ubuntu-Regular.ttf',
       fontSize: 15,
       fontWeight: FontWeight.w400,
-      color: Colors.white
-  );
+      color: Colors.white);
   static const mapadress = TextStyle(
       fontFamily: 'fonts/Ubuntu-Regular.ttf',
       fontSize: 15,
@@ -167,11 +169,26 @@ class Styles {
     fontFamily: 'Ubuntu',
     fontWeight: FontWeight.w500,
   );
-  );
   static const archiveDiv = TextStyle(
       fontFamily: 'fonts/Ubuntu-Regular.ttf',
       fontSize: 20,
       fontWeight: FontWeight.w400,
       color: Colors.black);
+  static const mapButtonStyle = TextStyle(
+    color: Colors.white,
+    fontSize: 12,
+    fontFamily: 'Ubuntu',
+  );
+  static const verifystyle = TextStyle(
+    fontFamily: 'Ubuntu',
+    color: Colors.white,
+    fontSize: 20,
+  );
+  static const headlineForDateInMapWidget = TextStyle(
+    fontSize: 14,
+    color: Colors.black,
+    height: 1.5,
+    fontWeight: FontWeight.w500,
+    fontFamily: 'Ubuntu',
+  );
 }
-

@@ -1,7 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:internet_praktikum/core/services/init_pushnotifications.dart';
 import 'package:internet_praktikum/core/services/placeApiProvider.dart';
 import 'package:internet_praktikum/ui/widgets/datepicker.dart';
 import 'package:internet_praktikum/ui/widgets/errorSnackbar.dart';
@@ -12,7 +11,11 @@ import 'package:intl/intl.dart';
 import '../../widgets/container.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+///Create trips page, used in first account creation, when user has no trips and via edit trips site
+
 class CreateTrip extends StatefulWidget {
+  // beacuse of Testing we need to pass the firestore and auth object
+  // but this is not required in the final app
   final FirebaseFirestore firestore;
   final FirebaseAuth auth;
   const CreateTrip({super.key, required this.firestore, required this.auth});
@@ -20,13 +23,7 @@ class CreateTrip extends StatefulWidget {
   State<CreateTrip> createState() => _TripCreateState();
 }
 
-class User {
-  String prename;
-  String lastname;
-  Image profileImage;
-  User(this.prename, this.lastname, this.profileImage);
-}
-
+///Main Widget
 class _TripCreateState extends State<CreateTrip> {
   CollectionReference trips = FirebaseFirestore.instance.collection('trips');
   final destinationText = TextEditingController();
@@ -35,14 +32,8 @@ class _TripCreateState extends State<CreateTrip> {
   PlaceDetails? destination;
   DateTime? selectedStartDate;
   DateTime? selectedEndDate;
-  final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  void connectPhotosAlbum() async {
-    setState(() {
-      //  name = "Hallo";
-    });
-  }
-
+  // Simple function to create a trip
   Future<void> create_trip() async {
     try {
       final members = [];
@@ -57,23 +48,28 @@ class _TripCreateState extends State<CreateTrip> {
           selectedStartDate!.millisecondsSinceEpoch) {
         throw Exception("End date must be after start date!");
       }
-      DocumentReference user = widget.firestore
-          .collection("users")
-          .doc(widget.auth.currentUser?.uid);
-      members.add(user);
-      print("Create Trip: $destination $selectedStartDate $selectedEndDate");
 
+      final duration = selectedEndDate!.difference(selectedStartDate!);
+      if (duration.inDays > 100) {
+        throw Exception("Trip can't be longer than 100 days!");
+      }
+      // Here no cloud Function is required, beacuse the user is already logged in and is owner of the trip
+      var self = FirebaseFirestore.instance
+          .doc("/users/${widget.auth.currentUser!.uid}");
+      members.add(self);
+
+      // By now the Trip has no dates, they are created whem the user goes to the dashboard
       DocumentReference trip = await trips.add({
         'city': destination?.cityName,
         'placedetails': destination?.placeDetails,
         'startdate': selectedStartDate,
         'enddate': selectedEndDate,
-        'createdBy': FirebaseFirestore.instance.doc((widget.auth.currentUser?.uid).toString()),
+        'createdBy': self,
         'members': members
       });
       FirebaseFirestore.instance
           .collection("users")
-          .doc(_auth.currentUser?.uid)
+          .doc(widget.auth.currentUser?.uid)
           .update({"selectedtrip": trip.id});
 
       if (context.mounted) {
@@ -86,13 +82,14 @@ class _TripCreateState extends State<CreateTrip> {
       }
     }
   }
-
+  
+  ///Widget builder for the text fields and buttons
   @override
   Widget build(BuildContext context) {
     // Get Screen Size
     return Scaffold(
         backgroundColor: const Color(0xFFCBEFFF),
-        resizeToAvoidBottomInset: true,
+        resizeToAvoidBottomInset: false,
         body: SafeArea(
           child: Stack(children: [
             Container(
@@ -137,8 +134,9 @@ class _TripCreateState extends State<CreateTrip> {
                         CupertinoDatePickerButton(
                           margin: const EdgeInsets.only(bottom: 25),
                           showFuture: true,
+                          boundingDate: DateTime.now(),
                           presetDate: selectedStartDate != null
-                              ? DateFormat('dd-MM-yyyy')
+                              ? DateFormat('dd/MM/yyyy')
                                   .format(selectedStartDate ?? DateTime.now())
                               : 'select start Date',
                           onDateSelected: (DateStringTupel formattedDate) {
@@ -165,8 +163,9 @@ class _TripCreateState extends State<CreateTrip> {
                         CupertinoDatePickerButton(
                           margin: const EdgeInsets.only(bottom: 25),
                           showFuture: true,
+                           boundingDate: DateTime.now(),
                           presetDate: selectedEndDate != null
-                              ? DateFormat('dd-MM-yyyy')
+                              ? DateFormat('dd/MM/yyyy')
                                   .format(selectedEndDate ?? DateTime.now())
                               : 'select end Date',
                           onDateSelected: (DateStringTupel formattedDate) {
@@ -179,11 +178,7 @@ class _TripCreateState extends State<CreateTrip> {
                             onTap: connectPhotosAlbum,
                             imagePath: 'assets/googlephotos.png',
                             text: 'Create Photos Album'), */
-                        MyButton(
-                            onTap: () {
-                              PushNotificationService().initialise();
-                            },
-                            text: 'Push Notifications'),
+
                         MyButton(
                             margin: const EdgeInsets.only(top: 20),
                             onTap: create_trip,

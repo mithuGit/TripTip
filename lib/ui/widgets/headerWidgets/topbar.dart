@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:internet_praktikum/core/services/weather_service.dart';
 import 'package:internet_praktikum/ui/views/weather/weather.dart';
 import 'package:internet_praktikum/ui/widgets/bottom_sheet.dart';
+import 'package:internet_praktikum/ui/widgets/errorSnackbar.dart';
 import 'package:internet_praktikum/ui/widgets/headerWidgets/header_button.dart';
 
 class TopBar extends StatefulWidget implements PreferredSizeWidget {
@@ -44,8 +45,8 @@ class _TopBarState extends State<TopBar> {
 
   Future<void> fetchWeather() async {
     // is not the same as in weather_info.dart
+    final weather = await _weatherHandler.fetchWeather();
     if (mounted) {
-      final weather = await _weatherHandler.fetchWeather();
       setState(() {
         actualWeather = weather;
       });
@@ -55,6 +56,7 @@ class _TopBarState extends State<TopBar> {
   @override
   Widget build(BuildContext context) {
     return AppBar(
+        scrolledUnderElevation: 0,
         backgroundColor: Colors.white,
         centerTitle: true,
         title: widget.isDash != null
@@ -72,7 +74,12 @@ class _TopBarState extends State<TopBar> {
         leading: widget.isDash != null
             ? HeaderButton(
                 onTap: () {
-                  context.go('/weatherpage');
+                  if (actualWeather != null) {
+                    context.go('/weatherpage', extra: actualWeather);
+                  } else {
+                    ErrorSnackbar.showErrorSnackbar(
+                        context, "Please wait until the weather is loaded.");
+                  }
                 },
                 temperature: '${actualWeather?.temperature.round()}°C',
                 weatherImage:
@@ -90,12 +97,13 @@ class _TopBarState extends State<TopBar> {
                                 return Center(
                                   child: Column(
                                     children: [
-                                      const SizedBox(height: 32),
+                                      const SizedBox(height: 16),
                                       const Text(
-                                          "Currently only Credit Card is supported."),
-                                      const SizedBox(
-                                          height:
-                                              8), // Hier kannst du die gewünschte vertikale Distanz einstellen
+                                          "Currently you can only Recharge \nto your Account with Credit Card."),
+                                      const SizedBox(height: 12),
+                                      const Text(
+                                          "And you can only Refund to your Bank Account."),
+                                      const SizedBox(height: 12),
                                       const Text(
                                           "We are working on adding more payment methods."),
                                       const SizedBox(height: 32),

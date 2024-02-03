@@ -1,7 +1,10 @@
+// ignore_for_file: file_names
+
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_pdfview/flutter_pdfview.dart';
 
+// class for viewing a pdf and navigating through the pages
 class PDFViewerPage extends StatefulWidget {
   final File file;
   final String title;

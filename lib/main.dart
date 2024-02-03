@@ -15,14 +15,37 @@ Future<void> main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  // when ever the app is started, the user is reloaded
+  // if the user is not logged in, the user is null
   if (FirebaseAuth.instance.currentUser != null) {
-    await PushNotificationService().checkInitialized();
+    try {
+      await FirebaseAuth.instance.currentUser!.reload();
+    } catch (e) {
+      await FirebaseAuth.instance.signOut();
+      //await PushNotificationService().disable();
+    }
   }
-  runApp(Main());
+
+// ignore: missing_provider_scope
+  runApp(const Main());
 }
 
-class Main extends StatelessWidget {
+class Main extends StatefulWidget {
   const Main({super.key});
+
+  @override
+  State<Main> createState() => _MainState();
+}
+
+class _MainState extends State<Main> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await PushNotificationService().initalize();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(

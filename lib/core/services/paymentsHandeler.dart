@@ -2,7 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
-import 'package:internet_praktikum/ui/widgets/errorSnackbar.dart';
 
 class NoPayOutinformation implements Exception {
   String cause;
@@ -10,32 +9,30 @@ class NoPayOutinformation implements Exception {
 }
 
 class PaymentsHandeler {
-  FirebaseFunctions functions = FirebaseFunctions.instance;
-  Future<String> createAccoutAndAddPaymentsMethode(
+  
+  static FirebaseFunctions functions = FirebaseFunctions.instanceFor(region: "europe-west3");
+  static Future<String> createAccoutAndAddPaymentsMethode(
       DocumentReference user) async {
-    final result = await FirebaseFunctions.instance
-        .httpsCallable('stripeAddPaymentsMethode')
+    final result = await functions
+        .httpsCallable('stripeAddPaymentsMethode', )
         .call();
 
-    final _response = result.data;
+    final response = result.data;
 
-    if (_response["success"]) {
-      final _setupIntent = _response["setupIntent"];
-      final _ephemeralKey = _response["ephemeralKey"];
-      final _customer = _response["customer"];
+    if (response["success"]) {
+      return response["customer"];
     } else {
-      throw _response["error"];
+      throw response["error"];
     }
-    return _response["customer"];
   }
 
-  Future<void> refund(DocumentSnapshot user) async {
+  static Future<void> refund(DocumentSnapshot user) async {
     String _stripeId = "";
     if ((user.data()! as Map<String, dynamic>)["stripeId"] == null) {
       try {
         _stripeId = await createAccoutAndAddPaymentsMethode(user.reference);
       } catch (e) {
-        throw "Error creating Account";
+        throw "Error creating Account$e";
       }
     } else {
       _stripeId = (user.data()! as Map<String, dynamic>)["stripeId"];
@@ -45,34 +42,34 @@ class PaymentsHandeler {
     String? cachedPaymentIntend;
     try {
       final result =
-          await FirebaseFunctions.instance.httpsCallable('stripeRefund').call(
+          await functions.httpsCallable('stripeRefund').call(
         {
           "customer": _stripeId,
-          "amount": 23.4,
         },
       );
-      final _response = result.data;
-      print(_response);
-      cachedPaymentIntend = _response["paymentIntentId"];
+      if (result.data["success"] == false) {
+        throw result.data["error"];
+      }
+      cachedPaymentIntend = result.data["paymentIntentId"];
       await Stripe.instance.initPaymentSheet(
           paymentSheetParameters: SetupPaymentSheetParameters(
-        paymentIntentClientSecret: _response["paymentIntent"],
-        merchantDisplayName: 'TipTrip',
+        paymentIntentClientSecret: result.data["paymentIntent"],
+        merchantDisplayName: 'TripTip',
         customerId: _stripeId,
-        customerEphemeralKeySecret: _response["ephemeralKey"],
+        customerEphemeralKeySecret: result.data["ephemeralKey"],
         style: ThemeMode.dark,
       ));
       // Start Payment
       await Stripe.instance.presentPaymentSheet();
     } on FirebaseFunctionsException catch (error) {
-      throw "Error creating refund";
+      throw "Error creating refund: ${error.message}";
     } on StripeException catch (error) {
       debugPrint("StripeException");
       debugPrint(error.toString());
       if (error.error.code == FailureCode.Canceled) {
         debugPrint("Canceled");
         if (cachedPaymentIntend != null) {
-          final cancelResult = await FirebaseFunctions.instance
+          final cancelResult = await functions
               .httpsCallable("stripeCancelRefund")
               .call(
             {
@@ -89,42 +86,48 @@ class PaymentsHandeler {
           }
         }
       }
-    } catch (error) {}
+    } catch (error) {
+      throw "Error creating refund: ${error.toString()}";
+    }
   }
 
-  Future<void> bookToBankAccount(DocumentSnapshot myAccount) async {
+  static Future<void> bookToBankAccount(DocumentSnapshot myAccount) async {
     Map<String, dynamic> data = myAccount.data()! as Map<String, dynamic>;
     if (data["payoutInformation"] == null) {
       throw NoPayOutinformation("No Payout Information");
     }
-    final result = await FirebaseFunctions.instance
+    final result = await functions
         .httpsCallable('bookToBankAccount')
         .call();
-    final _response = result.data as String;
-    print(_response);
+    final response = result.data as Map<String, dynamic>;
+    if (!response["success"]) {
+      throw response["error"];
+    }
   }
 
-  Future<void> payOpenRefundsPerUser(List<Map<String, dynamic>> openRefunds,
-      DocumentReference theotherUser, DocumentReference me) async {
-    double sumOfRefunds = 0;
-    for (final refund in openRefunds) {
-      final QueryDocumentSnapshot request = refund["request"];
-      List<dynamic> to = (request.data()! as Map<String, dynamic>)["to"];
-      to[refund["indexInArray"]] = {
-        "amount": refund["amount"],
-        "user": me,
-        "status": "paid",
-      };
-      sumOfRefunds += refund["amount"] * 1.0;
-      await request.reference.update({
-        "to": to,
-      });
+  static Future<void> payOpenRefundsPerUser(
+      DocumentReference userToPayFor, DocumentReference trip) async {
+    final result = await functions
+        .httpsCallable('payOpenRefundsPerUser')
+        .call({
+      "destinationUser": userToPayFor.id,
+      "trip": trip.id,
+    });
+    final response = result.data as Map<String, dynamic>;
+    if (!response["success"]) {
+      throw response["error"];
     }
-    await theotherUser.update({
-      "balance": FieldValue.increment(sumOfRefunds),
+  }
+  static Future<void> deleteRequest(DocumentReference request) async {
+    debugPrint(request.path);
+    final result = await functions
+        .httpsCallable('deleteRequest')
+        .call({
+      "request": request.path,
     });
-    await me.update({
-      "balance": FieldValue.increment(-sumOfRefunds),
-    });
+    final response = result.data as Map<String, dynamic>;
+    if (!response["success"]) {
+      throw response["error"];
+    }
   }
 }

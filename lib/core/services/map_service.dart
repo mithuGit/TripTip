@@ -7,9 +7,16 @@ import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert' as convert;
-import 'package:location/location.dart';
 
-class PlacePhoto {
+
+abstract class PlacePhoto {
+  final String name;
+  final int widthPx;
+  final int heightPx;
+  ImageProvider get imageProvider;
+  PlacePhoto({required this.name, required this.heightPx, required this.widthPx});
+}
+class PlacePhotoNetwork extends PlacePhoto {
   final String name;
   int widthPx;
   int heightPx;
@@ -18,11 +25,11 @@ class PlacePhoto {
   ImageProvider get imageProvider => NetworkImage(
         "https://places.googleapis.com/v1/$name/media?maxHeightPx=$heightPx&maxWidthPx=$widthPx&key=$_key",
       );
-  PlacePhoto({
+  PlacePhotoNetwork({
     required this.name,
     required this.heightPx,
     required this.widthPx,
-  }) {
+  }) : super(name: '', heightPx: 0, widthPx: 0) {
     if (widthPx >= 4800) {
       widthPx = 4800;
     }
@@ -30,6 +37,16 @@ class PlacePhoto {
       heightPx = 4800;
     }
   }
+}
+class PlacePhotoAsset extends PlacePhoto {
+  @override
+  final String name = "no name";
+  @override
+  final int heightPx = 100;
+  @override
+  final int widthPx = 100;
+  ImageProvider get imageProvider => const AssetImage("assets/placeholder.jpg");
+  PlacePhotoAsset() : super(name: '', heightPx: 0, widthPx: 0);
 }
 
 class Place {
@@ -46,13 +63,16 @@ class Place {
   final List<dynamic> reviews;
   get typesString => types.join(", ");
   get photosElements => photos.map((photo) {
-        return PlacePhoto(
+        if (photo == null) {
+          return PlacePhotoAsset();
+        }
+        return PlacePhotoNetwork(
           name: photo["name"],
           heightPx: photo["widthPx"],
           widthPx: photo["heightPx"],
         );
       }).toList();
-  PlacePhoto get firstImage => photosElements.first;
+  PlacePhoto get firstImage => photos.isNotEmpty ? photosElements.first : PlacePhotoAsset();  //TODO: check if first Photo is null => was soll dann passieren?
   Place(
       {required this.name,
       required this.types,
@@ -65,13 +85,47 @@ class Place {
       required this.buisnessStatus,
       required this.rating,
       required this.reviews});
+  Map<String, dynamic> toMap() {
+    return {
+      "name": name,
+      "types": types,
+      "primaryType": primaryType,
+      "location": {
+        "latitude": location.latitude,
+        "longitude": location.longitude
+      },
+      "placeId": placeId,
+      "photos": photos,
+      "formattedAddress": formattedAddress,
+      "internationalPhoneNumber": internationalPhoneNumber,
+      "buisnessStatus": buisnessStatus,
+      "rating": rating,
+      "reviews": reviews
+    };
+  }
+
+  static Place fromMap(Map<String, dynamic> map) {
+    return Place(
+        name: map["name"],
+        types: map["types"],
+        primaryType: map["primaryType"],
+        location:
+            LatLng(map["location"]["latitude"], map["location"]["longitude"]),
+        placeId: map["placeId"],
+        photos: map["photos"],
+        formattedAddress: map["formattedAddress"],
+        internationalPhoneNumber: map["internationalPhoneNumber"],
+        buisnessStatus: map["buisnessStatus"],
+        rating: map["rating"],
+        reviews: map["reviews"]);
+  }
 }
 
 class GoogleMapService {
   static const key = "AIzaSyBUh4YsufaUkM8XQqdO8TSXKpBf_3dJOmA";
 
-  Future<dynamic> getPlacesNew(LatLng coords, int radius,
-      List<String> interests, List<String> notInterests) async {
+  Future<dynamic> getPlacesNew(
+      LatLng coords, int radius, List<String> interests) async {
     var lat = coords.latitude;
     var lng = coords.longitude;
 
@@ -79,22 +133,17 @@ class GoogleMapService {
 
     List<String> interestsList1 = [];
     List<String> interestsList2 = [];
-    List<String> notInterestsList1 = [];
-    List<String> notInterestsList2 = [];
 
     for (var i = 0; i < interests.length; i++) {
-      if (i <= 50) {
+      if (i < 40) {
         interestsList1.add(interests[i]);
       } else {
         interestsList2.add(interests[i]);
       }
     }
-    for (var i = 0; i < notInterests.length; i++) {
-      if (i <= 50) {
-        notInterestsList1.add(notInterests[i]);
-      } else {
-        notInterestsList2.add(notInterests[i]);
-      }
+    String maxAmount = "5";
+    if (interestsList2.isEmpty) {
+      maxAmount = "10";
     }
 
     var apiRequest1 = await http.post(Uri.parse(url),
@@ -105,9 +154,8 @@ class GoogleMapService {
               "radius": "$radius"
             }
           },
-          "maxResultCount": "5",
+          "maxResultCount": maxAmount,
           "includedTypes": interestsList1,
-          "excludedTypes": notInterestsList1,
         }),
         headers: {
           "X-Goog-Api-Key": key,
@@ -115,7 +163,7 @@ class GoogleMapService {
               "places.displayName,places.types,places.location,places.photos,places.id,places.formattedAddress,places.internationalPhoneNumber,places.businessStatus,places.rating,places.reviews,places.primaryType"
         });
     var json2;
-    if (interestsList2.isEmpty && notInterestsList2.isEmpty) {
+    if (interestsList2.isNotEmpty) {
       var apiRequest2 = await http.post(Uri.parse(url),
           body: convert.jsonEncode({
             "locationRestriction": {
@@ -126,7 +174,6 @@ class GoogleMapService {
             },
             "maxResultCount": "5",
             "includedTypes": interestsList2,
-            "excludedTypes": notInterestsList2,
           }),
           headers: {
             "X-Goog-Api-Key": key,
@@ -148,22 +195,21 @@ class GoogleMapService {
     } else {
       places = json1["places"];
     }
-
     for (var place in places) {
       placeList.add(Place(
-        name: place["displayName"]["text"],
-        types: place["types"],
+        name: place["displayName"]["text"] ?? "No name",
+        types: place["types"] ?? ["No types"],
         location: LatLng(
             place["location"]["latitude"], place["location"]["longitude"]),
         placeId: place["id"],
-        photos: place["photos"],
+        photos: place["photos"] ?? [],
         formattedAddress: place["formattedAddress"] ?? "Non given",
         internationalPhoneNumber:
             place["internationalPhoneNumber"] ?? "Non given",
-        buisnessStatus: place["businessStatus"],
-        rating: place["rating"] * 1.0,
+        buisnessStatus: place["businessStatus"] ?? "Non given",
+        rating: place["rating"] != null ? place["rating"] * 1.0 : 0.0,
         primaryType: place["primaryType"] ?? "",
-        reviews: place["reviews"],
+        reviews: place["reviews"] ?? [],
       ));
     }
     return placeList;
@@ -203,62 +249,6 @@ class GoogleMapService {
     LatLng latLng = LatLng(double.parse(lat), double.parse(long));
     // print( "latLng: " + latLng.toString());
     return latLng;
-  }
-
-  Future<Marker> getCurrentLocation(
-      Completer<GoogleMapController> _googleMapController) async {
-    bool serviceEnabled;
-    PermissionStatus permissionGranted;
-
-    serviceEnabled = await Location().serviceEnabled();
-    if (!serviceEnabled) {
-      serviceEnabled = await Location().requestService();
-      if (!serviceEnabled) {
-        return const Marker(
-            markerId: MarkerId('myLocation'),
-            infoWindow: InfoWindow(
-              title: 'My Current Location',
-            ),
-            position: LatLng(0, 0));
-      }
-    }
-
-    permissionGranted = await Location().hasPermission();
-    if (permissionGranted == PermissionStatus.denied) {
-      permissionGranted = await Location().requestPermission();
-      if (permissionGranted != PermissionStatus.granted) {
-        return const Marker(
-            markerId: MarkerId('myLocation'),
-            infoWindow: InfoWindow(
-              title: 'My Current Location',
-            ),
-            position: LatLng(0, 0));
-      }
-    }
-
-    LocationData currentPosition = await Location().getLocation();
-    var latitude = currentPosition.latitude!;
-    var longitude = currentPosition.longitude!;
-
-    final Uint8List markerIcon = await getBytesFromAsset(
-        'assets/my_location.png',
-        100); //TODO: ICON auf Blau machen, also die PNG Datei ändern
-
-    var currentLocation = Marker(
-        markerId: const MarkerId('myLocation'),
-        infoWindow: const InfoWindow(
-          title: 'My Current Location',
-        ),
-        position: LatLng(latitude, longitude),
-        icon: BitmapDescriptor.fromBytes(markerIcon));
-
-    var controller = await _googleMapController.future;
-    controller.animateCamera(
-      CameraUpdate.newCameraPosition(
-        CameraPosition(target: LatLng(latitude, longitude), zoom: 15),
-      ),
-    );
-    return currentLocation;
   }
 
   Future<Uint8List> getBytesFromAsset(String path, int width) async {

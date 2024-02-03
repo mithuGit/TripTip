@@ -3,13 +3,24 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/scheduler.dart';
+import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:internet_praktikum/ui/widgets/errorSnackbar.dart';
 import 'package:internet_praktikum/ui/widgets/my_button.dart';
 import '../../widgets/container.dart';
 import '../../widgets/inputfield.dart';
 import '../../widgets/datepicker.dart';
 import 'package:go_router/go_router.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:image_cropper/image_cropper.dart';
+
+/*
+This class is being used to display the account details of the user. 
+It is also used to edit the account details of the user.
+to set the profile picture of the user, the user can click on the profile picture and select a picture from the gallery.
+
+*/
 
 class Account extends StatefulWidget {
   final bool isEditProfile;
@@ -28,300 +39,340 @@ class _AccountState extends State<Account> {
   final prenameController = TextEditingController();
   final lastnameController = TextEditingController();
   final emailController = TextEditingController();
-  final dateOfBirthController = TextEditingController();
   final passwordController = TextEditingController();
 
-  XFile? pickedFile;
+  Color buttonColor = Colors.grey;
+  Color buttonFill = Colors.white;
+  var buttonIcon = Icons.copy;
 
   //sonst late inizalisiert fehler
   String selectedDate = '';
+  DateTime? selectedAge;
   ImageProvider<Object>? imageProvider;
 
+  DateTime? selectedDateTime;
+
   String imageURL = '';
-  //set and updates Userdata in the FirebaseCollestion users
-  void updateUserData(String prename, String lastname, String dateOfBirth,
-      String email, String image) async {
-    await userCollection.doc(currentUser.uid).update({
-      'prename': prename,
-      'lastname': lastname,
-      'dateOfBirth': dateOfBirth,
-      'email': email,
-      'profilepicture': image,
-    });
-  }
-
-  //Update the email in Auth
-  Future<void> updateAuthEmail(
-      String newEmail, String oldMail, String password) async {
-    AuthCredential credential =
-        EmailAuthProvider.credential(email: oldMail, password: password);
-
-    await currentUser.reauthenticateWithCredential(credential).then((value) {
-      currentUser.updateEmail(newEmail);
-    }).catchError((e) {
-      if (kDebugMode) {
-        print(e.toString());
-      }
-    });
-  }
-
-  //Updates displayName in Auth
-  Future<void> updateAuthDisplayName(String prename, String lastName) async {
-    try {
-      await currentUser.updateDisplayName("$prename $lastName");
-    } catch (e) {
-      if (kDebugMode) {
-        print("Error updating Displayname: $e");
-      }
-    }
-  }
-
+  String newImageURL = '';
+  String imagePath = '';
+  String newImagePath = '';
+  bool uploading = false;
+  bool loarding = false;
   @override
   void initState() {
     super.initState();
-    getUserData();
+    setState(() {
+      loarding = true;
+    });
 
-    //TODO: damit kann man irgendwie das Bild in Avatr sehen,
-    //TODO: check aber nicht so ganz wieso? Ich glaub es liegt daran, dass es sonst nicht inizalisiert ist
-    //TODO: und currentUser-photoUrl das gleiche ist wie profilepicture in der DB
-    currentUser.photoURL != null
-        ? imageProvider = NetworkImage(currentUser.photoURL!)
-        : imageProvider = const AssetImage('assets/Personavatar.png');
-  }
-
-  Future<void> getUserData() async {
-    var collection = userCollection.doc(currentUser.uid);
-    DocumentSnapshot userdata = await collection.get();
-    if (!userdata.exists) {
-      throw Exception('Document does not exist!');
-    }
-    if (kDebugMode) {
-      print('Document data: ${userdata.data()}');
-    }
-    Map<String, dynamic> userData = userdata.data()! as Map<String, dynamic>;
-
-    if (userData['prename'] != null) {
-      setState(() {
-        prenameController.text = userData['prename'];
-      });
-    }
-    if (userData['lastname'] != null) {
-      setState(() {
-        lastnameController.text = userData['lastname'];
-      });
-    }
-    if (userData.containsKey('profilepicture') &&
-        userData['profilepicture'] != null) {
-      setState(() {
-        imageURL = userData['profilepicture'];
-      });
-    } else {
-      setState(() {
-        imageURL = '';
-      });
-    }
-    emailController.text = currentUser.email!;
-    if (currentUser.displayName != null &&
-        currentUser.displayName!.isNotEmpty) {
-      List<String> displayNameParts = currentUser.displayName!.split(' ');
-      if (displayNameParts.length == 2) {
+    // get user data from firestore... after the widget is build
+    SchedulerBinding.instance.addPostFrameCallback((_) async {
+      Map<String, dynamic> userData =
+          (await getUserdata()).data() as Map<String, dynamic>;
+      if (userData["prename"] != null) {
+        prenameController.text = userData["prename"];
+      }
+      if (userData["lastname"] != null) {
+        lastnameController.text = userData["lastname"];
+      }
+      if (userData["dateOfBirth"] != null) {
+        selectedDate = userData["dateOfBirth"];
+      }
+      if (userData["email"] != null) {
+        emailController.text = userData["email"];
+      } else {
+        emailController.text = currentUser.email!;
+      }
+      if (userData["profilePicture"] != null &&
+          userData["profilePicture"] != "") {
         setState(() {
-          prenameController.text = displayNameParts[0];
-          lastnameController.text = displayNameParts[1];
+          imageURL = userData["profilePicture"];
+          imageProvider = NetworkImage(userData["profilePicture"]);
         });
       }
-    }
-    if (userData.containsKey('dateOfBirth') &&
-        userData['dateOfBirth'] != null) {
+      if (userData["profilePicturePath"] != null &&
+          userData["profilePicturePath"] != "") {
+        setState(() {
+          imagePath = userData["profilePicturePath"];
+        });
+      }
       setState(() {
-        selectedDate = userData['dateOfBirth'];
+        loarding = false;
       });
+    });
+  }
+
+  //set and updates Userdata in the FirebaseCollestion users
+  Future<void> updateUserData() async {
+    if (prenameController.text == "") throw "Please enter your first name";
+    if (lastnameController.text == "") throw "Please enter your last name";
+    if (selectedDate == "") throw "Please enter your date of birth";
+    if(selectedAge != null) {
+      if (selectedAge!.isAfter(DateTime.now())) throw "Please enter a valid date of birth";
+      if (selectedAge!.isBefore(DateTime(1900))) throw "Please enter a valid date of birth (you are too old)";
+      if (selectedAge!.isAfter(DateTime.now().subtract(const Duration(days: 365 * 13)))) throw "You must be at least 13 years old";
     }
+    if (newImageURL != '') {
+      imageURL = newImageURL;
+      await currentUser.updatePhotoURL(imageURL);
+    }
+    if (newImagePath != '') {
+      imagePath = newImagePath;
+    }
+    await userCollection.doc(currentUser.uid).update({
+      //Updates data in FireStore
+      'prename': prenameController.text,
+      'lastname': lastnameController.text,
+      'dateOfBirth': selectedDate,
+      'profilePicture': imageURL,
+      'profilePicturePath': imagePath,
+    });
+    //Updates displayName in Auth
+    await currentUser.updateDisplayName(
+        prenameController.text + " " + lastnameController.text);
+
+    await currentUser.reload();
+  }
+
+  Future<DocumentSnapshot> getUserdata() async {
+    DocumentSnapshot user = await userCollection.doc(currentUser.uid).get();
+    if (!user.exists) throw "User does't exists";
+    return user;
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFCBEFFF),
-      body: StreamBuilder<DocumentSnapshot>(
-        stream: FirebaseFirestore.instance
-            .collection('users')
-            .doc(currentUser.uid)
-            .snapshots(),
-        builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            final userData = snapshot.data!.data() as Map<String, dynamic>;
-            return SafeArea(
-              child: Container(
-                decoration: const BoxDecoration(
-                  image: DecorationImage(
-                    image: AssetImage('assets/BackgroundCity.png'),
-                    fit: BoxFit.cover,
-                  ),
-                ),
-                child: Center(
-                  child: Padding(
-                    padding: const EdgeInsets.only(
-                        top: 80, left: 14, right: 14, bottom: 45),
-                    child: CustomContainer(
-                      title: "Account Details:",
-                      children: [
-                        Stack(
-                          alignment: Alignment.topCenter,
-                          children: [
-                            GestureDetector(
-                              onTap: () async {
-                                // Pick image from gallery
-                                ImagePicker imagePicker = ImagePicker();
-                                pickedFile = await imagePicker.pickImage(
-                                    source: ImageSource.gallery);
-                                //get reference to storage root
-                                Reference referenceRoot =
-                                    FirebaseStorage.instance.ref();
-                                Reference referenceDirImages =
-                                    referenceRoot.child('profilePictures');
+        backgroundColor: const Color(0xFFCBEFFF),
+        body: SafeArea(
+            child: Container(
+          decoration: const BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage('assets/BackgroundCity.png'),
+              fit: BoxFit.cover,
+            ),
+          ),
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.only(
+                  top: 80, left: 14, right: 14, bottom: 45),
+              child: CustomContainer(
+                title: "Account Details:",
+                children: [
+                  if (loarding)
+                    const Center(child: CircularProgressIndicator()),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      GestureDetector(
+                        onTap: () async {
+                          setState(() {
+                            uploading = true;
+                          });
+                          ImagePicker imagePicker = ImagePicker();
+                          XFile? pickedFile;
+                          pickedFile = await imagePicker.pickImage(
+                              source: ImageSource.gallery);
+                          if (pickedFile != null) {
+                            // The filecroper Class is used to crop the image
+                            CroppedFile? croppedFile =
+                                await ImageCropper().cropImage(
+                              sourcePath: pickedFile.path,
+                              cropStyle: CropStyle.circle,
+                              aspectRatioPresets: [
+                                CropAspectRatioPreset.square,
+                              ],
+                              compressFormat: ImageCompressFormat.jpg,
+                              compressQuality: 50,
+                              uiSettings: [
+                                AndroidUiSettings(
+                                    toolbarTitle: 'Crop Your Profile Picture',
+                                    toolbarColor: Colors.blue,
+                                    toolbarWidgetColor: Colors.white,
+                                    initAspectRatio:
+                                        CropAspectRatioPreset.square,
+                                    lockAspectRatio: true),
+                              ],
+                            );
+                            try {
+                              //get reference to storage root
+                              Reference referenceDirImages = FirebaseStorage
+                                  .instance
+                                  .ref()
+                                  .child('profilePictures');
 
-                                // create a refernece for the image to be stored
-                                Reference referenceImageToUpload =
-                                    referenceDirImages.child(currentUser.uid);
-
-                                //Handle errors/succes
-                                try {
-                                  if (pickedFile != null) {
+                              // create a refernece for the image to be stored
+                              Reference referenceImageToUpload =
+                                  referenceDirImages.child(currentUser.uid);
+                              if (croppedFile != null) {
+                                await referenceImageToUpload.putFile(
+                                    File(croppedFile.path),
+                                    SettableMetadata(
+                                        contentType: 'image/jpeg'));
+                                String newUploadURL =
                                     await referenceImageToUpload
-                                        .putFile(File(pickedFile!.path));
-                                  }
-                                  imageURL = await referenceImageToUpload
-                                      .getDownloadURL();
-                                } catch (e) {
-                                  if (kDebugMode) {
-                                    print(e);
-                                  }
-                                }
+                                        .getDownloadURL();
                                 setState(() {
-                                  imageProvider = ((pickedFile != null
-                                          ? FileImage(File(pickedFile!.path))
-                                          : const AssetImage(
-                                              'assets/Personavatar.png'))
-                                      as ImageProvider<Object>?)!;
+                                  newImagePath =
+                                      referenceImageToUpload.fullPath;
+                                  newImageURL = newUploadURL;
                                 });
-                              },
-                              child: CircleAvatar(
-                                radius: 37.5,
-                                backgroundImage: imageProvider,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(
-                          height: 25,
-                        ),
-                        InputField(
-                          controller: prenameController,
-                          hintText: 'First Name',
-                          obscureText: false,
-                          margin: const EdgeInsets.only(bottom: 25),
-                        ),
-                        InputField(
-                          controller: lastnameController,
-                          hintText: 'Last Name',
-                          obscureText: false,
-                          margin: const EdgeInsets.only(bottom: 12.5),
-                        ),
-                        const SizedBox(
-                          width: 148,
-                          height: 18,
-                          child: Text(
-                            'Date of Birth',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 12,
-                              fontFamily: 'Ubuntu',
-                              fontWeight: FontWeight.w500,
-                              height: 0,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 12.5),
-                        CupertinoDatePickerButton(
-                          presetDate: selectedDate,
-                          margin: const EdgeInsets.only(bottom: 25),
-                          onDateSelected: (DateStringTupel dateStringTupel) {
-                            setState(() {
-                              selectedDate = dateStringTupel.dateString;
-                            });
-                          },
-                          showFuture: false,
-                        ),
-                        InputField(
-                          controller: emailController,
-                          validator: ((p0) {
-                            if (p0 == null || p0.isEmpty) {
-                              return 'Please enter a email adress';
-                            } else if (!isValidEmail(p0)) {
-                              return 'Please enter an valid email adress';
+                                setState(() {
+                                  imageProvider =
+                                      FileImage(File(croppedFile.path));
+                                  PaintingBinding.instance.imageCache.clear();
+                                });
+                              }
+                            } catch (e) {
+                              if (kDebugMode) {
+                                print(
+                                    "Something went wrong while uploading your image $e");
+                              }
+                              if (mounted) {
+                                ErrorSnackbar.showErrorSnackbar(context,
+                                    "Something went wrong while uploading your image");
+                              }
                             }
-                            return null;
-                          }),
-                          hintText: "Email",
-                          obscureText: false,
-                          margin: const EdgeInsets.only(bottom: 25),
+                          }
+                          setState(() {
+                            uploading = false;
+                          });
+                        },
+                        child: CircleAvatar(
+                          radius: 37.5,
+                          backgroundImage: imageProvider ??
+                              const AssetImage('assets/Personavatar.png'),
                         ),
-                        MyButton(
-                          onTap: () async {
-                            //store information of item in cloud firestore
-
-                            currentUser.updatePhotoURL(imageURL);
-                            updateUserData(
-                                prenameController.value.text,
-                                lastnameController.value.text,
-                                selectedDate,
-                                emailController.value.text.isEmpty
-                                    ? userData['email']
-                                    : emailController.value.text,
-                                imageURL);
-                            if (emailController.text.isNotEmpty &&
-                                emailController.text != currentUser.email) {
-                              await updateAuthEmail(emailController.text,
-                                  'felixtest87@gmail.com', 'test123');
-                            }
-                            updateAuthDisplayName(prenameController.text,
-                                lastnameController.text);
-
-                            if (context.mounted) {
-                              widget.isEditProfile == true
-                                  ? context.go('/profile')
-                                  : context.go('/setinterests/true');
-                            }
-                          },
-                          text: widget.isEditProfile == true
-                              ? "Finish"
-                              : 'Select your Interests',
-                        ),
-                      ],
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 5),
+                  if (uploading) const Center(child: LinearProgressIndicator()),
+                  const SizedBox(
+                    height: 15,
+                  ),
+                  InputField(
+                    controller: prenameController,
+                    hintText: 'First Name',
+                    obscureText: false,
+                    margin: const EdgeInsets.only(bottom: 15),
+                  ),
+                  InputField(
+                    controller: lastnameController,
+                    hintText: 'Last Name',
+                    obscureText: false,
+                  ),
+                  const SizedBox(height: 10),
+                  const SizedBox(
+                    width: 148,
+                    height: 25,
+                    child: Text(
+                      'Date of Birth:',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                        fontFamily: 'Ubuntu',
+                        fontWeight: FontWeight.w500,
+                        height: 0,
+                      ),
                     ),
                   ),
-                ),
+                  CupertinoDatePickerButton(
+                    presetDate: selectedDate,
+                    margin: const EdgeInsets.only(bottom: 15),
+                    onDateSelected: (DateStringTupel dateStringTupel) {
+                      setState(() {
+                        selectedAge = dateStringTupel.date;
+                        selectedDate = dateStringTupel.dateString;
+                      });
+                    },
+                    boundingDate: DateTime.now(),
+                    showFuture: false,
+                  ),
+                  InputField(
+                    readOnly: true,
+                    controller: emailController,
+                    hintText: "Email",
+                    obscureText: false,
+                  ),
+                  const SizedBox(height: 10),
+                  const SizedBox(
+                    height: 25,
+                    child: Text(
+                      'User ID:',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                        fontFamily: 'Ubuntu',
+                        fontWeight: FontWeight.w500,
+                        height: 0,
+                      ),
+                    ),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      SizedBox(
+                        width: MediaQuery.of(context).size.width * 0.66,
+                        child: InputField(
+                          readOnly: true,
+                          controller:
+                              TextEditingController(text: currentUser.uid),
+                          hintText: "UID",
+                          obscureText: false,
+                        ),
+                      ),
+                      SizedBox(
+                        child: Card(
+                            color: buttonFill,
+                            margin: const EdgeInsets.only(left: 10),
+                            child: IconButton(
+                                onPressed: () {
+                                  Clipboard.setData(
+                                      ClipboardData(text: currentUser.uid));
+                                  setState(() {
+                                    buttonFill = Colors.green;
+                                    buttonIcon = Icons.check;
+                                    buttonColor = Colors.white;
+                                  });
+                                },
+                                icon: Icon(
+                                  buttonIcon,
+                                  color: buttonColor,
+                                ))),
+                      )
+                    ],
+                  ),
+                  const SizedBox(height: 15),
+                  MyButton(
+                    onTap: () async {
+                      try {
+                        await updateUserData();
+                        if (mounted) {
+                          widget.isEditProfile == true
+                              ? context.go('/profile')
+                              : context.go('/setinterests/true');
+                        }
+                      } catch (e) {
+                        if (kDebugMode) {
+                          print("Something went wrong $e");
+                        }
+                        if (mounted) {
+                          ErrorSnackbar.showErrorSnackbar(
+                              context, e.toString());
+                        }
+                      }
+                    },
+                    // The Widget can be used to initalize the profile page or to modify the profile page
+                    // when its only modified the user will be redirected to the settings page
+                    text: widget.isEditProfile == true
+                        ? "Finish"
+                        : 'Select your Interests',
+                  ),
+                ],
               ),
-            );
-          } else if (snapshot.hasError) {
-            return Center(
-              child: Text('Error ${snapshot.error}'),
-            );
-          } else {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          }
-        },
-      ),
-    );
+            ),
+          ),
+        )));
   }
-}
-
-bool isValidEmail(String email) {
-  String emailRegex =
-      r'^[\w-]+(\.[\w-]+)*@([a-z\d-]+(\.[a-z\d-]+)*?\.[a-z]{2,6}|(\d{1,3}\.){3}\d{1,3})$';
-  RegExp regex = RegExp(emailRegex);
-  return regex.hasMatch(email);
 }

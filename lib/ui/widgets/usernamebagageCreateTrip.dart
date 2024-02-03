@@ -5,8 +5,20 @@ import 'package:flutter/material.dart';
 class User {
   String prename;
   String lastname;
-  Image profileImage;
+  ImageProvider profileImage;
   User(this.prename, this.lastname, this.profileImage);
+
+  @override
+  operator == (Object other) {
+    if (identical(this, other)) return true;
+
+    return other is User &&
+        other.prename == prename &&
+        other.lastname == lastname &&
+        other.profileImage == profileImage;
+  }
+  @override
+  int get hashCode => prename.hashCode ^ lastname.hashCode ^ profileImage.hashCode;
 }
 
 class UsernameBagageCreateTrip extends StatefulWidget {
@@ -22,7 +34,7 @@ class UsernameBagageCreateTrip extends StatefulWidget {
 
 class _UsernameBagageCreateTripState extends State<UsernameBagageCreateTrip> {
   Future<User> _getNames() async {
-    Image pb = Image.asset('assets/Personavatar.png');
+    ImageProvider pb = const AssetImage('assets/Personavatar.png');
     String prename = 'Not';
     String lastname = 'Registered';
 
@@ -35,7 +47,9 @@ class _UsernameBagageCreateTripState extends State<UsernameBagageCreateTrip> {
         final data = ref.docs.first.data();
         prename = data['prename'];
         lastname = data['lastname'];
-        if(data['profilePicture'] != null) pb = Image.network(data['profilePicture']);
+        if (data['profilePicture'] != null && data['profilePicture'] != '') {
+          pb = NetworkImage(data['profilePicture']);
+        }
       }
 
       return User(prename, lastname, pb);
@@ -54,14 +68,25 @@ class _UsernameBagageCreateTripState extends State<UsernameBagageCreateTrip> {
         child: FutureBuilder<User>(
             future: _getNames(),
             builder: (BuildContext context, AsyncSnapshot<User> snapshot) {
-              User user = User(
-                  "Maximilian", "Laue", Image.asset('assets/Personavatar.png'));
+              if (snapshot.hasError) {
+                return const Text(
+                    'Something went wrong while fetching the user');
+              }
+              User user = User("Max", "Musterman",
+                  const AssetImage('assets/Personavatar.png'));
               if (snapshot.hasData) {
-                user = snapshot.data!;
+                if (snapshot.data != null) {
+                  if(user != snapshot.data) {
+                    user = snapshot.data!;
+                  }
+                }
               }
 
               List<Widget> children = [
-                Image.asset('assets/Personavatar.png'),
+                CircleAvatar(
+                  radius: 25,
+                  backgroundImage: user.profileImage,
+                ),
                 Container(
                     margin: const EdgeInsets.only(left: 14),
                     child: Text.rich(

@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:internet_praktikum/core/services/map_service.dart';
 import 'package:internet_praktikum/ui/styles/Styles.dart';
 import 'package:internet_praktikum/ui/widgets/dashboardWidgets/usernameBagageDashboardWidget.dart';
 import 'package:intl/intl.dart';
@@ -51,37 +52,24 @@ class _AppointmentWidgetState extends State<AppointmentWidget> {
                   : Container(),
               Column(
                 children: [
-                  GestureDetector(
-                    onTap: () {},
-                    child: const Icon(
-                      //Hier muss entschieden werden, ob Icons Group oder Icon Map ist
-                      //formattedTime.compareTo(TimeOfDay.now().format(context)) < 0 ? Icons.check : widget.icon,
-                      Icons.map_outlined,
+                  Builder(builder: (context) {
+                    if (widget.data!["place"] != null) {
+                      return IconButton(
+                          icon: const Icon(Icons.map_outlined),
+                          color: Colors.white,
+                          iconSize: 35,
+                          onPressed: () {
+                            context.pushReplacement("/map",
+                                extra: Place.fromMap(widget.data!["place"]));
+                          });
+                    }
+                    return const Icon(
+                      Icons.group,
                       color: Colors.white,
                       size: 35,
-                    ),
-                  ),
-                  GestureDetector(
-                    onTap: () {
-                      showCupertinoModalPopup(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return CupertinoTimerPicker(
-                              alignment: Alignment.center,
-                              mode: CupertinoTimerPickerMode.hm,
-                              backgroundColor: Colors.white,
-                              onTimerDurationChanged: (value) {
-                                setState(() {
-                                  formattedTime =
-                                      value.toString().substring(0, 5);
-                                  print(formattedTime);
-                                  setNewTimeForAppointment(
-                                      widget.data!, formattedTime);
-                                });
-                              },
-                            );
-                          });
-                    },
+                    );
+                  }),
+                  Container(
                     child: formattedTime != ""
                         ? Text(formattedTime,
                             style: const TextStyle(

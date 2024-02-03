@@ -15,7 +15,7 @@ class CustomContainer extends StatelessWidget {
   ) {
     return LayoutBuilder(
       builder: (context, constraints) => Container(
-          height: constraints.biggest.height,
+          height: smallSize != null ? 500 : constraints.biggest.height,
           decoration: BoxDecoration(
             color: const Color.fromARGB(255, 43, 43, 43).withOpacity(0.90),
             borderRadius: BorderRadius.circular(34.5),
@@ -27,8 +27,7 @@ class CustomContainer extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Container(
-                      margin: const EdgeInsets.only(bottom: 30),
-                      height: 25,
+                      margin: const EdgeInsets.only(bottom: 25),
                       child: Text(
                         title,
                         style: Styles.overlayTitle,

@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:internet_praktikum/core/services/init_pushnotifications.dart';
 import 'package:internet_praktikum/ui/views/login_register_pages/login_page.dart';
 import 'package:internet_praktikum/ui/widgets/container.dart';
 import 'package:internet_praktikum/ui/widgets/errorSnackbar.dart';
@@ -10,6 +11,7 @@ import '../../../core/services/auth_service.dart';
 import '../../widgets/my_button.dart';
 import '../../widgets/inputfield_password_or_icon.dart';
 
+// Page to register a new user
 class RegisterPage extends StatefulWidget {
   final Function()? onTap;
 
@@ -31,6 +33,7 @@ class _RegisterPageState extends State<RegisterPage> {
     try {
       // check if passwords match
       if (passwordController.text == confirmPasswordController.text) {
+        emailController.text = emailController.text.trim();
         UserCredential userCredential =
             await FirebaseAuth.instance.createUserWithEmailAndPassword(
           email: emailController.text,
@@ -54,12 +57,13 @@ class _RegisterPageState extends State<RegisterPage> {
             'prename': userCredential.user!.displayName,
             'lastname': userCredential.user!.displayName,
             'uid': userCredential.user!.uid,
-            'profilepicture': null,
+            'profilePicture': null,
             'dateOfBirth': null,
             'selectedtrip': null
             // Add other data fields as needed
           });
         }
+        await PushNotificationService().gantPushNotifications();
         if (context.mounted) {
           GoRouter.of(context).go('/otp');
         }
@@ -186,9 +190,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         ],
                       ),
                     ),
-
                     const SizedBox(height: 30),
-
                     MyButton(
                       onTap: () async {
                         await signInWithGoogle();
@@ -216,7 +218,8 @@ class _RegisterPageState extends State<RegisterPage> {
                           }
 
                           if (isDateOfBirth == false) {
-                            if (context.mounted) context.go('/accountdetails/:isEditProfile');
+                            if (context.mounted)
+                              context.go('/accountdetails/:isEditProfile');
                           } else {
                             if (context.mounted) context.go('/');
                           }
@@ -253,7 +256,8 @@ class _RegisterPageState extends State<RegisterPage> {
                           }
 
                           if (isDateOfBirth == false) {
-                            if (context.mounted) context.go('/accountdetails/:isEditProfile');
+                            if (context.mounted)
+                              context.go('/accountdetails/:isEditProfile');
                           } else {
                             if (context.mounted) context.go('/');
                           }

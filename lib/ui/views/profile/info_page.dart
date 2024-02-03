@@ -29,8 +29,7 @@ class InfoPage extends StatelessWidget {
           child: Column(
             children: [
               SizedBox(
-                height: MediaQuery.of(context).size.height * 0.3 -
-                    kToolbarHeight / 3,
+                height: MediaQuery.of(context).size.height * 0.3,
                 child: const Row(
                   children: [
                     CharakterContainer(
@@ -45,7 +44,8 @@ class InfoPage extends StatelessWidget {
                     CharakterContainer(
                       name: "Thai Binh Nguyen",
                       description: "Co Founder, CEO",
-                      link: "https://www.linkedin.com/in/thai-binh-nguyen-454951224/",
+                      link:
+                          "https://www.linkedin.com/in/thai-binh-nguyen-454951224/",
                       linkname: "LinkedIn",
                       image: "assets/character_pic/thai.png",
                       color: Colors.purple,
@@ -54,23 +54,22 @@ class InfoPage extends StatelessWidget {
                 ),
               ),
               SizedBox(
-                height: MediaQuery.of(context).size.height * 0.3 -
-                    kToolbarHeight / 3,
+                height: MediaQuery.of(context).size.height * 0.3,
                 child: const Row(
                   children: [
                     CharakterContainer(
                       name: "Tim Carlo Päpke",
                       description: "Co Founder, CEO",
-                      link: "bla bla bla",
-                      linkname: "LinkedIn",
+                      link: "https://www.instagram.com/timcarlo02/",
+                      linkname: "Instagram",
                       image: "assets/character_pic/tim.png",
                       color: Colors.orange,
                     ),
                     CharakterContainer(
                       name: "David Henn",
                       description: "Co Founder, CEO",
-                      link: "bla bla bla",
-                      linkname: "LinkedIn",
+                      link: "https://www.instagram.com/davidhenn2610/",
+                      linkname: "Instagram",
                       image: "assets/character_pic/david.png",
                       color: Colors.green,
                     ),
@@ -78,15 +77,15 @@ class InfoPage extends StatelessWidget {
                 ),
               ),
               SizedBox(
-                height: MediaQuery.of(context).size.height * 0.3 -
-                    kToolbarHeight / 3,
+                height: MediaQuery.of(context).size.height * 0.3,
                 child: const Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     CharakterContainer(
                       name: "Felix Bauer",
                       description: "Co Founder, CEO",
-                      link: "https://www.instagram.com/xfelix001?igsh=MWcwcW45amNuc3Nycw%3D%3D&utm_source=qr",
+                      link:
+                          "https://www.instagram.com/xfelix001?igsh=MWcwcW45amNuc3Nycw%3D%3D&utm_source=qr",
                       linkname: "Instagram",
                       image: "assets/character_pic/felix.png",
                       color: Colors.blue,

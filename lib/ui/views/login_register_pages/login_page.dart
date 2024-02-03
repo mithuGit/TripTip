@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:internet_praktikum/core/services/init_pushnotifications.dart';
 import 'package:internet_praktikum/ui/widgets/container.dart';
 import 'package:internet_praktikum/ui/widgets/errorSnackbar.dart';
 import 'package:internet_praktikum/ui/widgets/inputfield.dart';
@@ -10,6 +11,7 @@ import 'package:internet_praktikum/ui/widgets/my_button.dart';
 import 'package:internet_praktikum/ui/widgets/inputfield_password_or_icon.dart';
 import '../../../core/services/auth_service.dart';
 
+// Page to login the user
 class LoginPage extends StatefulWidget {
   final Function()? onTap;
 
@@ -30,16 +32,18 @@ class _LoginPageState extends State<LoginPage> {
   // sign user in method
   void signUserIn() async {
     // try sign in
+
     try {
+      emailController.text = emailController.text.trim();
       await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: emailController.text,
         password: passwordController.text,
       );
+      await PushNotificationService().gantPushNotifications();
       if (context.mounted) {
         context.go("/");
       }
     } on FirebaseAuthException catch (e) {
-      print(e.code);
       // Wrong email | Wrong password
       if (e.code == 'user-not-found' || e.code == 'wrong-password') {
         if (context.mounted) {
@@ -159,35 +163,41 @@ class _LoginPageState extends State<LoginPage> {
                     const SizedBox(height: 30),
                     MyButton(
                       onTap: () async {
-                        await signInWithGoogle();
-                        bool isDateOfBirth = true;
+                        try {
+                          await signInWithGoogle();
+                          bool isDateOfBirth = true;
 
-                        // testen ob DateOfBirth == null, dann soll AccountDetails aufgerufen werden
-                        FirebaseAuth.instance
-                            .authStateChanges()
-                            .listen((user) async {
-                          if (user != null) {
-                            DocumentSnapshot documentSnapshot =
-                                await FirebaseFirestore.instance
-                                    .collection('users')
-                                    .doc(user.uid)
-                                    .get();
+                          // testen ob DateOfBirth == null, dann soll AccountDetails aufgerufen werden
+                          FirebaseAuth.instance
+                              .authStateChanges()
+                              .listen((user) async {
+                            if (user != null) {
+                              DocumentSnapshot documentSnapshot =
+                                  await FirebaseFirestore.instance
+                                      .collection('users')
+                                      .doc(user.uid)
+                                      .get();
 
-                            if (documentSnapshot.exists) {
-                              if ((documentSnapshot.data()
-                                      as Map<String, dynamic>)['dateOfBirth'] ==
-                                  null) {
-                                isDateOfBirth = false;
+                              if (documentSnapshot.exists) {
+                                if ((documentSnapshot.data() as Map<String,
+                                        dynamic>)['dateOfBirth'] ==
+                                    null) {
+                                  isDateOfBirth = false;
+                                }
                               }
                             }
-                          }
 
-                          if (isDateOfBirth == false) {
-                            if (context.mounted) context.go('/accountdetails/:isEditProfile');
-                          } else {
-                            if (context.mounted) context.go('/');
-                          }
-                        });
+                            if (isDateOfBirth == false) {
+                              if (context.mounted) {
+                                context.go('/accountdetails/:isEditProfile');
+                              }
+                            } else {
+                              if (context.mounted) context.go('/');
+                            }
+                          });
+                        } catch (e) {
+                          if(context.mounted) ErrorSnackbar.showMessage(e.toString(),context, counter);
+                        }
                       },
                       imagePath: 'assets/google_logo.png',
                       text: "Login with Google",
@@ -220,7 +230,9 @@ class _LoginPageState extends State<LoginPage> {
                           }
 
                           if (isDateOfBirth == false) {
-                            if (context.mounted) context.go('/accountdetails/:isEditProfile');
+                            if (context.mounted) {
+                              context.go('/accountdetails/:isEditProfile');
+                            }
                           } else {
                             if (context.mounted) context.go('/');
                           }
@@ -263,6 +275,7 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
+// BottomSheet to send email for reset password
   List<Widget> sendEmailforRestPassword(BuildContext context) {
     return [
       GestureDetector(
@@ -316,10 +329,11 @@ class _LoginPageState extends State<LoginPage> {
                         colors: Colors.black,
                         text: 'Next',
                         onTap: () {
+                          passwordforgotController.text =
+                              passwordforgotController.text.trim();
                           String emailToCheck = passwordforgotController.text;
                           if (isValidEmail(emailToCheck)) {
                             resetPassword(emailToCheck);
-                            Navigator.of(context).pop();
                             if (context.mounted) {
                               ErrorSnackbar.showMessage(
                                   'A reset link has been sent to your email.',
@@ -356,6 +370,7 @@ class _LoginPageState extends State<LoginPage> {
     ];
   }
 
+// check if email is valid
   bool isValidEmail(String email) {
     String emailRegex =
         r'^[\w-]+(\.[\w-]+)*@([a-z\d-]+(\.[a-z\d-]+)*?\.[a-z]{2,6}|(\d{1,3}\.){3}\d{1,3})$';
@@ -363,16 +378,18 @@ class _LoginPageState extends State<LoginPage> {
     return regex.hasMatch(email);
   }
 
+// reset password method to send email
   Future resetPassword(String email) async {
     try {
       await FirebaseAuth.instance.sendPasswordResetEmail(email: email.trim());
     } on FirebaseAuthException catch (e) {
-      print(e);
+      // ignore: use_build_context_synchronously
+      ErrorSnackbar.showErrorSnackbar(context, "Something went wrong. , $e");
     }
   }
 }
 
-// Mit dieser Klasse kann man eine gestrichelte Linie zeichnen lassen
+// With this class you can draw a dashed line
 class DashedLinePainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {

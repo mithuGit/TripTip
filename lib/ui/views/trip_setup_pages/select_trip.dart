@@ -3,9 +3,13 @@ import 'package:go_router/go_router.dart';
 import 'package:internet_praktikum/ui/widgets/container.dart';
 import 'package:internet_praktikum/ui/widgets/my_button.dart';
 
+///Site to choose for either joining or creating trips
 class SelectTrip extends StatelessWidget {
-  const SelectTrip({super.key});
+  SelectTrip({super.key, required this.noTrip});
 
+  bool noTrip;
+
+  ///Widget builder, changes with noTrip to not allow the user to go back when there is nothing to go back(no other trips available)
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -28,23 +32,24 @@ class SelectTrip extends StatelessWidget {
                         title: "Start your next Adventure",
                         children: [
                           MyButton(
-                              margin: EdgeInsets.only(top: 15, bottom: 10),
+                              margin: const EdgeInsets.only(top: 15, bottom: 10),
                               onTap: () {
                                 context.push('/createtrip');
                               },
                               text: "Create Trip"),
                           MyButton(
-                            margin: EdgeInsets.only(bottom: 10),
+                              margin: const EdgeInsets.only(bottom: 10),
                               onTap: () {
                                 context.push('/jointrip');
                               },
                               text: "Join Trip"),
+                          if(!noTrip) ...[
                           MyButton(
-                            margin: EdgeInsets.only(bottom: 10),
-                            onTap: () {
-                              context.pop();
-                            },
-                            text: "Cancel"),
+                              margin: const EdgeInsets.only(bottom: 10),
+                              onTap: () {
+                                context.pop();
+                              },
+                              text: "Cancel")],
                         ])),
               )),
         ])));

@@ -1,6 +1,4 @@
 import 'dart:async';
-import 'dart:math';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -142,7 +140,7 @@ class DiaryWidgetState extends State<DiaryWidget> {
           ]
         ] else ...[
           const Text(
-              "Soon someone randomly will be\nchoosed to write a diary of the Day!\nYou will be notifiyed if you are the lucky one!",
+              "Soon someone randomly will be\nchoosed to write a diary of the Day!\nYou will be notified if you are the lucky one!",
               style: Styles.noteTextstyle),
         ]
       ],

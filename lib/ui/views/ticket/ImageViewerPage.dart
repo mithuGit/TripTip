@@ -1,3 +1,5 @@
+// ignore_for_file: file_names
+
 import 'package:flutter/material.dart';
 
 class ImageViewerPage extends StatefulWidget {
@@ -9,6 +11,7 @@ class ImageViewerPage extends StatefulWidget {
   State<ImageViewerPage> createState() => _ImageViewerPageState();
 }
 
+// class for viewing an image and zooming in and out
 class _ImageViewerPageState extends State<ImageViewerPage> {
   @override
   Widget build(BuildContext context) {

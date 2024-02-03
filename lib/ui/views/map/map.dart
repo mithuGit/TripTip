@@ -1,25 +1,26 @@
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flip_card/flip_card.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:internet_praktikum/core/services/placeApiProvider.dart';
 import 'package:internet_praktikum/ui/styles/Styles.dart';
 import 'package:internet_praktikum/ui/views/map/directions.dart';
 import 'package:internet_praktikum/ui/views/map/directions_repository.dart';
 import 'package:internet_praktikum/core/services/map_service.dart';
-import 'package:internet_praktikum/ui/widgets/bottom_sheet.dart';
-import 'package:internet_praktikum/ui/widgets/dashboardWidgets/createNewWidgetOnDashboard.dart';
-import 'package:flutter_rating_stars/flutter_rating_stars.dart';
 import 'package:internet_praktikum/ui/widgets/errorSnackbar.dart';
-import 'package:internet_praktikum/ui/widgets/mapWidgets/smallButton.dart';
-import 'package:internet_praktikum/ui/widgets/my_button.dart';
-//import 'package:internet_praktikum/ui/widgets/inputfield_search_lookahead.dart';
+import 'package:internet_praktikum/ui/widgets/mapWidgets/mapButton.dart';
+import 'package:internet_praktikum/ui/widgets/mapWidgets/mapcard.dart';
+import 'package:location/location.dart';
 
+// class for the map page so the user can see the map and the recommendations
+// ignore: must_be_immutable
 class MapPage extends StatefulWidget {
-  const MapPage({super.key});
+  Place? place;
+  MapPage({super.key, this.place});
 
   @override
   State<MapPage> createState() => _MapPageState();
@@ -30,7 +31,6 @@ class _MapPageState extends State<MapPage> {
 
   Marker? origin;
   Marker? destination;
-  Marker? currentLocation;
   Directions? infoDistanceAndDuration;
   LatLng? latLng;
   PlaceDetails? placeDetails;
@@ -44,7 +44,6 @@ class _MapPageState extends State<MapPage> {
 
   //places
   List<Place> allFavoritePlaces = [];
-  String tokenKey = '';
 
   //Circle
   Set<Circle> _circles = <Circle>{};
@@ -62,48 +61,79 @@ class _MapPageState extends State<MapPage> {
 
   String placeImage = '';
   var photoGalleryIndex = 0;
-  bool showBlankCard = false;
-  bool isReviews = true;
-  bool isPhotos = false;
 
   //expandable container
   bool isExpanded = false;
+  bool isExpandedOrigin = false;
+  bool isExpandedDestination = false;
+  bool isExpandedCurrentLocation = false;
+
+  //Current Location Data
+  LocationData? currentLocationData;
+  Location? location;
+  Uint8List? currentIcon;
+  bool isInitialCameraMove = true;
+  StreamSubscription<LocationData>? locationSubscription;
+
+  bool isLocationLoading = false;
+  bool loadingRecommendations = false;
 
   @override
   void initState() {
     super.initState();
-    GoogleMapService().getLatLng().then((value) => setState(() {
-          latLng = value;
-          _initialCameraPosition = CameraPosition(
-            target: latLng != null ? latLng! : const LatLng(0, 0),
-            zoom: 11.5,
-          );
-        }));
+    if (widget.place == null) {
+      GoogleMapService().getLatLng().then((value) => setState(() {
+            latLng = value;
+            _initialCameraPosition = CameraPosition(
+              target: latLng != null ? latLng! : const LatLng(0, 0),
+              zoom: 11.5,
+            );
+          }));
+    } else {
+      _initialCameraPosition = CameraPosition(
+          target: LatLng(widget.place!.location.latitude,
+              widget.place!.location.longitude),
+          zoom: 11.5);
+      setState(() {
+        placeImage = widget.place!.photos[0]['name'];
+        radiusSlider = false;
+        pressToGetRecommend = false;
+        currentLocationData = null;
+        origin = null;
+        destination = null;
+        infoDistanceAndDuration = null;
+      });
+    }
     _pageController = PageController(initialPage: 1, viewportFraction: 0.85)
       ..addListener(_swipe);
   }
 
   @override
   void dispose() {
-    _pageController.removeListener(_swipe);
-    _pageController.dispose();
+    if (widget.place == null) {
+      _pageController.removeListener(_swipe);
+      _pageController.dispose();
+    }
     super.dispose();
   }
 
+// Swipe to change the place left and right
   void _swipe() {
     if (_pageController.page!.toInt() != previewCard) {
       previewCard = _pageController.page!.toInt();
-      photoGalleryIndex = 1;
-      showBlankCard = false;
+      photoGalleryIndex = 0;
       goToTappedPlace();
     }
   }
 
+// Camera Positioning for the tapped place
   Future<void> goToTappedPlace() async {
     final GoogleMapController controller = await _googleMapController.future;
     markers = {};
 
-    var selectedPlace = allFavoritePlaces[_pageController.page!.toInt()];
+    var selectedPlace = widget.place == null
+        ? allFavoritePlaces[_pageController.page!.toInt()]
+        : widget.place!;
 
     _setNearMarker(
       LatLng(selectedPlace.location.latitude, selectedPlace.location.longitude),
@@ -116,7 +146,84 @@ class _MapPageState extends State<MapPage> {
             selectedPlace.location.longitude),
         zoom: 14.0,
         bearing: 180.0,
-        tilt: 45.0)));
+        tilt: widget.place == null ? 45.0 : 0.0)));
+  }
+
+// Live Tracking of the current location of the user
+  void getCurrentLocation() async {
+    bool serviceEnabled;
+    PermissionStatus permissionGranted;
+    location = Location();
+
+    serviceEnabled = await location!.serviceEnabled();
+    if (!serviceEnabled) {
+      serviceEnabled = await location!.requestService();
+      if (!serviceEnabled) {
+        setState(() {
+          isLocationLoading = false;
+        });
+        return;
+      }
+    }
+
+    permissionGranted = await location!.hasPermission();
+    if (permissionGranted == PermissionStatus.denied) {
+      permissionGranted = await location!.requestPermission();
+      if (permissionGranted != PermissionStatus.granted) {
+        setState(() {
+          isLocationLoading = false;
+        });
+        return;
+      }
+    }
+
+    currentIcon = await GoogleMapService()
+        .getBytesFromAsset('assets/my_location.png', 135);
+
+    location!.getLocation().then(
+      (location) {
+        currentLocationData = location;
+      },
+    );
+
+    var controller = await _googleMapController.future;
+    locationSubscription =
+        location!.onLocationChanged.listen((LocationData currentLocation) {
+      currentLocationData = currentLocation;
+
+      if (isInitialCameraMove) {
+        controller.animateCamera(
+          CameraUpdate.newCameraPosition(
+            CameraPosition(
+              target: LatLng(currentLocationData!.latitude!,
+                  currentLocationData!.longitude!),
+              zoom: 15,
+            ),
+          ),
+        );
+        setState(() {});
+        isInitialCameraMove = false;
+      } else {
+        if (mounted) {
+          setState(() {
+            CameraPosition(
+              target: LatLng(currentLocationData!.latitude!,
+                  currentLocationData!.longitude!),
+              zoom: 15,
+            );
+          });
+        }
+      }
+    });
+  }
+
+  locationOfVaction() async {
+    var controller = await _googleMapController.future;
+    controller.animateCamera(
+      infoDistanceAndDuration != null
+          ? CameraUpdate.newLatLngBounds(infoDistanceAndDuration!.bounds, 100.0)
+          : CameraUpdate.newCameraPosition(_initialCameraPosition!),
+    );
   }
 
   @override
@@ -124,6 +231,8 @@ class _MapPageState extends State<MapPage> {
     return Scaffold(
       extendBody: true,
       appBar: AppBar(
+          scrolledUnderElevation: 0,
+          toolbarHeight: 65,
           centerTitle: true,
           title: const Text(
             'Map',
@@ -133,31 +242,152 @@ class _MapPageState extends State<MapPage> {
             ),
           ),
           backgroundColor: Colors.transparent,
-          leading: IconButton(
-            icon: const Icon(Icons.my_location, color: Colors.black, size: 30),
-            onPressed: () async {
-              currentLocation = await GoogleMapService()
-                  .getCurrentLocation(_googleMapController);
-              setState(() {
-                currentLocation!.position.latitude == 0
-                    ? currentLocation = null
-                    : currentLocation = currentLocation;
-              });
-            },
+          leading: Column(
+            children: [
+              if (widget.place != null) ...{
+                Column(
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.arrow_back,
+                          color: Colors.black, size: 30),
+                      onPressed: () {
+                        context.go('/');
+                      },
+                    ),
+                    const Text(
+                      'Back',
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ),
+              } else ...{
+                if (isLocationLoading == true &&
+                    currentLocationData == null) ...{
+                  // Show CircularProgressIndicator only when data is not available
+                  const Column(
+                    children: [
+                      SizedBox(height: 14),
+                      SizedBox(
+                        child: CircularProgressIndicator(
+                          strokeWidth: 3,
+                        ),
+                      )
+                    ],
+                  ),
+                } else if (isLocationLoading == false ||
+                    currentLocationData != null) ...{
+                  Column(
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.directions_outlined,
+                            color: Colors.black, size: 30),
+                        onPressed: () async {
+                          setState(() {
+                            isLocationLoading = true;
+                            currentLocationData = null;
+                            isInitialCameraMove = true;
+                          });
+                          getCurrentLocation();
+                        },
+                      ),
+                      const Text(
+                        'Location',
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  ),
+                }
+              }
+            ],
           ),
           actions: [
-            IconButton(
-              onPressed: () async {
-                var controller = await _googleMapController.future;
-                controller.animateCamera(
-                  infoDistanceAndDuration != null
-                      ? CameraUpdate.newLatLngBounds(
-                          infoDistanceAndDuration!.bounds, 100.0)
-                      : CameraUpdate.newCameraPosition(_initialCameraPosition!),
-                );
-              },
-              icon: const Icon(Icons.center_focus_strong),
+            Column(
+              children: [
+                if (widget.place == null) ...{
+                  IconButton(
+                    icon: const Icon(Icons.center_focus_strong),
+                    onPressed: () async {
+                      locationOfVaction();
+                    },
+                  ),
+                  Text(
+                    infoDistanceAndDuration != null
+                        ? 'Zoom to route'
+                        : 'Vacation',
+                    style: const TextStyle(
+                        color: Colors.black,
+                        fontFamily: 'Ubuntu',
+                        fontSize: 12),
+                  ),
+                } else ...{
+                  if (isLocationLoading == true &&
+                      currentLocationData == null) ...{
+                    // Show CircularProgressIndicator only when data is not available
+                    const Column(
+                      children: [
+                        SizedBox(height: 14),
+                        SizedBox(
+                          child: CircularProgressIndicator(
+                            strokeWidth: 3,
+                          ),
+                        ),
+                      ],
+                    ),
+                  } else if (isLocationLoading == false ||
+                      currentLocationData != null) ...{
+                    Column(
+                      children: [
+                        PopupMenuButton(
+                          icon: const Icon(Icons.menu),
+                          onSelected: (value) => {
+                            switch (value) {
+                              "currentLocation" => {
+                                  setState(() {
+                                    isLocationLoading = true;
+                                    currentLocationData = null;
+                                    isInitialCameraMove = true;
+                                  }),
+                                  getCurrentLocation(),
+                                },
+                              "vacationLocation" => locationOfVaction(),
+                              _ => (),
+                            }
+                          },
+                          itemBuilder: (BuildContext context) {
+                            return [
+                              const PopupMenuItem(
+                                value: "currentLocation",
+                                child: Text("Current Location"),
+                              ),
+                              PopupMenuItem(
+                                value: "vacationLocation",
+                                child: infoDistanceAndDuration != null
+                                    ? const Text("Location of Path")
+                                    : const Text("Location of Vacation"),
+                              )
+                            ];
+                          },
+                        ),
+                        const Text(
+                          'Location',
+                          style: TextStyle(
+                              color: Colors.black,
+                              fontFamily: 'Ubuntu',
+                              fontSize: 12),
+                        ),
+                      ],
+                    ),
+                  }
+                }
+              ],
             ),
+            const SizedBox(width: 3),
           ]),
       body: _initialCameraPosition == null
           ? const Column(
@@ -183,14 +413,22 @@ class _MapPageState extends State<MapPage> {
                     markers: {
                       if (origin != null) origin!,
                       if (destination != null) destination!,
-                      if (currentLocation != null) currentLocation!,
+                      if (currentLocationData != null &&
+                          currentIcon != null) ...{
+                        Marker(
+                          markerId: const MarkerId("currentLocation"),
+                          position: LatLng(currentLocationData!.latitude!,
+                              currentLocationData!.longitude!),
+                          icon: BitmapDescriptor.fromBytes(currentIcon!),
+                        ),
+                      },
                       ...markers,
                     },
                     polylines: {
                       if (infoDistanceAndDuration != null)
                         Polyline(
                           polylineId: const PolylineId('overview_polyline'),
-                          color: Colors.red,
+                          color: Theme.of(context).primaryColor,
                           width: 4,
                           points: infoDistanceAndDuration!.polylinePoints
                               .map((e) => LatLng(e.latitude, e.longitude))
@@ -200,41 +438,86 @@ class _MapPageState extends State<MapPage> {
                     onLongPress: _addMarker,
                     circles: _circles,
                     onTap: (point) {
-                      tappedPointInCircle = point;
-                      _setCircle(point);
-                      markers = {};
-                      pressToGetRecommend = false;
+                      if (widget.place == null) {
+                        tappedPointInCircle = point;
+                        _setCircle(point);
+                        markers = {};
+                        pressToGetRecommend = false;
+                      }
                     },
                   ),
                 ),
+                if (widget.place != null) ...[
+                  Positioned(
+                      bottom: isExpanded ? 10.0 : -10.0,
+                      child: SizedBox(
+                        height: isExpanded
+                            ? MediaQuery.of(context).size.height * 0.55
+                            : 200.0,
+                        width: MediaQuery.of(context).size.width,
+                        child: Builder(builder: (BuildContext context) {
+                          return Center(
+                            child: SizedBox(
+                              height: Curves.easeInOut.transform(1) *
+                                  MediaQuery.of(context).size.height *
+                                  0.5,
+                              width: Curves.easeInOut.transform(1) * 350.0,
+                              child: Stack(
+                                children: [
+                                  Center(
+                                    child: GestureDetector(
+                                        onTap: () async {
+                                          isExpanded = !isExpanded;
+                                          goToTappedPlace();
+                                        },
+                                        child: MapCard(
+                                            place: widget.place!,
+                                            isExpanded: isExpanded,
+                                            onExpandedChanged: (newIsExpanded) {
+                                              setState(() {
+                                                isExpanded = newIsExpanded;
+                                              });
+                                            },
+                                            photoGalleryIndex:
+                                                photoGalleryIndex,
+                                            placeImage: placeImage)),
+                                  )
+                                ],
+                              ),
+                            ),
+                          );
+                        }),
+                      ))
+                ],
                 Column(
                   children: [
                     if (infoDistanceAndDuration == null &&
                         !radiusSlider &&
                         !pressToGetRecommend &&
                         !isExpanded &&
-                        destination == null)
-                      Center(
-                        child: Container(
-                          width: MediaQuery.of(context).size.width * 0.65,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(34.5),
-                            color: const Color.fromARGB(255, 230, 229,
-                                    229) //TODO: Farbe ändern, wenn die Farbe nicht passt
-                                .withOpacity(0.90),
+                        destination == null &&
+                        widget.place == null)
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(0, 15, 0, 0),
+                        child: Center(
+                          child: Container(
+                            width: MediaQuery.of(context).size.width * 0.65,
+                            decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(34.5),
+                                color: Colors.white.withOpacity(0.9)),
+                            padding: const EdgeInsets.symmetric(),
+                            child: origin == null
+                                ? const Text(
+                                    'Tap to see personalized recommendation \nLong press to set origin and destination',
+                                    style: Styles.warningmap,
+                                    textAlign: TextAlign.center,
+                                  )
+                                : const Text(
+                                    'Long press again to set destination',
+                                    style: Styles.warningmap,
+                                    textAlign: TextAlign.center,
+                                  ),
                           ),
-                          padding: const EdgeInsets.symmetric(),
-                          child: origin == null
-                              ? const Text(
-                                  'Tap to see personilized recomendations \nLong press to set origin and destination',
-                                  style: Styles.warningmap,
-                                  textAlign: TextAlign.center,
-                                )
-                              : const Text(
-                                  'Long press again to set destination',
-                                  style: Styles.warningmap,
-                                  textAlign: TextAlign.center,
-                                ),
                         ),
                       ),
                   ],
@@ -250,7 +533,9 @@ class _MapPageState extends State<MapPage> {
                       decoration: BoxDecoration(
                         color: const Color.fromARGB(255, 43, 43, 43)
                             .withOpacity(0.90),
-                        borderRadius: BorderRadius.circular(20.0),
+                        borderRadius: const BorderRadius.only(
+                            topRight: Radius.circular(34.5),
+                            bottomRight: Radius.circular(34.5)),
                       ),
                       child: Text(
                         '${infoDistanceAndDuration!.totalDistance}, ${infoDistanceAndDuration!.totalDuration}',
@@ -262,7 +547,7 @@ class _MapPageState extends State<MapPage> {
                       ),
                     ),
                   ),
-                if (origin != null || currentLocation != null)
+                if (origin != null || currentLocationData != null)
                   Positioned(
                       top: 90.0,
                       child: Column(
@@ -270,9 +555,21 @@ class _MapPageState extends State<MapPage> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           if (origin != null)
-                            Row(
+                            Column(
                               children: [
-                                MySmallButton(
+                                MapButton(
+                                  icon: Icons.pin_drop,
+                                  makeSmaller: () {
+                                    setState(() {
+                                      isExpandedOrigin = false;
+                                    });
+                                  },
+                                  makeBigger: () {
+                                    setState(() {
+                                      isExpandedOrigin = true;
+                                    });
+                                  },
+                                  isExpandedButton: isExpandedOrigin,
                                   colors: Colors.green,
                                   text: "Ori",
                                   onTap: () async {
@@ -283,80 +580,95 @@ class _MapPageState extends State<MapPage> {
                                         CameraPosition(
                                           target: origin!.position,
                                           zoom: 14.5,
-                                          tilt: 50.0,
                                         ),
                                       ),
                                     );
                                   },
-                                ),
-                                MySmallButton(
-                                  iconData: Icons.close,
-                                  borderColor: Colors.red,
-                                  onTap: () => setState(() => {
+                                  onClose: () => setState(() => {
                                         origin = null,
                                         destination = null,
                                         infoDistanceAndDuration = null,
+                                        isExpandedOrigin = false,
                                       }),
                                 ),
+                                const SizedBox(height: 5.0),
                               ],
                             ),
                           if (destination != null)
-                            Row(
+                            Column(
                               children: [
-                                MySmallButton(
-                                    colors: Colors.red,
-                                    text: "Des",
-                                    onTap: () async {
-                                      var controller =
-                                          await _googleMapController.future;
-                                      controller.animateCamera(
-                                        CameraUpdate.newCameraPosition(
-                                          CameraPosition(
-                                            target: destination!.position,
-                                            zoom: 14.5,
-                                            tilt: 50.0,
-                                          ),
-                                        ),
-                                      );
-                                    }),
-                                MySmallButton(
-                                  iconData: Icons.close,
-                                  borderColor: Colors.red,
-                                  onTap: () => setState(() => {
-                                        destination = null,
-                                        infoDistanceAndDuration = null,
-                                      }),
-                                ),
-                              ],
-                            ),
-                          if (currentLocation != null)
-                            Row(
-                              children: [
-                                MySmallButton(
-                                  colors: Colors.blue,
-                                  text: "Cur",
+                                MapButton(
+                                  icon: Icons.pin_drop,
+                                  makeSmaller: () {
+                                    setState(() {
+                                      isExpandedDestination = false;
+                                    });
+                                  },
+                                  makeBigger: () {
+                                    setState(() {
+                                      isExpandedDestination = true;
+                                    });
+                                  },
+                                  isExpandedButton: isExpandedDestination,
+                                  colors: Colors.red,
+                                  text: "Des",
                                   onTap: () async {
                                     var controller =
                                         await _googleMapController.future;
                                     controller.animateCamera(
                                       CameraUpdate.newCameraPosition(
                                         CameraPosition(
-                                          target: currentLocation!.position,
+                                          target: destination!.position,
                                           zoom: 14.5,
-                                          tilt: 50.0,
                                         ),
                                       ),
                                     );
                                   },
+                                  onClose: () => setState(() => {
+                                        destination = null,
+                                        infoDistanceAndDuration = null,
+                                        isExpandedDestination = false,
+                                      }),
                                 ),
-                                MySmallButton(
-                                  iconData: Icons.close,
-                                  borderColor: Colors.red,
-                                  onTap: () => setState(
-                                    () => currentLocation = null,
-                                  ),
-                                ),
+                                const SizedBox(height: 5.0),
                               ],
+                            ),
+                          if (currentLocationData != null)
+                            MapButton(
+                              icon: Icons.directions,
+                              makeSmaller: () {
+                                setState(() {
+                                  isExpandedCurrentLocation = false;
+                                });
+                              },
+                              makeBigger: () {
+                                setState(() {
+                                  isExpandedCurrentLocation = true;
+                                });
+                              },
+                              isExpandedButton: isExpandedCurrentLocation,
+                              colors: Colors.blue,
+                              text: "Cur",
+                              onTap: () async {
+                                var controller =
+                                    await _googleMapController.future;
+                                controller.animateCamera(
+                                  CameraUpdate.newCameraPosition(
+                                    CameraPosition(
+                                      target: LatLng(
+                                          currentLocationData!.latitude!,
+                                          currentLocationData!.longitude!),
+                                      zoom: 14.5,
+                                    ),
+                                  ),
+                                );
+                              },
+                              onClose: () => setState(() => {
+                                    isLocationLoading = false,
+                                    currentLocationData = null,
+                                    isExpandedCurrentLocation = false,
+                                    locationSubscription!.cancel(),
+                                  }),
                             ),
                         ],
                       )),
@@ -370,9 +682,8 @@ class _MapPageState extends State<MapPage> {
                                   borderRadius: BorderRadius.circular(34.5),
                                   color: const Color.fromARGB(255, 43, 43, 43)
                                       .withOpacity(0.90)),
-                              width: 50,
-                              height: MediaQuery.of(context).size.height *
-                                  0.28, //TODO: Falls Navbar ändert sich, dann hier auch ändern wahrscheinlich
+                              width: MediaQuery.of(context).size.width * 0.12,
+                              height: MediaQuery.of(context).size.height * 0.28,
                               child: Column(children: [
                                 Expanded(
                                     child: RotatedBox(
@@ -414,47 +725,77 @@ class _MapPageState extends State<MapPage> {
                                           final interests = userCollection
                                               .data()!['interests'];
 
-                                          final notInterests = userCollection
-                                              .data()!['uninterested'];
-
-                                          List<Place> places =
-                                              await GoogleMapService()
-                                                  .getPlacesNew(
-                                                      tappedPointInCircle,
-                                                      radiusValue.toInt(),
-                                                      interests.cast<String>(),
-                                                      notInterests
-                                                          .cast<String>());
-
-                                          if (places.isEmpty) {
-                                            pressToGetRecommend = false;
-                                            markers = {};
-                                            // ignore: use_build_context_synchronously
-                                            return ErrorSnackbar
-                                                .showErrorSnackbar(
-                                                    context, "No places found");
-                                          }
-
-                                          for (var place in places) {
-                                            _setNearMarker(
-                                              place.location,
-                                              place.name,
-                                              place.types,
-                                            );
-                                          }
-                                          allFavoritePlaces = places;
-                                          pressToGetRecommend = true;
-
                                           setState(() {
-                                            placeImage =
-                                                places[1].photos[0]['name'];
+                                            loadingRecommendations =
+                                                true; // Setzen Sie den Ladezustand
                                           });
+
+                                          try {
+                                            List<Place> places =
+                                                await GoogleMapService()
+                                                    .getPlacesNew(
+                                              tappedPointInCircle,
+                                              radiusValue.toInt(),
+                                              interests.cast<String>(),
+                                            );
+
+                                            if (places.isEmpty) {
+                                              pressToGetRecommend = false;
+                                              markers = {};
+                                              setState(() {
+                                                loadingRecommendations = false;
+                                              });
+                                              // ignore: use_build_context_synchronously
+                                              return ErrorSnackbar
+                                                  .showErrorSnackbar(context,
+                                                      "No places found");
+                                            }
+
+                                            for (var place in places) {
+                                              _setNearMarker(
+                                                place.location,
+                                                place.name,
+                                                place.types,
+                                              );
+                                            }
+                                            allFavoritePlaces = places;
+                                            pressToGetRecommend = true;
+
+                                            setState(() {
+                                              if (places[1].photos.isNotEmpty) {
+                                                placeImage =
+                                                    places[1].photos[0]['name'];
+                                                loadingRecommendations = false;
+                                              }
+                                            });
+                                          } catch (e) {
+                                            if (kDebugMode) {
+                                              print(
+                                                  "Error fetching recommendations: $e");
+                                            }
+                                            // ignore: use_build_context_synchronously
+                                            ErrorSnackbar.showErrorSnackbar(
+                                                context,
+                                                "Error fetching recommendations \nPlease try again later");
+                                            setState(() {
+                                              loadingRecommendations = false;
+                                            });
+                                          }
                                         },
-                                        icon: const ImageIcon(
-                                          AssetImage('assets/recommend_pic/recommend.png'),
-                                          color: Colors.white,
-                                          size: 30,
-                                        ),
+                                        icon: loadingRecommendations
+                                            ? const SizedBox(
+                                                height: 30,
+                                                width: 30,
+                                                child:
+                                                    CircularProgressIndicator(
+                                                  color: Colors.white,
+                                                ))
+                                            : const ImageIcon(
+                                                AssetImage(
+                                                    'assets/recommend_pic/recommend.png'),
+                                                color: Colors.white,
+                                                size: 30,
+                                              ),
                                       )
                                     : IconButton(
                                         onPressed: () {
@@ -465,12 +806,14 @@ class _MapPageState extends State<MapPage> {
                                           });
                                         },
                                         icon: const ImageIcon(
-                                          AssetImage('assets/recommend_pic/delete_recommend.png'),
+                                          AssetImage(
+                                              'assets/recommend_pic/delete_recommend.png'),
                                           color: Colors.white,
                                           size: 28,
-                                        ),),
+                                        ),
+                                      ),
                                 IconButton(
-                                    onPressed: () {
+                                    onPressed: () async {
                                       setState(() {
                                         isExpanded = false;
                                         radiusSlider = false;
@@ -480,6 +823,21 @@ class _MapPageState extends State<MapPage> {
                                         markers = {};
                                         allFavoritePlaces = [];
                                       });
+                                      final GoogleMapController controller =
+                                          await _googleMapController.future;
+                                      controller.animateCamera(
+                                          CameraUpdate.newCameraPosition(
+                                              CameraPosition(
+                                                  target: currentLocationData ==
+                                                          null
+                                                      ? LatLng(latLng!.latitude,
+                                                          latLng!.longitude)
+                                                      : LatLng(
+                                                          currentLocationData!
+                                                              .latitude!,
+                                                          currentLocationData!
+                                                              .longitude!),
+                                                  zoom: 12)));
                                     },
                                     icon: const Icon(Icons.close,
                                         color: Colors.red))
@@ -488,9 +846,13 @@ class _MapPageState extends State<MapPage> {
                     : Container(),
                 pressToGetRecommend
                     ? Positioned(
-                        bottom: 20.0,
+                        bottom: isExpanded
+                            ? MediaQuery.of(context).size.height * 0.05
+                            : 28.0,
                         child: SizedBox(
-                          height: isExpanded ? 500.0 : 200.0,
+                          height: isExpanded
+                              ? MediaQuery.of(context).size.height * 0.55
+                              : 200.0,
                           width: MediaQuery.of(context).size.width,
                           child: PageView.builder(
                               controller: _pageController,
@@ -505,141 +867,7 @@ class _MapPageState extends State<MapPage> {
     );
   }
 
-  _showReview(review) {
-    return Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(
-              left: 12.0, right: 12.0, top: 8.0, bottom: 8.0),
-          child: Row(
-            children: [
-              Container(
-                height: 35.0,
-                width: 35.0,
-                decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    image: DecorationImage(
-                        image: NetworkImage(
-                            review['authorAttribution']['photoUri']),
-                        fit: BoxFit.cover)),
-              ),
-              const SizedBox(width: 4.0),
-              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                SizedBox(
-                  width: 160.0,
-                  child: Text(review['authorAttribution']['displayName'],
-                      style: Styles.autorreview),
-                ),
-                const SizedBox(height: 3.0),
-                RatingStars(
-                  value: review['rating'] * 1.0,
-                  starCount: 5,
-                  starSize: 7,
-                  starColor: Colors.white,
-                  starOffColor: const Color(0xff9b9b9b),
-                  valueLabelColor: const Color(0xff9b9b9b),
-                  valueLabelTextStyle: const TextStyle(
-                      color: Colors.white,
-                      fontFamily: 'WorkSans',
-                      fontWeight: FontWeight.w400,
-                      fontStyle: FontStyle.normal,
-                      fontSize: 9.0),
-                  valueLabelRadius: 7,
-                  maxValue: 5,
-                  starSpacing: 2,
-                  maxValueVisibility: false,
-                  //mit der zeile unten drunten auch abschalten oder eher net ?
-                  valueLabelVisibility: true,
-                  animationDuration: const Duration(milliseconds: 1000),
-                  valueLabelPadding:
-                      const EdgeInsets.symmetric(vertical: 1, horizontal: 4),
-                  valueLabelMargin: const EdgeInsets.only(right: 4),
-                )
-              ])
-            ],
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.all(12.0),
-          child: Text(
-            review['text']['text'] ?? '',
-            style: Styles.reviewtext,
-          ),
-        ),
-        Divider(color: Colors.grey.shade600, height: 1.0)
-      ],
-    );
-  }
-
-  showPhoto(List<PlacePhoto> photoElement) {
-    if (photoElement.isEmpty) {
-      showBlankCard = true;
-      return const Center(
-        child: Text(
-          'No Photos',
-          style: TextStyle(
-              color: Colors.white,
-              fontFamily: 'WorkSans',
-              fontSize: 12.0,
-              fontWeight: FontWeight.w500),
-        ),
-      );
-    } else {
-      var tempDisplayIndex = photoGalleryIndex;
-
-      return Column(
-        children: [
-          const SizedBox(height: 5.0),
-          Container(
-              height: 250.0,
-              width: 250.0,
-              decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10.0),
-                  image: DecorationImage(
-                      image: photoElement[tempDisplayIndex].imageProvider,
-                      fit: BoxFit.cover))),
-          const SizedBox(height: 15.0),
-          Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
-            MySmallButton(
-                borderColor: photoGalleryIndex == 0 ? Colors.red : Colors.green,
-                onTap: () {
-                  setState(() {
-                    if (photoGalleryIndex != 0) {
-                      photoGalleryIndex = photoGalleryIndex - 1;
-                    } else {
-                      photoGalleryIndex = 0;
-                    }
-                  });
-                },
-                text: "Prev"),
-            Text(
-              '$tempDisplayIndex/${photoElement.length}',
-              style: const TextStyle(
-                  color: Colors.white,
-                  fontFamily: 'WorkSans',
-                  fontSize: 12.0,
-                  fontWeight: FontWeight.w500),
-            ),
-            MySmallButton(
-                borderColor: photoGalleryIndex == photoElement.length - 1
-                    ? Colors.red
-                    : Colors.green,
-                onTap: () {
-                  setState(() {
-                    if (photoGalleryIndex != photoElement.length - 1) {
-                      photoGalleryIndex = photoGalleryIndex + 1;
-                    } else {
-                      photoGalleryIndex = photoElement.length - 1;
-                    }
-                  });
-                },
-                text: "Next"),
-          ])
-        ],
-      );
-    }
-  }
-
+// set the blue circle on the map for the recommendation
   void _setCircle(LatLng point) async {
     final GoogleMapController controller = await _googleMapController.future;
     controller.animateCamera(CameraUpdate.newCameraPosition(
@@ -656,6 +884,7 @@ class _MapPageState extends State<MapPage> {
     });
   }
 
+// set the markers on the map for the recommendation
   _setNearMarker(LatLng point, String name, List types) async {
     var counter = markerIdCounter++;
 
@@ -663,109 +892,158 @@ class _MapPageState extends State<MapPage> {
 
     if (types.contains('bar')) {
       markerIcon = await GoogleMapService()
-          .getBytesFromAsset('assets/map_icon/bars.png', 75);
+          .getBytesFromAsset('assets/map_icon/bars.png', 100);
+    } else if (types.contains('car_rental') ||
+        types.contains('car_repair') ||
+        types.contains("electric_vehicle_charging_station") ||
+        types.contains("gas_station") ||
+        types.contains("parking") ||
+        types.contains("rest_stop")) {
+      markerIcon = await GoogleMapService()
+          .getBytesFromAsset('assets/map_icon/car.png', 100);
     } else if (types.contains('bakery')) {
       markerIcon = await GoogleMapService()
-          .getBytesFromAsset('assets/map_icon/cake-shop.png', 75);
+          .getBytesFromAsset('assets/map_icon/cake-shop.png', 100);
     } else if (types.contains('clothing_store')) {
       markerIcon = await GoogleMapService()
-          .getBytesFromAsset('assets/map_icon/clothings.png', 75);
-    } else if (types.contains('cafe')) {
+          .getBytesFromAsset('assets/map_icon/clothings.png', 100);
+    } else if (types.contains('cafe') || types.contains('coffee_shop')) {
       markerIcon = await GoogleMapService()
-          .getBytesFromAsset('assets/map_icon/coffee-n-tea.png', 75);
+          .getBytesFromAsset('assets/map_icon/coffee-n-tea.png', 100);
     } else if (types.contains('electronics_store')) {
       markerIcon = await GoogleMapService()
-          .getBytesFromAsset('assets/map_icon/computers.png', 75);
+          .getBytesFromAsset('assets/map_icon/computers.png', 100);
     } else if (types.contains('night_club')) {
       markerIcon = await GoogleMapService()
-          .getBytesFromAsset('assets/map_icon/dance-clubs.png', 75);
+          .getBytesFromAsset('assets/map_icon/dance-clubs.png', 100);
     } else if (types.contains('doctor')) {
       markerIcon = await GoogleMapService()
-          .getBytesFromAsset('assets/map_icon/doctors.png', 75);
+          .getBytesFromAsset('assets/map_icon/doctors.png', 100);
     } else if (types.contains('bowling_alley ') ||
         types.contains('zoo') ||
-        types.contains('amusement_park')) {
+        types.contains('amusement_park') ||
+        types.contains("amusement_center") ||
+        types.contains("aquarium")) {
       markerIcon = await GoogleMapService()
-          .getBytesFromAsset('assets/map_icon/karaoke.png', 75);
-    } else if (types.contains('art_gallery ')) {
-      markerIcon = await GoogleMapService()
-          .getBytesFromAsset('assets/map_icon/exhibitions.png', 75);
+          .getBytesFromAsset('assets/map_icon/karaoke.png', 100);
     } else if (types.contains('bank') ||
         types.contains('atm') ||
-        types.contains('finance')) {
+        types.contains('finance') ||
+        types.contains('accounting')) {
       markerIcon = await GoogleMapService()
-          .getBytesFromAsset('assets/map_icon/financial-services.png', 75);
-    } else if (types.contains('food')) {
+          .getBytesFromAsset('assets/map_icon/financial-services.png', 100);
+    } else if (types.contains('food') ||
+        types.contains('meal_takeaway') ||
+        types.contains('meal_delivery')) {
       markerIcon = await GoogleMapService()
-          .getBytesFromAsset('assets/map_icon/food.png', 75);
-    } /* else if (types.contains('health') || types.contains('hospital')) { //TODO: Gym zählt auch ins health medical
-    //WIE problem BEHEBEN ?? da es nicht nur health medical ist
-    //z.B. bei Health medical zählt auch gym mit dazu aber wird nur als health medical png angezeigt statt ein eigenes gym png
+          .getBytesFromAsset('assets/map_icon/food.png', 100);
+    } else if (types.contains('health') ||
+        types.contains('hospital') ||
+        types.contains('drugstore')) {
       markerIcon = await GoogleMapService()
-          .getBytesFromAsset('assets/map_icon/health-medical.png', 75);
-    }  */
-    else if (types.contains('lodging')) {
+          .getBytesFromAsset('assets/map_icon/health-medical.png', 100);
+    } else if (types.contains('lodging') ||
+        types.contains("bed_and_breakfast") ||
+        types.contains("campground") ||
+        types.contains("camping_cabin") ||
+        types.contains("extended_stay_hotel") ||
+        types.contains("guest_house") ||
+        types.contains("hostel") ||
+        types.contains("hotel") ||
+        types.contains("motel") ||
+        types.contains("private_guest_room") ||
+        types.contains("resort_hotel") ||
+        types.contains("rv_park")) {
       markerIcon = await GoogleMapService()
-          .getBytesFromAsset('assets/map_icon/hotels.png', 75);
+          .getBytesFromAsset('assets/map_icon/hotels.png', 100);
     } else if (types.contains('library') || types.contains('book_store')) {
       markerIcon = await GoogleMapService()
-          .getBytesFromAsset('assets/map_icon/libraries.png', 75);
+          .getBytesFromAsset('assets/map_icon/libraries.png', 100);
     } else if (types.contains('spa')) {
       markerIcon = await GoogleMapService()
-          .getBytesFromAsset('assets/map_icon/massage-therapy.png', 75);
+          .getBytesFromAsset('assets/map_icon/massage-therapy.png', 100);
     } else if (types.contains('pharmacy') ||
         types.contains("physiotherapist")) {
       markerIcon = await GoogleMapService()
-          .getBytesFromAsset('assets/map_icon/medical.png', 75);
+          .getBytesFromAsset('assets/map_icon/medical.png', 100);
     } else if (types.contains('movie_rental') ||
         types.contains('movie_theater')) {
       markerIcon = await GoogleMapService()
-          .getBytesFromAsset('assets/map_icon/movies.png', 75);
-    } else if (types.contains('museum')) {
+          .getBytesFromAsset('assets/map_icon/movies.png', 100);
+    } else if (types.contains('museum') ||
+        types.contains("art_gallery") ||
+        types.contains("performing_arts_theater")) {
       markerIcon = await GoogleMapService()
-          .getBytesFromAsset('assets/map_icon/museums.png', 75);
+          .getBytesFromAsset('assets/map_icon/museums.png', 100);
     } else if (types.contains('park')) {
       markerIcon = await GoogleMapService()
-          .getBytesFromAsset('assets/map_icon/places.png', 75);
+          .getBytesFromAsset('assets/map_icon/places.png', 100);
     } else if (types.contains('restaurant')) {
       markerIcon = await GoogleMapService()
-          .getBytesFromAsset('assets/map_icon/restaurants.png', 75);
+          .getBytesFromAsset('assets/map_icon/restaurants.png', 100);
     } else if (types.contains('store') || types.contains('shoe_store')) {
       markerIcon = await GoogleMapService()
-          .getBytesFromAsset('assets/map_icon/retail-stores.png', 75);
-    } else if (types.contains('beauty_salon') || types.contains('hair_care')) {
+          .getBytesFromAsset('assets/map_icon/retail-stores.png', 100);
+    } else if (types.contains('beauty_salon') ||
+        types.contains('hair_care') ||
+        types.contains("barber_shop") ||
+        types.contains("hair_salon")) {
       markerIcon = await GoogleMapService()
-          .getBytesFromAsset('assets/map_icon/saloon.png', 75);
+          .getBytesFromAsset('assets/map_icon/saloon.png', 100);
     } else if (types.contains('school') ||
         types.contains('secondary_school') ||
-        types.contains('university')) {
+        types.contains('university') ||
+        types.contains(
+          "preschool",
+        ) ||
+        types.contains("primary_school")) {
       markerIcon = await GoogleMapService()
-          .getBytesFromAsset('assets/map_icon/schools.png', 75);
+          .getBytesFromAsset('assets/map_icon/schools.png', 100);
     } else if (types.contains('supermarket') ||
         types.contains('convenience_store') ||
-        types.contains('shopping_mall')) {
+        types.contains('shopping_mall') ||
+        types.contains('market') ||
+        types.contains('store') ||
+        types.contains('wholesaler')) {
       markerIcon = await GoogleMapService()
-          .getBytesFromAsset('assets/map_icon/shopping.png', 75);
-    } else if (types.contains('gym') || types.contains('stadium')) {
+          .getBytesFromAsset('assets/map_icon/shopping.png', 100);
+    } else if (types.contains('gym') ||
+        types.contains('stadium') ||
+        types.contains("athletic_field") ||
+        types.contains("fitness_center") ||
+        types.contains("golf_course") ||
+        types.contains("playground") ||
+        types.contains("ski_resort") ||
+        types.contains("sports_club") ||
+        types.contains("sports_complex") ||
+        types.contains("swimming_pool")) {
       markerIcon = await GoogleMapService()
-          .getBytesFromAsset('assets/map_icon/sports.png', 75);
+          .getBytesFromAsset('assets/map_icon/sports.png', 100);
     } else if (types.contains('train_station') ||
-        types.contains('travel_agency')) {
+        types.contains('travel_agency') ||
+        types.contains("airport") ||
+        types.contains("bus_station") ||
+        types.contains("bus_stop") ||
+        types.contains("ferry_terminal") ||
+        types.contains("park_and_ride") ||
+        types.contains("subway_station") ||
+        types.contains('taxi_stand') ||
+        types.contains('transit_station')) {
       markerIcon = await GoogleMapService()
-          .getBytesFromAsset('assets/map_icon/tickets.png', 75);
+          .getBytesFromAsset('assets/map_icon/tickets.png', 100);
     } else if (types.contains('tourist_attraction')) {
       markerIcon = await GoogleMapService()
-          .getBytesFromAsset('assets/map_icon/tours.png', 75);
+          .getBytesFromAsset('assets/map_icon/tours.png', 100);
     } else if (types.contains('mosque') ||
         types.contains('church') ||
         types.contains('hindu_temple') ||
         types.contains('synagogue') ||
         types.contains('place_of_worship')) {
       markerIcon = await GoogleMapService()
-          .getBytesFromAsset('assets/map_icon/religious.png', 75);
+          .getBytesFromAsset('assets/map_icon/religious.png', 100);
     } else {
       markerIcon = await GoogleMapService()
-          .getBytesFromAsset('assets/map_icon/default.png', 75);
+          .getBytesFromAsset('assets/map_icon/default.png', 100);
     }
 
     final Marker marker = Marker(
@@ -780,6 +1058,7 @@ class _MapPageState extends State<MapPage> {
     });
   }
 
+// set the markers on the map for the  origin and destination
   void _addMarker(LatLng pos) async {
     if (origin == null || (origin != null && destination != null)) {
       // Origin is not set OR Origin/Destination are both set
@@ -794,7 +1073,8 @@ class _MapPageState extends State<MapPage> {
           position: pos,
         );
         destination = null;
-
+        isExpandedOrigin = false;
+        isExpandedDestination = false;
         // Reset info
         infoDistanceAndDuration = null;
       });
@@ -819,6 +1099,7 @@ class _MapPageState extends State<MapPage> {
     }
   }
 
+// method to show the nearby places
   _nearbyPlacesList(index) {
     return AnimatedBuilder(
       animation: _pageController,
@@ -846,418 +1127,16 @@ class _MapPageState extends State<MapPage> {
                 isExpanded = !isExpanded;
                 goToTappedPlace();
               },
-              child: FlipCard(
-                flipOnTouch: isExpanded ? true : false,
-                front: AnimatedContainer(
-                  duration: const Duration(milliseconds: 500),
-                  curve: Curves.easeInOut,
-                  height: isExpanded ? 500.0 : 125.0,
-                  width: 325.0,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(34.5),
-                    color:
-                        const Color.fromARGB(255, 43, 43, 43).withOpacity(0.90),
-                  ),
-                  child: SingleChildScrollView(
-                    child: Padding(
-                      padding: const EdgeInsets.only(
-                          left: 18, right: 18, top: 18, bottom: 16),
-                      child: Column(
-                        children: [
-                          isExpanded
-                              ? Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    IconButton(
-                                        onPressed: () {
-                                          setState(() {
-                                            isExpanded = !isExpanded;
-                                          });
-                                        },
-                                        icon: const Icon(
-                                          Icons.keyboard_arrow_down,
-                                          color: Colors.white,
-                                        ))
-                                  ],
-                                )
-                              : const SizedBox(width: 0, height: 0),
-                          Row(
-                            children: [
-                              _pageController.position.haveDimensions
-                                  ? _pageController.page!.toInt() == index
-                                      ? Container(
-                                          height: 90.0,
-                                          width: 90.0,
-                                          decoration: BoxDecoration(
-                                              borderRadius:
-                                                  BorderRadius.circular(10.0),
-                                              image: DecorationImage(
-                                                  image: placeImage != ''
-                                                      ? allFavoritePlaces[index]
-                                                          .firstImage
-                                                          .imageProvider
-                                                      : Image.asset(
-                                                              height: 80.0,
-                                                              width: 80.0,
-                                                              "assets/no_camera.png")
-                                                          .image,
-                                                  fit: BoxFit.cover),
-                                              border: Border.all(
-                                                color: Colors.white,
-                                                width: 4,
-                                              )),
-                                        )
-                                      : Container(
-                                          height: 90.0,
-                                          width: 10.0,
-                                          decoration: BoxDecoration(
-                                              borderRadius:
-                                                  BorderRadius.circular(5.0),
-                                              color: Colors.white),
-                                        )
-                                  : Container(),
-                              const SizedBox(width: 15.0),
-                              Column(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceEvenly,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  SizedBox(
-                                    width: 130.0,
-                                    height: 50.0,
-                                    child: Text(allFavoritePlaces[index].name,
-                                        style: Styles.maptitle),
-                                  ),
-                                  RatingStars(
-                                    value: allFavoritePlaces[index].rating,
-                                    starCount: 5,
-                                    starSize: 20,
-                                    starColor: Colors.white,
-                                    starOffColor: const Color(0xff9b9b9b),
-                                    valueLabelColor: const Color(0xff9b9b9b),
-                                    valueLabelTextStyle: const TextStyle(
-                                        color: Colors.white,
-                                        fontFamily: 'WorkSans',
-                                        fontWeight: FontWeight.w400,
-                                        fontStyle: FontStyle.normal,
-                                        fontSize: 12.0),
-                                    valueLabelRadius: 10,
-                                    maxValue: 5,
-                                    starSpacing: 2,
-                                    maxValueVisibility: false,
-                                    valueLabelVisibility: false,
-                                    animationDuration:
-                                        const Duration(milliseconds: 3000),
-                                    valueLabelPadding:
-                                        const EdgeInsets.symmetric(
-                                            vertical: 1, horizontal: 8),
-                                    valueLabelMargin:
-                                        const EdgeInsets.only(right: 8),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                          isExpanded
-                              ? const SizedBox(height: 20.0)
-                              : Container(),
-                          isExpanded
-                              ? Container(
-                                  padding: const EdgeInsets.all(7.0),
-                                  child: Row(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      const Text(
-                                        'Address: ',
-                                        style: Styles.mapadress,
-                                      ),
-                                      SizedBox(
-                                          width: 150.0,
-                                          child: Text(
-                                            allFavoritePlaces[index]
-                                                .formattedAddress,
-                                            style: Styles.mapadressformatted,
-                                          ))
-                                    ],
-                                  ),
-                                )
-                              : Container(),
-                          isExpanded
-                              ? Container(
-                                  padding: const EdgeInsets.all(7.0),
-                                  child: Row(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      const Text(
-                                        'Contact: ',
-                                        style: Styles.mapcontact,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                      SizedBox(
-                                          width: 150.0,
-                                          child: Text(
-                                            allFavoritePlaces[index]
-                                                .internationalPhoneNumber,
-                                            style: Styles.mapcontactformatted,
-                                            overflow: TextOverflow.ellipsis,
-                                          ))
-                                    ],
-                                  ),
-                                )
-                              : Container(),
-                          isExpanded
-                              ? Container(
-                                  padding: const EdgeInsets.all(7.0),
-                                  child: Row(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      const Text(
-                                        'Availability: ',
-                                        style: Styles.mapcontact,
-                                      ),
-                                      SizedBox(
-                                        width: 150.0,
-                                        child: Text(
-                                          allFavoritePlaces[index]
-                                                      .buisnessStatus ==
-                                                  'OPERATIONAL'
-                                              ? 'Operational '
-                                              : allFavoritePlaces[index]
-                                                          .buisnessStatus ==
-                                                      'CLOSED_TEMPORARILY'
-                                                  ? "Closed temporarily"
-                                                  : allFavoritePlaces[index]
-                                                              .buisnessStatus ==
-                                                          'CLOSED_PERMANENTLY'
-                                                      ? "Closed permanently"
-                                                      : 'None given',
-                                          style: TextStyle(
-                                              color: allFavoritePlaces[index]
-                                                          .buisnessStatus ==
-                                                      'OPERATIONAL'
-                                                  ? Colors.green
-                                                  : Colors.red,
-                                              fontSize: 15.0,
-                                              fontWeight: FontWeight.bold,
-                                              fontFamily: 'Ubuntu'),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                )
-                              : Container(),
-                          isExpanded
-                              ? const SizedBox(height: 20.0)
-                              : Container(),
-                          isExpanded
-                              ? MyButton(
-                                  onTap: () {
-                                    CustomBottomSheet.show(context,
-                                        title:
-                                            "Add new Widget to your Dashboard",
-                                        content: [
-                                          FutureBuilder(
-                                              future: Future.wait([]),
-                                              builder: (context,
-                                                  AsyncSnapshot<List<dynamic>>
-                                                      snapshot) {
-                                                if (snapshot.connectionState ==
-                                                    ConnectionState.waiting) {
-                                                  return const Center(
-                                                    child:
-                                                        CircularProgressIndicator(),
-                                                  );
-                                                }
-                                                if (snapshot.hasError) {
-                                                  return const Center(
-                                                    child: Text(
-                                                        'An error occured!'),
-                                                  );
-                                                }
-                                                return CreateNewWidgetOnDashboard(
-                                                    day: snapshot.data![1],
-                                                    userdata:
-                                                        snapshot.data![0]);
-                                              })
-                                        ]);
-                                  },
-                                  text: "Add to Dashboard")
-                              : Container(),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-                back: AnimatedContainer(
-                  duration: const Duration(milliseconds: 500),
-                  curve: Curves.easeInOut,
-                  height: isExpanded ? 500.0 : 125.0,
-                  width: 325.0,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(34.5),
-                    color:
-                        const Color.fromARGB(255, 43, 43, 43).withOpacity(0.90),
-                  ),
-                  child: SingleChildScrollView(
-                    child: Padding(
-                      padding: isExpanded
-                          ? const EdgeInsets.all(8)
-                          : EdgeInsets.zero,
-                      child: isExpanded
-                          ? Column(
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceEvenly,
-                                    children: [
-                                      MySmallButton(
-                                          onTap: () {
-                                            setState(() {
-                                              isReviews = true;
-                                              isPhotos = false;
-                                            });
-                                          },
-                                          text: 'Review'),
-                                      MySmallButton(
-                                          onTap: () {
-                                            setState(() {
-                                              isReviews = false;
-                                              isPhotos = true;
-                                            });
-                                          },
-                                          text: 'Photos'),
-                                    ],
-                                  ),
-                                ),
-                                isExpanded
-                                    ? SizedBox(
-                                        height:
-                                            MediaQuery.of(context).size.height *
-                                                0.4,
-                                        child: isReviews
-                                            ? ListView(
-                                                children: [
-                                                  if (isReviews)
-                                                    ...allFavoritePlaces[index]
-                                                        .reviews
-                                                        .map((e) {
-                                                      return _showReview(e);
-                                                    })
-                                                ],
-                                              )
-                                            : showPhoto(allFavoritePlaces[index]
-                                                .photosElements))
-                                    : Container(),
-                              ],
-                            )
-                          : Padding(
-                              // Here is the back side of the FlipCard, which is not expanded. It is exactly the same as the front (not expanded) side.
-                              padding: const EdgeInsets.only(
-                                  left: 18, right: 18, top: 18, bottom: 16),
-                              child: Column(
-                                children: [
-                                  Row(
-                                    children: [
-                                      _pageController.position.haveDimensions
-                                          ? _pageController.page!.toInt() ==
-                                                  index
-                                              ? Container(
-                                                  height: 90.0,
-                                                  width: 90.0,
-                                                  decoration: BoxDecoration(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              10.0),
-                                                      image: DecorationImage(
-                                                          image: placeImage !=
-                                                                  ''
-                                                              ? allFavoritePlaces[
-                                                                      index]
-                                                                  .firstImage
-                                                                  .imageProvider
-                                                              : Image.asset(
-                                                                      height:
-                                                                          80.0,
-                                                                      width:
-                                                                          80.0,
-                                                                      "assets/no_camera.png")
-                                                                  .image,
-                                                          fit: BoxFit.cover),
-                                                      border: Border.all(
-                                                        color: Colors.white,
-                                                        width: 4,
-                                                      )),
-                                                )
-                                              : Container(
-                                                  height: 90.0,
-                                                  width: 10.0,
-                                                  decoration: BoxDecoration(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              5.0),
-                                                      color: Colors.white),
-                                                )
-                                          : Container(),
-                                      const SizedBox(width: 15.0),
-                                      Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceEvenly,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          SizedBox(
-                                            width: 130.0,
-                                            height: 50.0,
-                                            child: Text(
-                                                allFavoritePlaces[index].name,
-                                                style: Styles.maptitle),
-                                          ),
-                                          RatingStars(
-                                            value:
-                                                allFavoritePlaces[index].rating,
-                                            starCount: 5,
-                                            starSize: 20,
-                                            starColor: Colors.white,
-                                            starOffColor:
-                                                const Color(0xff9b9b9b),
-                                            valueLabelColor:
-                                                const Color(0xff9b9b9b),
-                                            valueLabelTextStyle:
-                                                const TextStyle(
-                                                    color: Colors.white,
-                                                    fontFamily: 'WorkSans',
-                                                    fontWeight: FontWeight.w400,
-                                                    fontStyle: FontStyle.normal,
-                                                    fontSize: 12.0),
-                                            valueLabelRadius: 10,
-                                            maxValue: 5,
-                                            starSpacing: 2,
-                                            maxValueVisibility: false,
-                                            valueLabelVisibility: false,
-                                            animationDuration: const Duration(
-                                                milliseconds: 3000),
-                                            valueLabelPadding:
-                                                const EdgeInsets.symmetric(
-                                                    vertical: 1, horizontal: 8),
-                                            valueLabelMargin:
-                                                const EdgeInsets.only(right: 8),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                    ),
-                  ),
-                ),
-              ),
+              child: MapCard(
+                  place: allFavoritePlaces[index],
+                  isExpanded: isExpanded,
+                  onExpandedChanged: (newIsExpanded) {
+                    setState(() {
+                      isExpanded = newIsExpanded;
+                    });
+                  },
+                  photoGalleryIndex: photoGalleryIndex,
+                  placeImage: placeImage),
             ),
           )
         ],

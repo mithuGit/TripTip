@@ -2,12 +2,13 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:internet_praktikum/core/services/map_service.dart';
 import 'package:internet_praktikum/ui/views/account/account_details.dart';
-import 'package:internet_praktikum/ui/views/dashboard/archive.dart';
 import 'package:internet_praktikum/ui/views/account/setInterestsPage.dart';
+import 'package:internet_praktikum/ui/views/dashboard/archive.dart';
 import 'package:internet_praktikum/ui/views/dashboard/readDiary.dart';
 import 'package:internet_praktikum/ui/views/dashboard/writeDiary.dart';
-import 'package:internet_praktikum/ui/views/finanzen/finazen.dart';
+import 'package:internet_praktikum/ui/views/payments/paymentsPage.dart';
 import 'package:internet_praktikum/ui/views/dashboard/dashboard.dart';
 import 'package:internet_praktikum/ui/views/map/map.dart';
 import 'package:internet_praktikum/ui/views/profile/info_page.dart';
@@ -21,14 +22,16 @@ import 'package:internet_praktikum/ui/views/trip_setup_pages/join_trip.dart';
 import 'package:internet_praktikum/ui/views/trip_setup_pages/share_trip.dart';
 import 'package:internet_praktikum/ui/views/trip_setup_pages/select_trip.dart';
 import 'package:internet_praktikum/ui/views/verification/OTP_form.dart';
+import 'package:internet_praktikum/ui/views/weather/weather.dart';
 import 'package:internet_praktikum/ui/views/weather/weather_page.dart';
+import 'package:internet_praktikum/ui/widgets/game/gameChooser.dart';
 
 class MyRouter {
   MyRouter._();
 
   // Private NavigatorKey
   static final _rootNavigatorKey = GlobalKey<NavigatorState>();
-  static final _rootNavigatorDashboard =
+  static final rootNavigatorDashboard =
       GlobalKey<NavigatorState>(debugLabel: 'shellDashboard');
   static final _rootNavigatorFinazen =
       GlobalKey<NavigatorState>(debugLabel: 'shellFinazen');
@@ -42,6 +45,18 @@ class MyRouter {
   static final router = GoRouter(
     initialLocation: '/',
     navigatorKey: _rootNavigatorKey,
+    redirect: (context, state) {
+      FirebaseAuth auth = FirebaseAuth.instance;
+      
+      if (auth.currentUser == null || auth.currentUser!.isAnonymous) {
+        return '/loginorregister';
+      } else if (auth.currentUser != null && !auth.currentUser!.emailVerified) {
+        print(!auth.currentUser!.emailVerified);
+        return '/otp';
+      } else {
+        return null; // return "null" to display the intended route without redirecting
+      }
+    },
     routes: <RouteBase>[
       // HomePage Route
       StatefulShellRoute.indexedStack(
@@ -52,24 +67,32 @@ class MyRouter {
         },
         branches: <StatefulShellBranch>[
           StatefulShellBranch(
-            navigatorKey: _rootNavigatorDashboard,
+            navigatorKey: rootNavigatorDashboard,
             routes: [
               GoRoute(
                 name: 'home',
                 path: '/',
-                builder: (context, state) => DashBoard(
-                  key: state.pageKey,
-                ),
-                redirect: (BuildContext context, GoRouterState state) {
-                  FirebaseAuth auth = FirebaseAuth.instance;
-                  if (auth.currentUser == null) {
-                    return '/loginorregister';
-                  } else if (auth.currentUser != null &&
-                      !auth.currentUser!.emailVerified) {
-                    print(!auth.currentUser!.emailVerified);
-                    return '/otp';
+                builder: (context, state) {
+                  if (state.extra != null) {
+                    Map<String, dynamic> data =
+                        state.extra as Map<String, dynamic>;
+
+                    debugPrint(data.toString());
+                    if (data["day"] != null && data["trip"] != null) {
+                      return DashBoard(
+                        key: state.pageKey,
+                        showDay: data["day"] as String,
+                        showTrip: data["trip"] as String,
+                      );
+                    } else {
+                      return DashBoard(
+                        key: state.pageKey,
+                      );
+                    }
                   } else {
-                    return null; // return "null" to display the intended route without redirecting
+                    return DashBoard(
+                      key: state.pageKey,
+                    );
                   }
                 },
               ),
@@ -95,6 +118,7 @@ class MyRouter {
                 path: '/map',
                 builder: (context, state) => MapPage(
                   key: state.pageKey,
+                  place: state.extra as Place?,
                 ),
               ),
             ],
@@ -160,8 +184,9 @@ class MyRouter {
       ),
       GoRoute(
         name: 'selecttrip',
-        path: '/selecttrip',
+        path: '/selecttrip/:noTrip',
         builder: (context, state) => SelectTrip(
+          noTrip: state.pathParameters["noTrip"] == "true",
           key: state.pageKey,
         ),
       ),
@@ -177,7 +202,11 @@ class MyRouter {
         path: '/sharetrip/:tripId/:afterCreate',
         builder: (context, state) {
           if (state.pathParameters.isEmpty) {
-            return ShareTrip(key: state.pageKey, tripId: "Something went Wrong!", afterCreate: "f",);
+            return ShareTrip(
+              key: state.pageKey,
+              tripId: "Something went Wrong!",
+              afterCreate: "f",
+            );
           } else {
             return ShareTrip(
               key: state.pageKey,
@@ -188,33 +217,27 @@ class MyRouter {
         },
       ),
       GoRoute(
-        name: 'weatherpage',
-        path: '/weatherpage',
-        builder: (context, state) => WeatherPage(
-          key: state.pageKey,
-        ),
-      ),
+          name: 'weatherpage',
+          path: '/weatherpage',
+          builder: (context, state) {
+            return WeatherPage(
+              key: state.pageKey,
+              actualWeather: state.extra! as Weather,
+            );
+          }),
       GoRoute(
-        name: 'changeTrip',
-        path: '/changeTrip',
+        name: 'changetrip',
+        path: '/changetrip',
         builder: (context, state) => ChangeTrip(
-          key: state.pageKey,
-        ),
-      ),
-      GoRoute(
-        name: 'archive',
-        path: '/archive',
-        builder: (context, state) => Archive(
           key: state.pageKey,
         ),
       ),
 
       GoRoute(
-        name: 'accountdetails-isEditProfile',
-        path: '/accountdetails-isEditProfile',
-        builder: (context, state) => Account(
+        name: 'archive',
+        path: '/archive',
+        builder: (context, state) => Archive(
           key: state.pageKey,
-          isEditProfile: true,
         ),
       ),
       GoRoute(
@@ -247,6 +270,13 @@ class MyRouter {
               return ReadDiary(day: day!);
             }
           }),
+      GoRoute(
+        name: 'gameChooser',
+        path: '/gameChooser',
+        builder: (context, state) => GameWidgetReturn(
+          key: state.pageKey,
+        ),
+      ),
     ],
   );
 }

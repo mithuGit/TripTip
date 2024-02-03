@@ -1,11 +1,16 @@
+// ignore_for_file: file_names
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:uuid/uuid.dart';
 
 class ManageDashboardWidged {
   var uuid = const Uuid();
   var firestore = FirebaseFirestore.instance;
-  Future<void> addWidget({required DocumentReference day, required DocumentReference user,
-      required Map<String, dynamic> data, String? key}) async {
+  Future<void> addWidget(
+      {required DocumentReference day,
+      required DocumentReference user,
+      required Map<String, dynamic> data,
+      String? key}) async {
     Map<String, dynamic> dayData =
         (await day.get()).data() as Map<String, dynamic>;
     List<dynamic> widgets =
@@ -16,11 +21,11 @@ class ManageDashboardWidged {
     data['createdAt'] = DateTime.now();
     data['createdBy'] = user;
     widgets.add(data);
-    Map<int, dynamic>? res = widgets?.asMap();
-    res?.forEach((key, value) {
+    Map<int, dynamic>? res = widgets.asMap();
+    res.forEach((key, value) {
       value['index'] = key;
     });
-    Map<String, dynamic>? res2 = res?.map((key, value) {
+    Map<String, dynamic>? res2 = res.map((key, value) {
       return MapEntry(value["key"] as String, value);
     });
 

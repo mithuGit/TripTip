@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:go_router/go_router.dart';
@@ -11,24 +10,17 @@ class WriteDiary extends StatefulWidget {
   @override
   WriteDiaryState createState() => WriteDiaryState();
 }
-
+/*
+ Here we are writing a diary for the day before.
+  We are using a Quill Editor to write the diary.
+*/
 class WriteDiaryState extends State<WriteDiary> {
   QuillController _controller = QuillController.basic();
   FirebaseFirestore firestore = FirebaseFirestore.instance;
-
-  @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    Future<DocumentSnapshot> createDiary() async {
-      debugPrint("sdf");
+  Future<DocumentSnapshot> createDiary() async {
       if ((await widget.day.collection("diary").get()).docs.isNotEmpty) {
         QuerySnapshot diary =
             await widget.day.collection("diary").limit(1).get();
-        
 
         return await diary.docs[0].reference.get();
       } else {
@@ -44,7 +36,15 @@ class WriteDiaryState extends State<WriteDiary> {
         });
         return await diary.get();
       }
-    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
 
     return Scaffold(
         appBar: AppBar(
@@ -56,7 +56,7 @@ class WriteDiaryState extends State<WriteDiary> {
             color: Colors.black,
           ),
           centerTitle: true,
-          title: const Text("Write Diary", style: Styles.title),
+          title: const Text("Write a Diary for Yesterday", style: Styles.title),
         ),
         body: FutureBuilder<DocumentSnapshot>(
             future: createDiary(),
@@ -69,13 +69,16 @@ class WriteDiaryState extends State<WriteDiary> {
               }
               Map<String, dynamic> data =
                   snapshot.data!.data() as Map<String, dynamic>;
-               _controller = QuillController(
-                  document: Document.fromJson(data["content"]),
-                  selection: const TextSelection.collapsed(offset: 0)); 
+              try {
+                _controller = QuillController(
+                    document: Document.fromJson(data["content"]),
+                    selection: const TextSelection.collapsed(offset: 0));
+              } catch (e) {
+                _controller = QuillController.basic();
+              }
               _controller.addListener(() async {
-                debugPrint("sdf");
                 await snapshot.data!.reference.update(
-                    {"content": _controller.document.toDelta().toJson()});
+                    {"content": _controller.document.toDelta().toJson(), "lastEdit": DateTime.now()});
               });
               return Column(children: [
                 QuillToolbar.simple(
