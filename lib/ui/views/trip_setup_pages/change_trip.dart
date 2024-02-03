@@ -11,17 +11,20 @@ import 'package:internet_praktikum/ui/widgets/centerText.dart';
 import 'package:internet_praktikum/ui/widgets/errorSnackbar.dart';
 import 'package:internet_praktikum/ui/widgets/modalButton.dart';
 
+///Widget for the Edit trips page
 class ChangeTrip extends StatefulWidget {
   const ChangeTrip({super.key});
   @override
   State<ChangeTrip> createState() => _ChangeTrip();
 }
 
+///Widget thats getting rendered
 class _ChangeTrip extends State<ChangeTrip> {
   final db = FirebaseFirestore.instance;
   final user = FirebaseAuth.instance.currentUser!;
   var userTrip;
 
+  ///Returns list of trips user is in, filtered by using its uid
   Future<List> getTrips() async {
     var tripRef = db.collection("trips");
     var trips = [];
@@ -42,11 +45,13 @@ class _ChangeTrip extends State<ChangeTrip> {
     return trips;
   }
 
+  ///Used to enable user setting for trip admin
   bool isAdmin(Map<String, dynamic> trip) {
     return trip["createdBy"] ==
         FirebaseFirestore.instance.doc("/users/${user.uid}");
   }
 
+  ///Either creates name or puts the crown in front for users admin trips
   Widget createTripName(Map<String, dynamic> trip) {
     if (isAdmin(trip)) {
       return Row(children: [
@@ -65,6 +70,7 @@ class _ChangeTrip extends State<ChangeTrip> {
     }
   }
 
+  ///Returns members of selected trip
   Future<List> getTripUser(List<dynamic> userref) async {
     var users = [];
     await Future.forEach(
@@ -75,6 +81,7 @@ class _ChangeTrip extends State<ChangeTrip> {
     return users;
   }
 
+  ///Deletes all widgets for a user
   Future<void> deleteAllWidgets(dynamic user, String trip) async {
     var ref = db.collection("trips").doc(trip).collection("days");
     await ref.get().then(
@@ -102,6 +109,7 @@ class _ChangeTrip extends State<ChangeTrip> {
     );
   }
 
+  ///creates list of members of selected trip
   FutureBuilder createMemberView(Map<String, dynamic> trip, String tripid) {
     return FutureBuilder(
         future: getTripUser(trip["members"]),
@@ -132,6 +140,42 @@ class _ChangeTrip extends State<ChangeTrip> {
                                           ModalButton(
                                               icon: Icons.remove_circle_outline,
                                               onTap: () async {
+                                                db
+                                                    .collection("trips")
+                                                    .doc(tripid)
+                                                    .collection("payments")
+                                                    .get()
+                                                    .then((col) => {
+                                                          if (col
+                                                              .docs.isNotEmpty)
+                                                            {
+                                                              col.docs.where(
+                                                                  (element) {
+                                                                return element[
+                                                                        "createdBy"] ==
+                                                                    db
+                                                                        .collection(
+                                                                            "users")
+                                                                        .doc(con[
+                                                                            "uid"]);
+                                                              }).forEach(
+                                                                  (element) {
+                                                                db
+                                                                    .collection(
+                                                                        "trips")
+                                                                    .doc(tripid)
+                                                                    .collection(
+                                                                        "payments")
+                                                                    .doc(element
+                                                                        .id)
+                                                                    .delete();
+                                                              })
+                                                            }
+                                                        });
+                                                deleteAllWidgets(
+                                                    FirebaseFirestore.instance.doc(
+                                                        "/users/${con['uid']}"),
+                                                    tripid);
                                                 final result =
                                                     await FirebaseFunctions
                                                         .instance
@@ -152,8 +196,10 @@ class _ChangeTrip extends State<ChangeTrip> {
                                                                 as String);
                                                   }
                                                 }
-                                                setState(() {});
-                                                context.goNamed("home");
+
+                                                setState(() {
+                                                  context.goNamed("home");
+                                                });
                                               },
                                               text: "Kick Member"),
                                           ModalButton(
@@ -182,6 +228,46 @@ class _ChangeTrip extends State<ChangeTrip> {
                                                 context.goNamed("home");
                                               },
                                               text: "Give Admin"),
+                                          ModalButton(
+                                              icon: Icons.payment,
+                                              onTap: () {
+                                                db
+                                                    .collection("trips")
+                                                    .doc(tripid)
+                                                    .collection("payments")
+                                                    .get()
+                                                    .then((col) => {
+                                                          if (col
+                                                              .docs.isNotEmpty)
+                                                            {
+                                                              col.docs.where(
+                                                                  (element) {
+                                                                return element[
+                                                                        "createdBy"] ==
+                                                                    db
+                                                                        .collection(
+                                                                            "users")
+                                                                        .doc(con[
+                                                                            "uid"]);
+                                                              }).forEach(
+                                                                  (element) {
+                                                                db
+                                                                    .collection(
+                                                                        "trips")
+                                                                    .doc(tripid)
+                                                                    .collection(
+                                                                        "payments")
+                                                                    .doc(element
+                                                                        .id)
+                                                                    .delete();
+                                                              })
+                                                            }
+                                                        });
+
+                                                setState(() {});
+                                                context.goNamed("home");
+                                              },
+                                              text: "Delete Requests"),
                                         ])),
                                   ]);
                             },
@@ -212,6 +298,7 @@ class _ChangeTrip extends State<ChangeTrip> {
         });
   }
 
+  ///Whole edit trips site
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -242,7 +329,7 @@ class _ChangeTrip extends State<ChangeTrip> {
             if (snapshot.connectionState == ConnectionState.done) {
               final data = snapshot.data;
               // if user is not in any trip
-              if(data!.isEmpty){
+              if (data!.isEmpty) {
                 return const CenterText(text: "You are not in any trip yet");
               }
               return ListView(

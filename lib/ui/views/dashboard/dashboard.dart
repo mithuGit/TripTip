@@ -187,7 +187,7 @@ class _DashBoardState extends State<DashBoard> {
             onSelected: (value) => {
               // This is the popup menu in the dashboard
               switch (value) {
-                "archive" => {context.go("/archive")},
+                "archive" => {context.pushReplacementNamed("archive")},
                 "changeTrip" => {context.go("/changetrip")},
                 "createWidget" => {
                     checkIfMaxWidgetIsReached(selectedDayReference!, userdata!),

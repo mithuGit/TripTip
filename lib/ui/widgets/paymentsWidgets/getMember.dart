@@ -81,7 +81,7 @@ class _GetMemberButtonState extends State<GetMemberButton> {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: 300,
+      width: 250,
       child: CupertinoButton.filled(
           borderRadius: BorderRadius.circular(11),
           child: Text(name), // hier muss dann value hin (name)

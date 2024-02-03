@@ -11,6 +11,8 @@ import 'package:intl/intl.dart';
 import '../../widgets/container.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+///Create trips page, used in first account creation, when user has no trips and via edit trips site
+
 class CreateTrip extends StatefulWidget {
   // beacuse of Testing we need to pass the firestore and auth object
   // but this is not required in the final app
@@ -21,15 +23,7 @@ class CreateTrip extends StatefulWidget {
   State<CreateTrip> createState() => _TripCreateState();
 }
 
-// This class is used to store the data of the user
-// thogeter with the profile image
-class User {
-  String prename;
-  String lastname;
-  Image profileImage;
-  User(this.prename, this.lastname, this.profileImage);
-}
-
+///Main Widget
 class _TripCreateState extends State<CreateTrip> {
   CollectionReference trips = FirebaseFirestore.instance.collection('trips');
   final destinationText = TextEditingController();
@@ -88,7 +82,8 @@ class _TripCreateState extends State<CreateTrip> {
       }
     }
   }
-
+  
+  ///Widget builder for the text fields and buttons
   @override
   Widget build(BuildContext context) {
     // Get Screen Size

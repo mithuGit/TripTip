@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:internet_praktikum/ui/styles/Styles.dart';
 import 'package:internet_praktikum/ui/widgets/errorSnackbar.dart';
 import 'package:internet_praktikum/ui/widgets/paymentsWidgets/getMember.dart';
@@ -437,6 +438,12 @@ class _CreateDebtsState extends State<CreateDebts> {
                             memberNameUID = member.reference;
                           })
                         }),
+                IconButton(
+                    onPressed: () {
+                      context.push("/gameChooser");
+                    },
+                    icon: const Icon(Icons.games, size: 30),
+                    color: Colors.purpleAccent),
                 IconButton(
                     onPressed: () => {
                           if (widget.preview == null &&

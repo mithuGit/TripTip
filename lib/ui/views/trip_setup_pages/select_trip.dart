@@ -3,11 +3,13 @@ import 'package:go_router/go_router.dart';
 import 'package:internet_praktikum/ui/widgets/container.dart';
 import 'package:internet_praktikum/ui/widgets/my_button.dart';
 
+///Site to choose for either joining or creating trips
 class SelectTrip extends StatelessWidget {
   SelectTrip({super.key, required this.noTrip});
 
   bool noTrip;
 
+  ///Widget builder, changes with noTrip to not allow the user to go back when there is nothing to go back(no other trips available)
   @override
   Widget build(BuildContext context) {
     return Scaffold(

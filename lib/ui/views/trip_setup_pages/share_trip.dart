@@ -8,6 +8,7 @@ import 'package:internet_praktikum/ui/widgets/errorSnackbar.dart';
 import 'package:internet_praktikum/ui/widgets/inputfield.dart';
 import 'package:internet_praktikum/ui/widgets/my_button.dart';
 
+///Site to share tripid with others, or use user id to add them to current trip
 class ShareTrip extends StatefulWidget {
   String tripId;
   String? afterCreate;
@@ -22,6 +23,7 @@ class ShareTrip extends StatefulWidget {
   State<ShareTrip> createState() => _ShareTrip();
 }
 
+/// adds user from text field into current trip
 class _ShareTrip extends State<ShareTrip> {
   Future userExists(String username) async {
     await FirebaseFirestore.instance
@@ -35,6 +37,7 @@ class _ShareTrip extends State<ShareTrip> {
     });
   }
 
+  ///Widget builder, adds tripid to copy, and textfield for userid
   @override
   Widget build(BuildContext context) {
     return Scaffold(
