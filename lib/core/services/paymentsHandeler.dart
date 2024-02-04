@@ -7,6 +7,8 @@ class NoPayOutinformation implements Exception {
   String cause;
   NoPayOutinformation(this.cause);
 }
+// This class is used to handle payments
+// just a Wrapper for the FirebaseFunctions
 
 class PaymentsHandeler {
   

@@ -5,6 +5,8 @@ import 'package:internet_praktikum/ui/widgets/dashboardWidgets/addAppointmentWid
 import 'package:internet_praktikum/ui/widgets/dashboardWidgets/addNoteWidgetToDashboard.dart';
 import 'package:internet_praktikum/ui/widgets/dashboardWidgets/addSurveyWidgetToDashboard.dart';
 
+// This class is used to update fire the CustomBottomSheet to update the widget
+
 class UpdateWidgetData {
   final Map<String, dynamic> data;
   final DocumentReference day;

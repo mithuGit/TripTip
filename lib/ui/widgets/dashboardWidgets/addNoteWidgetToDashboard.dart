@@ -29,7 +29,7 @@ class AddNoteWidgetToDashboard extends StatefulWidget {
   _AddNoteWidgetToDashboardState createState() =>
       _AddNoteWidgetToDashboardState();
 }
-
+// used to add a note to the dashboard
 class _AddNoteWidgetToDashboardState extends State<AddNoteWidgetToDashboard> {
   final nameOfNote = TextEditingController();
   final note = TextEditingController();

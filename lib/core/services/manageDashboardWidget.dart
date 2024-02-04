@@ -3,6 +3,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:uuid/uuid.dart';
 
+
+// This class is used to manage the widgets on the dashboard
+//To create a new widget, use the addWidget method
+//To update a widget, use the updateWidget method
+//To add a survey notification task, use the addSurveyNotificationTask method
+
 class ManageDashboardWidged {
   var uuid = const Uuid();
   var firestore = FirebaseFirestore.instance;

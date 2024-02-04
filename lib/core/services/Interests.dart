@@ -1,4 +1,6 @@
 class Interests {
+  // This map contains the available categories and their subcategories
+  // we picked the most common subcategories for each category. but left some out
   static Map<String, List<String>> available = {
     "assets/interests_pic/car.png": [
       "car_rental",
@@ -114,6 +116,7 @@ class Interests {
       "transit_station",
     ],
   };
+  // This function takes a list of subcategories and returns a list of categories
   static List<String> evaluateCategories(List<dynamic> subcategories) {
     Map<String, int> count = {};
     for (final subcategory in subcategories) {

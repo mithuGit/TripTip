@@ -6,6 +6,8 @@ import 'package:internet_praktikum/ui/styles/Styles.dart';
 import 'package:internet_praktikum/ui/widgets/dashboardWidgets/usernameBagageDashboardWidget.dart';
 import 'package:intl/intl.dart';
 
+// An AppointmentWidget is used to display an appointment on the dashboard
+
 class AppointmentWidget extends StatefulWidget {
   final Map<String, dynamic>? data;
 

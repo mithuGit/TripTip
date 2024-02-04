@@ -20,7 +20,8 @@ class User {
   @override
   int get hashCode => prename.hashCode ^ lastname.hashCode ^ profileImage.hashCode;
 }
-
+// This class is used to display the username and profile picture in the create trip page
+// And on other pages where the user is displayed
 class UsernameBagageCreateTrip extends StatefulWidget {
   final FirebaseAuth auth;
   final FirebaseFirestore firestore;

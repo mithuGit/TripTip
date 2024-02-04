@@ -3,9 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:internet_praktikum/ui/styles/Styles.dart';
 import 'package:intl/intl.dart';
 
+
+// This class is used to display the username of the user who created the widget
+// the widget is used in the dashboard
+// in the bottom of the widget
 class UsernameBagageDashboardWidget extends StatelessWidget {
   final Map<String, dynamic>? data;
-  UsernameBagageDashboardWidget({required this.data});
+ const UsernameBagageDashboardWidget({super.key, required this.data});
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +27,7 @@ class UsernameBagageDashboardWidget extends StatelessWidget {
 
       return _userData;
     }
-
+    // this function returns the date of the creation of the widget
     String dateString() {
       if(DateTime.now().difference(data?["createdAt"].toDate()).inDays == 0){
         return " Today at ${DateFormat('HH:mm').format(data?["createdAt"].toDate())}";

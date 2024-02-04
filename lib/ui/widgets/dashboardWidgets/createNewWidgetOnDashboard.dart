@@ -6,7 +6,8 @@ import 'package:internet_praktikum/ui/widgets/dashboardWidgets/addAppointmentWid
 import 'package:internet_praktikum/ui/widgets/dashboardWidgets/addNoteWidgetToDashboard.dart';
 import 'package:internet_praktikum/ui/widgets/dashboardWidgets/addSurveyWidgetToDashboard.dart';
 import 'package:internet_praktikum/ui/widgets/modalButton.dart';
-
+// Here we create a new widget on the dashboard
+// it decides which creater to show
 // ignore: must_be_immutable
 class CreateNewWidgetOnDashboard extends StatefulWidget {
   Map<String, dynamic> userdata;
@@ -67,6 +68,8 @@ class _CreateNewWidgetOnDashboardState
                 text: "Add Appointment Survery"),
           ],
         );
+      // here we decide which widget to show
+      // when the user clicks on a button
       case 'note':
         return AddNoteWidgetToDashboard(
             userdata: widget.userdata, day: widget.day);

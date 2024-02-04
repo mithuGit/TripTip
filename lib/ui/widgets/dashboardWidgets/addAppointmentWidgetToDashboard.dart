@@ -14,6 +14,8 @@ import 'package:internet_praktikum/ui/widgets/my_button.dart';
 import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
 
+// This class is used to add an appointment to the dashboard
+
 class AddAppointmentWidgetToDashboard extends StatefulWidget {
   Place? place;
   Map<String, dynamic> userdata;
@@ -37,6 +39,8 @@ class _AddAppointmentWidgetToDashboardState
   final nameOfAppointment = TextEditingController();
   final appointment = TextEditingController();
   DateTime? selectedDate;
+  // the bounding date is set to 2021, so the user can't select a date in the past
+  // the year 2021 is used because it does not matter which year is used
   DateTime boundingDate = DateTime(2021, 1, 1, 0, 0);
   var uuid = const Uuid();
   var firestore = FirebaseFirestore.instance;

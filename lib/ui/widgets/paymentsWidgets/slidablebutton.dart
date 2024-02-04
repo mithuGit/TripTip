@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:internet_praktikum/ui/styles/Styles.dart';
 import 'package:slide_to_act/slide_to_act.dart';
-
+// Used to create a slide button
+// to pay the bill
 class SlideButton extends StatelessWidget {
   final String buttonText;
   final EdgeInsets? margin;

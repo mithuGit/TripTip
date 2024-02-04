@@ -1,6 +1,9 @@
 // ignore: file_names
 import 'package:flutter/material.dart';
 
+
+// This is a Class to create an ExpansionTile Widget with a custom design on the Payments Page
+
 class ExpansionTileWidget extends StatelessWidget {
   final List<Widget> children;
   final String title;

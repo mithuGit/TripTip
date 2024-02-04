@@ -2,6 +2,9 @@
 import 'package:flutter/material.dart';
 import 'package:internet_praktikum/ui/styles/Styles.dart';
 
+
+//Dropdown menu to select a deadline on the addSurveyWidgetToDashboard
+
 class Deadline {
   DateTime? deadline;
   get isSet => deadline != null;

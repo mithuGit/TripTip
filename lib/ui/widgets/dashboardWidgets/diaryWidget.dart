@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:internet_praktikum/ui/styles/Styles.dart';
 
+// This is the DiaryWidget class that is used to display the diary widget on the dashboard
+
 class DiaryWidget extends StatefulWidget {
   final Map<String, dynamic>? data;
   final DocumentReference? day;
@@ -41,7 +43,7 @@ class DiaryWidgetState extends State<DiaryWidget> {
       });
     }
   }
-
+  // this function checks if the diary is in the moment
   void checkIfInMoment() {
     setState(() {
       if (widget.data!["diaryStartTime"] != null &&
@@ -61,7 +63,7 @@ class DiaryWidgetState extends State<DiaryWidget> {
       }
     });
   }
-
+  // nedeed to dispose the timer, when user moves the widget
   @override
   void dispose() {
     super.dispose();
@@ -74,6 +76,7 @@ class DiaryWidgetState extends State<DiaryWidget> {
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        // if the diary is in the moment, the user can write a diary and if your are the writer, you can edit the diary
         if (isInMoment && writerPrename != null && writerLastname != null) ...[
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,

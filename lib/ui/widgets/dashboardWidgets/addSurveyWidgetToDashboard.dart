@@ -15,6 +15,7 @@ import 'package:internet_praktikum/ui/widgets/my_button.dart';
 import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
 
+// every option has to implement this abstract class
 abstract class SelectedOption {
   bool get isNotEmpty;
   bool get isDate => this is SelectedDate;
@@ -23,7 +24,7 @@ abstract class SelectedOption {
   set value(Object? value);
   Map toMap();
 }
-
+// this class is used to add a date to the survey
 class SelectedDate extends SelectedOption {
   DateTime? date;
   @override
@@ -41,7 +42,7 @@ class SelectedDate extends SelectedOption {
   @override
   String toString() => DateFormat('HH:mm').format(date!);
 }
-
+// this class is used to add a question to the survey
 class SelectedQuestion extends SelectedOption {
   TextEditingController question = TextEditingController();
   @override
@@ -74,7 +75,7 @@ class AddSurveyWidgetToDashboard extends StatefulWidget {
   AddSurveyWidgetToDashboardState createState() =>
       AddSurveyWidgetToDashboardState();
 }
-
+// used to add a survey to the dashboard
 class AddSurveyWidgetToDashboardState
     extends State<AddSurveyWidgetToDashboard> {
   final nameofSurvey = TextEditingController();

@@ -9,6 +9,9 @@ import 'package:http/http.dart' as http;
 import 'dart:convert' as convert;
 
 
+
+
+// This is a PlacePhoto class that is used to store the photo of a place
 abstract class PlacePhoto {
   final String name;
   final int widthPx;
@@ -16,6 +19,8 @@ abstract class PlacePhoto {
   ImageProvider get imageProvider;
   PlacePhoto({required this.name, required this.heightPx, required this.widthPx});
 }
+// We have two classes that implement the PlacePhoto class
+// PlacePhotoNetwork is used to get the photo from the internet from the google places api
 class PlacePhotoNetwork extends PlacePhoto {
   final String name;
   int widthPx;
@@ -38,6 +43,7 @@ class PlacePhotoNetwork extends PlacePhoto {
     }
   }
 }
+// when no photo is available, we use the PlacePhotoAsset class
 class PlacePhotoAsset extends PlacePhoto {
   @override
   final String name = "no name";
@@ -49,6 +55,7 @@ class PlacePhotoAsset extends PlacePhoto {
   PlacePhotoAsset() : super(name: '', heightPx: 0, widthPx: 0);
 }
 
+// This is the Place class that is used to store the details of a place
 class Place {
   final String name;
   final List<dynamic> types;
@@ -145,7 +152,8 @@ class GoogleMapService {
     if (interestsList2.isEmpty) {
       maxAmount = "10";
     }
-
+    // Split into two requests if more than 40 interests
+    // since the google places api only allows 40 interests per request
     var apiRequest1 = await http.post(Uri.parse(url),
         body: convert.jsonEncode({
           "locationRestriction": {
