@@ -10,6 +10,7 @@ import 'package:internet_praktikum/ui/widgets/headerWidgets/topbar.dart';
 import 'package:internet_praktikum/ui/widgets/profileWidgets/profileButton.dart';
 import 'package:permission_handler/permission_handler.dart';
 
+// This is the Main settings Page
 class ProfilePage extends StatefulWidget {
   const ProfilePage({Key? key}) : super(key: key);
 
@@ -17,6 +18,7 @@ class ProfilePage extends StatefulWidget {
   State<ProfilePage> createState() => _ProfilePageState();
 }
 
+// This is the State of the Main settings Page
 class _ProfilePageState extends State<ProfilePage> {
   bool isDeleting = false;
   void signUserOut() async {
@@ -26,7 +28,7 @@ class _ProfilePageState extends State<ProfilePage> {
       GoRouter.of(context).go('/loginorregister');
     }
   }
-
+  // Used to delete the User
   Future<void> deleteUser() async {
     FirebaseFunctions functions =
         FirebaseFunctions.instanceFor(region: "europe-west3");
@@ -65,23 +67,13 @@ class _ProfilePageState extends State<ProfilePage> {
   final storage = FirebaseStorage.instance;
   ImageProvider<Object>? imageProvider;
 
-  void loadProfilePicture() async {
-    final user = FirebaseAuth.instance.currentUser!;
-    final userDoc = await userCollection.doc(user.uid).get();
-    if (userDoc.data()?['profilePicture'] != null) {
-      setState(() {
-        imageProvider = NetworkImage(userDoc.data()?['profilePicture']);
-      });
-    }
-  }
-
+  // Here we get the Image of the User
   @override
   void initState() {
-    loadProfilePicture();
     super.initState();
-    // currentUser.photoURL != null
-    //   ? imageProvider = NetworkImage(currentUser.photoURL!)
-    // : imageProvider = const AssetImage('assets/Personavatar.png');
+    currentUser.photoURL != null
+       ? imageProvider = NetworkImage(currentUser.photoURL!)
+     : imageProvider = const AssetImage('assets/Personavatar.png');
   }
 
   @override
@@ -159,6 +151,8 @@ class _ProfilePageState extends State<ProfilePage> {
                             textcolor: Colors.white,
                             onTap: () => context.go("/info"),
                           ),
+                          // Here a FutureBuilder is used to check if the User has enabled Push Notifications
+                          // If the User has enabled Push Notifications, the Button will show "Disable PushNotifications"
                           FutureBuilder(
                               future: PushNotificationService()
                                   .checkIfNotificationIsEnabled(),
