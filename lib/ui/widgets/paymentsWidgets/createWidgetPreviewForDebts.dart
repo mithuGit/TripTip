@@ -439,12 +439,6 @@ class _CreateDebtsState extends State<CreateDebts> {
                           })
                         }),
                 IconButton(
-                    onPressed: () {
-                      context.push("/gameChooser");
-                    },
-                    icon: const Icon(Icons.games, size: 30),
-                    color: Colors.purpleAccent),
-                IconButton(
                     onPressed: () => {
                           if (widget.preview == null &&
                               optionList
