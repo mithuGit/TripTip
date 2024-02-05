@@ -62,6 +62,7 @@ class _OpenRefundsPerUserState extends State<OpenRefundsPerUser> {
   @override
   Widget build(BuildContext context) {
     return AnimatedContainer(
+      margin: widget.margin ?? const EdgeInsets.only(bottom: 10),
       duration: const Duration(milliseconds: 250),
       height:
           isExpanded ? calculateHeight(MediaQuery.of(context).size.height) : 68,
@@ -70,16 +71,16 @@ class _OpenRefundsPerUserState extends State<OpenRefundsPerUser> {
         border: Border.all(color: const Color(0xE51E1E1E)),
         borderRadius: BorderRadius.circular(34.5),
       ),
-      child: GestureDetector(
-        onTap: () {
-          setState(() {
-            isExpanded = !isExpanded;
-          });
-        },
-        child: ClipRect(
-          child: Wrap(
-            children: [
-              Padding(
+      child: ClipRect(
+        child: Wrap(
+          children: [
+            GestureDetector(
+              onTap: () {
+                setState(() {
+                  isExpanded = !isExpanded;
+                });
+              },
+              child: Padding(
                 padding: const EdgeInsets.only(
                   top: 7.0,
                   left: 10,
@@ -91,8 +92,8 @@ class _OpenRefundsPerUserState extends State<OpenRefundsPerUser> {
                   children: [
                     CircleAvatar(
                       radius: 25,
-                      backgroundImage: (widget.currentUser.data()! as Map<
-                                  String, dynamic>)["profilePicture"] !=
+                      backgroundImage: (widget.currentUser.data()!
+                                  as Map<String, dynamic>)["profilePicture"] !=
                               null
                           ? NetworkImage((widget.currentUser.data()!
                               as Map<String, dynamic>)["profilePicture"])
@@ -126,63 +127,63 @@ class _OpenRefundsPerUserState extends State<OpenRefundsPerUser> {
                   ],
                 ),
               ),
-              if (isExpanded) ...[
-                Padding(
-                  padding: const EdgeInsets.only(
-                    top: 10,
-                    left: 10,
-                    right: 25,
-                  ),
-                  child: Column(
-                    children: [
-                      for (int i = 0; i < widget.openRefunds.length; i++)
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 5, top: 5),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Flexible(
-                                child: Text(
-                                  widget.openRefunds[i]["title"],
-                                  style: const TextStyle(
-                                    fontSize: 20.0,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white,
-                                  ),
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
-                              Text(
-                                '${widget.openRefunds[i]["amount"]} €',
+            ),
+            if (isExpanded) ...[
+              Padding(
+                padding: const EdgeInsets.only(
+                  top: 10,
+                  left: 10,
+                  right: 25,
+                ),
+                child: Column(
+                  children: [
+                    for (int i = 0; i < widget.openRefunds.length; i++)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 5, top: 5),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Flexible(
+                              child: Text(
+                                widget.openRefunds[i]["title"],
                                 style: const TextStyle(
                                   fontSize: 20.0,
                                   fontWeight: FontWeight.bold,
                                   color: Colors.white,
                                 ),
+                                overflow: TextOverflow.ellipsis,
                               ),
-                            ],
-                          ),
+                            ),
+                            Text(
+                              '${widget.openRefunds[i]["amount"]} €',
+                              style: const TextStyle(
+                                fontSize: 20.0,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ],
                         ),
-                    ],
-                  ),
+                      ),
+                  ],
                 ),
-              ],
-              if (isExpanded) ...[
-                Padding(
-                  padding: const EdgeInsets.only(
-                      top: 20, left: 10, right: 10, bottom: 7),
-                  child: SlideButton(
-                    onSubmit: () => PaymentsHandeler.payOpenRefundsPerUser(
-                            widget.currentUser.reference, widget.trip)
-                        .onError((error, stackTrace) =>
-                            ErrorSnackbar.showErrorSnackbar(
-                                context, error.toString())),
-                    buttonText: 'Slide to Pay',
-                  ),
-                ),
-              ]
+              ),
             ],
-          ),
+            if (isExpanded) ...[
+              Padding(
+                padding: const EdgeInsets.only(
+                    top: 20, left: 10, right: 10, bottom: 7),
+                child: SlideButton(
+                  onSubmit: () => PaymentsHandeler.payOpenRefundsPerUser(
+                          widget.currentUser.reference, widget.trip)
+                      .onError((error, stackTrace) =>
+                          ErrorSnackbar.showErrorSnackbar(
+                              context, error.toString())),
+                  buttonText: 'Slide to Pay',
+                ),
+              ),
+            ]
+          ],
         ),
       ),
     );

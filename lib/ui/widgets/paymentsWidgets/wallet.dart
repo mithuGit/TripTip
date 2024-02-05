@@ -32,14 +32,14 @@ class _WalletState extends State<Wallet> {
   Future<void> bookToBankAccount(
       DocumentSnapshot user, BuildContext context) async {
     try {
-      await PaymentsHandeler.bookToBankAccount(user);
-    } on NoPayOutinformation {
+      CustomBottomSheet.show(context,
+          title: "Fill in your Back-Account",
+          content: [
+            CollectPayoutInformation(user: user, bookToBankAccount: true)
+          ]);
+    } catch (e) {
       if (mounted) {
-        CustomBottomSheet.show(context,
-            title: "Fill in your Back-Account",
-            content: [
-              CollectPayoutInformation(user: user, bookToBankAccount: true)
-            ]);
+        ErrorSnackbar.showErrorSnackbar(context, e.toString());
       }
     }
   }

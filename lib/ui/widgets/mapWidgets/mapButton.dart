@@ -31,7 +31,7 @@ class MapButton extends StatelessWidget {
         duration: const Duration(milliseconds: 500),
         curve: Curves.easeInOut,
         height: 50,
-        width: (isExpandedButton == false) ? 80 : 120,
+        width: (isExpandedButton == false) ? 80 : 140,
         decoration: BoxDecoration(
           gradient: colors == Colors.green
               ? const LinearGradient(
@@ -66,13 +66,10 @@ class MapButton extends StatelessWidget {
               bottomRight: Radius.circular(34.5)),
         ),
         child: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: isExpandedButton == false
-                  ? MainAxisAlignment.end
-                  : MainAxisAlignment.spaceBetween,
+            child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: ClipRect(
+            child: Wrap(
               children: [
                 if (isExpandedButton == false) ...[
                   GestureDetector(
@@ -87,12 +84,16 @@ class MapButton extends StatelessWidget {
                     width: 10,
                   )
                 ] else ...[
-                  GestureDetector(
-                    onTap: onTap,
-                    child: Text(
-                      text,
-                      style: Styles.mapButtonStyle,
-                      overflow: TextOverflow.ellipsis,
+                  SizedBox(
+                    width: 80,
+                    child: GestureDetector(
+                      onTap: onTap,
+                      child: Text(
+                        text,
+                        textAlign: TextAlign.left,
+                        style: Styles.mapButtonStyle,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
                   ),
                   GestureDetector(
@@ -102,6 +103,9 @@ class MapButton extends StatelessWidget {
                       size: 20,
                       color: colors == Colors.red ? Colors.white : Colors.red,
                     ),
+                  ),
+                  const SizedBox(
+                    width: 4,
                   ),
                   GestureDetector(
                     onTap: makeSmaller,
@@ -115,6 +119,6 @@ class MapButton extends StatelessWidget {
               ],
             ),
           ),
-        ));
+        )));
   }
 }

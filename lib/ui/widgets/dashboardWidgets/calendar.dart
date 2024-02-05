@@ -74,6 +74,12 @@ class _CalendarState extends State<Calendar> {
         firstDate = startDate!.add(const Duration(days: 1));
         lastDate = startDate!.subtract(const Duration(days: 1));
       });
+    } else if (DateTime.now().isAfter(endDate!)) {
+      setState(() {
+        selectedDate = endDate;
+        firstDate = endDate!.add(const Duration(days: 1));
+        lastDate = endDate!.subtract(const Duration(days: 1));
+      });
     } else {
       // Fetch current date and initialize selectedDate, firstDate, and lastDate
       setState(() {
@@ -150,10 +156,16 @@ class _CalendarState extends State<Calendar> {
         firstDate = startDate!.add(const Duration(days: 1));
         lastDate = startDate!.subtract(const Duration(days: 1));
       }
-      if (selectedDate!.isAfter(startDate!)) {
+      if (DateTime.now().isAfter(startDate!) &&
+          DateTime.now().isBefore(endDate!)) {
         selectedDate = DateTime.now();
         firstDate = DateTime.now().add(const Duration(days: 1));
         lastDate = DateTime.now().subtract(const Duration(days: 1));
+      }
+      if (DateTime.now().isAfter(endDate!)) {
+        selectedDate = endDate!;
+        firstDate = endDate!.add(const Duration(days: 1));
+        lastDate = endDate!.subtract(const Duration(days: 1));
       }
     });
     widget.onDateSelected(selectedDate!);
@@ -443,7 +455,9 @@ class _CalendarState extends State<Calendar> {
             child: SizedBox(
               height: size.height * 0.25,
               child: CupertinoDatePicker(
-                initialDateTime: lastDate!.isBefore(selectedDate!) ? startDate! : selectedDate!,
+                initialDateTime: lastDate!.isBefore(selectedDate!)
+                    ? startDate!
+                    : selectedDate!,
                 minimumDate: startDate!,
                 maximumDate: endDate!,
                 mode: CupertinoDatePickerMode.date,

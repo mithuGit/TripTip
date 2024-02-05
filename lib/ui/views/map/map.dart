@@ -250,6 +250,7 @@ class _MapPageState extends State<MapPage> {
             ),
           ),
           backgroundColor: Colors.transparent,
+          leadingWidth: 70,
           leading: Column(
             children: [
               if (widget.place != null) ...{
@@ -266,6 +267,7 @@ class _MapPageState extends State<MapPage> {
                       'Back',
                       style: TextStyle(
                         color: Colors.black,
+                        fontFamily: 'Ubuntu',
                         fontSize: 12,
                       ),
                     ),
@@ -290,8 +292,11 @@ class _MapPageState extends State<MapPage> {
                   Column(
                     children: [
                       IconButton(
-                        icon: const Icon(Icons.directions_outlined,
-                            color: Colors.black, size: 30),
+                        icon: const Icon(
+                          Icons.directions_outlined,
+                          color: Colors.black,
+                          size: 30,
+                        ),
                         onPressed: () async {
                           setState(() {
                             isLocationLoading = true;
@@ -302,9 +307,10 @@ class _MapPageState extends State<MapPage> {
                         },
                       ),
                       const Text(
-                        'Location',
+                        'To Location',
                         style: TextStyle(
                           color: Colors.black,
+                          fontFamily: 'Ubuntu',
                           fontSize: 12,
                         ),
                       ),
@@ -327,7 +333,7 @@ class _MapPageState extends State<MapPage> {
                   Text(
                     infoDistanceAndDuration != null
                         ? 'Zoom to route'
-                        : 'Vacation',
+                        : 'To Vacation',
                     style: const TextStyle(
                         color: Colors.black,
                         fontFamily: 'Ubuntu',
@@ -579,7 +585,7 @@ class _MapPageState extends State<MapPage> {
                                   },
                                   isExpandedButton: isExpandedOrigin,
                                   colors: Colors.green,
-                                  text: "Ori",
+                                  text: "Origin",
                                   onTap: () async {
                                     var controller =
                                         await _googleMapController.future;
@@ -619,7 +625,7 @@ class _MapPageState extends State<MapPage> {
                                   },
                                   isExpandedButton: isExpandedDestination,
                                   colors: Colors.red,
-                                  text: "Des",
+                                  text: "Destination",
                                   onTap: () async {
                                     var controller =
                                         await _googleMapController.future;
@@ -643,7 +649,7 @@ class _MapPageState extends State<MapPage> {
                             ),
                           if (currentLocationData != null)
                             MapButton(
-                              icon: Icons.directions,
+                              icon: Icons.person_pin_circle_outlined,
                               makeSmaller: () {
                                 setState(() {
                                   isExpandedCurrentLocation = false;
@@ -656,7 +662,7 @@ class _MapPageState extends State<MapPage> {
                               },
                               isExpandedButton: isExpandedCurrentLocation,
                               colors: Colors.blue,
-                              text: "Cur",
+                              text: "My Position",
                               onTap: () async {
                                 var controller =
                                     await _googleMapController.future;
