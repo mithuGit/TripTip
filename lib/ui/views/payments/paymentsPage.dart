@@ -189,16 +189,6 @@ class _FinanzenState extends State<Finanzen> {
                         }
                         peopleYouOwe.add(OpenRefundsPerUser(
                           margin: const EdgeInsets.only(bottom: 8),
-                          onRefundPressed: (refund) {
-                            CustomBottomSheet.show(context,
-                                title: "Refund:",
-                                content: [
-                                  CreateDebts(
-                                    selectedTrip: selectedtrip!,
-                                    preview: refund,
-                                  )
-                                ]);
-                          },
                           me: currentUser!.reference,
                           currentUser: members.data!
                               .firstWhere((element) => element.id == key),

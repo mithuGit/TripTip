@@ -99,8 +99,8 @@ class _CreateTicketsWidgetState extends State<CreateTicketsWidget> {
     try {
       final result = await FilePicker.platform.pickFiles(
         allowMultiple: false,
-        //type: FileType.custom,
-        //allowedExtensions: ['jpg', 'pdf', 'png', 'jpeg'],
+        type: FileType.custom,
+        allowedExtensions: ['jpg', 'pdf', 'png', 'jpeg'],
       );
       if (result == null) return;
 
