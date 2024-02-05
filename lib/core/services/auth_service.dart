@@ -4,6 +4,11 @@ import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:internet_praktikum/core/services/init_pushnotifications.dart';
 
+/*
+  AuthService is a class that contains all the methods for authentication
+  like signInWithGoogle, signInWithFacebook and some extra methods to get the
+  user's prename and lastname
+*/
 String getPrename() {
   if(FirebaseAuth.instance.currentUser!.displayName == null) {
     return '';
@@ -68,7 +73,7 @@ Future<void> signInWithFacebook() async {
   final credential =
       FacebookAuthProvider.credential(loginResult.accessToken!.token);
 
-  // hier muss noch eingebaut werden, wegen OTP Verifizierung
+
   UserCredential userCredential =
       await FirebaseAuth.instance.signInWithCredential(credential);
 

@@ -1,3 +1,5 @@
+// ignore_for_file: file_names
+
 class Interests {
   // This map contains the available categories and their subcategories
   // we picked the most common subcategories for each category. but left some out

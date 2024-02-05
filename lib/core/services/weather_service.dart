@@ -7,6 +7,8 @@ import 'package:geocoding/geocoding.dart';
 import 'package:internet_praktikum/ui/views/weather/weather.dart';
 import 'package:http/http.dart' as http;
 
+// This is the WeatherService class that is used to get the weather data from the openweathermap api
+
 class WeatherService {
   // ignore: constant_identifier_names
   static const BASE_URL = 'https://api.openweathermap.org/data/2.5/weather';
@@ -148,7 +150,7 @@ class WeatherService {
       if (kDebugMode) {
         print(e);
       }
-      return ""; // oder eine Standardstadt, falls ein Fehler auftritt
+      return ""; 
     }
   }
 
