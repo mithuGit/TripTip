@@ -1,6 +1,8 @@
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 
+// This is the Directions class that is used to store the directions from the google maps api
+
 class Directions {
   final LatLngBounds bounds;
   final List<PointLatLng> polylinePoints;

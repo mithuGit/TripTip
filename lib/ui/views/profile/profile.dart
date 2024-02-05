@@ -10,6 +10,11 @@ import 'package:internet_praktikum/ui/widgets/headerWidgets/topbar.dart';
 import 'package:internet_praktikum/ui/widgets/profileWidgets/profileButton.dart';
 import 'package:permission_handler/permission_handler.dart';
 
+/* 
+  This is the Profile Page where the user can see his profile and change some settings
+  like enabling push notifications, changing his interests and more
+*/
+
 // This is the Main settings Page
 class ProfilePage extends StatefulWidget {
   const ProfilePage({Key? key}) : super(key: key);
@@ -201,7 +206,7 @@ class _ProfilePageState extends State<ProfilePage> {
                           ),
                           ProfileButton(
                             title: "Game: Choose a Loser ",
-                            icon: Icons.games, // so Game Icon wär gut
+                            icon: Icons.games, 
                             textcolor: Colors.purpleAccent,
                             onTap: () {
                               context.pushNamed("gameChooser");

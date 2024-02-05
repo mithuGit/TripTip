@@ -1,6 +1,10 @@
 import 'package:go_router/go_router.dart';
 import 'package:flutter/material.dart';
 
+/*
+  This is the AppNavigation class which is used to navigate between the different pages of the app
+*/
+
 class AppNavigation extends StatefulWidget {
   const AppNavigation({super.key, required this.navigationShell});
 

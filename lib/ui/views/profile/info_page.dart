@@ -3,6 +3,8 @@ import 'package:go_router/go_router.dart';
 import 'package:internet_praktikum/ui/styles/Styles.dart';
 import 'package:internet_praktikum/ui/views/profile/character.dart';
 
+// This is the InfoPage where the user can see the creators of the app
+
 class InfoPage extends StatelessWidget {
   const InfoPage({super.key});
 
@@ -99,8 +101,7 @@ class InfoPage extends StatelessWidget {
                 thickness: 2,
               ),
               const SizedBox(height: 10),
-              const Text("Credits",
-                  style: Styles.endCredits), // vlt was anderes dafür nehmen
+              const Text("Credits", style: Styles.endCredits), 
               const SizedBox(height: 10),
               const Text(
                   "Thank you for using our App, We hope you enjoy our App",

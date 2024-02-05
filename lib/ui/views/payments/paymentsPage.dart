@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, file_names
 
 import 'dart:ui';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -15,7 +15,6 @@ import 'package:internet_praktikum/ui/widgets/headerWidgets/topbar.dart';
 import 'package:internet_praktikum/ui/widgets/paymentsWidgets/createWidgetPreviewForDebts.dart';
 import '../../widgets/paymentsWidgets/openRefundsPerUser.dart';
 import 'package:rxdart/rxdart.dart';
-
 
 // for perfomance Reasons we combine the UserStream and the PaymentStream.
 // Otherwise the class would flicker every time the user changes something, or a new payment is added.
@@ -112,7 +111,7 @@ class _FinanzenState extends State<Finanzen> {
                   currentUser!.reference.snapshots(),
                   selectedtrip!.collection("payments").snapshots()
                 ]);
-                final combinedStream =  CombineLatestStream.combine2(
+                final combinedStream = CombineLatestStream.combine2(
                   currentUser!.reference.snapshots(),
                   selectedtrip!.collection("payments").snapshots(),
                   (a, b) => CombinedUserStreamAndPaymentStream(a, b),
@@ -128,7 +127,8 @@ class _FinanzenState extends State<Finanzen> {
                         return const CenterText(
                             text: "Error while fetching Payments");
                       }
-                      List<DocumentSnapshot> payments = snapshot.data!.payments.docs;
+                      List<DocumentSnapshot> payments =
+                          snapshot.data!.payments.docs;
                       Map<String, List<Map<String, dynamic>>>
                           openRefundsPerUser = {};
                       Map<String, double> sumsPerUser = {};
@@ -194,10 +194,10 @@ class _FinanzenState extends State<Finanzen> {
                                 title: "Refund:",
                                 content: [
                                   CreateDebts(
-                                      selectedTrip: selectedtrip!,
-                                      preview: refund,
+                                    selectedTrip: selectedtrip!,
+                                    preview: refund,
                                   )
-                            ]);
+                                ]);
                           },
                           me: currentUser!.reference,
                           currentUser: members.data!
@@ -210,7 +210,8 @@ class _FinanzenState extends State<Finanzen> {
 
                       List<Widget> yourRequests = [];
                       List<QueryDocumentSnapshot> myRequests = snapshot
-                          .data!.payments.docs.where((el) => el.get("createdBy").id == user.uid)
+                          .data!.payments.docs
+                          .where((el) => el.get("createdBy").id == user.uid)
                           .toList();
 
                       // add for every Request a Widget

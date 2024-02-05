@@ -16,6 +16,13 @@ import 'package:internet_praktikum/ui/widgets/mapWidgets/mapButton.dart';
 import 'package:internet_praktikum/ui/widgets/mapWidgets/mapcard.dart';
 import 'package:location/location.dart';
 
+/*
+  This is the MapPage class that is used to show the map and the recommendations
+  The user can see the map and the recommendations
+  The user can also see the distance and the duration of the route
+  The user can also see the current location
+  The user can also see the origin and the destination*/
+
 // class for the map page so the user can see the map and the recommendations
 // ignore: must_be_immutable
 class MapPage extends StatefulWidget {
@@ -217,6 +224,7 @@ class _MapPageState extends State<MapPage> {
     });
   }
 
+  // Change camera position to the vacation location or the path location
   locationOfVaction() async {
     var controller = await _googleMapController.future;
     controller.animateCamera(

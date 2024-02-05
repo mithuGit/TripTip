@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:internet_praktikum/ui/styles/Styles.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+// This is the CharakterContainer class that is used to display the character of the team members
+// It is used in the ProfilePage
+
 class CharakterContainer extends StatelessWidget {
   final String name;
   final String description;
@@ -32,7 +35,6 @@ class CharakterContainer extends StatelessWidget {
           color: Color.fromARGB(255, 49, 48, 78),
         ),
         child: Column(children: [
-          // Image (genauer gesagt ein GiF )
           Container(
               decoration: BoxDecoration(
                 color: color,
@@ -43,16 +45,13 @@ class CharakterContainer extends StatelessWidget {
                   : MediaQuery.of(context).size.width * 0.5,
               child: Image.asset(image, height: 170)),
 
-          // Charakter Name
           Text(name, style: Styles.characterStyle),
 
-          // Charakter Beschreibung
           Text(
             description,
             style: Styles.characterStyle,
           ),
 
-          // Link von LinkedIn
           RichText(
             text: TextSpan(
               text: linkname,
