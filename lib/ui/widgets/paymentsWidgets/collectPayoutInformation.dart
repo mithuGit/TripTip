@@ -175,9 +175,7 @@ class CollectPayoutInformationState extends State<CollectPayoutInformation> {
       await PaymentsHandeler.bookToBankAccount(user);
     }
     if (context.mounted) Navigator.pop(context);
-    setState(() {
-      loading = false;
-    });
+    
   }
 
   @override
@@ -218,8 +216,14 @@ class CollectPayoutInformationState extends State<CollectPayoutInformation> {
             ? const CircularProgressIndicator(color: Colors.black,)
             :
         MyButton(
-          onTap: () => savePayoutInformation().onError((error, stackTrace) =>
-              ErrorSnackbar.showErrorSnackbar(context, error.toString())),
+          onTap: () => savePayoutInformation().onError((error, stackTrace)  {
+            if (context.mounted) {
+              ErrorSnackbar.showErrorSnackbar(context, error.toString());
+            }   
+            setState(() {
+              loading = false;
+            });
+          }),
           text: "Save",
           borderColor: Colors.black,
           textStyle: Styles.buttonFontStyleModal,
