@@ -25,6 +25,7 @@ abstract class SelectedOption {
   set value(Object? value);
   Map toMap();
 }
+
 // this class is used to add a date to the survey
 class SelectedDate extends SelectedOption {
   DateTime? date;
@@ -43,6 +44,7 @@ class SelectedDate extends SelectedOption {
   @override
   String toString() => DateFormat('HH:mm').format(date!);
 }
+
 // this class is used to add a question to the survey
 class SelectedQuestion extends SelectedOption {
   TextEditingController question = TextEditingController();
@@ -76,6 +78,7 @@ class AddSurveyWidgetToDashboard extends StatefulWidget {
   AddSurveyWidgetToDashboardState createState() =>
       AddSurveyWidgetToDashboardState();
 }
+
 // used to add a survey to the dashboard
 class AddSurveyWidgetToDashboardState
     extends State<AddSurveyWidgetToDashboard> {
@@ -83,6 +86,7 @@ class AddSurveyWidgetToDashboardState
   late SelectedOption selectedOption;
   DateTime? dateofDay;
   DateTime? deadline;
+  Place? localPlace;
 
   bool loading = false;
 
@@ -103,6 +107,7 @@ class AddSurveyWidgetToDashboardState
     // when you want to update a survey you have to pass the data
     if (widget.data != null) {
       nameofSurvey.text = widget.data!["title"];
+      localPlace = Place.fromMap(widget.data!["place"]);
       allowmultipleAnswers = widget.data!["allowmultipleanswers"];
       _optionList.clear();
       _optionList.addAll(widget.data!["options"]
@@ -115,6 +120,10 @@ class AddSurveyWidgetToDashboardState
           })
           .toList()
           .cast<SelectedOption>());
+    } else {
+      if (widget.place != null) {
+        localPlace = widget.place;
+      }
     }
   }
 
@@ -151,7 +160,7 @@ class AddSurveyWidgetToDashboardState
       "allowmultipleanswers": allowmultipleAnswers,
     };
     if (widget.place != null) {
-      data["place"] = widget.place!.toMap();
+      data["place"] = localPlace!.toMap();
     }
     if (deadline != null) {
       data["deadline"] = deadline;
@@ -184,12 +193,13 @@ class AddSurveyWidgetToDashboardState
       await ManageDashboardWidged()
           .addWidget(day: widget.day, user: by, data: data, key: key);
 
-      final result = await FirebaseFunctions.instance.httpsCallable('surveyCreated').call({
+      final result =
+          await FirebaseFunctions.instance.httpsCallable('surveyCreated').call({
         "trip": widget.userdata["selectedtrip"],
         "day": widget.day.id,
         "title": nameofSurvey.text,
       });
-      if(result.data["error"] != null){
+      if (result.data["error"] != null) {
         throw Exception(result.data["error"]);
       }
     } else {
@@ -272,10 +282,10 @@ class AddSurveyWidgetToDashboardState
         const SizedBox(height: 10),
         // you can only change the deadline if you create a new survey
 
-        if (widget.place != null) ...[
+        if (localPlace != null) ...[
           const SizedBox(height: 10),
           Text(
-            "Is bound to location: ${widget.place!.name}",
+            "Is bound to location: ${localPlace!.name}",
             style: Styles.inputField,
             textAlign: TextAlign.left,
           ),
@@ -399,23 +409,24 @@ class AddSurveyWidgetToDashboardState
         const SizedBox(height: 10),
         if (_optionList.length >= 2)
           loading
-              ? const CircularProgressIndicator(color: Colors.black,)
-              :
-          MyButton(
-              borderColor: Colors.black,
-              textStyle: Styles.buttonFontStyleModal,
-              onTap: () =>
-                  createorUpdateSurvey().onError((error, stackTrace) => {
-                        // ignore: avoid_print
-                        print(error.toString()),
-                        // ignore: avoid_print
-                        print(stackTrace.toString()),
-                        ErrorSnackbar.showErrorSnackbar(
-                            context, error.toString())
-                      }),
-              text: widget.data == null
-                  ? "Add Survey to Dasboard"
-                  : "Update Survey")
+              ? const CircularProgressIndicator(
+                  color: Colors.black,
+                )
+              : MyButton(
+                  borderColor: Colors.black,
+                  textStyle: Styles.buttonFontStyleModal,
+                  onTap: () =>
+                      createorUpdateSurvey().onError((error, stackTrace) => {
+                            // ignore: avoid_print
+                            print(error.toString()),
+                            // ignore: avoid_print
+                            print(stackTrace.toString()),
+                            ErrorSnackbar.showErrorSnackbar(
+                                context, error.toString())
+                          }),
+                  text: widget.data == null
+                      ? "Add Survey to Dasboard"
+                      : "Update Survey")
         else
           const Text(
             "Please add at least two options and a title",
