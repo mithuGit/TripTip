@@ -1,3 +1,5 @@
+// ignore_for_file: file_names
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
@@ -10,6 +12,7 @@ class WriteDiary extends StatefulWidget {
   @override
   WriteDiaryState createState() => WriteDiaryState();
 }
+
 /*
  Here we are writing a diary for the day before.
   We are using a Quill Editor to write the diary.
@@ -18,24 +21,23 @@ class WriteDiaryState extends State<WriteDiary> {
   QuillController _controller = QuillController.basic();
   FirebaseFirestore firestore = FirebaseFirestore.instance;
   Future<DocumentSnapshot> createDiary() async {
-      if ((await widget.day.collection("diary").get()).docs.isNotEmpty) {
-        QuerySnapshot diary =
-            await widget.day.collection("diary").limit(1).get();
+    if ((await widget.day.collection("diary").get()).docs.isNotEmpty) {
+      QuerySnapshot diary = await widget.day.collection("diary").limit(1).get();
 
-        return await diary.docs[0].reference.get();
-      } else {
-        Map<String, dynamic> dayData =
-            (await widget.day.get()).data() as Map<String, dynamic>;
-        Map<String, dynamic> active = dayData["active"];
-        active["diary"]["written"] = true;
-        await widget.day.update({"active": active});
-        DocumentReference diary = await widget.day.collection("diary").add({
-          "content": [
-            {"insert": ""}
-          ]
-        });
-        return await diary.get();
-      }
+      return await diary.docs[0].reference.get();
+    } else {
+      Map<String, dynamic> dayData =
+          (await widget.day.get()).data() as Map<String, dynamic>;
+      Map<String, dynamic> active = dayData["active"];
+      active["diary"]["written"] = true;
+      await widget.day.update({"active": active});
+      DocumentReference diary = await widget.day.collection("diary").add({
+        "content": [
+          {"insert": ""}
+        ]
+      });
+      return await diary.get();
+    }
   }
 
   @override
@@ -45,7 +47,6 @@ class WriteDiaryState extends State<WriteDiary> {
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
         appBar: AppBar(
           leading: IconButton(
@@ -77,8 +78,10 @@ class WriteDiaryState extends State<WriteDiary> {
                 _controller = QuillController.basic();
               }
               _controller.addListener(() async {
-                await snapshot.data!.reference.update(
-                    {"content": _controller.document.toDelta().toJson(), "lastEdit": DateTime.now()});
+                await snapshot.data!.reference.update({
+                  "content": _controller.document.toDelta().toJson(),
+                  "lastEdit": DateTime.now()
+                });
               });
               return Column(children: [
                 QuillToolbar.simple(

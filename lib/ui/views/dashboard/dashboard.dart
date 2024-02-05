@@ -12,6 +12,13 @@ import 'package:internet_praktikum/ui/widgets/dashboardWidgets/createNewWidgetOn
 import 'package:internet_praktikum/ui/widgets/errorSnackbar.dart';
 import 'package:internet_praktikum/ui/widgets/headerWidgets/topbar.dart';
 
+/* This is the Dashboard page where the user can see all his widgets and can create new ones.
+   The user can also change the trip and see the archive.
+   The user can also change the day and see the widgets of the selected day.
+   The user can also create new widgets for the selected day.
+   The user can also see the widgets of the selected day.
+ */
+
 class DashBoard extends StatefulWidget {
   final String? showDay;
   final String? showTrip;

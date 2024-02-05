@@ -142,17 +142,20 @@ class ScrollViewWidget extends StatelessWidget {
                       // the Slidable widget is used to display the edit and delete buttons
                       return ListSlidAble(
                         key: Key(con.hashCode.toString()),
-                        onEdit: con["dontEdit"] == null ? (_) {
-                          UpdateWidgetListeners().updateWidget(
-                            con["key"],
-                            con!,
-                            day,
-                            userdata,
-                            context,
-                          );
-                        } : null,
-                        onDelete: con["dontDelete"] == null ? (_) async {
-                              Map<String, dynamic> archive =
+                        onEdit: con["dontEdit"] == null
+                            ? (_) {
+                                UpdateWidgetListeners().updateWidget(
+                                  con["key"],
+                                  con!,
+                                  day,
+                                  userdata,
+                                  context,
+                                );
+                              }
+                            : null,
+                        onDelete: con["dontDelete"] == null
+                            ? (_) async {
+                                Map<String, dynamic> archive =
                                     ((await day.get()).data()
                                         as Map<String, dynamic>)['archive'];
                                 // Delete every corresponding worker
@@ -166,7 +169,8 @@ class ScrollViewWidget extends StatelessWidget {
                                 }
 
                                 archive[con["key"]] = con;
-                                archive[con["key"]]["archivedAt"] = DateTime.now();
+                                archive[con["key"]]["archivedAt"] =
+                                    DateTime.now();
                                 List<dynamic>? tempArray = bufferArray;
                                 tempArray?.remove(con);
                                 dayStreamFiltered.add(tempArray!);
@@ -183,7 +187,8 @@ class ScrollViewWidget extends StatelessWidget {
                                 day.update(
                                     {"active": res2, "archive": archive});
                                 justChangged = true;
-                        } : null,
+                              }
+                            : null,
                         child: MainDasboardinitializer(
                             title: con!["title"],
                             userdata: userdata,

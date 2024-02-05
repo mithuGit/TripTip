@@ -11,6 +11,13 @@ import 'package:internet_praktikum/ui/widgets/my_button.dart';
 import 'package:internet_praktikum/ui/widgets/inputfield_password_or_icon.dart';
 import '../../../core/services/auth_service.dart';
 
+/*
+  LoginPage is a class that contains the UI for the login page
+  It contains the input fields for the email and password
+  It also contains the buttons for signing in with google and facebook
+  and a button to create a new account
+*/
+
 // Page to login the user
 class LoginPage extends StatefulWidget {
   final Function()? onTap;

@@ -129,6 +129,7 @@ class _AccountState extends State<Account> {
     });
     //Updates displayName in Auth
     await currentUser.updateDisplayName(
+        // ignore: prefer_interpolation_to_compose_strings
         prenameController.text + " " + lastnameController.text);
 
     await currentUser.reload();

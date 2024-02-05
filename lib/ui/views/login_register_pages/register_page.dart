@@ -11,7 +11,12 @@ import '../../../core/services/auth_service.dart';
 import '../../widgets/my_button.dart';
 import '../../widgets/inputfield_password_or_icon.dart';
 
-// Page to register a new user
+/* This is the page where the user can register a new account
+   The user can register with his email and password or with google or facebook
+   If the user is registered with google or facebook, the user will be redirected to the account details page
+   If the user is registered with email and password, the user will be redirected to the verify page
+ */
+
 class RegisterPage extends StatefulWidget {
   final Function()? onTap;
 
@@ -41,11 +46,8 @@ class _RegisterPageState extends State<RegisterPage> {
         );
 
         if (userCredential.user != null) {
-          // Hier wird die Verifizierung der E-Mail-Adresse des Users auf false gesetzt
           await userCredential.user!.updateEmail(userCredential.user!.email!);
 
-          // Der User muss seine E-Mail-Adresse verifizieren, bevor er sich einloggen kann
-          // sendet eine EmailVerifizierung an die E-Mail-Adresse des Users
           await userCredential.user!.sendEmailVerification();
 
           // Assuming 'users' is the collection name in Firestore
@@ -74,7 +76,6 @@ class _RegisterPageState extends State<RegisterPage> {
         }
       }
     } on FirebaseAuthException catch (e) {
-      print(e.code);
       // Wrong email | Wrong password
       if (e.code == 'weak-password') {
         if (context.mounted) {
@@ -197,7 +198,6 @@ class _RegisterPageState extends State<RegisterPage> {
 
                         bool isDateOfBirth = true;
 
-                        // testen ob DateOfBirth == null, dann soll AccountDetails aufgerufen werden
                         FirebaseAuth.instance
                             .authStateChanges()
                             .listen((user) async {
@@ -218,8 +218,9 @@ class _RegisterPageState extends State<RegisterPage> {
                           }
 
                           if (isDateOfBirth == false) {
-                            if (context.mounted)
+                            if (context.mounted) {
                               context.go('/accountdetails/:isEditProfile');
+                            }
                           } else {
                             if (context.mounted) context.go('/');
                           }
@@ -235,7 +236,6 @@ class _RegisterPageState extends State<RegisterPage> {
                         await signInWithFacebook();
                         bool isDateOfBirth = true;
 
-                        // testen ob DateOfBirth == null, dann soll AccountDetails aufgerufen werden
                         FirebaseAuth.instance
                             .authStateChanges()
                             .listen((user) async {
@@ -256,8 +256,9 @@ class _RegisterPageState extends State<RegisterPage> {
                           }
 
                           if (isDateOfBirth == false) {
-                            if (context.mounted)
+                            if (context.mounted) {
                               context.go('/accountdetails/:isEditProfile');
+                            }
                           } else {
                             if (context.mounted) context.go('/');
                           }

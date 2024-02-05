@@ -10,7 +10,7 @@ import 'package:intl/intl.dart';
 
 // this is the archive page where the user can see all the deleted widgets and can restore them
 class Archive extends StatefulWidget {
-  Archive({super.key});
+  const Archive({super.key});
 
   @override
   State<Archive> createState() => _Archive();

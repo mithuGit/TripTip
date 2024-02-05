@@ -1,4 +1,5 @@
-// ignore: file_names
+// ignore_for_file: file_names
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -37,13 +38,14 @@ class SetInterestsPageState extends State<SetInterestsPage> {
           .collection('users')
           .doc(auth.currentUser!.uid)
           .update({'interests': selectedInterests});
-      // here you go back    
+      // here you go back
       if (context.mounted) {
         widget.isCreate == true
             ? context.push('/selecttrip/false')
             : context.go('/profile');
       }
     }
+
     return Scaffold(
         backgroundColor: const Color(0xFFCBEFFF),
         resizeToAvoidBottomInset: true,
@@ -109,7 +111,7 @@ class SetInterestsPageState extends State<SetInterestsPage> {
                                     selectedCategories =
                                         Interests.evaluateCategories(
                                             selectedInterests);
-                                    //Here the Gridview is beeing built      
+                                    //Here the Gridview is beeing built
                                     return GridView.count(
                                       physics:
                                           const NeverScrollableScrollPhysics(),
@@ -118,7 +120,8 @@ class SetInterestsPageState extends State<SetInterestsPage> {
                                       crossAxisSpacing: 10,
                                       shrinkWrap: true,
                                       children: Interests.available.keys
-                                          .map((interest) => ImageContainerToSetInterest(
+                                          .map((interest) =>
+                                              ImageContainerToSetInterest(
                                                 image: interest,
                                                 isSelected: selectedCategories
                                                     .contains(interest),
