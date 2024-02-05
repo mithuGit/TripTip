@@ -15,6 +15,11 @@ import 'package:internet_praktikum/ui/widgets/errorSnackbar.dart';
 import 'package:internet_praktikum/ui/widgets/modalButton.dart';
 import 'package:intl/intl.dart';
 
+/*
+  This class is the widget for the create widget from map to dashboard
+  The user can create a widget from the map to the dashboard
+*/
+
 // ignore: must_be_immutable
 class CreateWidgetFromMapToDashboard extends StatefulWidget {
   final Place place;
@@ -219,7 +224,7 @@ class _CreateWidgetFromMapToDashboardState
     }
   }
 
-  // Die Funktion, die den Container asynchron erstellt
+  // function to get the date range for the trip
   Future<Container> getDateRangeCupertiono(Size size) async {
     StartEndDate startEndDate =
         await DateService.getStartEndDate(await DashBoardData.getCurrentTrip());
@@ -242,7 +247,6 @@ class _CreateWidgetFromMapToDashboardState
               children: [
                 TextButton(
                   onPressed: () async {
-                    // Führen Sie die asynchrone Arbeit außerhalb von setState durch
                     DateTime? newSelectedDate;
                     if (selectedDate == null) {
                       newSelectedDate = (await DateService.getStartEndDate(

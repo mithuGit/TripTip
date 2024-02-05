@@ -1,3 +1,5 @@
+// ignore_for_file: file_names
+
 import 'dart:math';
 
 import 'package:flame/components.dart';
@@ -7,6 +9,8 @@ import 'package:flame/game.dart';
 import 'package:flame/text.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+
+// this class is our one more thing => is a chooser game that is played by tapping on the screen
 
 class GameWidgetReturn extends StatefulWidget {
   const GameWidgetReturn({super.key});
@@ -53,7 +57,7 @@ class TapScreen extends PositionComponent with DragCallbacks {
   @override
   void render(Canvas canvas) {
     canvas.drawRect(
-        size.toRect(), Paint()..color = Color.fromARGB(255, 17, 17, 17));
+        size.toRect(), Paint()..color = const Color.fromARGB(255, 17, 17, 17));
   }
 
   ///Used to bring TapScreen to screen size
@@ -260,7 +264,7 @@ class FinishButton extends PositionComponent with DragCallbacks, TapCallbacks {
   String text;
   Paint paint = Paint()
     ..style = PaintingStyle.fill
-    ..color = Color.fromARGB(255, 17, 17, 17)
+    ..color = const Color.fromARGB(255, 17, 17, 17)
     ..strokeWidth = 100;
 
   @override
@@ -277,7 +281,7 @@ class FinishButton extends PositionComponent with DragCallbacks, TapCallbacks {
     add(TextComponent(
         text: text,
         textRenderer:
-            TextPaint(style: TextStyle(fontSize: 32, color: Colors.white)),
+            TextPaint(style: const TextStyle(fontSize: 32, color: Colors.white)),
         anchor: Anchor.center,
         position: position));
   }
@@ -293,6 +297,6 @@ class FinishButton extends PositionComponent with DragCallbacks, TapCallbacks {
 
   @override
   void render(Canvas canvas) {
-    canvas.drawRRect(RRect.fromRectAndRadius(rect, Radius.circular(10)), paint);
+    canvas.drawRRect(RRect.fromRectAndRadius(rect, const Radius.circular(10)), paint);
   }
 }

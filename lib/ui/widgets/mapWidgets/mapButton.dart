@@ -3,6 +3,8 @@
 import 'package:flutter/material.dart';
 import 'package:internet_praktikum/ui/styles/Styles.dart';
 
+// This class is used to display origin, destination and current location on the map
+
 class MapButton extends StatelessWidget {
   final Function()? onTap;
   final Function()? makeSmaller;

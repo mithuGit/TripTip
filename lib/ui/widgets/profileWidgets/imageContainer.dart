@@ -1,5 +1,9 @@
+// ignore_for_file: file_names
+
 import 'package:flutter/material.dart';
 import 'package:internet_praktikum/core/services/Interests.dart';
+
+// this class is the widget for the image container
 
 class ImageContainerToSetInterest extends StatefulWidget {
   final String image;

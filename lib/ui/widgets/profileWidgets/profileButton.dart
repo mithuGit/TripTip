@@ -3,6 +3,8 @@
 import 'package:flutter/material.dart';
 import 'package:internet_praktikum/ui/styles/Styles.dart';
 
+// this class is the widget for the profile button
+
 class ProfileButton extends StatelessWidget {
   final String title;
   final IconData? icon;

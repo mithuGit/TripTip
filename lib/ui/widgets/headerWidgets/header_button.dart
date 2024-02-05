@@ -1,5 +1,12 @@
 import 'package:flutter/material.dart';
 
+/*
+  This class is the widget for the header buttons
+  it is used in the header of the dashboard
+  it is used to display the weather and the temperature
+  and to navigate to the settings page
+*/
+
 class HeaderButton extends StatelessWidget {
   final Function()? onTap;
   final String? temperature;

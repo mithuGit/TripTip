@@ -109,7 +109,9 @@ class _CreateTicketsWidgetState extends State<CreateTicketsWidget> {
         pickedFile = result.files.first;
       });
     } on Exception catch (e) {
-      print(e);
+      if (context.mounted) {
+        ErrorSnackbar.showErrorSnackbar(context, e.toString());
+      }
     }
   }
 
@@ -128,7 +130,9 @@ class _CreateTicketsWidgetState extends State<CreateTicketsWidget> {
         selectedImage = File(pickedImage.path);
       });
     } catch (e) {
-      print(e);
+      if (context.mounted) {
+        ErrorSnackbar.showErrorSnackbar(context, e.toString());
+      }
     }
   }
 
@@ -247,7 +251,9 @@ class _CreateTicketsWidgetState extends State<CreateTicketsWidget> {
     QuerySnapshot ticket = await FirebaseFirestore.instance
         .collection("trips")
         .doc(tripId)
-        .collection("tickets").where("title", isEqualTo: titleOfTicketText).get();
+        .collection("tickets")
+        .where("title", isEqualTo: titleOfTicketText)
+        .get();
     return ticket.docs.isNotEmpty;
   }
 }

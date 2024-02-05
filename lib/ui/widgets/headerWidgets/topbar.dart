@@ -6,6 +6,14 @@ import 'package:internet_praktikum/ui/widgets/bottom_sheet.dart';
 import 'package:internet_praktikum/ui/widgets/errorSnackbar.dart';
 import 'package:internet_praktikum/ui/widgets/headerWidgets/header_button.dart';
 
+/*
+  This class is the widget for the top bar
+  It contains the title and the icon
+  The icon is a button
+  The user can press the icon to open a bottom sheet
+  The user can press the title to open the weather page
+*/
+
 class TopBar extends StatefulWidget implements PreferredSizeWidget {
   final bool? isDash;
   final bool? isFinanz;
@@ -29,7 +37,7 @@ class TopBar extends StatefulWidget implements PreferredSizeWidget {
 
   @override
   Size get preferredSize => const Size.fromHeight(
-      56); // hier kann man die Size der AppBar beeinflussen
+      56); 
 }
 
 class _TopBarState extends State<TopBar> {
