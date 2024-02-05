@@ -43,13 +43,12 @@ class ErrorSnackbar {
         );
       },
     ).then((_) {
-      // Dialog wurde geschlossen, entweder durch Zurück-Taste oder automatisch nach 3 Sekunden
       if (!dialogCompleter.isCompleted) {
         dialogCompleter.complete(true);
       }
     });
 
-    // Wenn Counter gleich 3 ist, wird eigentlich hier Capcha aufgerufen
+    // If the counter is 3, the user is redirected to the login page or the profile page
     if (counter == 3) {
       counter = 0;
       Navigator.push(
@@ -76,10 +75,9 @@ class ErrorSnackbar {
                 )),
       );
     } else {
-      // Verzögere das Ausblenden der Fehlermeldung nach 2 Sekunden
       Future.delayed(const Duration(seconds: 2), () {
         if (!dialogCompleter.isCompleted) {
-          context.pop(); // Schließt den Dialog nach 2 Sekunden
+          context.pop(); 
           dialogCompleter.complete(true);
         }
       });

@@ -38,10 +38,7 @@ class MyButton extends StatelessWidget {
                       top: 8, bottom: 8, left: 12, right: 12),
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(11)),
-              side: BorderSide(
-                width: 1.5,
-                color: borderColor ?? Colors.white
-              ),
+              side: BorderSide(width: 1.5, color: borderColor ?? Colors.white),
             ),
             child: Row(
                 mainAxisAlignment: (iconData == null && imagePath == null)
@@ -50,13 +47,13 @@ class MyButton extends StatelessWidget {
                 children: [
                   if ((iconData != null || imagePath != null)) ...[
                     if (imagePath != null) ...[
-                      if(imagePath!.startsWith("http") == true) ...[
+                      if (imagePath!.startsWith("http") == true) ...[
                         Image.network(
-                        imagePath!,
-                        width: 30,
-                        height: 30,
-                      )
-                       ] else ...[
+                          imagePath!,
+                          width: 30,
+                          height: 30,
+                        )
+                      ] else ...[
                         Image.asset(
                           imagePath!,
                           width: 30,

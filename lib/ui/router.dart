@@ -26,6 +26,11 @@ import 'package:internet_praktikum/ui/views/weather/weather.dart';
 import 'package:internet_praktikum/ui/views/weather/weather_page.dart';
 import 'package:internet_praktikum/ui/widgets/game/gameChooser.dart';
 
+/*
+  This class is the router for the app
+  It contains all the routes for the app
+*/
+
 class MyRouter {
   MyRouter._();
 
@@ -68,7 +73,6 @@ class MyRouter {
                     return '/loginorregister';
                   } else if (auth.currentUser != null &&
                       !auth.currentUser!.emailVerified) {
-                    print(!auth.currentUser!.emailVerified);
                     return '/otp';
                   } else {
                     return null; // return "null" to display the intended route without redirecting

@@ -1,5 +1,9 @@
 import '../styles/Styles.dart';
 import 'package:flutter/material.dart';
+/*
+  This class is used to create a custom container
+  It is used to display a container with a title and children
+*/
 
 class CustomContainer extends StatelessWidget {
   final String title;

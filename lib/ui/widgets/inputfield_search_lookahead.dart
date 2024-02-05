@@ -8,7 +8,6 @@ import 'package:uuid/uuid.dart';
 const Duration fakeAPIDuration = Duration(seconds: 1);
 
 class AsyncAutocomplete extends StatefulWidget {
-  
   final ValueChanged<PlaceDetails>? onDestinationPick;
   const AsyncAutocomplete({super.key, this.onDestinationPick});
   @override
@@ -75,11 +74,14 @@ class _AsyncAutocompleteState extends State<AsyncAutocomplete> {
           if (_searchingWithQuery != '' &&
               _searchingWithQuery != _lastsearching) {
             PlaceApiProvider placeApiProvider =
-            PlaceApiProvider(const Uuid().v4());
+                PlaceApiProvider(const Uuid().v4());
             Iterable<String> options;
             try {
-              Iterable<Suggestion> suggestions = await placeApiProvider.fetchSuggestions(_searchingWithQuery!);
-              options = suggestions.map((suggestion) => suggestion.toString()).toList();
+              Iterable<Suggestion> suggestions =
+                  await placeApiProvider.fetchSuggestions(_searchingWithQuery!);
+              options = suggestions
+                  .map((suggestion) => suggestion.toString())
+                  .toList();
               _lastsearching = _searchingWithQuery;
               _lastSuggestions = suggestions;
 
@@ -100,22 +102,23 @@ class _AsyncAutocompleteState extends State<AsyncAutocomplete> {
         },
         onSelected: (String selection) async {
           debugPrint('You just selected $selection');
-          Suggestion selectedSuggestion = _lastSuggestions.firstWhere((suggestion) => suggestion.description == selection);
-          
+          Suggestion selectedSuggestion = _lastSuggestions
+              .firstWhere((suggestion) => suggestion.description == selection);
+
           PlaceApiProvider placeApiProvider =
-            PlaceApiProvider(const Uuid().v4());
+              PlaceApiProvider(const Uuid().v4());
           try {
-            Map details = await placeApiProvider.fetchPlaceDetails(selectedSuggestion.placeId);
-            widget.onDestinationPick?.call(PlaceDetails(details['id'], details['displayName']['text'], details));
+            Map details = await placeApiProvider
+                .fetchPlaceDetails(selectedSuggestion.placeId);
+            widget.onDestinationPick?.call(PlaceDetails(
+                details['id'], details['displayName']['text'], details));
           } catch (e) {
             if (context.mounted) {
               ErrorSnackbar.showErrorSnackbar(context, e.toString());
             }
-          }  
-          
+          }
         },
       ),
     );
   }
 }
-

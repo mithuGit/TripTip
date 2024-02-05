@@ -1,6 +1,13 @@
+// ignore_for_file: must_be_immutable
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import '../styles/Styles.dart';
+/* 
+  This class is used to create a datepicker button
+  The user can select a date by clicking on the button
+  The selected date is then displayed on the button
+*/
 
 //* Return Type for Tupel *//
 class DateStringTupel {

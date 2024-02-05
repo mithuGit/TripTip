@@ -2,6 +2,8 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:internet_praktikum/ui/styles/Styles.dart';
 
+// This class is used to create a custom bottom sheet
+
 class CustomBottomSheet {
   static Future<void> show(BuildContext context,
       {required String title, required List<Widget> content}) {
@@ -45,9 +47,9 @@ class CustomBottomSheet {
                         SliverPersistentHeader(
                             pinned: true,
                             delegate: ListHeader(
-                          title: title,
-                          onActionTap: () => Navigator.pop(context),
-                        )),
+                              title: title,
+                              onActionTap: () => Navigator.pop(context),
+                            )),
                         SliverList.list(children: [
                           ...content,
                         ])
@@ -104,8 +106,7 @@ class ListHeader extends SliverPersistentHeaderDelegate {
           ),
           Text(
             title,
-            style: Styles
-                .title, // Hier wird die title-Methode aus der Styles-Klasse verwendet
+            style: Styles.title,
           ),
         ],
       ),
@@ -114,8 +115,6 @@ class ListHeader extends SliverPersistentHeaderDelegate {
 
   @override
   double get maxExtent => _maxExtent;
-
-
 
   @override
   double get minExtent => kToolbarHeight;

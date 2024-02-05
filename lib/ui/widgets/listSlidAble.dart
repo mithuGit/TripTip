@@ -1,3 +1,5 @@
+// ignore_for_file: file_names
+
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 
@@ -9,7 +11,11 @@ class ListSlidAble extends StatelessWidget {
   final void Function(BuildContext)? onEdit;
   final void Function(BuildContext)? onDelete;
   const ListSlidAble(
-      {super.key, required this.child, this.onEdit, this.onDelete, this.margin});
+      {super.key,
+      required this.child,
+      this.onEdit,
+      this.onDelete,
+      this.margin});
   @override
   Widget build(BuildContext context) {
     return Container(

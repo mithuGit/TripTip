@@ -1,5 +1,11 @@
+// ignore_for_file: file_names
+
 import 'package:flutter/material.dart';
 import 'package:internet_praktikum/ui/styles/Styles.dart';
+/*
+  This class is used to center a text in a container
+  It is used to display the text in the center of the screen
+*/
 
 class CenterText extends StatelessWidget {
   final String text;
@@ -8,7 +14,8 @@ class CenterText extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Container(
-        padding: const EdgeInsets.only(left: 20, right: 20, top: 12, bottom: 12),
+        padding:
+            const EdgeInsets.only(left: 20, right: 20, top: 12, bottom: 12),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(34.5),
           color: const Color.fromARGB(255, 43, 43, 43).withOpacity(0.90),

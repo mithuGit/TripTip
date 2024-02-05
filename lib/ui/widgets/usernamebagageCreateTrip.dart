@@ -1,3 +1,5 @@
+// ignore_for_file: file_names
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -9,7 +11,7 @@ class User {
   User(this.prename, this.lastname, this.profileImage);
 
   @override
-  operator == (Object other) {
+  operator ==(Object other) {
     if (identical(this, other)) return true;
 
     return other is User &&
@@ -17,9 +19,12 @@ class User {
         other.lastname == lastname &&
         other.profileImage == profileImage;
   }
+
   @override
-  int get hashCode => prename.hashCode ^ lastname.hashCode ^ profileImage.hashCode;
+  int get hashCode =>
+      prename.hashCode ^ lastname.hashCode ^ profileImage.hashCode;
 }
+
 // This class is used to display the username and profile picture in the create trip page
 // And on other pages where the user is displayed
 class UsernameBagageCreateTrip extends StatefulWidget {
@@ -77,7 +82,7 @@ class _UsernameBagageCreateTripState extends State<UsernameBagageCreateTrip> {
                   const AssetImage('assets/Personavatar.png'));
               if (snapshot.hasData) {
                 if (snapshot.data != null) {
-                  if(user != snapshot.data) {
+                  if (user != snapshot.data) {
                     user = snapshot.data!;
                   }
                 }
