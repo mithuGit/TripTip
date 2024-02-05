@@ -60,6 +60,13 @@ class _CreateWidgetFromMapToDashboardState
             ),
             ElevatedButton(
               onPressed: () async {
+                if (DateTime.now().isAfter((await DateService.getStartEndDate(
+                        await DashBoardData.getCurrentTrip()))
+                    .endDate)) {
+                  ErrorSnackbar.showErrorSnackbar(
+                      context, "The trip has already ended");
+                  return;
+                }
                 await showCupertinoModalPopup<void>(
                   context: context,
                   builder: (BuildContext context) => FutureBuilder<Container>(
