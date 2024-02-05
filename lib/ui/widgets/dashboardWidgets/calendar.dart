@@ -151,18 +151,21 @@ class _CalendarState extends State<Calendar> {
 
   void _goToLatestDate() async {
     setState(() {
-      if (selectedDate!.isBefore(startDate!)) {
+      if (selectedDate!.isAfter(startDate!) &&
+          DateTime.now().isBefore(startDate!)) {
         selectedDate = startDate!;
         firstDate = startDate!.add(const Duration(days: 1));
         lastDate = startDate!.subtract(const Duration(days: 1));
-      }
-      if (DateTime.now().isAfter(startDate!) &&
+      } else if (selectedDate!.isBefore(startDate!)) {
+        selectedDate = startDate!;
+        firstDate = startDate!.add(const Duration(days: 1));
+        lastDate = startDate!.subtract(const Duration(days: 1));
+      } else if (DateTime.now().isAfter(startDate!) &&
           DateTime.now().isBefore(endDate!)) {
         selectedDate = DateTime.now();
         firstDate = DateTime.now().add(const Duration(days: 1));
         lastDate = DateTime.now().subtract(const Duration(days: 1));
-      }
-      if (DateTime.now().isAfter(endDate!)) {
+      } else if (DateTime.now().isAfter(endDate!)) {
         selectedDate = endDate!;
         firstDate = endDate!.add(const Duration(days: 1));
         lastDate = endDate!.subtract(const Duration(days: 1));
