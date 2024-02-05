@@ -10,7 +10,6 @@ import 'package:internet_praktikum/ui/widgets/paymentsWidgets/slidablebutton.dar
 // It is expandable and can be expanded by clicking on it
 
 class OpenRefundsPerUser extends StatefulWidget {
-  final ValueChanged<QueryDocumentSnapshot>? onRefundPressed;
   final double sum;
   final EdgeInsetsGeometry? margin;
   final DocumentSnapshot currentUser;
@@ -24,7 +23,6 @@ class OpenRefundsPerUser extends StatefulWidget {
     required this.openRefunds,
     required this.me,
     required this.trip,
-    required this.onRefundPressed,
     this.margin,
   }) : super(key: key);
 
@@ -72,16 +70,16 @@ class _OpenRefundsPerUserState extends State<OpenRefundsPerUser> {
         border: Border.all(color: const Color(0xE51E1E1E)),
         borderRadius: BorderRadius.circular(34.5),
       ),
-      child: ClipRect(
-        child: Wrap(
-          children: [
-            GestureDetector(
-              onTap: () {
-                setState(() {
-                  isExpanded = !isExpanded;
-                });
-              },
-              child: Padding(
+      child: GestureDetector(
+        onTap: () {
+          setState(() {
+            isExpanded = !isExpanded;
+          });
+        },
+        child: ClipRect(
+          child: Wrap(
+            children: [
+              Padding(
                 padding: const EdgeInsets.only(
                   top: 7.0,
                   left: 10,
@@ -93,8 +91,8 @@ class _OpenRefundsPerUserState extends State<OpenRefundsPerUser> {
                   children: [
                     CircleAvatar(
                       radius: 25,
-                      backgroundImage: (widget.currentUser.data()!
-                                  as Map<String, dynamic>)["profilePicture"] !=
+                      backgroundImage: (widget.currentUser.data()! as Map<
+                                  String, dynamic>)["profilePicture"] !=
                               null
                           ? NetworkImage((widget.currentUser.data()!
                               as Map<String, dynamic>)["profilePicture"])
@@ -128,23 +126,17 @@ class _OpenRefundsPerUserState extends State<OpenRefundsPerUser> {
                   ],
                 ),
               ),
-            ),
-            if (isExpanded) ...[
-              Padding(
-                padding: const EdgeInsets.only(
-                  top: 10,
-                  left: 10,
-                  right: 25,
-                ),
-                child: Column(
-                  children: [
-                    for (int i = 0; i < widget.openRefunds.length; i++)
-                      GestureDetector(
-                        onTap: () {
-                          widget.onRefundPressed!(widget.openRefunds[i]
-                              ["request"] as QueryDocumentSnapshot);
-                        },
-                        child: Padding(
+              if (isExpanded) ...[
+                Padding(
+                  padding: const EdgeInsets.only(
+                    top: 10,
+                    left: 10,
+                    right: 25,
+                  ),
+                  child: Column(
+                    children: [
+                      for (int i = 0; i < widget.openRefunds.length; i++)
+                        Padding(
                           padding: const EdgeInsets.only(bottom: 5, top: 5),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -171,26 +163,26 @@ class _OpenRefundsPerUserState extends State<OpenRefundsPerUser> {
                             ],
                           ),
                         ),
-                      ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
+              ],
+              if (isExpanded) ...[
+                Padding(
+                  padding: const EdgeInsets.only(
+                      top: 20, left: 10, right: 10, bottom: 7),
+                  child: SlideButton(
+                    onSubmit: () => PaymentsHandeler.payOpenRefundsPerUser(
+                            widget.currentUser.reference, widget.trip)
+                        .onError((error, stackTrace) =>
+                            ErrorSnackbar.showErrorSnackbar(
+                                context, error.toString())),
+                    buttonText: 'Slide to Pay',
+                  ),
+                ),
+              ]
             ],
-            if (isExpanded) ...[
-              Padding(
-                padding: const EdgeInsets.only(
-                    top: 20, left: 10, right: 10, bottom: 7),
-                child: SlideButton(
-                  onSubmit: () => PaymentsHandeler.payOpenRefundsPerUser(
-                          widget.currentUser.reference, widget.trip)
-                      .onError((error, stackTrace) =>
-                          ErrorSnackbar.showErrorSnackbar(
-                              context, error.toString())),
-                  buttonText: 'Slide to Pay',
-                ),
-              ),
-            ]
-          ],
+          ),
         ),
       ),
     );
