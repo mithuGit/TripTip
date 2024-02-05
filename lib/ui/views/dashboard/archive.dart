@@ -7,6 +7,8 @@ import 'package:internet_praktikum/core/services/dashboardData.dart';
 import 'package:internet_praktikum/ui/styles/Styles.dart';
 import 'package:internet_praktikum/ui/widgets/dashboardWidgets/mainDasboardinitializer.dart';
 import 'package:intl/intl.dart';
+import 'package:internet_praktikum/core/services/JobworkerService.dart';
+import 'package:path/path.dart';
 
 // this is the archive page where the user can see all the deleted widgets and can restore them
 class Archive extends StatefulWidget {
@@ -55,14 +57,24 @@ class _Archive extends State<Archive> {
     return archiveList;
   }
 
+  ///returns node into active widgets list and updates its workers if necessary, 
+  ///arch is list of nodes in archive, doc is day name, k is key of widget
   Future returnNode(Map arch, String doc, String k) async {
-    currentTrip.doc(doc).set({
+    await currentTrip.doc(doc).set({
       "active": {k: arch[k]},
     }, SetOptions(merge: true));
+    if(arch[k]["workers"] != null){
+      await currentTrip.doc(doc).get().then((element) {
+      JobworkerService.reactivateAllWorkers((element["active"][k]["workers"] as List)
+          .map((e) => e as DocumentReference)
+          .toList());
+    });
+    }
     arch.remove(k);
     currentTrip.doc(doc).update({"archive": arch});
   }
 
+  ///returns the listthat is shown with widgets seperated by days
   List<Widget> getDayWidgets(List data) {
     List<Widget> returnList = [];
 
