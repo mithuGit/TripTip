@@ -163,7 +163,7 @@ class _CreateTicketsWidgetState extends State<CreateTicketsWidget> {
               ModalButton(
                   onTap: selectedFile,
                   icon: Icons.picture_as_pdf,
-                  text: "Upload a PDF"),
+                  text: "Upload a PDF/Image"),
             ],
           ),
         ] else
