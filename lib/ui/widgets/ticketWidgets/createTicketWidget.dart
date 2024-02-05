@@ -234,9 +234,9 @@ class _CreateTicketsWidgetState extends State<CreateTicketsWidget> {
             textStyle: Styles.buttonFontStyleModal,
             onTap: () {
               uploadFile().onError((error, stackTrace) => {
-                    print(error.toString()),
-                    print(stackTrace.toString()),
-                    print("error"),
+                    debugPrint(error.toString()),
+                    debugPrint(stackTrace.toString()),
+                    debugPrint("error"),
                     ErrorSnackbar.showErrorSnackbar(context, error.toString())
                   });
             },

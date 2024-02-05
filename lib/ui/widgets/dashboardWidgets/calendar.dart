@@ -443,7 +443,7 @@ class _CalendarState extends State<Calendar> {
             child: SizedBox(
               height: size.height * 0.25,
               child: CupertinoDatePicker(
-                initialDateTime: selectedDate!,
+                initialDateTime: lastDate!.isBefore(selectedDate!) ? startDate! : selectedDate!,
                 minimumDate: startDate!,
                 maximumDate: endDate!,
                 mode: CupertinoDatePickerMode.date,

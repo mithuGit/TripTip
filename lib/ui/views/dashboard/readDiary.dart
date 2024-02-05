@@ -126,6 +126,7 @@ class ReadDiaryState extends State<ReadDiary> {
     );
   }
 }
+// is used to show when the Diaray has been modified the last time
 String calculateDiaryTime(DateTime lastEdit) {
   final DateTime now = DateTime.now();
   final int differenceInDays = now.difference(lastEdit).inDays;
