@@ -1,3 +1,5 @@
+// ignore_for_file: file_names
+
 import 'package:flutter/material.dart';
 import 'package:internet_praktikum/ui/styles/Styles.dart';
 import 'package:internet_praktikum/ui/widgets/dashboardWidgets/usernameBagageDashboardWidget.dart';
@@ -9,6 +11,7 @@ class SimpleNoteWidget extends StatefulWidget {
   @override
   SimpleNoteWidgetState createState() => SimpleNoteWidgetState();
 }
+
 // This class is the widget for the simple note
 // not much to say here
 class SimpleNoteWidgetState extends State<SimpleNoteWidget> {

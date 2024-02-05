@@ -1,3 +1,4 @@
+// ignore_for_file: file_names
 
 import 'package:flutter/material.dart';
 
@@ -7,7 +8,7 @@ class VotingWidgetItem extends StatefulWidget {
   final int index;
   final Map<String, dynamic>? userdata;
   final ValueChanged<bool> onTap;
-  
+
   const VotingWidgetItem(
       {super.key,
       required this.data,
@@ -27,14 +28,14 @@ class _VotingWidgetItemState extends State<VotingWidgetItem> {
     // we first have to check if the user has already voted for this option
     Map<String, dynamic> voteelement = widget.data["options"][widget.index];
     if (voteelement["voters"] != null) {
-      if (voteelement["voters"].contains(widget.userdata!["uid"])) { 
+      if (voteelement["voters"].contains(widget.userdata!["uid"])) {
         setState(() {
           isClicked = true;
         });
       }
     }
   }
-  
+
   int getNumberOfVoters() {
     Map<String, dynamic> voteelement = widget.data["options"][widget.index];
     if (voteelement["voters"] != null) {

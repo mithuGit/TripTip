@@ -47,7 +47,7 @@ class _SurveyWidgetState extends State<SurveyWidget> {
         if (widgetdata["options"][i]["voters"] != null) {
           if (widgetdata["options"][i]["voters"]
               .contains(widget.userdata!["uid"])) {
-                // and delete him from the list
+            // and delete him from the list
             widgetdata["options"][i]["voters"].remove(widget.userdata!["uid"]);
           }
         }

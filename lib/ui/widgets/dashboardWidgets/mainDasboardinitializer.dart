@@ -78,7 +78,7 @@ class _MainDasboardinitializerState extends State<MainDasboardinitializer> {
                     return SurveyWidget(
                         data: widget.data,
                         userdata: widget.userdata,
-                        isEditable : widget.isEditable,
+                        isEditable: widget.isEditable,
                         day: widget.day);
                   } else if (widget.data["type"] == "diary") {
                     return DiaryWidget(data: widget.data, day: widget.day);

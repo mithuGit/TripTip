@@ -1,7 +1,7 @@
-// ignore: file_names
+// ignore_for_file: file_names
+
 import 'package:flutter/material.dart';
 import 'package:internet_praktikum/ui/styles/Styles.dart';
-
 
 //Dropdown menu to select a deadline on the addSurveyWidgetToDashboard
 
@@ -34,10 +34,8 @@ class _DropdownMenuExampleState extends State<SelectDeadlineButton> {
       dropdownColor: Colors.white,
       elevation: 16,
       borderRadius: BorderRadius.circular(11),
-
       items: list.map((String value) {
         return DropdownMenuItem<String>(
-
           value: value,
           child: Text(
             value,

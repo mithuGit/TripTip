@@ -7,6 +7,11 @@ import 'package:internet_praktikum/core/services/date_service.dart';
 import 'package:internet_praktikum/ui/widgets/errorSnackbar.dart';
 import 'package:intl/intl.dart';
 
+/*
+  This class is used to display the calendar on the dashboard
+  The user can select a date and the appointments for that date will be displayed
+*/
+
 class Calendar extends StatefulWidget {
   final Function(DateTime) onDateSelected;
   final DateTime? initSelectedDate;
@@ -23,12 +28,12 @@ class Calendar extends StatefulWidget {
 }
 
 class _CalendarState extends State<Calendar> {
-  DateTime? selectedDate; // Ausgewähltes Datum
+  DateTime? selectedDate;
   DateTime? firstDate;
   DateTime? lastDate;
 
-  DateTime? newStart; // Neues Startdatum
-  DateTime? newEnd; // Neues Enddatum
+  DateTime? newStart;
+  DateTime? newEnd;
 
   bool? isToday = false;
   bool? isTomorrow = false;
@@ -40,7 +45,7 @@ class _CalendarState extends State<Calendar> {
   @override
   void initState() {
     super.initState();
-    // Hole Startdatum aus Firebase und initialisiere selectedDate, firstDate und lastDate
+    // Fetch start date from Firebase and initialize selectedDate, firstDate, and lastDate
     fetchDate();
   }
 
@@ -64,14 +69,13 @@ class _CalendarState extends State<Calendar> {
     }
 
     if (DateTime.now().isBefore(startDate!)) {
-      // Hole Startdatum aus Firebase und initialisiere selectedDate, firstDate und lastDate
       setState(() {
         selectedDate = startDate;
         firstDate = startDate!.add(const Duration(days: 1));
         lastDate = startDate!.subtract(const Duration(days: 1));
       });
     } else {
-      // Hole aktuelles Datum und initialisiere selectedDate, firstDate und lastDate
+      // Fetch current date and initialize selectedDate, firstDate, and lastDate
       setState(() {
         selectedDate = DateTime.now();
         firstDate = DateTime.now().add(const Duration(days: 1));
@@ -93,8 +97,7 @@ class _CalendarState extends State<Calendar> {
         //Currently DarkMode Calendar
         builder: (BuildContext context, Widget? child) {
           return Theme(
-            data: ThemeData
-                .dark(), // Hier DarkMode aktivieren Dark und Light Mode noch vlt einbauen
+            data: ThemeData.dark(),
             child: child!,
           );
         },
@@ -130,7 +133,6 @@ class _CalendarState extends State<Calendar> {
           endDate = newEnd;
         });
       } catch (e) {
-        //print(e);
         // ignore: use_build_context_synchronously
         ErrorSnackbar.showErrorSnackbar(context, 'Could not update date range');
         throw Exception('Could not update date range');
@@ -310,6 +312,7 @@ class _CalendarState extends State<Calendar> {
     );
   }
 
+  // builds the date text and the circle
   Widget _buildDateText(DateTime date,
       {double size = 12, bool selected = false}) {
     DateTime today = DateTime.now();
@@ -365,6 +368,7 @@ class _CalendarState extends State<Calendar> {
     );
   }
 
+  // builds the loading container
   Widget _loadingContainer({double size = 12, bool selected = false}) {
     return Container(
       width: selected ? 101 : 92.8,
@@ -377,13 +381,12 @@ class _CalendarState extends State<Calendar> {
             style: TextStyle(
                 fontSize: size,
                 fontWeight: selected ? FontWeight.bold : FontWeight.normal),
-          ), // Spacer zwischen Text und Kreis
+          ), // Spacer between Text and circle
           Container(
-            width: selected ? 35 : 22 + size, // Durchmesser des Kreises
+            width: selected ? 35 : 22 + size, // radius of the circle
             height: selected ? 35 : 28,
             decoration: const BoxDecoration(
-              shape:
-                  BoxShape.circle, // Farbe des Kreises ändern, falls gewünscht
+              shape: BoxShape.circle,
               border: Border.fromBorderSide(
                   BorderSide(color: Colors.black, width: 2)),
             ),
@@ -393,13 +396,14 @@ class _CalendarState extends State<Calendar> {
     );
   }
 
+  // checks if two dates are the same
   bool isSameDay(DateTime date1, DateTime date2) {
     return date1.year == date2.year &&
         date1.month == date2.month &&
         date1.day == date2.day;
   }
 
-  // Die Funktion, die den Container asynchron erstellt
+  // the CupertinoDatePicker is used to select a date
   Future<Container> getDateRangeCupertino(Size size) async {
     DateTime? tmpDate;
     return Container(
