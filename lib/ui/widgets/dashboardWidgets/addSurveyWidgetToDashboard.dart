@@ -84,6 +84,8 @@ class AddSurveyWidgetToDashboardState
   DateTime? dateofDay;
   DateTime? deadline;
 
+  bool loading = false;
+
   bool allowmultipleAnswers = true;
   final List<SelectedOption> _optionList = List.empty(growable: true);
   final List<bool> linkwith = [false, false, false];
@@ -136,6 +138,9 @@ class AddSurveyWidgetToDashboardState
   }
 
   Future<void> createorUpdateSurvey() async {
+    setState(() {
+      loading = true;
+    });
     if (nameofSurvey.text.isEmpty) {
       throw Exception("Please enter a title for this survey");
     }
@@ -191,6 +196,9 @@ class AddSurveyWidgetToDashboardState
       await ManageDashboardWidged()
           .updateWidget(widget.day, by, data, widget.data!["key"]);
     }
+    setState(() {
+      loading = false;
+    });
     if (context.mounted) Navigator.pop(context);
   }
 
@@ -390,6 +398,9 @@ class AddSurveyWidgetToDashboardState
         ),
         const SizedBox(height: 10),
         if (_optionList.length >= 2)
+          loading
+              ? const CircularProgressIndicator(color: Colors.black,)
+              :
           MyButton(
               borderColor: Colors.black,
               textStyle: Styles.buttonFontStyleModal,
