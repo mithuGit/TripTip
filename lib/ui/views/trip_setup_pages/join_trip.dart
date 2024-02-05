@@ -9,6 +9,10 @@ import 'package:internet_praktikum/ui/widgets/inputfield.dart';
 import 'package:internet_praktikum/ui/widgets/my_button.dart';
 
 // ignore: must_be_immutable
+/*
+  This class is the widget for the join trip page
+  The user can join a trip by entering the trip id
+*/
 class JoinTrip extends StatefulWidget {
   const JoinTrip({super.key});
 

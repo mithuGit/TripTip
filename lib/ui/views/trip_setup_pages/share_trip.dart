@@ -1,3 +1,5 @@
+// ignore_for_file: must_be_immutable, use_build_context_synchronously,
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -87,17 +89,17 @@ class _ShareTrip extends State<ShareTrip> {
                                         )))
                               ]),
                           InputField(
-                              margin: EdgeInsets.only(bottom: 10, top: 10),
+                              margin:
+                                  const EdgeInsets.only(bottom: 10, top: 10),
                               controller: widget.groupController,
                               hintText: "FriendId",
                               obscureText: false,
                               multiline: false),
                           MyButton(
                               text: "Add Friend",
-                              margin: EdgeInsets.only(bottom: 10),
+                              margin: const EdgeInsets.only(bottom: 10),
                               onTap: () async {
                                 await userExists(widget.groupController.text);
-                                print(widget.userReal);
 
                                 if (widget.groupController.text == "") {
                                   ErrorSnackbar.showErrorSnackbar(
@@ -110,22 +112,25 @@ class _ShareTrip extends State<ShareTrip> {
                                       .collection("trips")
                                       .doc(widget.tripId)
                                       .update({
-                                    "members": FieldValue.arrayUnion(
-                                        [FirebaseFirestore.instance.doc("/users/" + widget.groupController.text)])
+                                    "members": FieldValue.arrayUnion([
+                                      // ignore: prefer_interpolation_to_compose_strings
+                                      FirebaseFirestore.instance.doc("/users/" +
+                                          widget.groupController.text)
+                                    ])
                                   });
                                   widget.groupController.clear();
                                 }
                               }),
                           if (widget.afterCreate == "true") ...[
                             MyButton(
-                                margin: EdgeInsets.only(bottom: 10),
+                                margin: const EdgeInsets.only(bottom: 10),
                                 onTap: () {
                                   context.go('/');
                                 },
                                 text: "Finish")
                           ] else ...[
                             MyButton(
-                                margin: EdgeInsets.only(bottom: 10),
+                                margin: const EdgeInsets.only(bottom: 10),
                                 onTap: () {
                                   context.pop();
                                 },

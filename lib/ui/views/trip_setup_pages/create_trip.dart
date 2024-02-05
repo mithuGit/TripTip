@@ -11,7 +11,7 @@ import 'package:intl/intl.dart';
 import '../../widgets/container.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-///Create trips page, used in first account creation, when user has no trips and via edit trips site
+// Create trips page, used in first account creation, when user has no trips and via edit trips site
 
 class CreateTrip extends StatefulWidget {
   // beacuse of Testing we need to pass the firestore and auth object
@@ -82,7 +82,7 @@ class _TripCreateState extends State<CreateTrip> {
       }
     }
   }
-  
+
   ///Widget builder for the text fields and buttons
   @override
   Widget build(BuildContext context) {
@@ -163,7 +163,7 @@ class _TripCreateState extends State<CreateTrip> {
                         CupertinoDatePickerButton(
                           margin: const EdgeInsets.only(bottom: 25),
                           showFuture: true,
-                           boundingDate: DateTime.now(),
+                          boundingDate: DateTime.now(),
                           presetDate: selectedEndDate != null
                               ? DateFormat('dd/MM/yyyy')
                                   .format(selectedEndDate ?? DateTime.now())

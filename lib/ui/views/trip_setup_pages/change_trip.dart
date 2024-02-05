@@ -11,6 +11,11 @@ import 'package:internet_praktikum/ui/widgets/centerText.dart';
 import 'package:internet_praktikum/ui/widgets/errorSnackbar.dart';
 import 'package:internet_praktikum/ui/widgets/modalButton.dart';
 
+/*
+  This is the ChangeTrip class where the user can change the trip
+  The user can also delete the trip
+*/
+
 ///Widget for the Edit trips page
 class ChangeTrip extends StatefulWidget {
   const ChangeTrip({super.key});
@@ -276,7 +281,7 @@ class _ChangeTrip extends State<ChangeTrip> {
                             icon: Icons.settings,
                             label: "Settings"),
                       ]),
-                  child: Container(
+                  child: SizedBox(
                       height: 60,
                       child: Card(
                           margin: const EdgeInsets.symmetric(
@@ -333,7 +338,7 @@ class _ChangeTrip extends State<ChangeTrip> {
                 return const CenterText(text: "You are not in any trip yet");
               }
               return ListView(
-                  children: data!
+                  children: data
                       .map((con) {
                         return Slidable(
                             key: Key(con.hashCode.toString()),

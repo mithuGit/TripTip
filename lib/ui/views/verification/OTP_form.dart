@@ -10,7 +10,11 @@ import 'package:internet_praktikum/ui/widgets/container.dart';
 import 'package:internet_praktikum/ui/widgets/errorSnackbar.dart';
 import '../../widgets/my_button.dart';
 
-// Verify the email address of the user in this page
+/*
+  This class is the widget for the OTP page
+  The user can verify their email address by entering the OTP
+*/
+
 class OTPForm extends StatefulWidget {
   const OTPForm({
     Key? key,
@@ -37,7 +41,7 @@ class _OTPFormState extends State<OTPForm> {
 
 // checkEmailVerified checks if the email is verified
   Future checkEmailVerified() async {
-    await FirebaseAuth.instance.currentUser!.reload(); 
+    await FirebaseAuth.instance.currentUser!.reload();
 
     if (mounted) {
       setState(() {
@@ -103,22 +107,28 @@ class _OTPFormState extends State<OTPForm> {
                             child: Padding(
                               padding: const EdgeInsets.all(8.0),
                               child: MyButton(
-                                onTap: ()  async {  
-                                  DocumentSnapshot userDoc = await FirebaseFirestore.instance
-                                      .collection('users')
-                                      .doc(FirebaseAuth.instance.currentUser!.uid).get();
-                                      
-                                  if(userDoc.exists){
-                                  await FirebaseFirestore.instance
-                                      .collection('users')
-                                      .doc(FirebaseAuth.instance.currentUser!.uid)
-                                      .delete();
-                                      
-                                  await FirebaseAuth.instance.currentUser!.delete();}
-                                  if(context.mounted){
- context.go('/loginorregister');
+                                onTap: () async {
+                                  DocumentSnapshot userDoc =
+                                      await FirebaseFirestore
+                                          .instance
+                                          .collection('users')
+                                          .doc(FirebaseAuth
+                                              .instance.currentUser!.uid)
+                                          .get();
+
+                                  if (userDoc.exists) {
+                                    await FirebaseFirestore.instance
+                                        .collection('users')
+                                        .doc(FirebaseAuth
+                                            .instance.currentUser!.uid)
+                                        .delete();
+
+                                    await FirebaseAuth.instance.currentUser!
+                                        .delete();
                                   }
-                                 
+                                  if (context.mounted) {
+                                    context.go('/loginorregister');
+                                  }
                                 },
                                 text: 'Back',
                               ),

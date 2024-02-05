@@ -1,3 +1,5 @@
+// ignore_for_file: must_be_immutable
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:internet_praktikum/ui/widgets/container.dart';
@@ -32,7 +34,8 @@ class SelectTrip extends StatelessWidget {
                         title: "Start your next Adventure",
                         children: [
                           MyButton(
-                              margin: const EdgeInsets.only(top: 15, bottom: 10),
+                              margin:
+                                  const EdgeInsets.only(top: 15, bottom: 10),
                               onTap: () {
                                 context.push('/createtrip');
                               },
@@ -43,13 +46,14 @@ class SelectTrip extends StatelessWidget {
                                 context.push('/jointrip');
                               },
                               text: "Join Trip"),
-                          if(!noTrip) ...[
-                          MyButton(
-                              margin: const EdgeInsets.only(bottom: 10),
-                              onTap: () {
-                                context.pop();
-                              },
-                              text: "Cancel")],
+                          if (!noTrip) ...[
+                            MyButton(
+                                margin: const EdgeInsets.only(bottom: 10),
+                                onTap: () {
+                                  context.pop();
+                                },
+                                text: "Cancel")
+                          ],
                         ])),
               )),
         ])));

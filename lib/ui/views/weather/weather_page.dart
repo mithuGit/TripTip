@@ -4,8 +4,12 @@ import 'package:internet_praktikum/core/services/weather_service.dart';
 import 'package:internet_praktikum/ui/views/weather/weather.dart';
 import 'package:internet_praktikum/ui/widgets/errorSnackbar.dart';
 import 'package:internet_praktikum/ui/widgets/my_button.dart';
-
 import 'package:lottie/lottie.dart';
+/*
+  This class is the widget for the weather page
+  The user can see the weather for their trip location
+  The user can see the weather for their actual location
+*/
 
 // ignore: must_be_immutable
 class WeatherPage extends StatefulWidget {
