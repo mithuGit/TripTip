@@ -433,7 +433,7 @@ class _MapPageState extends State<MapPage> {
                           markerId: const MarkerId("currentLocation"),
                           position: LatLng(currentLocationData!.latitude!,
                               currentLocationData!.longitude!),
-                          icon: BitmapDescriptor.fromBytes(currentIcon!),
+                          icon: BitmapDescriptor.bytes(currentIcon!),
                         ),
                       },
                       ...markers,
@@ -1065,7 +1065,7 @@ class _MapPageState extends State<MapPage> {
         infoWindow: InfoWindow(title: name),
         position: point,
         onTap: () {},
-        icon: BitmapDescriptor.fromBytes(markerIcon));
+        icon: BitmapDescriptor.bytes(markerIcon));
 
     setState(() {
       markers.add(marker);
@@ -1108,7 +1108,7 @@ class _MapPageState extends State<MapPage> {
 
       // Get directions
       final directions = await DirectionsRepository()
-          .getDirection(origin: origin!.position, destination: pos);
+          .getDirections(origin: origin!.position, destination: pos);
       setState(() => infoDistanceAndDuration = directions);
     }
   }

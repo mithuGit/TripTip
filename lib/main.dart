@@ -5,17 +5,26 @@ import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:internet_praktikum/core/services/init_pushnotifications.dart';
 import 'package:internet_praktikum/ui/router.dart';
 import 'firebase_options.dart';
-import '.env';
+
+// IMPORTANT: Enter your real Stripe Publishable Key here
+const String stripePublishableKey = 'YOUR_STRIPE_PUBLISHABLE_KEY_HERE';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  //Stripe pub-key
-  Stripe.publishableKey = stripePublishableKey;
-  await Stripe.instance.applySettings();
+
+  // Check if Stripe key is configured
+  if (stripePublishableKey == 'YOUR_STRIPE_PUBLISHABLE_KEY_HERE') {
+    print('⚠️  WARNING: Stripe Publishable Key not configured!');
+  } else {
+    //Stripe pub-key
+    Stripe.publishableKey = stripePublishableKey;
+    await Stripe.instance.applySettings();
+  }
+
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  // when ever the app is started, the user is reloaded
+  // whenever the app is started, the user is reloaded
   // if the user is not logged in, the user is null
   if (FirebaseAuth.instance.currentUser != null) {
     try {

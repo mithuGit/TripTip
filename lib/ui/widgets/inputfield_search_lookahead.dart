@@ -111,7 +111,11 @@ class _AsyncAutocompleteState extends State<AsyncAutocomplete> {
             Map details = await placeApiProvider
                 .fetchPlaceDetails(selectedSuggestion.placeId);
             widget.onDestinationPick?.call(PlaceDetails(
-                details['id'], details['displayName']['text'], details));
+                details['id'],
+                details['displayName']?['text'] ??
+                    details['name'] ??
+                    'Unknown Place',
+                Map<String, dynamic>.from(details)));
           } catch (e) {
             if (context.mounted) {
               ErrorSnackbar.showErrorSnackbar(context, e.toString());
