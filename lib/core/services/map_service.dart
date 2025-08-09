@@ -25,7 +25,7 @@ class PlacePhotoNetwork extends PlacePhoto {
   final String name;
   int widthPx;
   int heightPx;
-  static const _key = "AIzaSyBUh4YsufaUkM8XQqdO8TSXKpBf_3dJOmA";
+  static const _key = "YOUR_NEW_GOOGLE_MAPS_API_KEY_HERE";
 
   ImageProvider get imageProvider => NetworkImage(
         "https://places.googleapis.com/v1/$name/media?maxHeightPx=$heightPx&maxWidthPx=$widthPx&key=$_key",
@@ -129,7 +129,7 @@ class Place {
 }
 
 class GoogleMapService {
-  static const key = "AIzaSyBUh4YsufaUkM8XQqdO8TSXKpBf_3dJOmA";
+  static const key = "YOUR_NEW_GOOGLE_MAPS_API_KEY_HERE";
 
   Future<dynamic> getPlacesNew(
       LatLng coords, int radius, List<String> interests) async {

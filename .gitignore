@@ -43,3 +43,7 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 *.apk
+# Ensure .env is ignored
+.env
+.env.*
+*.env

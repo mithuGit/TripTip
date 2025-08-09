@@ -133,7 +133,7 @@ class WeatherService {
 
   Future<String> getCity(double latitude, double longitude) async {
     try {
-      const apiKey = '5a9d3eda46bcddc1662d351abc13c798';
+      const apiKey = 'YOUR_NEW_WEATHER_API_KEY_HERE';
       final url =
           'http://api.openweathermap.org/geo/1.0/reverse?lat=$latitude&lon=$longitude&limit=1&appid=$apiKey';
 
