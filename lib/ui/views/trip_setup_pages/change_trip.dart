@@ -443,7 +443,7 @@ class _ChangeTrip extends State<ChangeTrip> {
                                                   fit: BoxFit.fitWidth,
                                                   image: Image.network(
                                                           // ignore: prefer_interpolation_to_compose_strings
-                                                          'https://places.googleapis.com/v1/' + con["placedetails"]["photos"][0]["name"] + "/media?maxHeightPx=500&maxWidthPx=500&key=AIzaSyBUh4YsufaUkM8XQqdO8TSXKpBf_3dJOmA")
+                                                          'https://places.googleapis.com/v1/' + con["placedetails"]["photos"][0]["name"] + "/media?maxHeightPx=500&maxWidthPx=500&key=YOUR_GOOGLE_PLACES_API_KEY_HERE")
                                                       .image)))
                                     ],
                                   ),
